@@ -123,6 +123,8 @@
         <div class="chip" data-tpl="C">Résultat de match</div>
         <div class="chip" data-tpl="D">CTA · S'abonner</div>
         <div class="chip" data-tpl="E">Player spotlight</div>
+        <div class="chip" data-tpl="F">Story · Post épinglé</div>
+        <div class="chip" data-tpl="G">Citation</div>
       </div>
     </div>
 
@@ -211,6 +213,45 @@
     </div>
     <!-- ===== fin template E ===== -->
 
+    <!-- ===== Champs Story · Post épinglé (template F) ===== -->
+    <div id="block_F" style="display:none;flex-direction:column;gap:18px">
+      <div class="field">
+        <label>Mention haut (incitation)</label>
+        <input id="f_topnote" value="TOUCHE NOTRE NOM" maxlength="26">
+      </div>
+      <div class="field">
+        <label>Sous-ligne carte profil</label>
+        <input id="f_cardsub" value="@UNE.DEUX · POST ÉPINGLÉ" maxlength="34">
+      </div>
+      <div class="field">
+        <label>Texte du bouton carte</label>
+        <input id="f_cardbtn" value="VOIR" maxlength="12">
+      </div>
+      <div class="field">
+        <label>Bandeau bas</label>
+        <input id="f_banner" value="POST COMPLET EN STORY À LA UNE" maxlength="36">
+      </div>
+    </div>
+    <!-- ===== fin template F ===== -->
+
+    <!-- ===== Champs Citation (template G) ===== -->
+    <div id="block_G" style="display:none;flex-direction:column;gap:18px">
+      <div class="field">
+        <label>Citation</label>
+        <textarea id="f_quote" rows="3">Sur le terrain, tout s'est joué en deux passes.</textarea>
+      </div>
+      <div class="field">
+        <label>Segment en ocre (copie une partie de la citation)</label>
+        <input id="f_quoteAccent" value="tout s'est joué en deux passes." maxlength="80">
+        <span class="hint">Laisse vide pour une citation entièrement crème.</span>
+      </div>
+      <div class="field">
+        <label>Légende bas</label>
+        <input id="f_caption" value="L'ANALYSE" maxlength="40">
+      </div>
+    </div>
+    <!-- ===== fin template G ===== -->
+
     <!-- ===== Champs Résultat de match (template C) ===== -->
     <div id="block_C" style="display:none;flex-direction:column;gap:18px">
       <div class="field">
@@ -285,6 +326,15 @@ Barcola 88'</textarea>
       </div>
     </div>
 
+    <div class="field" id="field_anim" style="display:none">
+      <label>Texte en sous-titres (vidéo)</label>
+      <div class="chips">
+        <div class="chip" id="anim_off">Désactivé</div>
+        <div class="chip" id="anim_on">Ligne par ligne</div>
+      </div>
+      <span class="hint">Le corps du texte se dévoile ligne par ligne pendant la vidéo. Visible à l'export vidéo.</span>
+    </div>
+
     <div class="field" id="field_media">
       <label id="medialabel_lbl">Média d'arrière-plan</label>
       <div class="media-zone" id="mediazone">
@@ -346,7 +396,7 @@ const state = {
   medialabel:'LE SUJET DU JOUR',
   cur:'01', tot:'06',
   img:null, isVideo:false, vid:null, zoom:1, posx:0.5, posy:0.5, dark:0.55,
-  ratio:'4:5', showSwipe:true,
+  ratio:'4:5', showSwipe:true, animSubs:false,
   // template C — résultat
   comp:'LIGUE 1 · J28', teamH:'PARIS', teamA:'LYON', scoreH:'3', scoreA:'1',
   status:"TERMINÉ · 90'+4",
@@ -356,7 +406,13 @@ const state = {
   btnlabel:"S'ABONNER",
   // template E — player spotlight
   meta:'MILIEU OFFENSIF · 24 ANS', first:'KADO', last:'MENDÈS', number:'10',
-  stat1v:'12', stat1l:'BUTS', stat2v:'9', stat2l:'PASSES D.', stat3v:'2.4', stat3l:'DRIBBLES'
+  stat1v:'12', stat1l:'BUTS', stat2v:'9', stat2l:'PASSES D.', stat3v:'2.4', stat3l:'DRIBBLES',
+  // template F — story post épinglé
+  topnote:'TOUCHE NOTRE NOM', cardsub:'@UNE.DEUX · POST ÉPINGLÉ', cardbtn:'VOIR',
+  banner:'POST COMPLET EN STORY À LA UNE',
+  // template G — citation
+  quote:"Sur le terrain, tout s'est joué en deux passes.",
+  quoteAccent:"tout s'est joué en deux passes.", caption:"L'ANALYSE"
 };
 
 // dimensions intrinsèques du média (image ou vidéo)
@@ -371,7 +427,23 @@ function startVideoLoop(){
 }
 function stopVideoLoop(){ if(rafId){cancelAnimationFrame(rafId);rafId=null;} }
 
+// ---- animation "sous-titres" : révèle les lignes du corps au fil de la vidéo ----
+// Renvoie le nombre de lignes à afficher selon le temps de lecture.
+function revealedLineCount(totalLines){
+  if(!state.animSubs || !state.isVideo || !state.vid) return totalLines; // tout visible sinon
+  const v=state.vid;
+  const dur=(isFinite(v.duration)&&v.duration>0)?v.duration:8;
+  // on déroule les lignes sur ~70% de la vidéo, le reste les laisse à l'écran
+  const span=dur*0.70;
+  const t=Math.min(v.currentTime, span);
+  const perLine=span/Math.max(totalLines,1);
+  return Math.min(totalLines, Math.floor(t/perLine)+1);
+}
+
 const RATIOS = {'4:5':[1080,1350], '9:16':[1080,1920], '1:1':[1080,1080]};
+// marge verticale sûre pour Instagram en 9:16 (zone UI haut/bas masquée)
+function safeTop(){ return state.ratio==='9:16' ? 150 : 0; }
+function safeBottom(){ return state.ratio==='9:16' ? 200 : 0; }
 
 let fontsReady=false;
 document.fonts.ready.then(()=>{fontsReady=true;draw();});
@@ -408,6 +480,8 @@ function draw(){
   if(state.template==='C') drawC(W,H);
   else if(state.template==='D') drawD(W,H);
   else if(state.template==='E') drawE(W,H);
+  else if(state.template==='F') drawF(W,H);
+  else if(state.template==='G') drawG(W,H);
   else if(state.template==='B') drawB(W,H);
   else drawA(W,H);
 }
@@ -444,7 +518,7 @@ function drawA(W,H){
 
   const M=62; // marge
   // 3. header : anneau + monogramme + wordmark
-  const ringD=92, ringX=M, ringY=66, ringC=ringY+ringD/2;
+  const ringD=92, ringX=M, ringY=66+safeTop(), ringC=ringY+ringD/2;
   g.strokeStyle=C.creme; g.lineWidth=4;
   g.beginPath(); g.arc(ringX+ringD/2, ringC, ringD/2-2, 0, Math.PI*2); g.stroke();
   g.fillStyle=C.creme; g.textBaseline='middle';
@@ -495,9 +569,11 @@ function drawA(W,H){
   // 5. titre 2 lignes avec mot vert
   drawTitle(g, M, titleBaseline1, titleBaseline2, tSize);
 
-  // 6. corps
+  // 6. corps (révélé progressivement si animation sous-titres active)
   g.fillStyle=C.soustitre; g.font=bodyFont+"px 'Archivo'"; g.textBaseline='alphabetic';
+  const nVisible=revealedLineCount(bodyLines.length);
   bodyLines.forEach((ln,i)=>{
+    if(i>=nVisible) return;
     g.fillText(ln, M, bodyTop+ (i+1)*bodyLineH - 12);
   });
 
@@ -580,7 +656,7 @@ function drawB(W,H){
   g.fillText(state.tag.toUpperCase(), M+22, tagY+tagH/2+1);
 
   // titre 3 lignes (dernière non vide = verte)
-  const lines=titleLines3(state.title);
+  const lines=titleLines3(state.title.toUpperCase());
   // taille adaptée à la largeur dispo
   let tSize=92;
   g.font=tSize+"px 'Anton'";
@@ -764,7 +840,7 @@ function drawD(W,H){
   g.fillStyle=C.encre; g.textBaseline='middle'; g.fillText(tagTxt,M+24,tagY+tagH/2+1);
 
   // titre 2 lignes (1re crème, 2e ocre)
-  const words=state.title.trim().split(/\s+/);
+  const words=state.title.trim().toUpperCase().split(/\s+/);
   const [l1,l2]=splitTitleTwoLines(words);
   let tSize=120;
   g.font=tSize+"px 'Anton'";
@@ -862,19 +938,22 @@ function drawE(W,H){
   nameSize=Math.max(64,Math.min(130,nameSize));
   const nlh=nameSize*0.86;
   const nameBottom=statsY-150;
+  // positions méta + tag (calculées avant pour le panneau flou)
+  const metaY=nameBottom-nlh-nameSize+6;
+  const tagH=64;
+  const tagY=metaY-36-tagH;
+
   g.font=nameSize+"px 'Anton'"; g.textBaseline='alphabetic';
   g.fillStyle=C.ocre; g.fillText(state.last.toUpperCase(), M, nameBottom);
   g.fillStyle=C.creme; g.fillText(state.first.toUpperCase(), M, nameBottom-nlh);
 
   // méta (Saira) au-dessus du nom
   g.font="36px 'Saira Condensed'"; g.fillStyle=C.creme; g.textBaseline='alphabetic';
-  const metaY=nameBottom-nlh-nameSize+6;
   g.fillText(state.meta.toUpperCase(), M, metaY);
 
   // tag ocre au-dessus de la méta
   g.font="34px 'Saira Condensed'";
-  const tagTxt=state.tag.toUpperCase(), tagW=g.measureText(tagTxt).width+48, tagH=64;
-  const tagY=metaY-36-tagH;
+  const tagTxt=state.tag.toUpperCase(), tagW=g.measureText(tagTxt).width+48;
   g.fillStyle=C.ocre; g.fillRect(M,tagY,tagW,tagH);
   g.fillStyle=C.encre; g.textBaseline='middle'; g.fillText(tagTxt,M+24,tagY+tagH/2+1);
 
@@ -891,6 +970,212 @@ function drawE(W,H){
   });
 }
 function tHeights(){ return 0; }
+
+// ---------- TEMPLATE F : story · post épinglé (9:16) ----------
+function drawF(W,H){
+  const g=ctx; const M=62;
+  // 1. média de fond ou dégradé
+  if(state.img){
+    const ir=mediaW(state.img)/mediaH(state.img), cr=W/H; let dw,dh;
+    if(ir>cr){ dh=H*state.zoom; dw=dh*ir; } else { dw=W*state.zoom; dh=dw/ir; }
+    g.drawImage(state.img,(W-dw)*state.posx,(H-dh)*state.posy,dw,dh);
+  } else {
+    const lg=g.createLinearGradient(0,0,0,H);
+    lg.addColorStop(0,'#9a968c'); lg.addColorStop(1,'#4f4c44');
+    g.fillStyle=lg; g.fillRect(0,0,W,H);
+  }
+  // 2. léger dégradé encre haut + bas pour lisibilité
+  let gg=g.createLinearGradient(0,0,0,H*0.30);
+  gg.addColorStop(0,'rgba(44,40,35,0.45)'); gg.addColorStop(1,'rgba(44,40,35,0)');
+  g.fillStyle=gg; g.fillRect(0,0,W,H*0.30);
+  gg=g.createLinearGradient(0,H*0.55,0,H);
+  gg.addColorStop(0,'rgba(44,40,35,0)'); gg.addColorStop(1,'rgba(44,40,35,'+state.dark+')');
+  g.fillStyle=gg; g.fillRect(0,H*0.55,W,H*0.45);
+
+  // 3. header crème
+  const ringD=92, ringC=66+ringD/2;
+  g.strokeStyle=C.creme; g.lineWidth=4;
+  g.beginPath(); g.arc(M+ringD/2,ringC,ringD/2-2,0,Math.PI*2); g.stroke();
+  g.fillStyle=C.creme; g.textBaseline='middle'; g.textAlign='center'; g.font="38px 'Saira Condensed'";
+  g.fillText('1·2',M+ringD/2,ringC+1);
+  g.textAlign='left'; g.font="58px 'Anton'"; g.fillText('une·deux',M+ringD+26,ringC+2);
+  g.textAlign='right'; g.font="32px 'Saira Condensed'"; g.fillStyle=C.creme;
+  g.fillText('@UNE.DEUX',W-M,ringC); g.textAlign='left';
+  g.fillStyle=C.creme; g.fillRect(M,168,W-2*M,4);
+
+  // 4. mention ocre (incitation) sous le header, à droite
+  if(state.topnote.trim()){
+    g.font="34px 'Saira Condensed'"; g.fillStyle=C.ocre; g.textAlign='right'; g.textBaseline='middle';
+    g.fillText('↑ '+state.topnote.toUpperCase(), W-M, 230);
+    g.textAlign='left';
+  }
+
+  // 5. bloc éditorial (tag + titre + sous-titre), ancré au tiers haut/milieu
+  const blockTop=H*0.42;
+  // pré-calcul des lignes du titre + sous-titre pour dimensionner le flou
+  const words=state.title.trim().toUpperCase().split(/\s+/);
+  const [l1,l2]=splitTitleTwoLines(words);
+  let tSize=120; g.font=tSize+"px 'Anton'";
+  const longest=Math.max(g.measureText(l1.join(' ')).width,g.measureText(l2.join(' ')).width,1);
+  if(longest>W-2*M) tSize=Math.floor(120*(W-2*M)/longest);
+  tSize=Math.max(64,Math.min(130,tSize));
+  const lh=tSize*0.82;
+  const tagH=64;
+  const yTagTop=blockTop;
+  const yAfterTag=blockTop+tagH+26;
+  const ty1=yAfterTag+tSize, ty2=ty1+lh;
+  g.font="40px 'Archivo'";
+  const subLines=wrapBody(g, state.body, W-2*M-120, 4);
+  const subBottom=ty2+58+(subLines.length-1)*48+10;
+
+  // tag ocre
+  g.font="34px 'Saira Condensed'";
+  const tagTxt=state.tag.toUpperCase(), tagW=g.measureText(tagTxt).width+48;
+  g.fillStyle=C.ocre; g.fillRect(M,yTagTop,tagW,tagH);
+  g.fillStyle=C.encre; g.textBaseline='middle'; g.fillText(tagTxt,M+24,yTagTop+tagH/2+1);
+
+  // titre 2 lignes (mot accentué -> ocre)
+  g.font=tSize+"px 'Anton'"; g.textBaseline='alphabetic';
+  // ligne 1 entièrement crème
+  g.fillStyle=C.creme; g.fillText(l1.join(' '),M,ty1);
+  // ligne 2 : mots = ocre si == greenWord, sinon crème
+  let cx=M; const space=g.measureText(' ').width;
+  l2.forEach(w=>{
+    const isAccent = state.greenWord!=='__none__' && w.toUpperCase()===state.greenWord.toUpperCase();
+    g.fillStyle = isAccent ? C.ocre : C.creme;
+    g.fillText(w,cx,ty2); cx+=g.measureText(w).width+space;
+  });
+
+  // sous-titre crème (respecte retours ligne)
+  g.fillStyle=C.creme; g.font="40px 'Archivo'";
+  subLines.forEach((ln,i)=>g.fillText(ln,M,ty2+58+i*48));
+
+  // 6. carte profil crème en bas
+  const cardH=160, cardY=H-cardH-110, cardX=M, cardW=W-2*M, rad=18;
+  g.fillStyle=C.newsprint;
+  roundRect(g,cardX,cardY,cardW,cardH,rad); g.fill();
+  // wordmark
+  g.fillStyle=C.encre; g.textAlign='left'; g.textBaseline='alphabetic';
+  g.font="48px 'Anton'"; g.fillText('une·deux',cardX+36,cardY+74);
+  g.font="26px 'Saira Condensed'"; g.fillStyle='#6e6a60';
+  g.fillText(state.cardsub.toUpperCase(),cardX+36,cardY+112);
+  // bouton vert VOIR
+  g.font="32px 'Anton'";
+  const bt=state.cardbtn.toUpperCase()+'  →';
+  const btW=g.measureText(bt).width+60, btH=84, btX=cardX+cardW-btW-30, btY=cardY+(cardH-btH)/2;
+  g.fillStyle=C.vert; roundRect(g,btX,btY,btW,btH,12); g.fill();
+  g.fillStyle=C.creme; g.textBaseline='middle'; g.fillText(bt,btX+30,btY+btH/2+1);
+
+  // 7. bandeau ocre bas
+  if(state.banner.trim()){
+    g.font="30px 'Saira Condensed'";
+    const bn='▶  '+state.banner.toUpperCase();
+    const bnW=g.measureText(bn).width+56, bnH=70, bnX=(W-bnW)/2, bnY=H-bnH-22;
+    g.fillStyle=C.ocre; roundRect(g,bnX,bnY,bnW,bnH,8); g.fill();
+    g.fillStyle=C.encre; g.textAlign='center'; g.textBaseline='middle';
+    g.fillText(bn,W/2,bnY+bnH/2+1); g.textAlign='left';
+  }
+}
+function roundRect(g,x,y,w,h,r){
+  g.beginPath();
+  g.moveTo(x+r,y); g.arcTo(x+w,y,x+w,y+h,r); g.arcTo(x+w,y+h,x,y+h,r);
+  g.arcTo(x,y+h,x,y,r); g.arcTo(x,y,x+w,y,r); g.closePath();
+}
+
+// ---------- TEMPLATE G : citation ----------
+function drawG(W,H){
+  const g=ctx; const M=62;
+  // fond encre + stries claires
+  g.fillStyle=C.encre; g.fillRect(0,0,W,H);
+  g.save(); g.strokeStyle='rgba(237,220,178,0.04)'; g.lineWidth=2;
+  for(let i=-H;i<W+H;i+=46){ g.beginPath(); g.moveTo(i,0); g.lineTo(i+H,H); g.stroke(); }
+  g.restore();
+
+  // header crème
+  const ringD=92, ringC=66+ringD/2;
+  g.strokeStyle=C.creme; g.lineWidth=4;
+  g.beginPath(); g.arc(M+ringD/2,ringC,ringD/2-2,0,Math.PI*2); g.stroke();
+  g.fillStyle=C.creme; g.textBaseline='middle'; g.textAlign='center'; g.font="38px 'Saira Condensed'";
+  g.fillText('1·2',M+ringD/2,ringC+1);
+  g.textAlign='left'; g.font="58px 'Anton'"; g.fillText('une·deux',M+ringD+26,ringC+2);
+  g.textAlign='right'; g.font="32px 'Saira Condensed'"; g.fillStyle=C.creme;
+  g.fillText('@UNE.DEUX',W-M,ringC); g.textAlign='left';
+  g.fillStyle=C.creme; g.fillRect(M,168,W-2*M,4);
+
+  // découpe de la citation en mots + couleur (accent ocre)
+  const quote=state.quote.trim();
+  const accent=state.quoteAccent.trim().toLowerCase();
+  const norm=s=>s.toLowerCase().replace(/[^a-zà-ÿ0-9]/gi,'');
+  // index de début de l'accent dans la chaîne
+  const accentStart = accent? quote.toLowerCase().indexOf(accent) : -1;
+  const accentEnd = accentStart>=0 ? accentStart+accent.length : -1;
+  // construit la liste des mots avec position de caractère
+  const words=[]; let m, re=/\S+/g;
+  while((m=re.exec(quote))!==null){ words.push({w:m[0], start:m.index, end:m.index+m[0].length}); }
+  words.forEach(o=>{ o.accent = accentStart>=0 && o.start>=accentStart && o.end<=accentEnd; });
+
+  // taille adaptative : on enroule sur la largeur dispo
+  const maxW=W-2*M;
+  let qSize=104;
+  function layout(size){
+    g.font=size+"px 'Anton'";
+    const space=g.measureText(' ').width;
+    const lines=[]; let cur=[]; let curW=0;
+    words.forEach(o=>{
+      const ww=g.measureText(o.w).width;
+      if(curW+ww>maxW && cur.length){ lines.push(cur); cur=[]; curW=0; }
+      cur.push(o); curW+=ww+space;
+    });
+    if(cur.length) lines.push(cur);
+    return lines;
+  }
+  let lines=layout(qSize);
+  while(lines.length>4 && qSize>54){ qSize-=6; lines=layout(qSize); }
+  const lh=qSize*0.96;
+
+  // guillemets verts au-dessus
+  const blockH=lines.length*lh;
+  const blockTop=(H- blockH)/2 - 30;     // centré verticalement, un peu remonté
+  g.font="120px 'Anton'"; g.fillStyle=C.vert; g.textBaseline='alphabetic'; g.textAlign='left';
+  g.fillText('“', M, blockTop - 24);
+
+  // citation mot par mot
+  g.font=qSize+"px 'Anton'"; g.textBaseline='alphabetic';
+  const space=g.measureText(' ').width;
+  lines.forEach((ln,li)=>{
+    let cx=M; const y=blockTop + (li+1)*lh;
+    ln.forEach(o=>{
+      g.fillStyle = o.accent ? C.ocre : C.creme;
+      g.fillText(o.w.toUpperCase(), cx, y);
+      cx += g.measureText(o.w.toUpperCase()).width + space;
+    });
+  });
+
+  // légende bas (trait + texte)
+  const capY=H-150;
+  g.strokeStyle=C.creme; g.lineWidth=3;
+  g.beginPath(); g.moveTo(M, capY); g.lineTo(M+44, capY); g.stroke();
+  g.fillStyle=C.creme; g.font="30px 'Saira Condensed'"; g.textBaseline='middle'; g.textAlign='left';
+  if(state.caption.trim()) g.fillText(state.caption.toUpperCase(), M+62, capY+1);
+
+  // filet + pagination à points
+  const footY=H-70;
+  g.fillStyle=C.creme; g.fillRect(M, footY-46, W-2*M, 3);
+  // points (selon tot, position selon cur)
+  const tot=parseInt(state.tot,10)||4, cur=parseInt(state.cur,10)||1;
+  const dotR=9, dotGap=34; let dx=M+dotR;
+  for(let i=1;i<=Math.min(tot,8);i++){
+    g.beginPath(); g.arc(dx, footY, dotR, 0, Math.PI*2);
+    if(i===cur){ g.fillStyle=C.creme; g.fill(); }
+    else { g.strokeStyle='rgba(237,220,178,0.5)'; g.lineWidth=2; g.stroke(); }
+    dx+=dotGap;
+  }
+  // pagination chiffrée à droite
+  g.textAlign='right'; g.textBaseline='middle'; g.font="60px 'Anton'";
+  const totTxt='/'+state.tot; g.fillStyle=C.creme; g.fillText(totTxt, W-M, footY);
+  const tw=g.measureText(totTxt).width; g.fillStyle=C.ocre; g.fillText(state.cur, W-M-tw-4, footY);
+  g.textAlign='left';
+}
 
 function maxLineLen(){
   const [a,b]=splitTitleTwoLines(state.title.trim().split(/\s+/));
@@ -923,8 +1208,8 @@ function drawWordLine(g, words, x, y, size){
   words.forEach((w,i)=>{
     const isGreen = w.toUpperCase()===state.greenWord.toUpperCase();
     g.fillStyle = isGreen ? C.vert : C.creme;
-    g.fillText(w, cx, y);
-    cx += g.measureText(w).width + space;
+    g.fillText(w.toUpperCase(), cx, y);
+    cx += g.measureText(w.toUpperCase()).width + space;
   });
 }
 
@@ -998,6 +1283,23 @@ document.getElementById('swipe_off').onclick=()=>{
   document.getElementById('swipe_on').classList.remove('on');
   draw();
 };
+// toggle animation sous-titres
+document.getElementById('anim_on').onclick=()=>{
+  state.animSubs=true;
+  document.getElementById('anim_on').classList.add('on');
+  document.getElementById('anim_off').classList.remove('on');
+  draw();
+};
+document.getElementById('anim_off').onclick=()=>{
+  state.animSubs=false;
+  document.getElementById('anim_off').classList.add('on');
+  document.getElementById('anim_on').classList.remove('on');
+  draw();
+};
+function updateAnimVisibility(){
+  const show = state.template==='A' && state.isVideo;
+  document.getElementById('field_anim').style.display = show?'flex':'none';
+}
 document.getElementById('f_cur').addEventListener('input',e=>{state.cur=e.target.value;draw();});
 document.getElementById('f_tot').addEventListener('input',e=>{state.tot=e.target.value;draw();});
 document.getElementById('s_zoom').addEventListener('input',e=>{state.zoom=e.target.value/100;draw();});
@@ -1012,23 +1314,27 @@ function applyTemplateUI(){
   const Cc= state.template==='C';
   const D = state.template==='D';
   const E = state.template==='E';
-  document.getElementById('field_tag').style.display = (Cc)?'none':'flex';
-  document.getElementById('field_title').style.display = (Cc||E)?'none':'flex';
-  document.getElementById('field_green').style.display = A?'flex':'none';
-  document.getElementById('field_body').style.display = (A||D)?'flex':'none';
+  const F = state.template==='F';
+  const G = state.template==='G';
+  document.getElementById('field_tag').style.display = (Cc||G)?'none':'flex';
+  document.getElementById('field_title').style.display = (Cc||E||G)?'none':'flex';
+  document.getElementById('field_green').style.display = (A||F)?'flex':'none';
+  document.getElementById('field_body').style.display = (A||D||F)?'flex':'none';
   document.getElementById('field_medialabel').style.display = B?'flex':'none';
   document.getElementById('field_btnlabel').style.display = D?'flex':'none';
   document.getElementById('block_E').style.display = E?'flex':'none';
+  document.getElementById('block_F').style.display = F?'flex':'none';
+  document.getElementById('block_G').style.display = G?'flex':'none';
   document.getElementById('hint_A').style.display = A?'inline':'none';
   document.getElementById('hint_B').style.display = B?'inline':'none';
   document.getElementById('block_C').style.display = Cc?'flex':'none';
-  document.getElementById('field_media').style.display = (Cc||D)?'none':'flex';
-  document.getElementById('field_pagination').style.display = (D||E)?'none':'flex';
+  document.getElementById('field_media').style.display = (Cc||D||G)?'none':'flex';
+  document.getElementById('field_pagination').style.display = (D||E||F)?'none':'flex';
   document.getElementById('field_swipe').style.display = (A||B)?'flex':'none';
-  document.getElementById('darkwrap').style.display = (A||E)?'block':'none';
-  document.getElementById('medialabel_lbl').textContent = B?'Photo du cadre média':(E?'Photo du joueur':"Média d'arrière-plan");
-  if(Cc||D){ document.getElementById('dlbtn').textContent='Télécharger le PNG'; }
-  else updateExportButton();
+  document.getElementById('darkwrap').style.display = (A||E||F)?'block':'none';
+  document.getElementById('medialabel_lbl').textContent = B?'Photo du cadre média':((E||F)?'Photo de fond':"Média d'arrière-plan");
+  if(Cc||D||G){ document.getElementById('dlbtn').textContent='Télécharger le PNG'; }
+  else updateExportButton(); updateAnimVisibility();
 }
 document.querySelectorAll('#tplpicker .chip').forEach(chip=>{
   chip.onclick=()=>{
@@ -1045,9 +1351,27 @@ document.querySelectorAll('#tplpicker .chip').forEach(chip=>{
     if(state.template==='E'){
       if(state.tag==='ANALYSE'||state.tag==='LE DOSSIER'||state.tag==='LE RÉCAP'){ state.tag='PLAYER SPOTLIGHT'; document.getElementById('f_tag').value='PLAYER SPOTLIGHT'; }
     }
+    if(state.template==='F'){
+      if(['ANALYSE','LE DOSSIER','LE RÉCAP','PLAYER SPOTLIGHT'].includes(state.tag)){ state.tag='LE POST COMPLET'; document.getElementById('f_tag').value='LE POST COMPLET'; }
+      if(state.title==='LE DERBY EN CHIFFRES'){ state.title='TU AS VU LE TEASER'; document.getElementById('f_title').value='TU AS VU LE TEASER'; state.greenWord='TEASER'; }
+      // story = format vertical
+      state.ratio='9:16'; document.getElementById('ratiobtn').textContent='9:16';
+      rebuildPicker();
+    }
+    if(state.template==='G'){
+      state.ratio='4:5'; document.getElementById('ratiobtn').textContent='4:5';
+    }
     applyTemplateUI(); draw();
   };
 });
+
+// ---------- bindings template G ----------
+const bindG=(id,key)=>document.getElementById(id).addEventListener('input',e=>{state[key]=e.target.value;draw();});
+bindG('f_quote','quote'); bindG('f_quoteAccent','quoteAccent'); bindG('f_caption','caption');
+
+// ---------- bindings template F ----------
+const bindF=(id,key)=>document.getElementById(id).addEventListener('input',e=>{state[key]=e.target.value;draw();});
+bindF('f_topnote','topnote'); bindF('f_cardsub','cardsub'); bindF('f_cardbtn','cardbtn'); bindF('f_banner','banner');
 
 // ---------- bindings template E ----------
 const bindE=(id,key)=>document.getElementById(id).addEventListener('input',e=>{state[key]=e.target.value;draw();});
@@ -1093,7 +1417,7 @@ function clearMedia(){
   stopVideoLoop();
   if(state.vid){ state.vid.pause(); if(state.vid.src) URL.revokeObjectURL(state.vid.src); }
   state.img=null; state.vid=null; state.isVideo=false;
-  updateExportButton();
+  updateExportButton(); updateAnimVisibility();
 }
 function updateExportButton(){
   const btn=document.getElementById('dlbtn');
@@ -1130,7 +1454,7 @@ fileinput.onchange=e=>{
     const ok=()=>{
       if(settled) return; settled=true;
       state.img=v; state.vid=v; state.isVideo=true;
-      showLoading(false); showCtrl(true); updateExportButton();
+      showLoading(false); showCtrl(true); updateExportButton(); updateAnimVisibility();
       v.play().catch(()=>{}); startVideoLoop(); draw();
     };
     v.onloadedmetadata=()=>{ if(v.videoWidth>0) ok(); };
@@ -1148,7 +1472,7 @@ fileinput.onchange=e=>{
     setTimeout(()=>{ if(!state.isVideo && !settled){ showLoading(false); alert("La vidéo met trop de temps à charger ou n'est pas supportée. Type : "+(t||'inconnu')); } }, 12000);
   } else {
     const im=new Image();
-    im.onload=()=>{ state.img=im; state.isVideo=false; showLoading(false); showCtrl(true); updateExportButton(); draw(); };
+    im.onload=()=>{ state.img=im; state.isVideo=false; showLoading(false); showCtrl(true); updateExportButton(); updateAnimVisibility(); draw(); };
     im.onerror=()=>{ showLoading(false); alert("Image non chargée. Essaie un JPG ou PNG."); };
     const r=new FileReader();
     r.onload=ev=>{ im.src=ev.target.result; };
@@ -1303,3 +1627,4 @@ draw();
 </script>
 </body>
 </html>
+
