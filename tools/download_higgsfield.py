@@ -309,9 +309,15 @@ def run_post(args, sources: list[str]) -> int:
         print("(--to-drive non demandé : pas d'envoi vers Drive.)")
         return 0 if counts["error"] == 0 else 2
 
-    print(f"\nDrive : dossier '{args.drive_parent}/{post_name}' …")
+    where = args.drive_parent_id if args.drive_parent_id else (args.drive_parent or "racine")
+    print(f"\nDrive : dossier '{post_name}' sous {where} …")
     svc = drive_service(args.credentials, args.token)
-    parent_id = drive_ensure_path(svc, args.drive_parent) if args.drive_parent else None
+    if args.drive_parent_id:
+        parent_id = args.drive_parent_id            # ID fourni : pas de résolution de chemin
+    elif args.drive_parent:
+        parent_id = drive_ensure_path(svc, args.drive_parent)
+    else:
+        parent_id = None                            # racine de Mon Drive
     folder_id = drive_ensure_folder(svc, post_name, parent_id)
     up = {"created": 0, "updated": 0, "error": 0}
     for path in sorted(local_ready):
@@ -342,7 +348,9 @@ def main() -> int:
     ap.add_argument("--name", help="Force le nom du post (sinon dérivé du préfixe des médias).")
     ap.add_argument("--to-drive", action="store_true", help="Téléverse le dossier du post dans Google Drive.")
     ap.add_argument("--drive-parent", default="une·deux/Posts",
-                    help="Dossier parent Drive sous lequel créer <post> (défaut: 'une·deux/Posts'). '' = racine.")
+                    help="Dossier parent Drive (par chemin) sous lequel créer <post> (défaut: 'une·deux/Posts'). '' = racine.")
+    ap.add_argument("--drive-parent-id", default="",
+                    help="ID d'un dossier Drive existant comme parent (prioritaire sur --drive-parent).")
     ap.add_argument("--credentials", type=Path, default=HERE / "credentials.json",
                     help="OAuth client 'Desktop' (défaut: credentials.json à côté du script).")
     ap.add_argument("--token", type=Path, default=HERE / "token.json",

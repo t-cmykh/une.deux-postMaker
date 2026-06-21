@@ -36,6 +36,9 @@ au nom du post.
   dossier `mbappe`). Forçable avec `--name`.
 - **Emplacement** : sous un dossier parent (`--drive-parent`, défaut
   `une·deux/Posts`) ; mets `--drive-parent ""` pour la racine de Mon Drive.
+  Plus fiable : `--drive-parent-id <ID>` pointe directement un dossier Drive
+  existant (l'ID se lit dans l'URL du dossier : `.../folders/<ID>`) et a la
+  priorité sur `--drive-parent`.
 
 ```bash
 # URLs dans l'ordre des slides, envoi vers Drive
