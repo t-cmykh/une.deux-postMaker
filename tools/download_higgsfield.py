@@ -49,6 +49,7 @@ import sys
 import time
 import urllib.request
 import urllib.error
+from urllib.parse import urlparse, parse_qs
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
@@ -96,8 +97,26 @@ def urls_from_json(path: Path) -> list[str]:
 # ----------------------------------------------------------------------------
 # Récupération d'un fichier (URL ou chemin local) vers une destination précise
 # ----------------------------------------------------------------------------
+def normalize_source(src: str) -> str:
+    """Déballe les liens proxy Higgsfield (images.higgs.ai?...&url=<cloudfront>)
+    pour récupérer l'URL directe pleine résolution. Laisse tout le reste tel quel.
+    """
+    if not src.lower().startswith(("http://", "https://")):
+        return src
+    try:
+        p = urlparse(src)
+        if p.netloc.endswith("images.higgs.ai"):
+            inner = parse_qs(p.query).get("url", [None])[0]
+            if inner and inner.startswith("http"):
+                return inner  # parse_qs a déjà décodé le %xx
+    except Exception:
+        pass
+    return src
+
+
 def fetch_to(src: str, dest: Path, retries: int, overwrite: bool) -> tuple[str, str]:
     """src = URL http(s) ou chemin local. Retourne (statut, message)."""
+    src = normalize_source(src)
     if dest.exists() and dest.stat().st_size > 0 and not overwrite:
         return "skip", dest.name
 
@@ -361,6 +380,8 @@ def main() -> int:
     sources: list[str] = list(args.sources)
     if args.list:
         sources += urls_from_text(args.list)
+    # Déballe les liens proxy images.higgs.ai -> URL cloudfront pleine résolution.
+    sources = [normalize_source(s) for s in sources]
 
     if args.post_json:
         return run_post(args, sources)
@@ -370,7 +391,7 @@ def main() -> int:
     for jpath in args.from_json:
         urls += urls_from_json(jpath)
     if not urls and not args.from_json and DEFAULT_LIST.exists():
-        urls += urls_from_text(DEFAULT_LIST)
+        urls += [normalize_source(u) for u in urls_from_text(DEFAULT_LIST)]
     return run_simple(urls, args.out, args.workers, args.retries, args.overwrite)
 
 

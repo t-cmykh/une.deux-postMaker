@@ -5,6 +5,9 @@
 #   - L'ordre compte : ligne 1 -> media du 1er slide, ligne 2 -> 2e slide, etc.
 #   - Les slides SANS champ "media" sont ignorées (ne mets pas de ligne pour elles).
 #   - Lignes vides et lignes commençant par # = ignorées (utile pour annoter).
+#   - URL acceptées : l'URL directe cloudfront (…cloudfront.net/…png) OU le lien
+#     proxy "images.higgs.ai/?...&url=…" — dans ce cas le script extrait
+#     automatiquement l'image cloudfront PLEINE RÉSOLUTION (pas le webp réduit).
 #
 # Le script renomme automatiquement selon le JSON :
 #   ligne 1 -> mbappe_01.png, ligne 2 -> mbappe_02.png, ...
