@@ -23,6 +23,51 @@ python3 download_higgsfield.py https://.../image.png
 Options : `--list <fichier>`, `--out <dossier>`, `--workers N` (parallélisme),
 `--retries N`, `--overwrite`.
 
+## Mode « post → Drive »
+
+À partir du JSON d'un post (éditeur une·deux), le script renomme les images
+selon le champ `media` de chaque slide et les téléverse dans un dossier Drive
+au nom du post.
+
+- **Mapping** : tu fournis les images source **dans l'ordre des slides**
+  (URLs Higgsfield ou chemins locaux) ; elles sont associées à `media[0]`,
+  `media[1]`, … Les slides sans `media` sont ignorées.
+- **Nom du dossier** : dérivé du préfixe des médias (`mbappe_01.jpg` →
+  dossier `mbappe`). Forçable avec `--name`.
+- **Emplacement** : sous un dossier parent (`--drive-parent`, défaut
+  `une·deux/Posts`) ; mets `--drive-parent ""` pour la racine de Mon Drive.
+
+```bash
+# URLs dans l'ordre des slides, envoi vers Drive
+python3 download_higgsfield.py --post-json post.json --to-drive \
+    --drive-parent "une·deux/Posts" \
+    https://.../img1.png https://.../img2.png
+
+# ou via une liste ordonnée (une URL/chemin par ligne)
+python3 download_higgsfield.py --post-json post.json --to-drive --list sources.txt
+
+# sans --to-drive : prépare juste le dossier local <post>/ renommé
+python3 download_higgsfield.py --post-json post.json https://.../img1.png ...
+```
+
+> L'extension réelle de la source est conservée (`mbappe_01.png` même si le JSON
+> dit `.jpg`) : l'éditeur matche par nom de base, donc ça reste compatible.
+
+### Accès Google Drive (OAuth)
+
+```bash
+pip install google-api-python-client google-auth-oauthlib
+```
+
+1. Dans Google Cloud → API Drive activée → crée un **OAuth client « Desktop »**,
+   télécharge le JSON et place-le en `credentials.json` à côté du script
+   (ou `--credentials <chemin>`).
+2. Au 1er run `--to-drive`, une fenêtre de consentement s'ouvre ; le jeton est
+   mis en cache dans `token.json` (réutilisé ensuite).
+
+`credentials.json` et `token.json` sont **ignorés par git** (voir `.gitignore`).
+Ne les committe pas.
+
 ## La liste d'URLs
 
 `higgsfield_urls.txt` contient une URL par ligne (`#` = commentaire). Elle est

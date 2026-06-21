@@ -1,0 +1,5 @@
+tools/credentials.json
+tools/token.json
+tools/higgsfield_downloads/
+**/__pycache__/
+*.pyc
