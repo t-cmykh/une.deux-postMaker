@@ -47,16 +47,16 @@ def _fetch_raw(url: str, verbose: bool = False) -> str | None:
         return None
 
 
-def _get_sitemap_urls(site_url: str, verbose: bool = False) -> list[str]:
+def _get_sitemap_urls(site_url: str, keywords: list[str], max_sitemap_urls: int = 500, verbose: bool = False) -> list[str]:
     urls = []
     parsed = urlparse(site_url)
     base = f"{parsed.scheme}://{parsed.netloc}"
+    kw_lower = [kw.lower() for kw in keywords]
 
     sitemap_candidates = [
         f"{base}/sitemap.xml",
         f"{base}/sitemap_index.xml",
         f"{base}/sitemap/sitemap.xml",
-        f"{base}/robots.txt",
     ]
 
     robots_sitemaps = []
@@ -74,8 +74,8 @@ def _get_sitemap_urls(site_url: str, verbose: bool = False) -> list[str]:
     all_candidates = robots_sitemaps + sitemap_candidates
 
     for sm_url in all_candidates:
-        if sm_url.endswith("robots.txt"):
-            continue
+        if verbose:
+            print(f"    [sitemap] chargement de {sm_url[:70]}...")
         xml_text = _fetch_raw(sm_url, verbose)
         if not xml_text:
             continue
@@ -83,26 +83,51 @@ def _get_sitemap_urls(site_url: str, verbose: bool = False) -> list[str]:
             xml_text_clean = re.sub(r'\sxmlns="[^"]+"', '', xml_text, count=1)
             root = ET.fromstring(xml_text_clean)
 
-            for sitemap_tag in root.findall(".//sitemap/loc"):
-                if sitemap_tag.text:
-                    sub_xml = _fetch_raw(sitemap_tag.text.strip(), verbose)
-                    if sub_xml:
-                        sub_clean = re.sub(r'\sxmlns="[^"]+"', '', sub_xml, count=1)
-                        try:
-                            sub_root = ET.fromstring(sub_clean)
-                            for loc in sub_root.findall(".//url/loc"):
-                                if loc.text:
-                                    urls.append(loc.text.strip())
-                        except ET.ParseError:
-                            pass
+            sub_sitemaps = root.findall(".//sitemap/loc")
+            if sub_sitemaps:
+                relevant_subs = []
+                other_subs = []
+                for sitemap_tag in sub_sitemaps:
+                    if not sitemap_tag.text:
+                        continue
+                    sub_url = sitemap_tag.text.strip()
+                    if any(kw in sub_url.lower() for kw in kw_lower):
+                        relevant_subs.append(sub_url)
+                    else:
+                        other_subs.append(sub_url)
+
+                ordered_subs = relevant_subs + other_subs[:5]
+                if verbose:
+                    print(f"    [sitemap] {len(sub_sitemaps)} sous-sitemaps, scan de {len(ordered_subs)}...")
+
+                for sub_url in ordered_subs:
+                    if len(urls) >= max_sitemap_urls:
+                        break
+                    if verbose:
+                        print(f"    [sitemap]   -> {sub_url[:70]}...")
+                    sub_xml = _fetch_raw(sub_url, verbose)
+                    if not sub_xml:
+                        continue
+                    sub_clean = re.sub(r'\sxmlns="[^"]+"', '', sub_xml, count=1)
+                    try:
+                        sub_root = ET.fromstring(sub_clean)
+                        for loc in sub_root.findall(".//url/loc"):
+                            if loc.text:
+                                urls.append(loc.text.strip())
+                                if len(urls) >= max_sitemap_urls:
+                                    break
+                    except ET.ParseError:
+                        pass
 
             for loc in root.findall(".//url/loc"):
                 if loc.text:
                     urls.append(loc.text.strip())
+                    if len(urls) >= max_sitemap_urls:
+                        break
 
             if urls:
                 if verbose:
-                    print(f"    [sitemap] {len(urls)} URLs trouvées via {sm_url}")
+                    print(f"    [sitemap] {len(urls)} URLs collectées")
                 break
         except ET.ParseError:
             continue
@@ -238,7 +263,7 @@ def search_site(site_url: str, keywords: list[str], max_pages: int = 30, verbose
     if verbose:
         print(f"    [1/3] Recherche du sitemap...")
 
-    sitemap_urls = _get_sitemap_urls(site_url, verbose)
+    sitemap_urls = _get_sitemap_urls(site_url, keywords, verbose=verbose)
     if sitemap_urls:
         if verbose:
             print(f"    [sitemap] {len(sitemap_urls)} pages découvertes")
