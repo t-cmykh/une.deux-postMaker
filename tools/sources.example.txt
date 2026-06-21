@@ -1,0 +1,30 @@
+# sources.txt — une source par ligne, DANS L'ORDRE DES SLIDES du post.json.
+#
+# Règles :
+#   - 1 ligne = 1 image (URL Higgsfield OU chemin local).
+#   - L'ordre compte : ligne 1 -> media du 1er slide, ligne 2 -> 2e slide, etc.
+#   - Les slides SANS champ "media" sont ignorées (ne mets pas de ligne pour elles).
+#   - Lignes vides et lignes commençant par # = ignorées (utile pour annoter).
+#
+# Le script renomme automatiquement selon le JSON :
+#   ligne 1 -> mbappe_01.png, ligne 2 -> mbappe_02.png, ...
+# et crée le dossier "mbappe" dans ton Drive.
+#
+# Utilisation :
+#   python download_higgsfield.py --post-json post.json --to-drive `
+#       --drive-parent-id <ID> --list sources.txt
+#
+# ----------------------------------------------------------------------------
+# Exemple (remplace par TES URLs, dans l'ordre des slides) :
+
+# slide 1  (media: mbappe_01.jpg)
+https://d8j0ntlcm91z4.cloudfront.net/.../hf_..._slide1.png
+
+# slide 2  (media: mbappe_02.jpg)
+https://d8j0ntlcm91z4.cloudfront.net/.../hf_..._slide2.png
+
+# slide 3  (media: mbappe_03.jpg)
+https://d8j0ntlcm91z4.cloudfront.net/.../hf_..._slide3.png
+
+# Astuce : tu peux aussi mettre un chemin local au lieu d'une URL, ex :
+# C:\Users\toi\Downloads\une_image.png
