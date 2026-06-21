@@ -1,0 +1,4 @@
+# Un prompt par ligne. Les lignes vides et celles commençant par # sont ignorées.
+# Exemples (remplace par les tiens) :
+Press photography. A modern footballer celebrating under stadium floodlights, cinematic grain. No text.
+Vintage 1974 archival look, grainy film, a goalkeeper diving in an old stadium. No text.
