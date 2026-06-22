@@ -1,0 +1,93 @@
+{
+  "meta": {
+    "projet": "une·deux — Le coup franc du Zaïre 1974",
+    "format": "reel",
+    "ratio": "9:16",
+    "duree_par_scene": 8,
+    "cadence_subs": 2,
+    "parallaxe": 2.4,
+    "vitesse_animation": 4
+  },
+  "scenes": [
+    {
+      "media": "zaire_01.PNG",
+      "titre": "1974",
+      "slideTitle": "LE COUP FRANC LE PLUS MOQUE DE L'HISTOIRE CACHE UNE HISTOIRE TERRIBLE.",
+      "titleAccent": "TERRIBLE",
+      "kicker": "histoires oubliées · mondial",
+      "subs": [
+        "Le geste qu'on a tous vu en boucle.",
+        "Et tout le monde a ri. À tort."
+      ],
+      "mix": 0,
+      "duo": [
+        "#27543C",
+        "#EFE7D5"
+      ]
+    },
+    {
+      "media": "zaire_02.PNG",
+      "titre": "ZAIRE",
+      "slideTitle": "PREMIER PAYS D'AFRIQUE NOIRE EN COUPE DU MONDE.",
+      "titleAccent": "AFRIQUE",
+      "kicker": "le contexte · les Léopards",
+      "subs": [
+        "Le Zaïre de Mobutu, vitrine du régime.",
+        "Le pouvoir surveille chaque match."
+      ],
+      "mix": 1,
+      "duo": [
+        "#2C2823",
+        "#C2A04E"
+      ]
+    },
+    {
+      "media": "zaire_03.PNG",
+      "titre": "9-0",
+      "slideTitle": "ECRASE 9-0 PAR LA YOUGOSLAVIE. LES MENACES COMMENCENT.",
+      "titleAccent": "9-0",
+      "kicker": "le choc · la pression",
+      "subs": [
+        "Les joueurs apprennent qu'ils ne seront pas payés.",
+        "Contre le Brésil, ils jouent terrorisés."
+      ],
+      "mix": 2,
+      "duo": [
+        "#1F4430",
+        "#C2A04E"
+      ]
+    },
+    {
+      "media": "zaire_04.PNG",
+      "titre": "MWEPU",
+      "slideTitle": "MWEPU ILUNGA DEGAGE LE BALLON AVANT LE COUP FRANC BRESILIEN.",
+      "titleAccent": "MWEPU",
+      "kicker": "le détail fou · le vrai sens",
+      "subs": [
+        "Le monde croit à une bourde.",
+        "Un geste de survie, pas d'ignorance."
+      ],
+      "mix": 0,
+      "duo": [
+        "#2C2823",
+        "#EFE7D5"
+      ]
+    },
+    {
+      "media": "zaire_05.PNG",
+      "titre": "2026",
+      "slideTitle": "ON A RI D'UN HOMME QUI AVAIT PEUR POUR SA VIE.",
+      "titleAccent": "PEUR",
+      "kicker": "la chute · aujourd'hui",
+      "subs": [
+        "Mwepu est mort en 2015, sans le sou.",
+        "La prochaine fois, regarde mieux."
+      ],
+      "mix": 5,
+      "duo": [
+        "#2C2823",
+        "#27543C"
+      ]
+    }
+  ]
+}
