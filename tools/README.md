@@ -71,6 +71,25 @@ pip install google-api-python-client google-auth-oauthlib
 `credentials.json` et `token.json` sont **ignorés par git** (voir `.gitignore`).
 Ne les committe pas.
 
+## Interface graphique (UI locale)
+
+Pour ne pas taper de commandes, lance la petite UI web :
+
+```bash
+python ui.py
+```
+
+Une page s'ouvre sur `http://127.0.0.1:8765`. Tu y renseignes :
+- **les liens** des images (un par ligne, dans l'ordre des slides ; cloudfront,
+  lien `images.higgs.ai` ou chemin local) ;
+- **le JSON du post** (collé) ;
+- **le dossier Drive** (chemin `une·deux/Posts` ou ID), et un nom de post optionnel.
+
+Clique **Lancer** : le workflow télécharge, renomme et (si la case est cochée)
+téléverse dans un dossier `<post>` de ton Drive, avec le journal affiché en
+direct et un lien vers le dossier. Mêmes pré-requis Drive que ci-dessus
+(`credentials.json` + libs Google).
+
 ## La liste d'URLs
 
 `higgsfield_urls.txt` contient une URL par ligne (`#` = commentaire). Elle est

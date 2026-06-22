@@ -188,10 +188,9 @@ def run_simple(urls: list[str], out_dir: Path, workers: int, retries: int, overw
 # ----------------------------------------------------------------------------
 # Mode post : lecture du JSON, dérivation du nom, mapping dans l'ordre
 # ----------------------------------------------------------------------------
-def post_media_list(post_json: Path) -> list[str]:
-    """Retourne, dans l'ordre des slides, les noms de fichiers `media` non vides."""
-    data = json.loads(post_json.read_text(encoding="utf-8"))
-    slides = data if isinstance(data, list) else data.get("slides")
+def post_media_from_data(data) -> list[str]:
+    """À partir d'un objet JSON déjà parsé : liste ordonnée des `media` non vides."""
+    slides = data if isinstance(data, list) else (data.get("slides") if isinstance(data, dict) else None)
     if not isinstance(slides, list):
         raise ValueError('JSON invalide : attendu un tableau de slides ou {"slides":[...]}.')
     medias = []
@@ -201,6 +200,11 @@ def post_media_list(post_json: Path) -> list[str]:
             if isinstance(m, str) and m.strip():
                 medias.append(m.strip())
     return medias
+
+
+def post_media_list(post_json: Path) -> list[str]:
+    """Retourne, dans l'ordre des slides, les noms de fichiers `media` non vides."""
+    return post_media_from_data(json.loads(post_json.read_text(encoding="utf-8")))
 
 
 def derive_post_name(medias: list[str]) -> str:
