@@ -84,54 +84,65 @@ Elle se superpose à la structure 8 slides ci-dessus : chaque slide a une
 6 familles de hooks qui arrêtent le scroll, adaptées au foot. Le HOOK de la
 cover doit toujours sortir d'une de ces familles. `X` = le sujet du post
 (joueur, équipe, match, époque). Tutoiement, MAJUSCULES dans le `title`,
-phrase courte. Le `body` (sous-titre) ajoute le **manque** ("Et personne
-n'en parle.").
+phrase courte. Le `body` (sous-titre) ajoute le **manque** ("Et ce n'est pas
+une blague.").
 
-**1. Hooks d'autorité / révélation oubliée** (on exhume un fait que personne ne raconte)
-- "Tu connais X. Tu ne connais pas son histoire."
-- "Le plus grand [exploit/scandale] de X, et presque personne ne s'en souvient."
-- "On a oublié la vérité sur X."
-- "Voilà ce qui sépare ceux qui ont marqué l'histoire de ceux qu'on a effacés."
-- "Ce que les livres d'histoire du foot ne te disent pas sur X."
+**Moule commun (loi du hook une·deux) :** sujet + verbe d'action au passé
+composé + **détail qui ne devrait pas être là**. Phrase déclarative assenée
+comme un fait acquis, point final sec, zéro adjectif de remplissage. Souvent
+en deux temps ("X a fait Y. Et Z.") où le second segment plante le couteau.
+Jamais de "voici", "découvre", "l'histoire incroyable de" : on **affirme**, on
+ne présente pas. Le hook cache toujours la moitié (le "comment"), résolue
+seulement au CLIMAX.
 
-**2. Hooks polarisants** (on prend le contre-pied de l'idée reçue)
-- "Opinion impopulaire : X n'a jamais été le meilleur. Et je vais te le prouver."
-- "Arrête de croire que X a gagné [seul / grâce à ça]."
-- "X, ce n'est pas l'histoire que tu crois."
-- "Tout le monde retient [le mythe]. La réalité est ailleurs."
-- "Le détail que tout le monde oublie sur X."
+**1. Autorité / révélation oubliée** — injustice, oubli
+- "Le meilleur joueur de cette équipe n'a jamais joué une minute."
+- "On a effacé X de l'histoire. Volontairement."
+- "X a changé le foot. Son nom a disparu en 10 ans."
+- "Le geste le plus copié du foot a été inventé par un type que personne ne cite."
+- "Cette finale a été truquée. Tout le monde le sait, personne ne le dit."
 
-**3. Hooks storytelling** (on entre par l'émotion d'un personnage)
-- "X a appris ça à la dure."
-- "En 19XX, personne ne pariait un centime sur X."
-- "Tout a basculé en une [minute / passe / soirée]."
-- "Une décision a changé toute la carrière de X."
-- "X a failli ne jamais jouer ce match."
+**2. Polarisants** — fierté, débat
+- "X n'a jamais été un génie. Il a juste eu de la chance pendant 90 minutes."
+- "Le plus grand exploit de X, c'est les autres qui l'ont fait."
+- "Cette équipe légendaire ? Elle a gagné par accident."
+- "Le but du siècle n'aurait jamais dû compter."
+- "Ton joueur préféré a volé sa place à un meilleur que lui."
 
-**4. Hooks de curiosité** (on annonce un secret sans le livrer)
-- "Personne ne t'a raconté CETTE partie de l'histoire de X."
-- "Ce petit détail a tout changé pour X."
-- "La vraie raison pour laquelle on a oublié X..."
-- "Avant de penser tout savoir sur X, lis ça."
-- "Ce que personne ne te dit sur X."
+**3. Storytelling** — nostalgie
+- "X a dormi dans sa voiture. Six mois plus tard, il gagnait le Mondial."
+- "Une blessure de rien du tout a fait basculer toute une carrière."
+- "Il a raté son bus. Ça lui a coûté une Coupe du Monde."
+- "X a signé son contrat sur une nappe de restaurant."
+- "On l'a refusé partout. Il est devenu champion du monde."
 
-**5. Hooks contrariants** (le fait qui semble impossible)
-- "Champion du monde. Et pourtant oublié. Comment ?"
-- "X a [exploit improbable]. Tu vas comprendre pourquoi tu ne le savais pas."
-- "La raison du destin de X n'a rien à voir avec son talent."
-- "Ce que X a accompli ne devrait même pas être possible."
+**4. Curiosité** — on annonce le secret sans le livrer
+- "X a gagné un match qu'il n'a jamais joué."
+- "Il y a une raison pour laquelle on ne montre jamais cette finale en entier."
+- "Le vrai héros de ce match n'est même pas sur la feuille de match."
+- "Ce match a duré 90 minutes. Une seule seconde a tout décidé."
+- "Personne ne sait ce qui s'est dit à la mi-temps. Sauf que ça a tout changé."
 
-**6. Hooks "chiffre absurde / contradiction nommée"** (signature une·deux)
+**5. Contrariants** — le fait qui semble impossible
+- "Champion du monde. Jamais sélectionné. Vraie histoire."
+- "X a marqué le but le plus important du foot. Il a fini ouvrier."
+- "Cette équipe a perdu tous ses matchs. Et elle est entrée dans la légende."
+- "Il a gagné la Coupe du Monde sans toucher le ballon."
+- "Le plus grand gardien de l'histoire mesurait 1m68."
+
+**6. Chiffre absurde / contradiction nommée** — signature une·deux (la plus forte)
 - "Le premier buteur de l'histoire du Mondial était coursier chez Peugeot."
-- "On a volé la Coupe du Monde. Un chien l'a retrouvée."
-- "[Métier banal] le jour. Légende du foot le week-end."
-- "X a gagné [trophée]. Il a touché [somme dérisoire]."
+- "L'Angleterre a gagné la Coupe du Monde grâce à un chien."
+- "Il a gagné le Mondial. Il a touché 2 000 francs."
+- "Footballeur le week-end, ouvrier à l'usine la semaine. Et champion du monde."
+- "Une équipe entière a disparu dans un crash. Le club existe encore grâce à ça."
 
 > Choisir la famille selon l'émotion unique du post : autorité/révélation pour
 > l'injustice et l'oubli ; storytelling pour la nostalgie ; contrariant et
 > chiffre absurde pour la surprise ; polarisant pour la fierté/débat. Le hook
 > doit promettre une **curiosité précise** (un fait nommé), jamais un teasing
-> vague ("une histoire incroyable").
+> vague ("une histoire incroyable"). La famille 6 est la plus efficace pour
+> une·deux : c'est d'elle que sortent les covers Laurent et Pickles.
 
 ### La mécanique du swipe (règle reine)
 
