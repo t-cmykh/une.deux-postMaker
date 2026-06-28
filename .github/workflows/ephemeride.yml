@@ -58,6 +58,7 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          show_full_output: true
           prompt: |
             Tu produis l'éphéméride foot quotidienne du média Instagram une·deux
             (@une.deux, « le foot en deux touches »).
@@ -87,6 +88,7 @@ jobs:
             Le SEUL livrable est le fichier `out/ephemeride.html`. N'ouvre aucune
             issue ni pull request, ne modifie aucun autre fichier.
           claude_args: |
+            --model claude-sonnet-4-6
             --allowedTools WebSearch,WebFetch,Read,Write
             --max-turns 30
 
