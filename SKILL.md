@@ -16,12 +16,81 @@ description: >
 
 une·deux raconte des histoires foot méconnues en lien avec l'actu (Coupe du
 Monde 2026). Posture éditoriale : **l'archiviste-conteur qui exhume**. Format
-reine : carrousel narratif de 8 slides exporté en vidéo via l'éditeur HTML de
-Thomas (toolkit qui applique l'overlay template sur des photos).
+reine : carrousel narratif exporté en vidéo via l'éditeur HTML de Thomas
+(toolkit qui applique l'overlay template sur des photos).
 
 **Règle absolue : vérification web factuelle AVANT toute rédaction.** Chiffres,
 citations, dates, palmarès — tout fait cité doit être vérifié. La citation de la
 slide G doit être une vraie déclaration sourcée.
+
+### Règle des 3 sources (éphémérides & faits) — OBLIGATOIRE
+
+Tout fait proposé — en particulier chaque entrée d'éphéméride *Ce jour-là* — doit
+être **confirmé par au moins 3 sources indépendantes** : trois origines
+distinctes (p. ex. Wikipédia + un média + une base type RSSSF / FBref /
+Britannica), pas trois reprises du même article ni trois miroirs de Wikipédia.
+
+- Si un fait **ne peut pas** être corroboré par 3 sources différentes, il est
+  **écarté** : on ne le propose pas dans le brouillon, on ne l'utilise pas dans
+  un post.
+- Préférer un fait moins spectaculaire mais solidement triple-sourcé à un fait
+  fort mais douteux. La fiabilité prime sur le punch.
+- Conserver les **liens des 3 sources** pour chaque entrée livrée (traçabilité).
+
+## Éditeur principal : `editeurs/editeur-series_2.html`
+
+L'**éditeur de référence** est désormais `editeurs/editeur-series_2.html` :
+éditeur conscient des **4 séries** une·deux, qui applique automatiquement la
+signature visuelle de la série (couleur, virage photo, format) sur la **cover**
+et la **slide CTA**. Les autres éditeurs (`post.html`, `reel.html`) restent
+disponibles pour les slides intérieures et les reels.
+
+**Modèle de données de l'éditeur (cover / CTA) :**
+
+| Champ | Rôle |
+|-------|------|
+| `serie` | `cejourla` · `oublies` · `portraits` · `transversales` (verrouille couleur, virage photo, format) |
+| `template` | `cover` ou `cta` (CTA ENREGISTRE) |
+| `tag` | **auto** = `N° + nom de série` (non éditable) |
+| `title` | titre de cover (MAJUSCULES, 2 lignes) |
+| `greenWord` | mot-clé du titre coloré en signature de série |
+| `body` | sous-titre (cover) — `**gras**` supporté |
+| `cur` / `tot` | pagination (slide courante / total) |
+| `btnlabel` | libellé du bouton (template CTA uniquement) |
+
+Format **verrouillé par série** : `cejourla`, `oublies`, `transversales` → 3:4 ;
+`portraits` → 9:16 (titre vertical). Voir `exemples/*-par-serie.md` et
+`planning/planning-unedeux.md` pour la déclinaison série par série (scénarios,
+prompts photo, légendes) et le planning éditorial (2 posts/jour).
+
+## Skills chaînés (utilisation automatique)
+
+Pour toute production de texte une·deux (post carrousel ou reel), Claude
+enchaîne automatiquement deux skills, sans que Thomas ait à les invoquer :
+
+1. **`hook-writer-sms` — pour le HOOK de la cover (S1).** Avant d'écrire le hook
+   de la slide 1, Claude applique le skill `hook-writer-sms` afin de générer le
+   meilleur arrête-scroll possible. Le hook reste contraint par la **banque de
+   hooks une·deux** (6 familles, plateforme Instagram, tutoiement, posture
+   archiviste) : `hook-writer-sms` sert à optimiser la formulation, pas à
+   remplacer la ligne éditoriale. Si le skill propose plusieurs variantes,
+   retenir celle qui colle à l'émotion unique du post et à la famille de hook
+   choisie. Le hook final doit toujours respecter le « moule commun (loi du hook
+   une·deux) ».
+
+2. **`humanizer` — pour TOUS les textes rédigés.** Une fois les textes écrits
+   (titres, corps de slides, citations reformulées, légende, sous-titres de
+   reel), Claude passe l'ensemble au crible du skill `humanizer` avant
+   livraison, pour retirer les marqueurs d'écriture IA (symbolisme gonflé,
+   langue promotionnelle, analyses en « -ing », attributions vagues, abus de
+   tirets cadratins, règle de trois, vocabulaire IA, voix passive, parallélismes
+   négatifs, phrases de remplissage). Le résultat doit sonner humain, direct et
+   « foot », fidèle au ton « expert complice qui va à l'essentiel ».
+   Anti-dérive : `humanizer` nettoie le style, il ne doit pas diluer la densité
+   factuelle ni casser les hooks/relances voulus.
+
+Ordre d'application : vérif factuelle → `hook-writer-sms` (cover) → rédaction des
+slides/légende → `humanizer` (passe finale sur tout le texte) → livraison.
 
 ## Livrables par post
 
@@ -307,6 +376,18 @@ Hashtags : série (#lesouscotés, #undestinparjour, #lachutedesgéants, #ledéba
 + thématiques + `#lefootendeuxtouches #unedeux`.
 
 ## Séries récurrentes
+
+### Les 4 séries (modèle éditeur — voir `planning/planning-unedeux.md`)
+- **Ce jour-là** · `#cejourla` — éphéméride calendaire (socle quotidien). Carrousel 3:4, ocre / sépia chaud.
+- **Les oubliés** · `#lesoubliés` — effacés de l'histoire, injustices. Carrousel 3:4, vert / N&B froid.
+- **Portraits** · `#portraits` — parcours d'un joueur par l'angle méconnu. Reel 9:16, N&B studio.
+- **Transversales** · `#transversales` — récits de trajectoire. Carrousel 3:4, ocre / accents crème inversés.
+
+Scénarios, prompts photo et légendes déclinés par série dans
+`exemples/scenarios-par-serie.md`, `exemples/prompts-par-serie.md`,
+`exemples/legendes-par-serie.md`.
+
+### Hashtags thématiques (transverses)
 - **#lesouscotés** — équipes sous-estimées
 - **#undestinparjour** — portraits joueurs
 - **#lachutedesgéants** — grands qui s'effondrent
