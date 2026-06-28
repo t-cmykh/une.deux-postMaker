@@ -1,10 +1,13 @@
 name: Éphéméride foot une·deux
 
 # Génère chaque soir à 20h (heure de Paris) l'éphéméride foot du LENDEMAIN,
-# filtrée « angle une·deux », et la dépose dans une issue GitHub.
+# filtrée « angle une·deux », et l'envoie par email.
 #
-# Prérequis : ajouter le secret ANTHROPIC_API_KEY dans
-# Settings → Secrets and variables → Actions du dépôt.
+# Secrets requis (Settings → Secrets and variables → Actions) :
+#   - ANTHROPIC_API_KEY  : clé API Anthropic (génération du contenu)
+#   - GMAIL_ADDRESS      : adresse Gmail expéditrice = destinataire (ex. t.louisor@gmail.com)
+#   - GMAIL_APP_PASSWORD : mot de passe d'application Gmail (PAS le mot de passe du compte ;
+#                          à créer sur https://myaccount.google.com/apppasswords, 2FA requise)
 #
 # GitHub planifie en UTC sans gestion de l'heure d'été. On déclare donc deux
 # horaires (été / hiver) et une garde « 20h Europe/Paris » ne laisse passer
@@ -18,7 +21,6 @@ on:
 
 permissions:
   contents: read
-  issues: write
 
 jobs:
   ephemeride:
@@ -37,9 +39,18 @@ jobs:
           fi
           echo "run=true" >> "$GITHUB_OUTPUT"
 
+      - name: Date de demain (Europe/Paris)
+        if: steps.guard.outputs.run == 'true'
+        id: date
+        run: echo "demain=$(TZ=Europe/Paris date -d '+1 day' '+%d/%m/%Y')" >> "$GITHUB_OUTPUT"
+
       - name: Checkout
         if: steps.guard.outputs.run == 'true'
         uses: actions/checkout@v4
+
+      - name: Préparer le dossier de sortie
+        if: steps.guard.outputs.run == 'true'
+        run: mkdir -p out
 
       - name: Générer l'éphéméride foot du lendemain
         if: steps.guard.outputs.run == 'true'
@@ -63,16 +74,35 @@ jobs:
                sous-cotées, les destins oubliés et les contradictions nommées ; mets
                en retrait les sujets ultra-connus. Respecte les règles permanentes
                (pas de comparaison avec les USA, etc.).
-            5. Crée une ISSUE GitHub dans ce dépôt :
-               - Titre : "Éphéméride foot — <date de demain> (une·deux)"
-               - Corps en Markdown : un tableau
-                 | Année | Événement (factuel, vérifié) | Angle une·deux |
-                 où l'angle cite la série (#lesouscotés / #undestinparjour /
-                 #lachutedesgéants / #ledébat) et la famille de hook de la banque du
-                 SKILL.md ; puis une reco du sujet du jour et la liste des liens sources.
+            5. Écris le résultat dans le fichier `out/ephemeride.html` : un corps
+               d'email HTML autonome (pas de <html>/<head>, juste un <div> stylé en
+               inline-CSS) contenant un tableau
+               | Année | Événement (factuel, vérifié) | Angle une·deux |
+               où l'angle cite la série (#lesouscotés / #undestinparjour /
+               #lachutedesgéants / #ledébat) et la famille de hook de la banque du
+               SKILL.md, suivi d'une reco du sujet du jour et de la liste des liens
+               sources (balises <a>).
 
-            N'ouvre AUCUNE pull request et ne modifie AUCUN fichier : le seul
-            livrable est l'issue.
+            Le SEUL livrable est le fichier `out/ephemeride.html`. N'ouvre aucune
+            issue ni pull request, ne modifie aucun autre fichier.
           claude_args: |
-            --allowedTools WebSearch,WebFetch,Read
+            --allowedTools WebSearch,WebFetch,Read,Write
             --max-turns 30
+
+      - name: Vérifier que le contenu a bien été généré
+        if: steps.guard.outputs.run == 'true'
+        run: test -s out/ephemeride.html
+
+      - name: Envoyer l'email
+        if: steps.guard.outputs.run == 'true'
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.GMAIL_ADDRESS }}
+          password: ${{ secrets.GMAIL_APP_PASSWORD }}
+          subject: ⚽ Éphéméride foot une·deux — ${{ steps.date.outputs.demain }}
+          to: ${{ secrets.GMAIL_ADDRESS }}
+          from: une·deux bot <${{ secrets.GMAIL_ADDRESS }}>
+          html_body: file://out/ephemeride.html
