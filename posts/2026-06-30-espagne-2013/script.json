@@ -1,0 +1,63 @@
+[
+  {
+    "template": "A",
+    "tag": "30 JUIN 2013",
+    "title": "29 MATCHES SANS PERDRE. EFFACÉS PAR FRED.",
+    "greenWord": "FRED",
+    "body": "Maracanã, 30 juin 2013. Et personne n'a vu que c'était la fin.",
+    "media": "espagne_01.PNG"
+  },
+  {
+    "template": "A",
+    "tag": "L'INVINCIBLE",
+    "title": "TROIS TITRES EN QUATRE ANS. PLUS RIEN NE LES ARRÊTAIT.",
+    "greenWord": "PLUS RIEN",
+    "body": "Euro 2008. Mondial 2010. Euro 2012. 29 matches de compétition sans défaite. Xavi, Iniesta, Busquets, Casillas. La presse ne parlait plus de victoire. Elle parlait de domination.",
+    "media": "espagne_02.PNG"
+  },
+  {
+    "template": "H",
+    "quote": "Sauf que ce soir-là, tout s'arrête.",
+    "quoteAccent": "tout s'arrête.",
+    "quoteAuthor": "",
+    "caption": ""
+  },
+  {
+    "template": "A",
+    "tag": "2e MINUTE",
+    "title": "FRED GLISSE. LE BALLON PASSE DEVANT CASILLAS.",
+    "greenWord": "GLISSE",
+    "body": "Frederico Chaves Guedes, attaquant de Fluminense, 29 ans. Il pousse le ballon au sol en tombant. Casillas ne bouge pas. 1-0. Neymar double à la 44e. Fred remet ça à la 47e. 3-0. L'Espagne avait le ballon. Mais plus rien à en faire.",
+    "media": "espagne_04.PNG"
+  },
+  {
+    "template": "G",
+    "quote": "Il n'y a pas grand-chose à dire. Ils étaient supérieurs sur tous les plans. Ce n'est pas une excuse.",
+    "quoteAccent": "sur tous les plans.",
+    "quoteAuthor": "Vicente del Bosque, sélectionneur de l'Espagne",
+    "caption": "L'AVEU"
+  },
+  {
+    "template": "A",
+    "tag": "LE SIGNAL",
+    "title": "PERSONNE N'A VU QUE C'ÉTAIT LE PREMIER ACTE.",
+    "greenWord": "PREMIER ACTE",
+    "body": "Onze mois plus tard, Salvador. Pays-Bas 5, Espagne 1. Tout le monde a dit : fin de cycle. Sauf que la fin, c'était pas là-bas.",
+    "media": "espagne_06.PNG"
+  },
+  {
+    "template": "A",
+    "tag": "2026",
+    "title": "LE TIKI-TAKA EST MORT CE SOIR-LÀ. ON L'A SU ONZE MOIS TROP TARD.",
+    "greenWord": "CE SOIR-LÀ",
+    "body": "Trois titres en quatre ans. La plus grande domination de l'histoire des sélections, balayée par un attaquant de Fluminense qui glisse à la 2e minute. Les dynasties ne s'effondrent pas dans le bruit. Elles s'éteignent quand personne ne regarde.",
+    "media": "espagne_07.PNG"
+  },
+  {
+    "template": "D",
+    "tag": "CE JOUR-LÀ",
+    "title": "CHAQUE JOUR, UNE DATE.",
+    "body": "Reste pour ne pas rater la prochaine.",
+    "btnlabel": "FOLLOW"
+  }
+]
