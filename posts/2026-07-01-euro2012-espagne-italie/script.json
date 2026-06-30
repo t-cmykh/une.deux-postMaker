@@ -1,0 +1,63 @@
+[
+  {
+    "template": "A",
+    "tag": "1er JUILLET 2012",
+    "title": "4-0. LE PLUS GROS CARTON D'UNE FINALE D'EURO.",
+    "greenWord": "PLUS GROS CARTON",
+    "body": "Et plus personne n'ose dire que c'était le sommet du foot.",
+    "media": "euro2012_01.PNG"
+  },
+  {
+    "template": "A",
+    "tag": "LE CONTEXTE",
+    "title": "UN TRIPLÉ QUE PERSONNE N'AVAIT JAMAIS RÉALISÉ.",
+    "greenWord": "TRIPLÉ",
+    "body": "Euro 2008, Mondial 2010, et une finale à Kyiv le 1er juillet 2012. Aucune sélection n'avait jamais enchaîné trois titres majeurs consécutifs. En face : l'Italie de Cesare Prandelli, portée par Pirlo et Balotelli.",
+    "media": "euro2012_02.PNG"
+  },
+  {
+    "template": "H",
+    "quote": "Le pari le plus fou de sa carrière.",
+    "quoteAccent": "le plus fou",
+    "quoteAuthor": "",
+    "caption": ""
+  },
+  {
+    "template": "A",
+    "tag": "LE PARI",
+    "title": "DEL BOSQUE TITULARISE FÀBREGAS. SANS AVANT-CENTRE.",
+    "greenWord": "SANS AVANT-CENTRE",
+    "body": "Pas de Torres, pas de Negredo en pointe. Cesc Fàbregas, milieu de formation, joue faux 9 pour la finale d'un Euro. Onze joueurs sur le terrain, zéro tireur de métier.",
+    "media": "euro2012_04.PNG"
+  },
+  {
+    "template": "G",
+    "quote": "Quand on quittera Kyiv et qu'on verra les lumières du stade, j'aurai un pincement de déception. Mais je pars fier.",
+    "quoteAccent": "je pars fier.",
+    "quoteAuthor": "Cesare Prandelli, sélectionneur d'Italie, après la finale",
+    "caption": "L'AVEU"
+  },
+  {
+    "template": "A",
+    "tag": "LE DÉTAIL FOU",
+    "title": "FÀBREGAS NE MARQUE PAS. C'EST TOUT LE RESTE QUI EXPLOSE.",
+    "greenWord": "EXPLOSE",
+    "body": "Silva ouvre de la tête (14e), une rareté pour lui. Alba conclut un contre à l'arrache juste avant la pause (41e). Thiago Motta sort sur civière, l'Italie termine à dix. Torres et Mata, entrés en cours de match, achèvent le travail (84e, 88e).",
+    "media": "euro2012_06.PNG"
+  },
+  {
+    "template": "A",
+    "tag": "2026",
+    "title": "LE SOMMET DU FOOT N'A JAMAIS ÉTÉ REPRODUIT. ET ON A FINI PAR LE TROUVER ENNUYEUX.",
+    "greenWord": "ENNUYEUX",
+    "body": "Cette équipe reste la seule à avoir enchaîné trois titres majeurs. Le record tient toujours en 2026. Mais l'étiquette qui colle à l'Espagne 2012, c'est tiki-taka soporifique, pas meilleure équipe de l'histoire. On ne se souvient jamais des sommets qui gagnent trop facilement.",
+    "media": "euro2012_07.PNG"
+  },
+  {
+    "template": "D",
+    "tag": "CE JOUR-LÀ",
+    "title": "CHAQUE JOUR, UNE DATE.",
+    "body": "Reste pour ne pas rater la prochaine.",
+    "btnlabel": "FOLLOW"
+  }
+]
