@@ -395,9 +395,12 @@ en vert dans l'éphéméride) contient, **en tête et pour le sujet retenu** :
 3. **Lien vidéo** de l'événement si un existe (match, but, reportage — YouTube ou
    archive vérifiée). Si aucune vidéo fiable n'est trouvée, écrire explicitement :
    **« Pas de lien vidéo disponible. »**
+4. **Légende Instagram** prête à publier, au format de la série (voir
+   `exemples/legendes-par-serie.md`).
 
-Les autres livrables (cover/CTA éditeur séries, `script.json`, prompts photo,
-légende) suivent **en dessous** quand le post complet est demandé.
+**Le livrable quotidien s'arrête là : PAS de `script.json`, PAS de prompts photo.**
+Ces éléments (cover/CTA éditeur séries, script.json, prompts) ne sont produits que
+sur demande explicite de Thomas (« on fait le post complet »).
 
 **Exemple (29 juin 1950) :**
 > **29 JUIN 1950 : des amateurs américains ont giflé les rois du foot.**
