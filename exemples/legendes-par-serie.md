@@ -8,26 +8,61 @@ Gabarit **4 temps** (règle SKILL) :
 
 **Règles fixes :**
 - Jamais de mention « story à la une » ni de renvoi vers la story.
-- Max **5 hashtags**.
-- Toujours finir par `#lefootendeuxtouches #unedeux`.
-- Hashtags = série + thématiques (pays / joueur / époque) + `#footballhistoire` si pertinent.
+- Max **5 hashtags**, **toujours finir par `#unedeux`**.
+- Hashtags = série + un tag « tendance / SEO » (nom d'un joueur actuel lié au sujet)
+  + compétition + équipe/pays. Ex. `#cejourla #yamal #euro2012 #laRoja #unedeux`.
 
 ---
 
 ## Ce jour-là — `#cejourla`
 
+Format en 6 temps (c'est le format de référence de la série *Ce jour-là*) :
+1. **Ligne d'en-tête** : `[drapeaux] CE JOUR-LÀ - [JJ mois AAAA].`
+2. **Accroche** : une phrase forte qui résume le fait + emoji drapeau.
+3. **Récit dense** : le déroulé avec minutes, buteurs, score, records — chiffres
+   exacts vérifiés (3 sources), ton complice, tutoiement.
+4. **`Et le plus fou ?`** + une relance qui recadre l'événement (souvent son écho
+   aujourd'hui / en 2026).
+5. **Question débat** à deux options clivantes, introduite par `Alors dis-nous :`.
+6. `@une.deux ⚽️`, deux points de séparation, puis les hashtags.
+
 ```
-**[Accroche événement daté + ce qui s'est vraiment passé] 🇧🇷**
+[DRAPEAUX] CE JOUR-LÀ - [JJ mois AAAA].
 
-[2 touches : le contexte en une phrase, puis le fait fort avec chiffres/noms exacts. Ton complice, tutoiement.]
+[Accroche : une phrase forte qui résume le fait] [emoji drapeau]
 
-[Punchline qui referme la boucle de la cover.]
+[Récit dense : déroulé avec minutes, buteurs, score, records, chiffres exacts.]
 
-Alors dis-nous : [question clivante liée à la date] 👇
+Et le plus fou ? [relance qui recadre l'événement aujourd'hui]
+
+Alors dis-nous : [question clivante à deux options] ?
+
 @une.deux ⚽️
+
 .
 .
-#cejourla #[pays/joueur] #footballhistoire #lefootendeuxtouches #unedeux
+
+#cejourla #[joueur tendance] #[compétition] #[équipe] #unedeux
+```
+
+**Exemple (rempli) :**
+```
+🇪🇸🇮🇹 CE JOUR-LÀ - 1er juillet 2012.
+
+L'Espagne a infligé le pire score d'une finale d'Euro 🇪🇸
+
+David Silva ouvre à la 14e, Jordi Alba double avant la pause. Thiago Motta sort sur civière, l'Italie termine à dix. Torres et Mata, entrés en cours de match, achèvent le travail (84e, 88e). Score final : 4-0, le plus large jamais vu en finale d'un Euro. L'Espagne devient la seule sélection à avoir enchaîné trois titres majeurs consécutifs, un record qui tient toujours en 2026.
+
+Et le plus fou ? Cette équipe est aujourd'hui qualifiée d'ennuyeuse.
+
+Alors dis-nous : la meilleure équipe de l'histoire du foot, c'est celle qui écrase tout le monde, ou celle qui fait douter jusqu'au bout ?
+
+@une.deux ⚽️
+
+.
+.
+
+#cejourla #yamal #euro2012 #laRoja #unedeux
 ```
 
 ---
