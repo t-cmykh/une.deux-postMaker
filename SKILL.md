@@ -362,6 +362,54 @@ Pour les slides "archive" (fait historique), ajouter un look vintage :
 
 Nom de fichier = exactement celui du champ `media` du JSON (`pays_01.PNG`, etc.).
 
+### Visuels & droits d'image (règle)
+
+Les livrables d'un post fournissent les **prompts photo** (texte), pas des photos
+d'archive récupérées sur le web. Raison : pour les faits anciens (surtout la série
+*Ce jour-là*), il n'existe quasiment **aucune vraie photo libre de droits** ; les
+archives du moment sont chez Getty / AP / Wikipedia (fair use) = **copyright**,
+donc **risquées à republier** sur le compte.
+
+- **Par défaut** : livrer les prompts photo « façon presse » — Thomas génère
+  lui-même les visuels dans son outil. Zéro problème de droits, visuels sur-mesure.
+- **Images web** : n'intégrer que des images **réellement libres** (Wikimedia
+  Commons PD/CC0/CC-BY) et seulement pour l'**ambiance/contexte** ; jamais une
+  archive copyrightée dans un post publié. Toujours indiquer la licence.
+- Ne pas lancer de génération d'images (Higgsfield) sans demande explicite de
+  Thomas.
+- Séries à faits récents (*Portraits*, *Transversales* sur joueurs actuels) :
+  davantage de sources visuelles disponibles, mais la même règle de droits
+  s'applique.
+
+## Livrable quotidien de la routine « post du jour »
+
+Le brouillon Gmail produit chaque jour par la routine (à partir du sujet validé
+en vert dans l'éphéméride) contient, **en tête et pour le sujet retenu** :
+
+1. **Titre** au format EXACT : `JJ MOIS AAAA : <phrase percutante>`
+   — la date de l'événement, deux-points, puis **une phrase courte qui claque**
+   (ton une·deux : affirmation, pas de « voici / découvre »).
+2. **Corps** : un paragraphe qui **explique l'événement** (faits vérifiés, règle
+   des 3 sources), et dont la **dernière phrase est une punchline sentie** sur
+   l'événement (elle referme, elle marque).
+3. **Lien vidéo** de l'événement si un existe (match, but, reportage — YouTube ou
+   archive vérifiée). Si aucune vidéo fiable n'est trouvée, écrire explicitement :
+   **« Pas de lien vidéo disponible. »**
+
+Les autres livrables (cover/CTA éditeur séries, `script.json`, prompts photo,
+légende) suivent **en dessous** quand le post complet est demandé.
+
+**Exemple (29 juin 1950) :**
+> **29 JUIN 1950 : des amateurs américains ont giflé les rois du foot.**
+>
+> À Belo Horizonte, les États-Unis — un prof, un chauffeur de corbillard, un
+> plongeur, donnés à 500 contre 1 — battent l'Angleterre 1-0. But de Joe
+> Gaetjens, né en Haïti, à la 37e minute. Rentré au pays, il disparaît en 1964,
+> arrêté par le régime Duvalier. *L'homme du but le plus improbable du foot, son
+> propre pays l'a effacé.*
+>
+> 🎥 Vidéo : https://www.youtube.com/watch?v=-vqQWrrzNWU
+
 ## Format légende (4 temps)
 
 1. Accroche en gras + emoji drapeau
