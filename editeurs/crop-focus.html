@@ -278,16 +278,25 @@ async function runAnalysis(){
       if(model){
         aictx.drawImage(preview, 0, 0, aiW, aiH);
         try{
-          const preds=await model.detect(aicv);
-          const relevant=preds.filter(p=>p.class==='person' || p.class==='sports ball');
-          if(relevant.length){
+          // seuil bas : le ballon est petit/flou a l'image, sa confiance est
+          // souvent plus faible que celle des joueurs — on filtre nous-memes
+          // par classe plutot que de le rater au seuil par defaut (0.5).
+          const preds=await model.detect(aicv, 20, 0.15);
+          const balls=preds.filter(p=>p.class==='sports ball' && p.score>=0.15);
+          const persons=preds.filter(p=>p.class==='person' && p.score>=0.45);
+
+          if(balls.length){
+            // le ballon est le sujet prioritaire : on centre dessus, pas sur les joueurs.
+            const best=balls.reduce((a,b)=> b.score>a.score ? b : a);
+            const [bx,,bw]=best.bbox;
+            normX=(bx+bw/2)/aiW; aiHits++;
+          } else if(persons.length){
+            // repli : barycentre des joueurs si le ballon n'est pas detecte sur cette fenetre
             let xsum=0, wsum=0;
-            relevant.forEach(p=>{
-              const [x,,bw,bh]=p.bbox;
-              const cx=x+bw/2, area=bw*bh;
-              let weight=p.score*Math.sqrt(area);
-              if(p.class==='sports ball') weight*=2.2;   // le ballon = point d'attention prioritaire
-              xsum+=cx*weight; wsum+=weight;
+            persons.forEach(p=>{
+              const [x,,pw,ph]=p.bbox;
+              const weight=p.score*Math.sqrt(pw*ph);
+              xsum+=(x+pw/2)*weight; wsum+=weight;
             });
             if(wsum>0){ normX=xsum/wsum/aiW; aiHits++; }
           }
@@ -362,20 +371,28 @@ let curBase=0, curSpan=0;
 function phase(base, span, msg){ curBase=base; curSpan=span; if(msg) plog(msg); setBar(base); }
 async function resetFF(){ ffLoaded=false; ffmpeg=null; await ensureFF(); }
 
-async function tryFF(args, outName){
-  try{ await runFF(args, outName); return true; } catch(e){ return false; }
-}
-async function runFF(args, outName){
+/* ffmpeg.wasm 0.11 leve parfois "Program terminated with exit(0)" (exit(0) =
+   SUCCES) en contournant son propre mecanisme de deverrouillage interne : le
+   moteur reste alors bloque sur "can only run one command at a time" pour
+   TOUTE commande suivante, meme dans un nouvel export. On avale cette
+   exception benigne, on extrait le resultat en memoire JS (pas dans le FS
+   du moteur, qu'un reset va vider) et on recharge systematiquement le
+   moteur dans ce cas precis avant de rendre la main. */
+async function runFFtoBytes(args, outName){
+  let quirk=false;
   try{ await ffmpeg.run(...args); }
   catch(err){
     const m=(err && (err.message||String(err)))||'';
     if(!/exit\(0\)/.test(m)) throw err;
+    quirk=true;
   }
-  if(outName){
-    let ok=false;
-    try{ ok=ffmpeg.FS('readdir','/').includes(outName); }catch(e){ ok=false; }
-    if(!ok) throw new Error('Sortie non produite ('+outName+')');
-  }
+  let ok=false;
+  try{ ok=ffmpeg.FS('readdir','/').includes(outName); }catch(e){ ok=false; }
+  if(!ok) throw new Error('Sortie non produite ('+outName+')');
+  const bytes=ffmpeg.FS('readFile', outName);
+  try{ ffmpeg.FS('unlink', outName); }catch(e){}
+  if(quirk) await resetFF();
+  return bytes;
 }
 async function readFileBytes(file){ return new Uint8Array(await file.arrayBuffer()); }
 
@@ -413,17 +430,23 @@ async function runExport(){
 
     const duration=preview.duration;
     const inName='src_in.mp4';
-    ffmpeg.FS('writeFile', inName, await readFileBytes(srcFile));
+    const srcBytes=await readFileBytes(srcFile);
+    ffmpeg.FS('writeFile', inName, srcBytes);
 
     const threshold=Math.max(16, Math.round(W*0.02));
     const segments=buildExportSegments(xs, winLen, duration, threshold);
     const nSeg=segments.length;
-    const segNames=[];
+    const segBuffers=[];
     for(let i=0;i<nSeg;i++){
       const {t0, t1, x}=segments[i];
       const dur=(t1-t0).toFixed(3);
 
       phase(0.05 + 0.7*(i/nSeg), 0.7/nSeg, `Encodage segment ${i+1}/${nSeg}…`);
+
+      // un reset au tour precedent (quirk exit(0)) vide le systeme de
+      // fichiers du moteur : on s'assure que la source y est toujours.
+      try{ if(!ffmpeg.FS('readdir','/').includes(inName)) ffmpeg.FS('writeFile', inName, srcBytes); }
+      catch(e){ ffmpeg.FS('writeFile', inName, srcBytes); }
 
       const outName=`seg_${String(i).padStart(3,'0')}.mp4`;
       const y=0;
@@ -431,41 +454,39 @@ async function runExport(){
       const common=['-ss', t0.toFixed(3), '-i', inName, '-f','lavfi','-t', dur, '-i','anullsrc=r=48000:cl=stereo', '-t', dur, '-vf', vf, '-r', String(fps)];
       const enc=['-c:v','libx264','-preset','ultrafast','-crf','20','-c:a','aac','-b:a','160k','-ar','48000','-ac','2','-pix_fmt','yuv420p', outName];
 
+      let bytes;
       if(hasAudio===false){
-        await runFF([...common, '-map','0:v','-map','1:a', ...enc], outName);
+        bytes=await runFFtoBytes([...common, '-map','0:v','-map','1:a', ...enc], outName);
       } else if(hasAudio===true){
-        await runFF([...common, '-filter_complex','[0:a][1:a]amix=inputs=2:duration=first[aout]','-map','0:v','-map','[aout]', ...enc], outName);
+        bytes=await runFFtoBytes([...common, '-filter_complex','[0:a][1:a]amix=inputs=2:duration=first[aout]','-map','0:v','-map','[aout]', ...enc], outName);
       } else {
-        const ok=await tryFF([...common, '-filter_complex','[0:a][1:a]amix=inputs=2:duration=first[aout]','-map','0:v','-map','[aout]', ...enc], outName);
-        if(!ok){
+        try{
+          bytes=await runFFtoBytes([...common, '-filter_complex','[0:a][1:a]amix=inputs=2:duration=first[aout]','-map','0:v','-map','[aout]', ...enc], outName);
+        }catch(e){
           await resetFF();
-          ffmpeg.FS('writeFile', inName, await readFileBytes(srcFile));
-          await runFF([...common, '-map','0:v','-map','1:a', ...enc], outName);
+          ffmpeg.FS('writeFile', inName, srcBytes);
+          bytes=await runFFtoBytes([...common, '-map','0:v','-map','1:a', ...enc], outName);
         }
       }
-      segNames.push(outName);
+      segBuffers.push(bytes);
     }
 
     phase(0.8, 0.15, 'Assemblage final…');
-    let finalName;
-    if(segNames.length===1){
-      finalName=segNames[0];
+    let finalBytes;
+    if(segBuffers.length===1){
+      finalBytes=segBuffers[0];
     } else {
+      const segNames=segBuffers.map((_,i)=>`seg_${String(i).padStart(3,'0')}.mp4`);
+      segBuffers.forEach((b,i)=> ffmpeg.FS('writeFile', segNames[i], b));
       const inputs=[]; segNames.forEach(n=>inputs.push('-i', n));
       const concatIns=segNames.map((_,i)=>`[${i}:v][${i}:a]`).join('');
       const filt=`${concatIns}concat=n=${segNames.length}:v=1:a=1[vout][aout]`;
-      await runFF([...inputs, '-filter_complex', filt, '-map','[vout]','-map','[aout]',
+      finalBytes=await runFFtoBytes([...inputs, '-filter_complex', filt, '-map','[vout]','-map','[aout]',
         '-c:v','libx264','-preset','ultrafast','-crf','20','-c:a','aac','-b:a','160k','-ar','48000','-ac','2','-pix_fmt','yuv420p','out.mp4'], 'out.mp4');
-      finalName='out.mp4';
-      segNames.forEach(n=>{ try{ ffmpeg.FS('unlink', n); }catch(e){} });
     }
 
     phase(0.95, 0.05, 'Finalisation…');
-    const data=ffmpeg.FS('readFile', finalName);
-    try{ ffmpeg.FS('unlink', finalName); }catch(e){}
-    try{ ffmpeg.FS('unlink', inName); }catch(e){}
-
-    const blob=new Blob([data.buffer], {type:'video/mp4'});
+    const blob=new Blob([finalBytes], {type:'video/mp4'});
     const url=URL.createObjectURL(blob);
     $('outVideo').src=url;
     $('dlLink').href=url;
