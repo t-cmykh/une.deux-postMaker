@@ -379,6 +379,25 @@ async function runFF(args, outName){
 }
 async function readFileBytes(file){ return new Uint8Array(await file.arrayBuffer()); }
 
+/* Fusionne les fenetres d'analyse consecutives dont le cadrage ne bouge
+   quasiment pas en un seul segment a encoder. Indispensable sur mobile :
+   sans ca, une video d'1 minute avec une fenetre de 1s produit ~60 appels
+   ffmpeg (un par seconde), ce qui sature la memoire du navigateur et fait
+   planter/bloquer le moteur wasm. Ici, seuls les vrais changements de
+   cadrage (> seuil) declenchent une coupe. */
+function buildExportSegments(xsArr, winLen, duration, threshold){
+  const segs=[];
+  let curX=xsArr[0], curStart=0;
+  for(let i=1;i<xsArr.length;i++){
+    if(Math.abs(xsArr[i]-curX)>threshold){
+      segs.push({t0:curStart*winLen, t1:Math.min(i*winLen, duration), x:curX});
+      curX=xsArr[i]; curStart=i;
+    }
+  }
+  segs.push({t0:curStart*winLen, t1:duration, x:curX});
+  return segs.filter(s=>s.t1-s.t0>0.02);
+}
+
 /* ---------- 3) export ---------- */
 $('exportBtn').addEventListener('click', runExport);
 
@@ -389,24 +408,25 @@ async function runExport(){
   $('progress').classList.add('show');
 
   try{
-    await ensureFF();
+    await resetFF();   // toujours un moteur propre : evite le verrou "one command at a time" apres un echec precedent
     phase(0.05, 0, 'Préparation…');
 
     const duration=preview.duration;
     const inName='src_in.mp4';
     ffmpeg.FS('writeFile', inName, await readFileBytes(srcFile));
 
-    const nWin=xs.length;
+    const threshold=Math.max(16, Math.round(W*0.02));
+    const segments=buildExportSegments(xs, winLen, duration, threshold);
+    const nSeg=segments.length;
     const segNames=[];
-    for(let i=0;i<nWin;i++){
-      const t0=i*winLen, t1=Math.min((i+1)*winLen, duration);
+    for(let i=0;i<nSeg;i++){
+      const {t0, t1, x}=segments[i];
       const dur=(t1-t0).toFixed(3);
-      if(+dur<=0.02) continue;
 
-      phase(0.05 + 0.7*(i/nWin), 0.7/nWin, `Encodage fenêtre ${i+1}/${nWin}…`);
+      phase(0.05 + 0.7*(i/nSeg), 0.7/nSeg, `Encodage segment ${i+1}/${nSeg}…`);
 
       const outName=`seg_${String(i).padStart(3,'0')}.mp4`;
-      const x=xs[i], y=0;
+      const y=0;
       const vf=`scale=${W}:${H}:force_original_aspect_ratio=increase,crop=${W}:${H}:${x}:${y},fps=${fps},format=yuv420p`;
       const common=['-ss', t0.toFixed(3), '-i', inName, '-f','lavfi','-t', dur, '-i','anullsrc=r=48000:cl=stereo', '-t', dur, '-vf', vf, '-r', String(fps)];
       const enc=['-c:v','libx264','-preset','ultrafast','-crf','20','-c:a','aac','-b:a','160k','-ar','48000','-ac','2','-pix_fmt','yuv420p', outName];
