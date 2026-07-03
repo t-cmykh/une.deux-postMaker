@@ -177,6 +177,10 @@ Un destin que personne n'avait écrit."></textarea>
       <input type="checkbox" id="cfgOverlay" checked style="width:18px;height:18px;accent-color:var(--ocre)">
       Overlay une·deux (logo + kicker)
     </label>
+    <label style="font-size:11px;display:flex;align-items:center;gap:8px;margin-bottom:14px;opacity:.85">
+      <input type="checkbox" id="cfgSmartCrop" checked style="width:18px;height:18px;accent-color:var(--ocre)">
+      Cadrage auto (recentrer sur l'action)
+    </label>
 
     <div class="render">
       <div class="warn">iOS : garde l'écran allumé et reste sur cette page pendant le rendu. Vidéo ~60s = 2 à 5 min, le téléphone chauffe (normal).</div>
@@ -423,6 +427,104 @@ function canvasToPNGBytes(cv){
   });
 }
 
+/* --- cadrage auto : recentre le crop sur la zone la plus "active" du plan ---
+   Heuristique sans IA (pas de detection d'objet/visage disponible en wasm) :
+   on echantillonne quelques frames du segment, on pese chaque colonne/ligne
+   par son mouvement (diff inter-frames) + son detail (gradient), et on prend
+   le barycentre comme centre du crop. Bon proxy pour "ou ca bouge / ou c'est
+   dense", pas un vrai suivi de sujet — mais largement mieux qu'un crop centre
+   fixe pour un plan ou l'action n'est pas au milieu. */
+function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
+
+async function analyzeSmartCrop(file, tIn, tOut, W, H){
+  return new Promise(resolve=>{
+    const url=URL.createObjectURL(file);
+    const v=document.createElement('video');
+    v.preload='auto'; v.muted=true; v.playsInline=true;
+    let settled=false;
+    const finish=(result)=>{ if(settled)return; settled=true; try{URL.revokeObjectURL(url);}catch(e){} resolve(result); };
+    const hardTimeout=setTimeout(()=>finish(null), 9000);
+
+    v.addEventListener('error', ()=>{ clearTimeout(hardTimeout); finish(null); }, {once:true});
+    v.addEventListener('loadedmetadata', async ()=>{
+      try{
+        const srcW=v.videoWidth, srcH=v.videoHeight;
+        if(!srcW || !srcH){ clearTimeout(hardTimeout); finish(null); return; }
+
+        const scale=Math.max(W/srcW, H/srcH);
+        const scaledW=Math.round(srcW*scale), scaledH=Math.round(srcH*scale);
+        const needX = scaledW - W;   // marge de recadrage horizontal
+        const needY = scaledH - H;   // marge de recadrage vertical
+        if(needX<=1 && needY<=1){ clearTimeout(hardTimeout); finish(null); return; }
+
+        const AW=160, AH=Math.max(1, Math.round(AW*srcH/srcW));
+        const cv=document.createElement('canvas'); cv.width=AW; cv.height=AH;
+        const ctx=cv.getContext('2d', {willReadFrequently:true});
+
+        const dur=Math.max(0.05, tOut-tIn);
+        const N=5;
+        const times=[]; for(let i=0;i<N;i++) times.push(tIn + dur*(i/(N-1)));
+        const seekLimit=Math.max(0, (isFinite(v.duration)?v.duration:tOut+dur)-0.02);
+
+        const seekTo=t=>new Promise(res=>{
+          let done=false;
+          const onSeeked=()=>{ if(done)return; done=true; v.removeEventListener('seeked', onSeeked); res(); };
+          v.addEventListener('seeked', onSeeked, {once:true});
+          setTimeout(()=>{ if(!done){ done=true; v.removeEventListener('seeked', onSeeked); res(); } }, 1500);
+          v.currentTime=clamp(t, 0, seekLimit);
+        });
+
+        const colEnergy=new Float64Array(AW), rowEnergy=new Float64Array(AH);
+        let prevGray=null;
+
+        for(const t of times){
+          await seekTo(t);
+          ctx.drawImage(v, 0, 0, AW, AH);
+          const {data}=ctx.getImageData(0, 0, AW, AH);
+          const gray=new Float64Array(AW*AH);
+          for(let p=0;p<AW*AH;p++) gray[p]=0.299*data[p*4]+0.587*data[p*4+1]+0.114*data[p*4+2];
+
+          for(let y=0;y<AH;y++){
+            for(let x=0;x<AW;x++){
+              const idx=y*AW+x;
+              const gxNext = x<AW-1 ? gray[idx+1] : gray[idx];
+              const gyNext = y<AH-1 ? gray[idx+AW] : gray[idx];
+              const edge = Math.abs(gray[idx]-gxNext) + Math.abs(gray[idx]-gyNext);
+              const motion = prevGray ? Math.abs(gray[idx]-prevGray[idx]) : 0;
+              const w = edge + motion*3;
+              colEnergy[x]+=w; rowEnergy[y]+=w;
+            }
+          }
+          prevGray=gray;
+        }
+        clearTimeout(hardTimeout);
+
+        let x=null, y=null;
+        if(needX>1){
+          let total=0, weighted=0;
+          for(let i=0;i<AW;i++){ total+=colEnergy[i]; weighted+=colEnergy[i]*(i+0.5); }
+          if(total>0){
+            const centerScaled=(weighted/total/AW)*scaledW;
+            x=clamp(Math.round(centerScaled-W/2), 0, scaledW-W);
+          }
+        }
+        if(needY>1){
+          let total=0, weighted=0;
+          for(let i=0;i<AH;i++){ total+=rowEnergy[i]; weighted+=rowEnergy[i]*(i+0.5); }
+          if(total>0){
+            const centerScaled=(weighted/total/AH)*scaledH;
+            y=clamp(Math.round(centerScaled-H/2), 0, scaledH-H);
+          }
+        }
+        finish((x!=null || y!=null) ? {x:x||0, y:y||0} : null);
+      }catch(e){ clearTimeout(hardTimeout); finish(null); }
+    }, {once:true});
+
+    v.src=url;
+    v.load();
+  });
+}
+
 /* --- chargement ffmpeg.wasm (single-thread, stable iOS) --- */
 async function ensureFF(){
   if(ffLoaded) return;
@@ -507,11 +609,19 @@ async function renderAll(){
     const segSpan=0.55/nSeg;
 
     // 1) encoder chaque segment, libérer la RAM au fur et à mesure
+    const useSmartCrop = $('cfgSmartCrop').checked;
     const segOutNames=[];
     for(let i=0;i<segments.length;i++){
       const s=segments[i];
-      phase(i*segSpan, segSpan, `Découpe segment ${i+1}/${nSeg}…`);
       const srcFile=files[s.source].file;
+
+      let smartCrop=null;
+      if(useSmartCrop){
+        plog(`Analyse du cadrage — segment ${i+1}/${nSeg}…`);
+        smartCrop = await analyzeSmartCrop(srcFile, +s.in, +s.out, W, H);
+      }
+
+      phase(i*segSpan, segSpan, `Découpe segment ${i+1}/${nSeg}…`);
       const inName=`src_${i}.mp4`;
       const outName=`seg_${String(i).padStart(3,'0')}.mp4`;
       ffmpeg.FS('writeFile', inName, await readFileBytes(srcFile));
@@ -519,7 +629,8 @@ async function renderAll(){
       const speed=parseFloat(s.speed)||1.0;
       const tIn=(+s.in).toFixed(3);
       const dur=((+s.out - +s.in)/speed).toFixed(3);
-      let vf=`scale=${W}:${H}:force_original_aspect_ratio=increase,crop=${W}:${H}`;
+      const cropExpr = smartCrop ? `crop=${W}:${H}:${smartCrop.x}:${smartCrop.y}` : `crop=${W}:${H}`;
+      let vf=`scale=${W}:${H}:force_original_aspect_ratio=increase,${cropExpr}`;
       if(Math.abs(speed-1)>1e-3) vf+=`,setpts=${(1/speed).toFixed(6)}*PTS`;
       vf+=`,fps=${fps},format=yuv420p`;
 
