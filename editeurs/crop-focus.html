@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>une·deux — Cadrage auto 9:16</title>
+<style>
+  :root{ --newsprint:#F1ECE1; --encre:#2C2823; --vert:#27543C; --ocre:#C2A04E; }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--encre);color:var(--newsprint);}
+  header{padding:16px 18px 10px;border-bottom:1px solid rgba(241,236,225,.12);}
+  header h1{margin:0;font-size:16px;letter-spacing:.02em;}
+  header p{margin:6px 0 0;font-size:12px;opacity:.7;}
+  main{max-width:520px;margin:0 auto;padding:16px 16px 60px;}
+  .panel{background:rgba(241,236,225,.04);border:1px solid rgba(241,236,225,.1);border-radius:14px;padding:14px;margin-bottom:16px;}
+  .panel h2{margin:0 0 10px;font-size:12px;text-transform:uppercase;letter-spacing:.08em;opacity:.75;}
+  .drop{border:1.5px dashed rgba(241,236,225,.3);border-radius:12px;padding:22px 12px;text-align:center;font-size:13px;opacity:.85;cursor:pointer;}
+  .drop.hover{border-color:var(--ocre);color:var(--ocre);}
+  input[type=file]{display:none;}
+  .video-wrap{position:relative;margin-top:12px;border-radius:10px;overflow:hidden;background:#000;display:none;}
+  .video-wrap.show{display:block;}
+  .video-wrap video{display:block;width:100%;height:auto;}
+  .crop-ov{position:absolute;border:3px solid var(--ocre);box-shadow:0 0 0 3000px rgba(0,0,0,.45);pointer-events:none;transition:left .08s linear, top .08s linear, width .08s linear, height .08s linear;}
+  .cfg-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+  .cfg-row.three{grid-template-columns:1fr 1fr 1fr;}
+  label.field{font-size:11px;opacity:.75;display:block;margin-bottom:4px;}
+  select,input[type=number],input[type=range]{width:100%;background:rgba(241,236,225,.06);border:1px solid rgba(241,236,225,.18);border-radius:8px;color:var(--newsprint);padding:8px;font-size:13px;}
+  .modes{display:flex;gap:14px;font-size:12px;margin:6px 0 4px;flex-wrap:wrap;}
+  .modes label{display:flex;align-items:center;gap:6px;opacity:.9;}
+  .btn{display:block;width:100%;padding:13px;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;margin-top:6px;}
+  .btn.primary{background:var(--ocre);color:var(--encre);}
+  .btn.secondary{background:var(--vert);color:var(--newsprint);}
+  .btn:disabled{opacity:.4;cursor:not-allowed;}
+  .stats{font-size:12px;opacity:.75;margin-top:10px;min-height:16px;}
+  .progress{display:none;margin-top:12px;}
+  .progress.show{display:block;}
+  .pbar{height:8px;border-radius:6px;background:rgba(241,236,225,.12);overflow:hidden;}
+  .pbar i{display:block;height:100%;width:0;background:var(--ocre);transition:width .2s;}
+  .plog{font-size:11px;opacity:.7;margin-top:6px;}
+  .result{display:none;margin-top:14px;}
+  .result.show{display:block;}
+  .result video{width:100%;border-radius:10px;}
+  .dl{display:block;text-align:center;margin-top:10px;padding:12px;border-radius:10px;background:var(--vert);color:var(--newsprint);text-decoration:none;font-size:13px;font-weight:600;}
+  .warn{font-size:11px;opacity:.65;margin-top:10px;line-height:1.4;}
+  .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:var(--newsprint);color:var(--encre);padding:9px 16px;border-radius:20px;font-size:12px;opacity:0;transition:all .25s;pointer-events:none;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>une·deux — Cadrage auto 9:16</h1>
+  <p>Recadre une vidéo 16:9 en 9:16 (ou 4:5, 1:1) en suivant automatiquement joueurs et ballon.</p>
+</header>
+
+<main>
+  <div class="panel">
+    <h2>1 — Vidéo source</h2>
+    <div class="drop" id="drop">Dépose une vidéo ici ou clique pour choisir<br><span style="opacity:.6">MP4 / MOV, idéalement 16:9</span></div>
+    <input type="file" id="fileInput" accept="video/*">
+    <div class="video-wrap" id="videoWrap">
+      <video id="preview" playsinline muted controls></video>
+      <div class="crop-ov" id="cropOv" style="display:none"></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>2 — Réglages</h2>
+    <div class="cfg-row">
+      <div>
+        <label class="field">Format de sortie</label>
+        <select id="cfgRatio">
+          <option value="1080x1920" selected>9:16 (Reel/Story)</option>
+          <option value="1080x1350">4:5 (Post)</option>
+          <option value="1080x1080">1:1 (Carré)</option>
+        </select>
+      </div>
+      <div>
+        <label class="field">Fenêtre d'analyse</label>
+        <select id="cfgWin">
+          <option value="0.5">0.5 s (suit vite, plus de coupes)</option>
+          <option value="1" selected>1 s (équilibré)</option>
+          <option value="2">2 s (plus stable)</option>
+        </select>
+      </div>
+    </div>
+    <label class="field">Mode de détection</label>
+    <div class="modes">
+      <label><input type="radio" name="mode" value="auto" checked> Auto (IA + repli mouvement)</label>
+      <label><input type="radio" name="mode" value="ai"> IA seule (joueurs/ballon)</label>
+      <label><input type="radio" name="mode" value="motion"> Mouvement/détail seul</label>
+    </div>
+    <button class="btn primary" id="analyzeBtn" disabled>Analyser le cadrage</button>
+    <div class="stats" id="stats"></div>
+  </div>
+
+  <div class="panel">
+    <h2>3 — Export</h2>
+    <button class="btn secondary" id="exportBtn" disabled>Exporter en 9:16</button>
+    <div class="progress" id="progress">
+      <div class="pbar"><i id="pbarFill"></i></div>
+      <div class="plog" id="plog">Initialisation…</div>
+    </div>
+    <div class="result" id="result">
+      <video id="outVideo" controls playsinline></video>
+      <a class="dl" id="dlLink" download="cadrage_auto.mp4">Enregistrer la vidéo</a>
+    </div>
+    <div class="warn">Tout se passe dans le navigateur (rien n'est envoyé sur un serveur). Le modèle de détection (~6 Mo) et le moteur vidéo (~25 Mo) se téléchargent au premier lancement — garde l'onglet ouvert pendant l'export.</div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.20.0/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.3/dist/coco-ssd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
+function toast(m){ const t=$('toast'); t.textContent=m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'), 2200); }
+function plog(m){ $('plog').textContent=m; }
+function setBar(p){ $('pbarFill').style.width = Math.round(clamp(p,0,1)*100)+'%'; }
+
+/* ---------- état ---------- */
+const preview = $('preview');
+let srcFile=null, srcW=0, srcH=0, hasAudio=null, analyzed=false;
+let W=1080, H=1920, fps=30, winLen=1, xs=[];
+let ffmpeg=null, ffLoaded=false;
+
+/* ---------- 1) chargement du fichier ---------- */
+const drop=$('drop');
+drop.addEventListener('click', ()=>$('fileInput').click());
+['dragover','dragenter'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault(); drop.classList.add('hover');}));
+['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault(); drop.classList.remove('hover');}));
+drop.addEventListener('drop', e=>{ if(e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]); });
+$('fileInput').addEventListener('change', e=>{ if(e.target.files[0]) loadFile(e.target.files[0]); e.target.value=''; });
+
+function loadFile(file){
+  if(!file.type.startsWith('video/')){ toast('Choisis un fichier vidéo'); return; }
+  srcFile=file; analyzed=false; xs=[]; hasAudio=null;
+  $('analyzeBtn').disabled=true; $('exportBtn').disabled=true;
+  $('result').classList.remove('show'); $('stats').textContent='';
+  preview.src = URL.createObjectURL(file);
+  preview.load();
+  $('videoWrap').classList.add('show');
+  $('cropOv').style.display='none';
+  probeAudio(file);
+}
+preview.addEventListener('loadedmetadata', ()=>{
+  srcW=preview.videoWidth; srcH=preview.videoHeight;
+  if(srcW && srcH){ $('analyzeBtn').disabled=false; }
+  else toast('Impossible de lire les dimensions de la vidéo');
+});
+preview.addEventListener('error', ()=> toast('Vidéo illisible par le navigateur'));
+
+function probeAudio(file){
+  const url=URL.createObjectURL(file);
+  const v=document.createElement('video');
+  v.preload='metadata'; v.muted=true;
+  const done=()=>{ try{URL.revokeObjectURL(url);}catch(e){} };
+  v.addEventListener('loadeddata', ()=>{
+    let has=null;
+    if(typeof v.mozHasAudio==='boolean') has=v.mozHasAudio;
+    else if(typeof v.webkitAudioDecodedByteCount==='number') has=v.webkitAudioDecodedByteCount>0;
+    else if(v.audioTracks && typeof v.audioTracks.length==='number') has=v.audioTracks.length>0;
+    hasAudio=has; done();
+  }, {once:true});
+  v.addEventListener('error', done, {once:true});
+  v.addEventListener('loadedmetadata', ()=>{ v.currentTime=Math.min(0.1,(v.duration||1)/2); }, {once:true});
+  v.src=url;
+}
+
+/* ---------- overlay de prévisualisation du crop ---------- */
+function xAtTime(t){
+  if(!xs.length) return 0;
+  const i=clamp(Math.floor(t/winLen), 0, xs.length-1);
+  return xs[i];
+}
+function overlayLoop(){
+  requestAnimationFrame(overlayLoop);
+  if(!xs.length || !srcW) return;
+  const ov=$('cropOv');
+  ov.style.display='block';
+  const x=xAtTime(preview.currentTime||0);
+  const scale=Math.max(W/srcW, H/srcH);
+  const srcCropX=x/scale, srcCropW=W/scale, srcCropY=0/scale, srcCropH=H/scale;
+  const dispW=preview.clientWidth, dispH=preview.clientHeight;
+  if(!dispW || !dispH) return;
+  const kx=dispW/srcW, ky=dispH/srcH;
+  ov.style.left=(srcCropX*kx)+'px';
+  ov.style.top=(srcCropY*ky)+'px';
+  ov.style.width=Math.min(srcCropW*kx, dispW)+'px';
+  ov.style.height=Math.min(srcCropH*ky, dispH)+'px';
+}
+requestAnimationFrame(overlayLoop);
+
+/* ---------- détection IA (joueurs / ballon) via coco-ssd ---------- */
+let cocoModelPromise=null;
+function loadCocoSsd(){
+  if(cocoModelPromise) return cocoModelPromise;
+  cocoModelPromise=(async()=>{
+    try{
+      if(typeof cocoSsd==='undefined' || typeof tf==='undefined') throw new Error('tfjs indisponible');
+      return await cocoSsd.load({base:'lite_mobilenet_v2'});
+    }catch(e){
+      console.warn('Détection IA indisponible, repli sur heuristique mouvement/détail.', e);
+      return null;
+    }
+  })();
+  return cocoModelPromise;
+}
+
+function seekPreview(t){
+  return new Promise(res=>{
+    let done=false;
+    const onSeeked=()=>{ if(done)return; done=true; preview.removeEventListener('seeked',onSeeked); res(); };
+    preview.addEventListener('seeked', onSeeked, {once:true});
+    setTimeout(()=>{ if(!done){done=true; preview.removeEventListener('seeked',onSeeked); res();} }, 1500);
+    preview.currentTime=clamp(t, 0, Math.max(0, (preview.duration||t)-0.02));
+  });
+}
+
+function smoothSeries(raw, maxStep, alpha){
+  const out=new Array(raw.length); let prev=raw[0]; out[0]=prev;
+  for(let i=1;i<raw.length;i++){
+    const target=alpha*raw[i] + (1-alpha)*prev;
+    const delta=clamp(target-prev, -maxStep, maxStep);
+    prev=clamp(prev+delta, 0, 1);
+    out[i]=prev;
+  }
+  return out;
+}
+
+/* ---------- 2) analyse ---------- */
+$('analyzeBtn').addEventListener('click', runAnalysis);
+
+async function runAnalysis(){
+  if(!srcFile){ toast('Choisis une vidéo'); return; }
+  const [w,h]=$('cfgRatio').value.split('x').map(Number);
+  W=w; H=h; winLen=parseFloat($('cfgWin').value)||1;
+  const mode=document.querySelector('input[name=mode]:checked').value;
+
+  $('analyzeBtn').disabled=true; $('exportBtn').disabled=true;
+  $('progress').classList.add('show'); plog('Préparation de l’analyse…'); setBar(0);
+
+  try{
+    let model=null;
+    if(mode!=='motion'){
+      plog('Chargement du modèle de détection (joueurs / ballon)…');
+      model=await loadCocoSsd();
+      if(!model && mode==='ai') toast('IA indisponible, repli sur mouvement/détail');
+    }
+
+    const duration=preview.duration;
+    if(!duration || !isFinite(duration)){ toast('Durée de la vidéo introuvable'); return; }
+    const nWin=Math.max(1, Math.ceil(duration/winLen));
+
+    const scale=Math.max(W/srcW, H/srcH);
+    const scaledW=Math.round(srcW*scale), scaledH=Math.round(srcH*scale);
+    const needX=scaledW-W, needY=scaledH-H;
+
+    const AW=160, AH=Math.max(1, Math.round(AW*srcH/srcW));
+    const acv=document.createElement('canvas'); acv.width=AW; acv.height=AH;
+    const actx=acv.getContext('2d', {willReadFrequently:true});
+
+    const aiW=400, aiH=Math.max(1, Math.round(aiW*srcH/srcW));
+    const aicv=document.createElement('canvas'); aicv.width=aiW; aicv.height=aiH;
+    const aictx=aicv.getContext('2d');
+
+    const raw=new Array(nWin).fill(0.5);
+    let prevGray=null, aiHits=0;
+
+    for(let i=0;i<nWin;i++){
+      const t=Math.min(Math.max(0,duration-0.02), i*winLen + winLen/2);
+      await seekPreview(t);
+      let normX=null;
+
+      if(model){
+        aictx.drawImage(preview, 0, 0, aiW, aiH);
+        try{
+          const preds=await model.detect(aicv);
+          const relevant=preds.filter(p=>p.class==='person' || p.class==='sports ball');
+          if(relevant.length){
+            let xsum=0, wsum=0;
+            relevant.forEach(p=>{
+              const [x,,bw,bh]=p.bbox;
+              const cx=x+bw/2, area=bw*bh;
+              let weight=p.score*Math.sqrt(area);
+              if(p.class==='sports ball') weight*=2.2;   // le ballon = point d'attention prioritaire
+              xsum+=cx*weight; wsum+=weight;
+            });
+            if(wsum>0){ normX=xsum/wsum/aiW; aiHits++; }
+          }
+        }catch(e){ /* une frame ratee ne doit pas arreter l'analyse */ }
+      }
+
+      if(normX==null){
+        actx.drawImage(preview, 0, 0, AW, AH);
+        const {data}=actx.getImageData(0, 0, AW, AH);
+        const gray=new Float64Array(AW*AH);
+        for(let p=0;p<AW*AH;p++) gray[p]=0.299*data[p*4]+0.587*data[p*4+1]+0.114*data[p*4+2];
+        const colE=new Float64Array(AW);
+        for(let y=0;y<AH;y++){
+          for(let x=0;x<AW;x++){
+            const idx=y*AW+x;
+            const gxN=x<AW-1?gray[idx+1]:gray[idx];
+            const gyN=y<AH-1?gray[idx+AW]:gray[idx];
+            const edge=Math.abs(gray[idx]-gxN)+Math.abs(gray[idx]-gyN);
+            const motion=prevGray?Math.abs(gray[idx]-prevGray[idx]):0;
+            colE[x]+=edge+motion*3;
+          }
+        }
+        let total=0, weighted=0;
+        for(let x=0;x<AW;x++){ total+=colE[x]; weighted+=colE[x]*(x+0.5); }
+        normX = total>0 ? weighted/total/AW : 0.5;
+        prevGray=gray;
+      } else {
+        prevGray=null;   // la detection IA a "bouge" le cadre : on ne compare pas la prochaine frame mouvement a celle-ci
+      }
+
+      raw[i]=normX;
+      setBar(0.65*((i+1)/nWin));
+      plog(`Analyse du cadrage — fenêtre ${i+1}/${nWin}…`);
+    }
+
+    const smoothed = smoothSeries(raw, 0.14, 0.4);
+    xs = smoothed.map(nx=>{
+      if(needX<=1) return 0;
+      const centerScaled = nx*scaledW;
+      return clamp(Math.round(centerScaled - W/2), 0, scaledW-W);
+    });
+
+    $('stats').textContent = model
+      ? `IA : ${aiHits}/${nWin} fenêtre(s) avec joueur/ballon détecté (repli mouvement sinon).`
+      : `Mode mouvement/détail (pas de détection IA).`;
+
+    analyzed=true;
+    $('exportBtn').disabled=false;
+    setBar(1); plog('Analyse terminée.');
+    toast('Analyse terminée — regarde le cadre orange sur la vidéo');
+  }catch(e){
+    console.error(e); toast('Erreur d’analyse : '+(e.message||e));
+  }finally{
+    $('analyzeBtn').disabled=false;
+  }
+}
+
+/* ---------- ffmpeg.wasm (mono-thread, stable iOS) ---------- */
+async function ensureFF(){
+  if(ffLoaded) return;
+  const { createFFmpeg } = FFmpeg;
+  ffmpeg=createFFmpeg({
+    log:false, mainName:'main',
+    corePath:'https://cdn.jsdelivr.net/npm/@ffmpeg/core-st@0.11.1/dist/ffmpeg-core.js',
+  });
+  ffmpeg.setProgress(({ratio})=>{ if(ratio>=0 && ratio<=1) setBar(curBase + ratio*curSpan); });
+  plog('Téléchargement du moteur vidéo (~25 Mo, 1ère fois)…');
+  await ffmpeg.load();
+  ffLoaded=true;
+}
+let curBase=0, curSpan=0;
+function phase(base, span, msg){ curBase=base; curSpan=span; if(msg) plog(msg); setBar(base); }
+async function resetFF(){ ffLoaded=false; ffmpeg=null; await ensureFF(); }
+
+async function tryFF(args, outName){
+  try{ await runFF(args, outName); return true; } catch(e){ return false; }
+}
+async function runFF(args, outName){
+  try{ await ffmpeg.run(...args); }
+  catch(err){
+    const m=(err && (err.message||String(err)))||'';
+    if(!/exit\(0\)/.test(m)) throw err;
+  }
+  if(outName){
+    let ok=false;
+    try{ ok=ffmpeg.FS('readdir','/').includes(outName); }catch(e){ ok=false; }
+    if(!ok) throw new Error('Sortie non produite ('+outName+')');
+  }
+}
+async function readFileBytes(file){ return new Uint8Array(await file.arrayBuffer()); }
+
+/* ---------- 3) export ---------- */
+$('exportBtn').addEventListener('click', runExport);
+
+async function runExport(){
+  if(!analyzed){ toast('Lance d’abord l’analyse'); return; }
+  $('exportBtn').disabled=true; $('analyzeBtn').disabled=true;
+  $('result').classList.remove('show');
+  $('progress').classList.add('show');
+
+  try{
+    await ensureFF();
+    phase(0.05, 0, 'Préparation…');
+
+    const duration=preview.duration;
+    const inName='src_in.mp4';
+    ffmpeg.FS('writeFile', inName, await readFileBytes(srcFile));
+
+    const nWin=xs.length;
+    const segNames=[];
+    for(let i=0;i<nWin;i++){
+      const t0=i*winLen, t1=Math.min((i+1)*winLen, duration);
+      const dur=(t1-t0).toFixed(3);
+      if(+dur<=0.02) continue;
+
+      phase(0.05 + 0.7*(i/nWin), 0.7/nWin, `Encodage fenêtre ${i+1}/${nWin}…`);
+
+      const outName=`seg_${String(i).padStart(3,'0')}.mp4`;
+      const x=xs[i], y=0;
+      const vf=`scale=${W}:${H}:force_original_aspect_ratio=increase,crop=${W}:${H}:${x}:${y},fps=${fps},format=yuv420p`;
+      const common=['-ss', t0.toFixed(3), '-i', inName, '-f','lavfi','-t', dur, '-i','anullsrc=r=48000:cl=stereo', '-t', dur, '-vf', vf, '-r', String(fps)];
+      const enc=['-c:v','libx264','-preset','ultrafast','-crf','20','-c:a','aac','-b:a','160k','-ar','48000','-ac','2','-pix_fmt','yuv420p', outName];
+
+      if(hasAudio===false){
+        await runFF([...common, '-map','0:v','-map','1:a', ...enc], outName);
+      } else if(hasAudio===true){
+        await runFF([...common, '-filter_complex','[0:a][1:a]amix=inputs=2:duration=first[aout]','-map','0:v','-map','[aout]', ...enc], outName);
+      } else {
+        const ok=await tryFF([...common, '-filter_complex','[0:a][1:a]amix=inputs=2:duration=first[aout]','-map','0:v','-map','[aout]', ...enc], outName);
+        if(!ok){
+          await resetFF();
+          ffmpeg.FS('writeFile', inName, await readFileBytes(srcFile));
+          await runFF([...common, '-map','0:v','-map','1:a', ...enc], outName);
+        }
+      }
+      segNames.push(outName);
+    }
+
+    phase(0.8, 0.15, 'Assemblage final…');
+    let finalName;
+    if(segNames.length===1){
+      finalName=segNames[0];
+    } else {
+      const inputs=[]; segNames.forEach(n=>inputs.push('-i', n));
+      const concatIns=segNames.map((_,i)=>`[${i}:v][${i}:a]`).join('');
+      const filt=`${concatIns}concat=n=${segNames.length}:v=1:a=1[vout][aout]`;
+      await runFF([...inputs, '-filter_complex', filt, '-map','[vout]','-map','[aout]',
+        '-c:v','libx264','-preset','ultrafast','-crf','20','-c:a','aac','-b:a','160k','-ar','48000','-ac','2','-pix_fmt','yuv420p','out.mp4'], 'out.mp4');
+      finalName='out.mp4';
+      segNames.forEach(n=>{ try{ ffmpeg.FS('unlink', n); }catch(e){} });
+    }
+
+    phase(0.95, 0.05, 'Finalisation…');
+    const data=ffmpeg.FS('readFile', finalName);
+    try{ ffmpeg.FS('unlink', finalName); }catch(e){}
+    try{ ffmpeg.FS('unlink', inName); }catch(e){}
+
+    const blob=new Blob([data.buffer], {type:'video/mp4'});
+    const url=URL.createObjectURL(blob);
+    $('outVideo').src=url;
+    $('dlLink').href=url;
+    $('result').classList.add('show');
+    setBar(1); plog('Terminé.');
+    toast('Export terminé');
+  }catch(e){
+    console.error(e); toast('Erreur d’export : '+(e.message||e));
+  }finally{
+    $('exportBtn').disabled=false; $('analyzeBtn').disabled=false;
+  }
+}
+</script>
+</body>
+</html>
