@@ -10,16 +10,16 @@
 |------|----------------|------------------|----------------|
 | Lundi | Ce jour-là | Les oubliés | Carrousel 3:4 |
 | Mardi | Ce jour-là | Portraits | Reel 9:16 |
-| Mercredi | Ce jour-là | Transversales | Carrousel 3:4 |
+| Mercredi | Ce jour-là | L'arrêt de jeu | Carrousel 3:4 |
 | Jeudi | Ce jour-là | Les oubliés | Carrousel 3:4 |
 | Vendredi | Ce jour-là | Portraits | Reel 9:16 |
-| Samedi | Ce jour-là | Transversales | Carrousel 3:4 |
+| Samedi | Ce jour-là | L'arrêt de jeu | Carrousel 3:4 |
 | Dimanche | Ce jour-là | Portraits | Reel 9:16 |
 
 ### Répartition hebdomadaire des renforts
 - **Portraits — 3×** (mardi, vendredi, dimanche) : jours à forte audience, seule série en reel, donc trafic froid maximal.
 - **Les oubliés — 2×** (lundi, jeudi).
-- **Transversales — 2×** (mercredi, samedi) : jours où l'audience prend le temps de lire les carrousels longs.
+- **L'arrêt de jeu — 2×** (mercredi, samedi) : jours où l'audience prend le temps de lire les carrousels longs.
 
 ---
 
@@ -30,7 +30,7 @@
 | **Ce jour-là** | `#cejourla` | Éphéméride calendaire | nostalgie / surprise | Carrousel 3:4 | Ocre · sépia chaud |
 | **Les oubliés** | `#lesoubliés` | Effacés de l'histoire, injustices | injustice / révélation | Carrousel 3:4 | Vert · N&B froid |
 | **Portraits** | `#portraits` | Parcours d'un joueur par l'angle méconnu | fierté / admiration | Reel 9:16 | N&B studio · titre vertical |
-| **Transversales** | `#transversales` | Récits de trajectoire (toutes directions) | variable | Carrousel 3:4 | Ocre · accents inversés crème |
+| **L'arrêt de jeu** | `#arretdejeu` | Enquête/hypothèse sur une question foot | curiosité / révélation | Carrousel 3:4 | Rouille · légère surimpression média |
 
 ---
 
@@ -43,7 +43,7 @@ Pendant la fenêtre Mondial, la règle **« publication 1–3 h avant le coup d'
 ## Tenir le rythme
 
 - **Banque d'éphémérides pré-validée** : un fichier daté, faits vérifiés à l'avance, pour le socle quotidien *Ce jour-là* (la série la plus exigeante en sourcing).
-- **Batch week-end** : les renforts Portraits / Oubliés / Transversales ne sont pas liés à une date précise, ils peuvent être produits en avance.
+- **Batch week-end** : les renforts Portraits / Oubliés / L'arrêt de jeu ne sont pas liés à une date précise, ils peuvent être produits en avance.
 
 ---
 

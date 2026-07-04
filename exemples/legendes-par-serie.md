@@ -105,20 +105,20 @@ Alors dis-nous : [question sur sa place / son statut] 👇
 
 ---
 
-## Transversales — `#transversales`
+## L'arrêt de jeu — `#arretdejeu`
 
 ```
-**[Accroche sur la bascule : le moment où tout a changé] 🌍**
+**[Accroche sous forme de question foot cash] 🤔**
 
-[2 touches : le point de départ, le tournant, l'arrivée. Récit de trajectoire, émotion variable selon le sujet.]
+[2 touches : l'hypothèse, puis les faits qui l'appuient ou la nuancent. Registre enquête.]
 
-[Punchline : la leçon de trajectoire, tirée du fait.]
+[Punchline : la réponse à la question, tirée des faits.]
 
-Alors dis-nous : [question sur le tournant / le hasard / le choix] 👇
+Alors dis-nous : [question ouverte qui relance le débat] 👇
 @une.deux ⚽️
 .
 .
-#transversales #[sujet] #footballhistoire #lefootendeuxtouches #unedeux
+#arretdejeu #[sujet] #footballhistoire #lefootendeuxtouches #unedeux
 ```
 
 ---

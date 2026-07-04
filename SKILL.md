@@ -49,7 +49,7 @@ disponibles pour les slides intérieures et les reels.
 
 | Champ | Rôle |
 |-------|------|
-| `serie` | `cejourla` · `oublies` · `portraits` · `transversales` (verrouille couleur, virage photo, format) |
+| `serie` | `cejourla` · `oublies` · `portraits` · `arretdejeu` (verrouille couleur, virage photo, format) |
 | `template` | `cover` ou `cta` (CTA ENREGISTRE) |
 | `tag` | **auto** = `N° + nom de série` (non éditable) |
 | `title` | titre de cover (MAJUSCULES, 2 lignes) |
@@ -58,7 +58,7 @@ disponibles pour les slides intérieures et les reels.
 | `cur` / `tot` | pagination (slide courante / total) |
 | `btnlabel` | libellé du bouton (template CTA uniquement) |
 
-Format **verrouillé par série** : `cejourla`, `oublies`, `transversales` → 3:4 ;
+Format **verrouillé par série** : `cejourla`, `oublies`, `arretdejeu` → 3:4 ;
 `portraits` → 9:16 (titre vertical). Voir `exemples/*-par-serie.md` et
 `planning/planning-unedeux.md` pour la déclinaison série par série (scénarios,
 prompts photo, légendes) et le planning éditorial (2 posts/jour).
@@ -377,7 +377,7 @@ donc **risquées à republier** sur le compte.
   archive copyrightée dans un post publié. Toujours indiquer la licence.
 - Ne pas lancer de génération d'images (Higgsfield) sans demande explicite de
   Thomas.
-- Séries à faits récents (*Portraits*, *Transversales* sur joueurs actuels) :
+- Séries à faits récents (*Portraits*, *L'arrêt de jeu* quand l'hypothèse porte sur un sujet actuel) :
   davantage de sources visuelles disponibles, mais la même règle de droits
   s'applique.
 
@@ -432,7 +432,7 @@ Hashtags : série (#lesouscotés, #undestinparjour, #lachutedesgéants, #ledéba
 - **Ce jour-là** · `#cejourla` — éphéméride calendaire (socle quotidien). Carrousel 3:4, ocre / sépia chaud.
 - **Les oubliés** · `#lesoubliés` — effacés de l'histoire, injustices. Carrousel 3:4, vert / N&B froid.
 - **Portraits** · `#portraits` — parcours d'un joueur par l'angle méconnu. Reel 9:16, N&B studio.
-- **Transversales** · `#transversales` — récits de trajectoire. Carrousel 3:4, ocre / accents crème inversés.
+- **L'arrêt de jeu** · `#arretdejeu` — mode enquête/hypothèse : on répond à une question foot (« pourquoi les Bleus ne rejouent plus en rouge ? »). Carrousel 3:4, rouille / légère surimpression sur les médias importés.
 
 Scénarios, prompts photo et légendes déclinés par série dans
 `exemples/scenarios-par-serie.md`, `exemples/prompts-par-serie.md`,

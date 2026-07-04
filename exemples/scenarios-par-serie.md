@@ -56,17 +56,17 @@ Structure reel (scènes), pas un carrousel. Chaque scène = 1 media + subs (2 li
 
 ---
 
-## Transversales — `#transversales` · Carrousel 3:4 (récit long)
+## L'arrêt de jeu — `#arretdejeu` · Carrousel 3:4 (enquête/hypothèse)
 
 | Slide | Fonction | Contenu |
 |-------|----------|---------|
-| S1 | HOOK | La bascule annoncée comme impossible. Ex : « Il a dormi dans sa voiture. Six mois plus tard, il gagnait le Mondial. » |
-| S2 | TRANSITION | Le point de départ : d'où il/elle venait, la situation initiale. |
-| S3…Sn | TEASE | La trajectoire pas à pas — le tournant, les déclics, les rencontres. C'est la série la plus longue : étendre le TEASE généreusement. |
-| S(n-1) | CLIMAX | L'arrivée + la leçon de trajectoire, tirée du fait (pas un proverbe plaqué). |
-| Sn | ACTION | CTA ouvert : « Une trajectoire par épisode. La prochaine te surprendra autant. » → FOLLOW. |
+| S1 | HOOK | La question foot posée cash. Ex : « Pourquoi l'équipe de France ne rejoue plus en rouge ? » |
+| S2 | HYPOTHÈSE | La piste qu'on va suivre pour y répondre — pas encore la réponse. |
+| S3…Sn | ENQUÊTE | Les indices/faits qui s'accumulent étape par étape — fausses pistes écartées, éléments qui confirment ou nuancent l'hypothèse. |
+| S(n-1) | RÉPONSE | La réponse à la question, tirée des faits (pas une pirouette). |
+| Sn | ACTION | CTA ouvert : « Une question foot résolue par épisode. » → FOLLOW. |
 
-> **CTA ouvert type** : « De rien à tout. Et ce n'est qu'une trajectoire parmi d'autres. À suivre. »
+> **CTA ouvert type** : « Une question réglée. Il y en a des dizaines d'autres. À suivre. »
 
 ---
 
