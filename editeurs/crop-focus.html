@@ -21,6 +21,14 @@
   .video-wrap.show{display:block;}
   .video-wrap video{display:block;width:100%;height:auto;}
   .crop-ov{position:absolute;border:3px solid var(--ocre);box-shadow:0 0 0 3000px rgba(0,0,0,.45);pointer-events:none;transition:left .08s linear, top .08s linear, width .08s linear, height .08s linear;}
+  .tap-ov{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;}
+  .tap-ov.active{pointer-events:auto;cursor:crosshair;background:rgba(194,160,78,.06);outline:2px dashed rgba(194,160,78,.6);outline-offset:-2px;}
+  .tap-mark{position:absolute;width:22px;height:22px;margin:-11px 0 0 -11px;border:2px solid var(--ocre);border-radius:50%;pointer-events:none;animation:tapfade .7s ease-out forwards;}
+  @keyframes tapfade{ from{transform:scale(1.6);opacity:1;} to{transform:scale(1);opacity:0;} }
+  .corr-row{display:flex;gap:8px;margin-top:10px;}
+  .corr-row .btn{margin-top:0;flex:1;padding:11px;font-size:12px;}
+  .corr-row .btn.clear{flex:0 0 auto;padding:11px 14px;background:rgba(241,236,225,.1);color:var(--newsprint);}
+  .btn.active{background:var(--ocre);color:var(--encre);}
   .cfg-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
   .cfg-row.three{grid-template-columns:1fr 1fr 1fr;}
   label.field{font-size:11px;opacity:.75;display:block;margin-bottom:4px;}
@@ -61,7 +69,13 @@
     <div class="video-wrap" id="videoWrap">
       <video id="preview" playsinline muted controls></video>
       <div class="crop-ov" id="cropOv" style="display:none"></div>
+      <div class="tap-ov" id="tapOv"></div>
     </div>
+    <div class="corr-row">
+      <button class="btn secondary" id="correctBtn" type="button">Corriger le suivi (tape sur le sujet)</button>
+      <button class="btn clear" id="clearAnchorsBtn" type="button">Effacer</button>
+    </div>
+    <div class="stats" id="anchorStats"></div>
   </div>
 
   <div class="panel">
@@ -129,6 +143,8 @@ const preview = $('preview');
 let srcFile=null, srcW=0, srcH=0, hasAudio=null, analyzed=false;
 let W=1080, H=1920, fps=30, winLen=1, xs=[];
 let shots=[];   // plans detectes {startIdx,endIdx} (indices dans xs/raw) separes par des coupes
+let manualAnchors=[];   // reperes manuels {t, normX} — "regarde ici" quand le suivi est perdu
+let correctionMode=false;
 let ffmpeg=null, ffLoaded=false;
 
 /* ---------- 1) chargement du fichier ---------- */
@@ -141,7 +157,8 @@ $('fileInput').addEventListener('change', e=>{ if(e.target.files[0]) loadFile(e.
 
 function loadFile(file){
   if(!file.type.startsWith('video/')){ toast('Choisis un fichier vidéo'); return; }
-  srcFile=file; analyzed=false; xs=[]; hasAudio=null;
+  srcFile=file; analyzed=false; xs=[]; shots=[]; hasAudio=null;
+  manualAnchors=[]; setCorrectionMode(false); updateAnchorStats();
   $('analyzeBtn').disabled=true; $('exportBtn').disabled=true;
   $('result').classList.remove('show'); $('stats').textContent='';
   preview.src = URL.createObjectURL(file);
@@ -174,9 +191,75 @@ function probeAudio(file){
   v.src=url;
 }
 
+/* ---------- repères manuels : "regarde ici" quand le suivi est perdu ----------
+   Un tap sur la vidéo (en mode correction) enregistre {t, normX} — la position
+   normalisée (0..1) du sujet dans le cadre SOURCE, au temps courant. Ces
+   repères remplacent le suivi automatique pour le plan concerné, entre le
+   premier et le dernier repère (et tiennent leur valeur jusqu'aux bords du
+   plan) — le reste de la vidéo garde le suivi automatique inchangé. */
+function currentScaledW(){ return Math.round(srcW*Math.max(W/srcW, H/srcH)); }
+function toPixelX(normX){ const sw=currentScaledW(); return clamp(Math.round(normX*sw - W/2), 0, sw-W); }
+function shotForTime(t){
+  if(!shots.length) return null;
+  return shots.find(s=> t>=s.startIdx*winLen && t<s.endIdx*winLen) || shots[shots.length-1];
+}
+function anchorsForShot(shot){
+  const t0=shot.startIdx*winLen, t1=shot.endIdx*winLen;
+  return manualAnchors.filter(a=>a.t>=t0 && a.t<t1).sort((a,b)=>a.t-b.t);
+}
+function updateAnchorStats(){
+  $('anchorStats').textContent = manualAnchors.length
+    ? `${manualAnchors.length} repère(s) manuel(s) posé(s).`
+    : '';
+}
+function setCorrectionMode(on){
+  correctionMode=on;
+  $('tapOv').classList.toggle('active', on);
+  $('correctBtn').classList.toggle('active', on);
+  $('correctBtn').textContent = on ? 'Corriger le suivi (tape sur le sujet) — actif' : 'Corriger le suivi (tape sur le sujet)';
+}
+$('correctBtn').addEventListener('click', ()=>{
+  if(!srcW){ toast('Choisis une vidéo'); return; }
+  setCorrectionMode(!correctionMode);
+  if(correctionMode) toast('Mets en pause au bon moment puis tape sur le sujet');
+});
+$('clearAnchorsBtn').addEventListener('click', ()=>{
+  manualAnchors=[]; updateAnchorStats(); toast('Repères manuels effacés');
+});
+$('tapOv').addEventListener('click', e=>{
+  if(!correctionMode || !srcW) return;
+  const rect=$('tapOv').getBoundingClientRect();
+  const normX=clamp((e.clientX-rect.left)/rect.width, 0, 1);
+  preview.pause();
+  manualAnchors.push({t:preview.currentTime, normX});
+  updateAnchorStats();
+  const dot=document.createElement('div');
+  dot.className='tap-mark';
+  dot.style.left=(e.clientX-rect.left)+'px';
+  dot.style.top=(e.clientY-rect.top)+'px';
+  $('videoWrap').appendChild(dot);
+  setTimeout(()=>dot.remove(), 700);
+  toast(`Repère ajouté à ${preview.currentTime.toFixed(1)}s`);
+});
+
 /* ---------- overlay de prévisualisation du crop ---------- */
 function xAtTime(t){
   if(!xs.length) return 0;
+  const shot=shotForTime(t);
+  if(shot){
+    const anchors=anchorsForShot(shot);
+    if(anchors.length){
+      if(t<=anchors[0].t) return toPixelX(anchors[0].normX);
+      if(t>=anchors[anchors.length-1].t) return toPixelX(anchors[anchors.length-1].normX);
+      for(let i=0;i<anchors.length-1;i++){
+        const a=anchors[i], b=anchors[i+1];
+        if(t>=a.t && t<=b.t){
+          const f=(t-a.t)/((b.t-a.t)||1e-6);
+          return toPixelX(a.normX+(b.normX-a.normX)*f);
+        }
+      }
+    }
+  }
   const i=clamp(Math.floor(t/winLen), 0, xs.length-1);
   return xs[i];
 }
@@ -567,6 +650,19 @@ async function runExport(){
       if(!shotXs.length) return;
       const t0shot=shot.startIdx*winLen;
       const t1shot=si===theShots.length-1 ? duration : Math.min(shot.endIdx*winLen, duration);
+
+      // Reperes manuels : s'il y en a dans ce plan, ils remplacent entierement
+      // le suivi automatique pour ce plan (l'utilisateur a montre ou regarder,
+      // on lui fait confiance) — les autres plans gardent le suivi auto.
+      const anchors=anchorsForShot(shot);
+      if(anchors.length){
+        const pts=anchors.map(a=>({t:a.t, x:toPixelX(a.normX)}));
+        keyframes.push({t:t0shot, x:pts[0].x});
+        pts.forEach(p=>keyframes.push(p));
+        keyframes.push({t:t1shot, x:pts[pts.length-1].x});
+        return;
+      }
+
       const range=Math.max(...shotXs)-Math.min(...shotXs);
 
       if(range<=threshold){
