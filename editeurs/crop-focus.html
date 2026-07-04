@@ -128,6 +128,7 @@ function setBar(p){ $('pbarFill').style.width = Math.round(clamp(p,0,1)*100)+'%'
 const preview = $('preview');
 let srcFile=null, srcW=0, srcH=0, hasAudio=null, analyzed=false;
 let W=1080, H=1920, fps=30, winLen=1, xs=[];
+let shots=[];   // plans detectes {startIdx,endIdx} (indices dans xs/raw) separes par des coupes
 let ffmpeg=null, ffLoaded=false;
 
 /* ---------- 1) chargement du fichier ---------- */
@@ -266,9 +267,11 @@ function seekPreview(t){
   });
 }
 
-function smoothSeries(raw, maxStep, alpha){
+function smoothSeries(raw, maxStep, alpha, resetIndices){
+  const resets=new Set(resetIndices||[]);
   const out=new Array(raw.length); let prev=raw[0]; out[0]=prev;
   for(let i=1;i<raw.length;i++){
+    if(resets.has(i)){ prev=raw[i]; out[i]=prev; continue; }   // coupe de plan : pas de lissage a cheval sur la coupe
     const target=alpha*raw[i] + (1-alpha)*prev;
     const delta=clamp(target-prev, -maxStep, maxStep);
     prev=clamp(prev+delta, 0, 1);
@@ -316,15 +319,56 @@ async function runAnalysis(){
     const aictx=aicv.getContext('2d');
 
     const raw=new Array(nWin).fill(0.5);
-    let prevGray=null, aiHits=0, ballHits=0;
+    let prevGray=null, prevCutGray=null, aiHits=0, ballHits=0;
     let lastBallNormX=null, missStreak=0;
-    const BALL_HOLD=6;   // nb d'images sans detection avant d'abandonner la position du ballon
+    const BALL_HOLD=6;      // nb d'images sans detection avant d'abandonner la position du ballon
+    const BALL_W=100, PERSON_W=15, MOTION_W=4;   // poids de base par signal (fusion ponderee, cf. AutoFlip)
+    const CUT_THRESHOLD=55; // diff moyenne de gris (0-255) entre deux images echantillonnees -> coupe de plan
+
+    shots=[{startIdx:0, endIdx:nWin}];
 
     for(let i=0;i<nWin;i++){
       const t=Math.min(Math.max(0,duration-0.02), i*winLen);   // se cale sur l'image i*frameStep, pas sur un milieu de fenetre
       await seekPreview(t);
-      let normX=null;
 
+      // --- image basse-resolution partagee : detection de coupe + heuristique mouvement/detail ---
+      actx.drawImage(preview, 0, 0, AW, AH);
+      const {data}=actx.getImageData(0, 0, AW, AH);
+      const gray=new Float64Array(AW*AH);
+      for(let p=0;p<AW*AH;p++) gray[p]=0.299*data[p*4]+0.587*data[p*4+1]+0.114*data[p*4+2];
+
+      if(prevCutGray){
+        let diffSum=0;
+        for(let p=0;p<AW*AH;p++) diffSum+=Math.abs(gray[p]-prevCutGray[p]);
+        if(diffSum/(AW*AH)>CUT_THRESHOLD){
+          // coupe de plan (changement de camera/scene) : nouveau plan a suivre
+          // independamment — la memoire du ballon du plan precedent n'a plus de sens.
+          shots[shots.length-1].endIdx=i;
+          shots.push({startIdx:i, endIdx:nWin});
+          lastBallNormX=null; missStreak=0; prevGray=null;
+        }
+      }
+      prevCutGray=gray;
+
+      const colE=new Float64Array(AW);
+      for(let y=0;y<AH;y++){
+        for(let x=0;x<AW;x++){
+          const idx=y*AW+x;
+          const gxN=x<AW-1?gray[idx+1]:gray[idx];
+          const gyN=y<AH-1?gray[idx+AW]:gray[idx];
+          const edge=Math.abs(gray[idx]-gxN)+Math.abs(gray[idx]-gyN);
+          const motion=prevGray?Math.abs(gray[idx]-prevGray[idx]):0;
+          colE[x]+=edge+motion*3;
+        }
+      }
+      let colTotal=0, colWeighted=0;
+      for(let x=0;x<AW;x++){ colTotal+=colE[x]; colWeighted+=colE[x]*(x+0.5); }
+      const motionNormX = colTotal>0 ? colWeighted/colTotal/AW : null;
+      const motionWeight = motionNormX!=null ? Math.min(1, (colTotal/(AW*AH))/30)*MOTION_W : 0;
+      prevGray=gray;
+
+      // --- signaux IA : ballon prioritaire, joueurs en soutien ---
+      let ballNormX=null, ballWeight=0, personNormX=null, personWeight=0;
       if(model){
         aictx.drawImage(preview, 0, 0, aiW, aiH);
         try{
@@ -336,69 +380,64 @@ async function runAnalysis(){
           const persons=preds.filter(p=>p.className==='person' && p.score>=0.45);
 
           if(balls.length){
-            // le ballon est le sujet prioritaire : on centre dessus, pas sur les joueurs.
             const best=balls.reduce((a,b)=> b.score>a.score ? b : a);
             const [bx,,bw]=best.bbox;
-            normX=(bx+bw/2)/aiW;
-            lastBallNormX=normX; missStreak=0;
-            aiHits++; ballHits++;
+            ballNormX=(bx+bw/2)/aiW;
+            lastBallNormX=ballNormX; missStreak=0;
+            ballWeight=BALL_W*Math.max(0.3,best.score);
+            ballHits++;
           } else if(lastBallNormX!=null && missStreak<BALL_HOLD){
             // le ballon detecte quelques images plus tot est probablement toujours
-            // proche (occlusion/flou passager) : on garde sa position au lieu de
-            // sauter brutalement sur les joueurs, ce qui rendait le suivi saccade.
-            normX=lastBallNormX; missStreak++; aiHits++;
-          } else if(persons.length){
-            // repli : barycentre des joueurs si le ballon reste introuvable trop longtemps
+            // proche (occlusion/flou passager) : poids qui decroit avec l'absence
+            // plutot qu'un abandon brutal au profit des joueurs/du mouvement.
+            ballNormX=lastBallNormX; missStreak++;
+            ballWeight=BALL_W*(1-missStreak/BALL_HOLD)*0.6;
+            ballHits++;
+          }
+          if(ballNormX!=null) aiHits++;
+
+          if(persons.length){
             let xsum=0, wsum=0;
             persons.forEach(p=>{
               const [x,,pw,ph]=p.bbox;
-              const weight=p.score*Math.sqrt(pw*ph);
-              xsum+=(x+pw/2)*weight; wsum+=weight;
+              const w=p.score*Math.sqrt(pw*ph);
+              xsum+=(x+pw/2)*w; wsum+=w;
             });
-            if(wsum>0){ normX=xsum/wsum/aiW; aiHits++; }
+            if(wsum>0){
+              personNormX=xsum/wsum/aiW;
+              personWeight=PERSON_W*Math.min(1, wsum/400);
+              if(ballNormX==null) aiHits++;
+            }
           }
         }catch(e){ /* une frame ratee ne doit pas arreter l'analyse */ }
       }
 
-      if(normX==null){
-        actx.drawImage(preview, 0, 0, AW, AH);
-        const {data}=actx.getImageData(0, 0, AW, AH);
-        const gray=new Float64Array(AW*AH);
-        for(let p=0;p<AW*AH;p++) gray[p]=0.299*data[p*4]+0.587*data[p*4+1]+0.114*data[p*4+2];
-        const colE=new Float64Array(AW);
-        for(let y=0;y<AH;y++){
-          for(let x=0;x<AW;x++){
-            const idx=y*AW+x;
-            const gxN=x<AW-1?gray[idx+1]:gray[idx];
-            const gyN=y<AH-1?gray[idx+AW]:gray[idx];
-            const edge=Math.abs(gray[idx]-gxN)+Math.abs(gray[idx]-gyN);
-            const motion=prevGray?Math.abs(gray[idx]-prevGray[idx]):0;
-            colE[x]+=edge+motion*3;
-          }
-        }
-        let total=0, weighted=0;
-        for(let x=0;x<AW;x++){ total+=colE[x]; weighted+=colE[x]*(x+0.5); }
-        normX = total>0 ? weighted/total/AW : 0.5;
-        prevGray=gray;
-      } else {
-        prevGray=null;   // la detection IA a "bouge" le cadre : on ne compare pas la prochaine frame mouvement a celle-ci
-      }
+      // --- fusion ponderee des signaux, inspiree d'AutoFlip (Google) : chaque
+      //     signal detecte pese sur la position finale plutot qu'un unique
+      //     "gagnant" par image — le ballon domine largement quand il est
+      //     fiable, les joueurs/le mouvement stabilisent le cadrage sinon. ---
+      const wsum=ballWeight+personWeight+motionWeight;
+      const normX = wsum>0
+        ? ((ballNormX||0)*ballWeight + (personNormX||0)*personWeight + (motionNormX!=null?motionNormX:0.5)*motionWeight) / wsum
+        : 0.5;
 
       raw[i]=normX;
       setBar(0.65*((i+1)/nWin));
       plog(`Analyse du cadrage — image ${i+1}/${nWin}…`);
     }
+    shots[shots.length-1].endIdx=nWin;
 
-    const smoothed = smoothSeries(raw, 0.14, 0.4);
+    const smoothed = smoothSeries(raw, 0.14, 0.4, shots.map(s=>s.startIdx).filter(idx=>idx>0));
     xs = smoothed.map(nx=>{
       if(needX<=1) return 0;
       const centerScaled = nx*scaledW;
       return clamp(Math.round(centerScaled - W/2), 0, scaledW-W);
     });
 
+    const shotInfo = shots.length>1 ? ` · ${shots.length} plans détectés` : '';
     $('stats').textContent = model
-      ? `IA : ballon détecté/maintenu sur ${ballHits}/${nWin} image(s), joueurs ou mouvement en repli sur le reste.`
-      : `Mode mouvement/détail (pas de détection IA).`;
+      ? `IA : ballon détecté/maintenu sur ${ballHits}/${nWin} image(s), joueurs ou mouvement en repli sur le reste${shotInfo}.`
+      : `Mode mouvement/détail (pas de détection IA)${shotInfo}.`;
 
     analyzed=true;
     $('exportBtn').disabled=false;
@@ -513,9 +552,37 @@ async function runExport(){
     // fluide au lieu de coupes discretes, et surtout un seul appel ffmpeg
     // au lieu d'un par segment + un pour l'assemblage final — beaucoup
     // plus rapide, et un seul point de defaillance possible.
+    //
+    // Les points-cles sont construits plan par plan (jamais interpoles a
+    // travers une coupe detectee a l'analyse) : un plan quasi fixe garde un
+    // cadrage unique (pas de micro-panoramique inutile), un plan avec du
+    // mouvement garde le panoramique fluide habituel — strategie inspiree
+    // d'AutoFlip (Google), qui choisit stationnaire/panoramique/suivi plan
+    // par plan plutot qu'une seule strategie pour toute la video.
     const threshold=Math.max(16, Math.round(W*0.02));
-    const segments=buildExportSegments(xs, winLen, duration, threshold);
-    const keyframes=segments.map(s=>({t:(s.t0+s.t1)/2, x:s.x}));
+    const theShots=shots.length ? shots : [{startIdx:0, endIdx:xs.length}];
+    let keyframes=[];
+    theShots.forEach((shot, si)=>{
+      const shotXs=xs.slice(shot.startIdx, shot.endIdx);
+      if(!shotXs.length) return;
+      const t0shot=shot.startIdx*winLen;
+      const t1shot=si===theShots.length-1 ? duration : Math.min(shot.endIdx*winLen, duration);
+      const range=Math.max(...shotXs)-Math.min(...shotXs);
+
+      if(range<=threshold){
+        const sorted=[...shotXs].sort((a,b)=>a-b);
+        const stableX=sorted[Math.floor(sorted.length/2)];
+        keyframes.push({t:t0shot, x:stableX}, {t:t1shot, x:stableX});
+      } else {
+        let segs=buildExportSegments(shotXs, winLen, t1shot-t0shot, threshold)
+          .map(s=>({t0:s.t0+t0shot, t1:s.t1+t0shot, x:s.x}));
+        if(!segs.length) segs=[{t0:t0shot, t1:t1shot, x:shotXs[shotXs.length-1]}];
+        keyframes.push({t:t0shot, x:segs[0].x});
+        segs.forEach(s=> keyframes.push({t:(s.t0+s.t1)/2, x:s.x}));
+        keyframes.push({t:t1shot, x:segs[segs.length-1].x});
+      }
+    });
+    if(!keyframes.length) keyframes=[{t:0, x:xs[0]||0}];
     const xExpr=buildCropXExpr(keyframes).replace(/:/g,'\\:').replace(/,/g,'\\,');
 
     phase(0.05, 0.85, 'Encodage…');
