@@ -520,6 +520,7 @@ async function runExport(){
     }
 
     $('result').classList.add('show');
+    $('result').scrollIntoView({behavior:'smooth', block:'start'});
     setBar(1); plog('Terminé.');
     toast('Export terminé');
   }catch(e){
