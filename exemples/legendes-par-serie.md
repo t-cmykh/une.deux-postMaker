@@ -112,7 +112,7 @@ Alors dis-nous : [question sur sa place / son statut] 👇
 
 [2 touches : l'hypothèse, puis les faits qui l'appuient ou la nuancent. Registre enquête.]
 
-[Punchline : la réponse à la question, tirée des faits.]
+[Punchline : la piste la plus solide, présentée comme hypothèse — pas de réponse tranchée.]
 
 Alors dis-nous : [question ouverte qui relance le débat] 👇
 @une.deux ⚽️
