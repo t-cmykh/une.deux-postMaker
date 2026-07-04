@@ -410,12 +410,12 @@ async function runFFtoBytes(args, outName){
 }
 async function readFileBytes(file){ return new Uint8Array(await file.arrayBuffer()); }
 
-/* Fusionne les fenetres d'analyse consecutives dont le cadrage ne bouge
-   quasiment pas en un seul segment a encoder. Indispensable sur mobile :
-   sans ca, une video d'1 minute avec une fenetre de 1s produit ~60 appels
-   ffmpeg (un par seconde), ce qui sature la memoire du navigateur et fait
-   planter/bloquer le moteur wasm. Ici, seuls les vrais changements de
-   cadrage (> seuil) declenchent une coupe. */
+/* Fusionne les points d'analyse consecutifs dont le cadrage ne bouge
+   quasiment pas, pour ne garder qu'un nombre borne de points-cles :
+   sans ca, une video d'1 minute analysee image par image donnerait des
+   milliers de points, ce qui rendrait l'expression ffmpeg (voir plus bas)
+   enorme et lente a evaluer. Seuls les vrais changements de cadrage
+   (> seuil) produisent un nouveau point-cle. */
 function buildExportSegments(xsArr, winLen, duration, threshold){
   const segs=[];
   let curX=xsArr[0], curStart=0;
@@ -427,6 +427,24 @@ function buildExportSegments(xsArr, winLen, duration, threshold){
   }
   segs.push({t0:curStart*winLen, t1:duration, x:curX});
   return segs.filter(s=>s.t1-s.t0>0.02);
+}
+
+/* Construit une expression ffmpeg (variable "t" = temps en secondes) qui
+   interpole lineairement la position x du crop entre points-cles, pour un
+   panoramique fluide au lieu de sauts brusques a chaque changement de
+   cadrage — et ce quel que soit le mode de detection utilise en amont
+   (IA, ballon, mouvement), puisque l'interpolation s'applique sur la
+   serie xs deja calculee. */
+function buildCropXExpr(kf){
+  if(kf.length===1) return String(kf[0].x);
+  let expr=String(kf[kf.length-1].x);
+  for(let i=kf.length-2;i>=0;i--){
+    const a=kf[i], b=kf[i+1];
+    const dt=(b.t-a.t)||1e-6;
+    const lerp=`(${a.x}+(${b.x-a.x})*(t-${a.t.toFixed(3)})/${dt.toFixed(6)})`;
+    expr=`if(lt(t,${b.t.toFixed(3)}),${lerp},${expr})`;
+  }
+  return `if(lt(t,${kf[0].t.toFixed(3)}),${kf[0].x},${expr})`;
 }
 
 /* ---------- 3) export ---------- */
@@ -447,56 +465,36 @@ async function runExport(){
     const srcBytes=await readFileBytes(srcFile);
     ffmpeg.FS('writeFile', inName, srcBytes);
 
+    // Un seul passage sur toute la video, avec un x de crop qui varie dans
+    // le temps (interpolation lineaire entre points-cles) : panoramique
+    // fluide au lieu de coupes discretes, et surtout un seul appel ffmpeg
+    // au lieu d'un par segment + un pour l'assemblage final — beaucoup
+    // plus rapide, et un seul point de defaillance possible.
     const threshold=Math.max(16, Math.round(W*0.02));
     const segments=buildExportSegments(xs, winLen, duration, threshold);
-    const nSeg=segments.length;
-    const segBuffers=[];
-    for(let i=0;i<nSeg;i++){
-      const {t0, t1, x}=segments[i];
-      const dur=(t1-t0).toFixed(3);
+    const keyframes=segments.map(s=>({t:(s.t0+s.t1)/2, x:s.x}));
+    const xExpr=buildCropXExpr(keyframes).replace(/:/g,'\\:').replace(/,/g,'\\,');
 
-      phase(0.05 + 0.7*(i/nSeg), 0.7/nSeg, `Encodage segment ${i+1}/${nSeg}…`);
+    phase(0.05, 0.85, 'Encodage…');
 
-      // un reset au tour precedent (quirk exit(0)) vide le systeme de
-      // fichiers du moteur : on s'assure que la source y est toujours.
-      try{ if(!ffmpeg.FS('readdir','/').includes(inName)) ffmpeg.FS('writeFile', inName, srcBytes); }
-      catch(e){ ffmpeg.FS('writeFile', inName, srcBytes); }
+    const vf=`scale=${W}:${H}:force_original_aspect_ratio=increase,crop=w=${W}:h=${H}:x=${xExpr}:y=0,fps=${fps},format=yuv420p`;
+    const common=['-i', inName, '-vf', vf, '-r', String(fps)];
+    const enc=['-c:v','libx264','-preset','ultrafast','-crf','20','-pix_fmt','yuv420p'];
+    const aenc=['-c:a','aac','-b:a','160k','-ar','48000','-ac','2'];
 
-      const outName=`seg_${String(i).padStart(3,'0')}.mp4`;
-      const y=0;
-      const vf=`scale=${W}:${H}:force_original_aspect_ratio=increase,crop=${W}:${H}:${x}:${y},fps=${fps},format=yuv420p`;
-      const common=['-ss', t0.toFixed(3), '-i', inName, '-f','lavfi','-t', dur, '-i','anullsrc=r=48000:cl=stereo', '-t', dur, '-vf', vf, '-r', String(fps)];
-      const enc=['-c:v','libx264','-preset','ultrafast','-crf','20','-c:a','aac','-b:a','160k','-ar','48000','-ac','2','-pix_fmt','yuv420p', outName];
-
-      let bytes;
-      if(hasAudio===false){
-        bytes=await runFFtoBytes([...common, '-map','0:v','-map','1:a', ...enc], outName);
-      } else if(hasAudio===true){
-        bytes=await runFFtoBytes([...common, '-filter_complex','[0:a][1:a]amix=inputs=2:duration=first[aout]','-map','0:v','-map','[aout]', ...enc], outName);
-      } else {
-        try{
-          bytes=await runFFtoBytes([...common, '-filter_complex','[0:a][1:a]amix=inputs=2:duration=first[aout]','-map','0:v','-map','[aout]', ...enc], outName);
-        }catch(e){
-          await resetFF();
-          ffmpeg.FS('writeFile', inName, srcBytes);
-          bytes=await runFFtoBytes([...common, '-map','0:v','-map','1:a', ...enc], outName);
-        }
-      }
-      segBuffers.push(bytes);
-    }
-
-    phase(0.8, 0.15, 'Assemblage final…');
     let finalBytes;
-    if(segBuffers.length===1){
-      finalBytes=segBuffers[0];
+    if(hasAudio===false){
+      finalBytes=await runFFtoBytes([...common, '-map','0:v', ...enc, 'out.mp4'], 'out.mp4');
+    } else if(hasAudio===true){
+      finalBytes=await runFFtoBytes([...common, '-map','0:v','-map','0:a', ...enc, ...aenc, 'out.mp4'], 'out.mp4');
     } else {
-      const segNames=segBuffers.map((_,i)=>`seg_${String(i).padStart(3,'0')}.mp4`);
-      segBuffers.forEach((b,i)=> ffmpeg.FS('writeFile', segNames[i], b));
-      const inputs=[]; segNames.forEach(n=>inputs.push('-i', n));
-      const concatIns=segNames.map((_,i)=>`[${i}:v][${i}:a]`).join('');
-      const filt=`${concatIns}concat=n=${segNames.length}:v=1:a=1[vout][aout]`;
-      finalBytes=await runFFtoBytes([...inputs, '-filter_complex', filt, '-map','[vout]','-map','[aout]',
-        '-c:v','libx264','-preset','ultrafast','-crf','20','-c:a','aac','-b:a','160k','-ar','48000','-ac','2','-pix_fmt','yuv420p','out.mp4'], 'out.mp4');
+      try{
+        finalBytes=await runFFtoBytes([...common, '-map','0:v','-map','0:a', ...enc, ...aenc, 'out.mp4'], 'out.mp4');
+      }catch(e){
+        await resetFF();
+        ffmpeg.FS('writeFile', inName, srcBytes);
+        finalBytes=await runFFtoBytes([...common, '-map','0:v', ...enc, 'out.mp4'], 'out.mp4');
+      }
     }
 
     phase(0.95, 0.05, 'Finalisation…');
