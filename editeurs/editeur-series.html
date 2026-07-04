@@ -643,9 +643,21 @@ function drawSafeGuides(W,H){
   ctx.restore(); ctx.textAlign='left'; ctx.textBaseline='alphabetic';
 }
 
+/* rectangle aux coins arrondis (tracé manuel, cohérent avec le style du fichier) */
+function fillRoundedRect(g,x,y,w,h,r){
+  r=Math.max(0,Math.min(r,w/2,h/2));
+  g.beginPath();
+  g.moveTo(x+r,y);
+  g.lineTo(x+w-r,y); g.arcTo(x+w,y,x+w,y+r,r);
+  g.lineTo(x+w,y+h-r); g.arcTo(x+w,y+h,x+w-r,y+h,r);
+  g.lineTo(x+r,y+h); g.arcTo(x,y+h,x,y+h-r,r);
+  g.lineTo(x,y+r); g.arcTo(x,y,x+r,y,r);
+  g.closePath(); g.fill();
+}
+
 /* ===== TEMPLATE COVER · CORPS SEUL — le corps de texte occupe tout le cadre,
    header + bandeau série + média de fond conservés (pensé pour L'arrêt de jeu) ===== */
-function drawFullBodyText(g,W,H,M,MR,isVert,footY,ruleY){
+function drawFullBodyText(g,W,H,M,MR,isVert,footY,ruleY,s){
   const textTop=200+safeTop()+58+36;
   const textBottom=isVert?(footY+18):(ruleY-34);
   const maxW=W-M-MR, maxH=Math.max(60,textBottom-textTop);
@@ -658,14 +670,15 @@ function drawFullBodyText(g,W,H,M,MR,isVert,footY,ruleY){
   const blockH=lines.length*lineH;
   const blockTop=textTop+Math.max(0,(maxH-blockH)/2);
 
-  /* fond semi-transparent réglable derrière le texte (le média de fond reste visible) */
+  /* fond semi-transparent réglable derrière le texte, aux couleurs de la série
+     (le média de fond reste visible en dessous) */
   if(state.textBgOpacity>0){
-    g.save(); g.globalAlpha=state.textBgOpacity/100; g.fillStyle=C.encre;
-    g.fillRect(M-22, blockTop-30, maxW+44, blockH+58);
+    g.save(); g.globalAlpha=state.textBgOpacity/100; g.fillStyle=s.sig;
+    fillRoundedRect(g,M-22, blockTop-30, maxW+44, blockH+58, 22);
     g.restore();
   }
 
-  g.fillStyle=C.soustitre; g.textBaseline='alphabetic'; g.textAlign='left';
+  g.fillStyle=s.sigTextColor||C.encre; g.textBaseline='alphabetic'; g.textAlign='left';
   lines.forEach((ln,i)=> drawBodyRich(g,ln,M,blockTop+(i+1)*lineH-lineH*0.28,size));
 }
 
@@ -762,7 +775,7 @@ function draw(){
   const bodyTop=bodyBottom-bodyLines.length*bodyLineH;
 
   if(fullBody){
-    drawFullBodyText(g,W,H,M,MR,isVert,footY,ruleY);
+    drawFullBodyText(g,W,H,M,MR,isVert,footY,ruleY,s);
   } else if(noBody){
     /* titre seul : la taille choisie est respectée telle quelle — le texte
        passe à la ligne (autant que nécessaire) plutôt que d'être rétréci,
