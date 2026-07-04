@@ -58,15 +58,20 @@ Structure reel (scènes), pas un carrousel. Chaque scène = 1 media + subs (2 li
 
 ## L'arrêt de jeu — `#arretdejeu` · Carrousel 3:4 (enquête/hypothèse)
 
+Ton mini-enquête, jamais de résolution nette : on pose la question et on aligne
+les faits, mais on ne referme pas la boucle par un « voici pourquoi » définitif.
+La dernière slide relance ou expose la piste la plus solide sans trancher —
+c'est ce suspense non résolu qui fait discuter en commentaires.
+
 | Slide | Fonction | Contenu |
 |-------|----------|---------|
-| S1 | HOOK | La question foot posée cash. Ex : « Pourquoi l'équipe de France ne rejoue plus en rouge ? » |
-| S2 | HYPOTHÈSE | La piste qu'on va suivre pour y répondre — pas encore la réponse. |
-| S3…Sn | ENQUÊTE | Les indices/faits qui s'accumulent étape par étape — fausses pistes écartées, éléments qui confirment ou nuancent l'hypothèse. |
-| S(n-1) | RÉPONSE | La réponse à la question, tirée des faits (pas une pirouette). |
-| Sn | ACTION | CTA ouvert : « Une question foot résolue par épisode. » → FOLLOW. |
+| S1 | HOOK | La question foot posée cash, sans détour. Ex : « Mais pourquoi l'équipe de France ne joue-t-elle plus jamais en rouge ? » |
+| S2 | CONSTAT | Le fait qui rend la question légitime — un chiffre, une asymétrie, une récurrence qui interpelle. |
+| S3…Sn | ENQUÊTE | Les indices s'accumulent étape par étape (dates, chiffres, déclarations) — sans jamais les relier en une explication officielle unique. |
+| S(n-1) | PISTE | La piste la plus solide qu'on ait trouvée, présentée comme hypothèse — pas comme un verdict. |
+| Sn | ACTION | CTA ouvert qui relance la question plutôt que de la refermer. → FOLLOW. |
 
-> **CTA ouvert type** : « Une question réglée. Il y en a des dizaines d'autres. À suivre. »
+> **CTA ouvert type** : « Officiellement, personne ne l'a jamais vraiment expliqué. Et toi, t'en penses quoi ? »
 
 ---
 
