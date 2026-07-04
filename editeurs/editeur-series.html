@@ -157,6 +157,11 @@ Et à la fin du match…</textarea>
       <div class="hint">Cover sans corps de texte : ajuste librement la taille du titre.</div>
     </div>
 
+    <div class="field" id="field_titleanim" style="display:none">
+      <div class="range-row"><label>Vitesse d'apparition</label><input id="r_titleanim" type="range" min="0.1" max="4" step="0.1" value="1"><span class="val" id="v_titleanim">1.0×</span></div>
+      <div class="hint">Ce jour-là uniquement : le titre apparaît ligne par ligne. <span id="b_replayanim" style="cursor:pointer;text-decoration:underline;color:var(--sig)">↻ Rejouer l'aperçu</span></div>
+    </div>
+
     <div class="field" id="field_btnlabel" style="display:none">
       <label>Libellé du bouton CTA</label>
       <input id="f_btnlabel" type="text" value="ENREGISTRE" maxlength="20">
@@ -265,7 +270,9 @@ const state = {
   bodyBoxOpacity:0,
   satPortrait:0,
   kwPad:10,
-  titleSizeManual:null
+  titleSizeManual:null,
+  titleAnimSpeed:1,
+  titleRevealStart:null
 };
 
 const RATIOS = {'3:4':[1080,1440], '4:5':[1080,1350], '9:16':[1080,1920], '1:1':[1080,1080]};
@@ -275,14 +282,25 @@ const RAT_BY_SERIE = { cejourla:['9:16'], oublies:['3:4'],
 const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
 function mediaW(m){return m.videoWidth||m.naturalWidth||m.width;}
 function mediaH(m){return m.videoHeight||m.naturalHeight||m.height;}
-/* boucle de rendu continue quand une vidéo joue (repris de post.html) */
-let rafId=null, exporting=false;
+/* boucle de rendu continue quand une vidéo joue (repris de post.html), ou quand
+   le titre de « Ce jour-là » est en cours d'apparition ligne par ligne */
+let rafId=null, exporting=false, titleRevealDone=true;
+function animLoopActive(){
+  return (state.isVideo && state.vid) ||
+    (state.serie==='cejourla' && state.template==='titre' && !titleRevealDone);
+}
 function startVideoLoop(){
   if(rafId) return;
-  const tick=()=>{ if(state.isVideo && state.vid){ draw(); rafId=requestAnimationFrame(tick);} else rafId=null; };
+  const tick=()=>{ draw(); if(animLoopActive()){ rafId=requestAnimationFrame(tick);} else rafId=null; };
   rafId=requestAnimationFrame(tick);
 }
 function stopVideoLoop(){ if(rafId){cancelAnimationFrame(rafId);rafId=null;} }
+/* relance l'apparition ligne par ligne depuis le début (Ce jour-là uniquement) */
+function restartTitleReveal(){
+  state.titleRevealStart=performance.now();
+  titleRevealDone=false;
+  startVideoLoop();
+}
 function safeTop(){ return state.ratio==='9:16'?150:0; }
 function safeBottom(){ return state.ratio==='9:16'?120:0; }
 
@@ -313,6 +331,9 @@ function selectSerie(key){
   document.getElementById('f_tag').value=defaultTag(key);
   /* champ fond corps : uniquement Portraits */
   document.getElementById('field_bodybox').style.display = (key==='portraits')?'block':'none';
+  /* apparition ligne par ligne du titre : uniquement Ce jour-là */
+  document.getElementById('field_titleanim').style.display = (state.template==='titre' && key==='cejourla')?'block':'none';
+  if(state.template==='titre' && key==='cejourla') restartTitleReveal();
   state.ratio=RAT_BY_SERIE[key][0];  /* format verrouillé par série */
   buildRatioTabs(); draw();
 }
@@ -340,7 +361,7 @@ function rebuildPicker(){
 
 /* ===== binds ===== */
 const f_tag=document.getElementById('f_tag'); f_tag.value=defaultTag(state.serie);
-document.getElementById('f_title').oninput=e=>{state.title=e.target.value;rebuildPicker();draw();};
+document.getElementById('f_title').oninput=e=>{state.title=e.target.value;rebuildPicker();restartTitleReveal();draw();};
 document.getElementById('f_body').oninput=e=>{state.body=e.target.value;draw();};
 document.getElementById('f_cur').oninput=e=>{state.cur=e.target.value;draw();};
 document.getElementById('f_tot').oninput=e=>{state.tot=e.target.value;draw();};
@@ -359,18 +380,23 @@ document.querySelectorAll('#tpl_chips .chip').forEach(c=>{
     document.getElementById('field_citation').style.display = (state.template==='citation')?'block':'none';
     document.getElementById('field_body').style.display = (state.template==='titre')?'none':'block';
     document.getElementById('field_titlesize').style.display = (state.template==='titre')?'block':'none';
+    document.getElementById('field_titleanim').style.display = (state.template==='titre' && state.serie==='cejourla')?'block':'none';
     if(state.template==='citation') rebuildQuotePicker();
     if(state.template==='titre'){
       state.titleSizeManual = clampTitle();
       const rts=document.getElementById('r_titlesize');
       rts.value = state.titleSizeManual;
       document.getElementById('v_titlesize').textContent = state.titleSizeManual;
+      if(state.serie==='cejourla') restartTitleReveal();
     }
     draw();
   };
 });
 const rts=document.getElementById('r_titlesize');
-rts.oninput=()=>{ state.titleSizeManual=+rts.value; document.getElementById('v_titlesize').textContent=rts.value; draw(); };
+rts.oninput=()=>{ state.titleSizeManual=+rts.value; document.getElementById('v_titlesize').textContent=rts.value; restartTitleReveal(); draw(); };
+const ranim=document.getElementById('r_titleanim');
+ranim.oninput=()=>{ state.titleAnimSpeed=+ranim.value; document.getElementById('v_titleanim').textContent=(+ranim.value).toFixed(1)+'×'; restartTitleReveal(); draw(); };
+document.getElementById('b_replayanim').onclick=()=>{ restartTitleReveal(); draw(); };
 document.getElementById('f_btnlabel').oninput=e=>{state.btnlabel=e.target.value;draw();};
 document.getElementById('f_quote').oninput=e=>{state.quote=e.target.value;rebuildQuotePicker();draw();};
 document.getElementById('f_quoteAuthor').oninput=e=>{state.quoteAuthor=e.target.value;draw();};
@@ -447,10 +473,14 @@ document.getElementById('b_export').onclick=async ()=>{
   else { exportPNG(); }
 };
 function exportPNG(){
-  const wasSafe=state.safeOn; state.safeOn=false; draw();
+  const wasSafe=state.safeOn; state.safeOn=false;
+  /* le PNG exporté montre toujours le titre entièrement révélé, même en cours d'animation */
+  const wasReveal=state.titleRevealStart;
+  if(state.serie==='cejourla' && state.template==='titre') state.titleRevealStart=-1e9;
+  draw();
   const a=document.createElement('a'); a.download='unedeux-'+state.serie+'-'+state.cur+'.png';
   a.href=cv.toDataURL('image/png'); a.click();
-  state.safeOn=wasSafe; draw();
+  state.safeOn=wasSafe; state.titleRevealStart=wasReveal; draw();
 }
 async function exportVideo(){
   const v=state.vid; if(!v) return;
@@ -464,7 +494,9 @@ async function exportVideo(){
   rec.ondataavailable=e=>{ if(e.data.size) chunks.push(e.data); };
   const done=new Promise(res=>rec.onstop=res);
   const dur=isFinite(v.duration)&&v.duration>0?v.duration:8;
-  v.currentTime=0; exporting=true; await v.play().catch(()=>{}); rec.start(100);
+  v.currentTime=0; exporting=true;
+  if(state.serie==='cejourla' && state.template==='titre') state.titleRevealStart=performance.now();
+  await v.play().catch(()=>{}); rec.start(100);
   const startT=performance.now();
   const onTime=()=>{ const el=(performance.now()-startT)/1000; btn.textContent='… '+Math.min(100,Math.round(el/dur*100))+'%'; if(el>=dur){ try{rec.stop();}catch(e){} } };
   v.addEventListener('timeupdate',onTime);
@@ -707,7 +739,24 @@ function draw(){
     if(bottomEdge>safeBottomBound) shift-=(bottomEdge-safeBottomBound);
     baselines=baselines.map(b=>b+shift);
 
-    shown.forEach((lw,i)=> drawWordLine(g,lw,M,baselines[i]) );
+    if(state.serie==='cejourla'){
+      /* apparition ligne par ligne, uniquement pour Ce jour-là — vitesse réglable */
+      if(state.titleRevealStart==null) state.titleRevealStart=performance.now();
+      const revealMs=620/(state.titleAnimSpeed||1);
+      const fadeMs=Math.max(80,Math.min(220,revealMs*0.6));
+      const elapsed=performance.now()-state.titleRevealStart;
+      shown.forEach((lw,i)=>{
+        const p=Math.max(0,Math.min(1,(elapsed-i*revealMs)/fadeMs));
+        if(p<=0) return;
+        g.save(); g.globalAlpha=p;
+        drawWordLine(g,lw,M,baselines[i]+(1-p)*8);
+        g.restore();
+      });
+      titleRevealDone = elapsed >= (shown.length-1)*revealMs+fadeMs;
+    } else {
+      /* autres séries : template "titre seul" inchangé, tout le titre s'affiche directement */
+      shown.forEach((lw,i)=> drawWordLine(g,lw,M,baselines[i]) );
+    }
   } else {
     /* corps : wrap + tailles adaptatives (post.html) */
     const tSize = clampTitle();
