@@ -40,7 +40,7 @@
   .result{display:none;margin-top:14px;}
   .result.show{display:block;}
   .result video{width:100%;border-radius:10px;}
-  .dl{display:block;text-align:center;margin-top:10px;padding:12px;border-radius:10px;background:var(--vert);color:var(--newsprint);text-decoration:none;font-size:13px;font-weight:600;}
+  .dl{display:block;width:100%;text-align:center;margin-top:10px;padding:12px;border:none;border-radius:10px;background:var(--vert);color:var(--newsprint);text-decoration:none;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;}
   .warn{font-size:11px;opacity:.65;margin-top:10px;line-height:1.4;}
   .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:var(--newsprint);color:var(--encre);padding:9px 16px;border-radius:20px;font-size:12px;opacity:0;transition:all .25s;pointer-events:none;}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
@@ -104,7 +104,9 @@
     </div>
     <div class="result" id="result">
       <video id="outVideo" controls playsinline></video>
-      <a class="dl" id="dlLink" download="cadrage_auto.mp4">Enregistrer la vidéo</a>
+      <button class="dl" id="shareBtn" type="button" style="display:none">Partager / Enregistrer la vidéo</button>
+      <a class="dl" id="dlLink" download="cadrage_auto.mp4">Télécharger le fichier</a>
+      <div class="warn">Sur iPhone, si rien ne se passe au clic : appuie longuement sur la vidéo ci-dessus puis « Enregistrer la vidéo ».</div>
     </div>
     <div class="warn">Tout se passe dans le navigateur (rien n'est envoyé sur un serveur). Le modèle de détection (~6 Mo) et le moteur vidéo (~25 Mo) se téléchargent au premier lancement — garde l'onglet ouvert pendant l'export.</div>
   </div>
@@ -266,12 +268,14 @@ async function runAnalysis(){
     const acv=document.createElement('canvas'); acv.width=AW; acv.height=AH;
     const actx=acv.getContext('2d', {willReadFrequently:true});
 
-    const aiW=400, aiH=Math.max(1, Math.round(aiW*srcH/srcW));
+    const aiW=640, aiH=Math.max(1, Math.round(aiW*srcH/srcW));
     const aicv=document.createElement('canvas'); aicv.width=aiW; aicv.height=aiH;
     const aictx=aicv.getContext('2d');
 
     const raw=new Array(nWin).fill(0.5);
-    let prevGray=null, aiHits=0;
+    let prevGray=null, aiHits=0, ballHits=0;
+    let lastBallNormX=null, missStreak=0;
+    const BALL_HOLD=6;   // nb d'images sans detection avant d'abandonner la position du ballon
 
     for(let i=0;i<nWin;i++){
       const t=Math.min(Math.max(0,duration-0.02), i*winLen);   // se cale sur l'image i*frameStep, pas sur un milieu de fenetre
@@ -292,9 +296,16 @@ async function runAnalysis(){
             // le ballon est le sujet prioritaire : on centre dessus, pas sur les joueurs.
             const best=balls.reduce((a,b)=> b.score>a.score ? b : a);
             const [bx,,bw]=best.bbox;
-            normX=(bx+bw/2)/aiW; aiHits++;
+            normX=(bx+bw/2)/aiW;
+            lastBallNormX=normX; missStreak=0;
+            aiHits++; ballHits++;
+          } else if(lastBallNormX!=null && missStreak<BALL_HOLD){
+            // le ballon detecte quelques images plus tot est probablement toujours
+            // proche (occlusion/flou passager) : on garde sa position au lieu de
+            // sauter brutalement sur les joueurs, ce qui rendait le suivi saccade.
+            normX=lastBallNormX; missStreak++; aiHits++;
           } else if(persons.length){
-            // repli : barycentre des joueurs si le ballon n'est pas detecte sur cette fenetre
+            // repli : barycentre des joueurs si le ballon reste introuvable trop longtemps
             let xsum=0, wsum=0;
             persons.forEach(p=>{
               const [x,,pw,ph]=p.bbox;
@@ -343,7 +354,7 @@ async function runAnalysis(){
     });
 
     $('stats').textContent = model
-      ? `IA : ${aiHits}/${nWin} image(s) analysée(s) avec joueur/ballon détecté (repli mouvement sinon).`
+      ? `IA : ballon détecté/maintenu sur ${ballHits}/${nWin} image(s), joueurs ou mouvement en repli sur le reste.`
       : `Mode mouvement/détail (pas de détection IA).`;
 
     analyzed=true;
@@ -491,8 +502,23 @@ async function runExport(){
     phase(0.95, 0.05, 'Finalisation…');
     const blob=new Blob([finalBytes], {type:'video/mp4'});
     const url=URL.createObjectURL(blob);
+    const file=new File([finalBytes], 'cadrage_auto.mp4', {type:'video/mp4'});
     $('outVideo').src=url;
     $('dlLink').href=url;
+
+    // Sur iOS Safari, <a download> vers un blob: n'ouvre/ne telecharge pas de
+    // facon fiable. Le partage natif (vers Fichiers/Photos) marche vraiment.
+    const shareBtn=$('shareBtn');
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      shareBtn.style.display='block';
+      shareBtn.onclick=async ()=>{
+        try{ await navigator.share({files:[file], title:'Cadrage auto'}); }
+        catch(e){ /* partage annule par l'utilisateur : rien a faire */ }
+      };
+    } else {
+      shareBtn.style.display='none';
+    }
+
     $('result').classList.add('show');
     setBar(1); plog('Terminé.');
     toast('Export terminé');
