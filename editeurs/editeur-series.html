@@ -122,6 +122,7 @@ input[type=range]{flex:1;accent-color:var(--sig)}
       <div class="chips" id="tpl_chips">
         <div class="chip on" data-tpl="cover">COVER</div>
         <div class="chip" data-tpl="titre">COVER · TITRE SEUL</div>
+        <div class="chip" data-tpl="corps">COVER · CORPS SEUL</div>
         <div class="chip" data-tpl="citation">CITATION</div>
         <div class="chip" data-tpl="cta">CTA ENREGISTRE</div>
       </div>
@@ -160,6 +161,11 @@ Et à la fin du match…</textarea>
     <div class="field" id="field_titleanim" style="display:none">
       <div class="range-row"><label>Vitesse d'apparition</label><input id="r_titleanim" type="range" min="0.1" max="4" step="0.1" value="1"><span class="val" id="v_titleanim">1.0×</span></div>
       <div class="hint">Ce jour-là uniquement : le titre apparaît ligne par ligne. <span id="b_replayanim" style="cursor:pointer;text-decoration:underline;color:var(--sig)">↻ Rejouer l'aperçu</span></div>
+    </div>
+
+    <div class="field" id="field_textbg" style="display:none">
+      <div class="range-row"><label>Opacité du fond</label><input id="r_textbg" type="range" min="0" max="100" value="55"><span class="val" id="v_textbg">55</span></div>
+      <div class="hint">Corps seul : le texte occupe tout le cadre (header et bandeau série conservés). Réglage du fond semi-transparent derrière le texte pour rester lisible sur le média.</div>
     </div>
 
     <div class="field" id="field_btnlabel" style="display:none">
@@ -272,7 +278,8 @@ const state = {
   kwPad:10,
   titleSizeManual:null,
   titleAnimSpeed:1,
-  titleRevealStart:null
+  titleRevealStart:null,
+  textBgOpacity:55
 };
 
 const RATIOS = {'3:4':[1080,1440], '4:5':[1080,1350], '9:16':[1080,1920], '1:1':[1080,1080]};
@@ -381,6 +388,7 @@ document.querySelectorAll('#tpl_chips .chip').forEach(c=>{
     document.getElementById('field_body').style.display = (state.template==='titre')?'none':'block';
     document.getElementById('field_titlesize').style.display = (state.template==='titre')?'block':'none';
     document.getElementById('field_titleanim').style.display = (state.template==='titre' && state.serie==='cejourla')?'block':'none';
+    document.getElementById('field_textbg').style.display = (state.template==='corps')?'block':'none';
     if(state.template==='citation') rebuildQuotePicker();
     if(state.template==='titre'){
       state.titleSizeManual = clampTitle();
@@ -397,6 +405,8 @@ rts.oninput=()=>{ state.titleSizeManual=+rts.value; document.getElementById('v_t
 const ranim=document.getElementById('r_titleanim');
 ranim.oninput=()=>{ state.titleAnimSpeed=+ranim.value; document.getElementById('v_titleanim').textContent=(+ranim.value).toFixed(1)+'×'; restartTitleReveal(); draw(); };
 document.getElementById('b_replayanim').onclick=()=>{ restartTitleReveal(); draw(); };
+const rtbg=document.getElementById('r_textbg');
+rtbg.oninput=()=>{ state.textBgOpacity=+rtbg.value; document.getElementById('v_textbg').textContent=rtbg.value; draw(); };
 document.getElementById('f_btnlabel').oninput=e=>{state.btnlabel=e.target.value;draw();};
 document.getElementById('f_quote').oninput=e=>{state.quote=e.target.value;rebuildQuotePicker();draw();};
 document.getElementById('f_quoteAuthor').oninput=e=>{state.quoteAuthor=e.target.value;draw();};
@@ -559,6 +569,21 @@ function wrapBody(g,text,maxW,maxLines){
     const n=(out.match(/\*\*/g)||[]).length; openBold=(n%2!==0); if(openBold)out=out+'**'; return out; });
   return balanced.slice(0,maxLines||4);
 }
+/* variante sans limite de lignes, mesurée à la taille de police réellement dessinée
+   (utilisée par le template "corps seul" pour choisir la plus grande taille qui tient) */
+function wrapAtSize(g,text,maxW,fontPx){
+  g.font="500 "+fontPx+"px 'Archivo'"; const lines=[];
+  String(text).split('\n').forEach(para=>{
+    if(para.trim()===''){lines.push('');return;}
+    const words=para.split(/\s+/).filter(Boolean); let cur='';
+    words.forEach(w=>{ const test=cur?cur+' '+w:w;
+      if(g.measureText(stripBold(test)).width>maxW && cur){lines.push(cur);cur=w;} else cur=test; });
+    if(cur)lines.push(cur);
+  });
+  let openBold=false;
+  return lines.map(ln=>{ let out=ln; if(openBold)out='**'+out;
+    const n=(out.match(/\*\*/g)||[]).length; openBold=(n%2!==0); if(openBold)out=out+'**'; return out; });
+}
 function drawWordLine(g,words,x,y){
   let cx=x; const space=g.measureText(' ').width; const s=SERIES[state.serie];
   const portraitKw=(state.serie==='portraits');
@@ -616,6 +641,32 @@ function drawSafeGuides(W,H){
   ctx.fillStyle='rgba(194,160,78,0.9)'; ctx.font="600 24px 'Saira Condensed'";
   ctx.textAlign='left'; ctx.textBaseline='top'; ctx.fillText('ZONE SÛRE',L+12,T+10);
   ctx.restore(); ctx.textAlign='left'; ctx.textBaseline='alphabetic';
+}
+
+/* ===== TEMPLATE COVER · CORPS SEUL — le corps de texte occupe tout le cadre,
+   header + bandeau série + média de fond conservés (pensé pour L'arrêt de jeu) ===== */
+function drawFullBodyText(g,W,H,M,MR,isVert,footY,ruleY){
+  const textTop=200+safeTop()+58+36;
+  const textBottom=isVert?(footY+18):(ruleY-34);
+  const maxW=W-M-MR, maxH=Math.max(60,textBottom-textTop);
+  const sizes=[52,46,40,36,32,28,25];
+  let size=sizes[sizes.length-1], lineH=Math.round(size*1.32), lines=[];
+  for(let i=0;i<sizes.length;i++){
+    const sz=sizes[i], lh=Math.round(sz*1.32), ls=wrapAtSize(g,state.body,maxW,sz);
+    if(ls.length*lh<=maxH || i===sizes.length-1){ size=sz; lineH=lh; lines=ls; break; }
+  }
+  const blockH=lines.length*lineH;
+  const blockTop=textTop+Math.max(0,(maxH-blockH)/2);
+
+  /* fond semi-transparent réglable derrière le texte (le média de fond reste visible) */
+  if(state.textBgOpacity>0){
+    g.save(); g.globalAlpha=state.textBgOpacity/100; g.fillStyle=C.encre;
+    g.fillRect(M-22, blockTop-30, maxW+44, blockH+58);
+    g.restore();
+  }
+
+  g.fillStyle=C.soustitre; g.textBaseline='alphabetic'; g.textAlign='left';
+  lines.forEach((ln,i)=> drawBodyRich(g,ln,M,blockTop+(i+1)*lineH-lineH*0.28,size));
 }
 
 /* ===== TEMPLATE COVER — réplique de drawA(post.html) + couche série ===== */
@@ -700,16 +751,19 @@ function draw(){
   }
 
   const noBody = (state.template==='titre');
+  const fullBody = (state.template==='corps');
 
-  /* corps : wrap + tailles adaptatives (post.html) — sauté pour le template "titre seul" */
+  /* corps : wrap + tailles adaptatives (post.html) — sauté pour "titre seul" et "corps seul" */
   let bodyFont=40,bodyLineH=50; const bodyMaxW=W-M-MR; const maxBodyLines=isVert?12:8;
-  let bodyLines = noBody ? [] : wrapBody(g,state.body,bodyMaxW,maxBodyLines);
+  let bodyLines = (noBody||fullBody) ? [] : wrapBody(g,state.body,bodyMaxW,maxBodyLines);
   if(bodyLines.length>=5){bodyFont=34;bodyLineH=44;bodyLines=wrapBody(g,state.body,bodyMaxW,maxBodyLines);}
   if(bodyLines.length>=7){bodyFont=30;bodyLineH=39;}
   const bodyBottom=isVert?(footY+18):(ruleY-34);
   const bodyTop=bodyBottom-bodyLines.length*bodyLineH;
 
-  if(noBody){
+  if(fullBody){
+    drawFullBodyText(g,W,H,M,MR,isVert,footY,ruleY);
+  } else if(noBody){
     /* titre seul : la taille choisie est respectée telle quelle — le texte
        passe à la ligne (autant que nécessaire) plutôt que d'être rétréci,
        et le bloc remonte pour rester dans la moitié basse + zone sûre */
@@ -765,8 +819,8 @@ function draw(){
     drawTitle(g,M,titleBaseline1,titleBaseline2,tSize);
   }
 
-  /* 6. corps (absent en template "titre seul") */
-  if(!noBody){
+  /* 6. corps (absent en template "titre seul" et "corps seul", déjà dessiné ci-dessus) */
+  if(!noBody && !fullBody){
     g.fillStyle=C.soustitre; g.textBaseline='alphabetic';
     bodyLines.forEach((ln,i)=>{ drawBodyRich(g,ln,M,bodyTop+(i+1)*bodyLineH-12,bodyFont); });
   }
