@@ -37,10 +37,10 @@ Britannica), pas trois reprises du même article ni trois miroirs de Wikipédia.
   fort mais douteux. La fiabilité prime sur le punch.
 - Conserver les **liens des 3 sources** pour chaque entrée livrée (traçabilité).
 
-## Éditeur principal : `editeurs/editeur-series_2.html`
+## Éditeur principal : `editeurs/editeur-series.html`
 
-L'**éditeur de référence** est désormais `editeurs/editeur-series_2.html` :
-éditeur conscient des **4 séries** une·deux, qui applique automatiquement la
+L'**éditeur de référence** est `editeurs/editeur-series.html` : éditeur
+conscient des **4 séries** une·deux, qui applique automatiquement la
 signature visuelle de la série (couleur, virage photo, format) sur la **cover**
 et la **slide CTA**. Les autres éditeurs (`post.html`, `reel.html`) restent
 disponibles pour les slides intérieures et les reels.
@@ -50,11 +50,11 @@ disponibles pour les slides intérieures et les reels.
 | Champ | Rôle |
 |-------|------|
 | `serie` | `cejourla` · `oublies` · `portraits` · `arretdejeu` (verrouille couleur, virage photo, format) |
-| `template` | `cover` ou `cta` (CTA ENREGISTRE) |
+| `template` | `cover` · `titre` (cover titre seul) · `corps` (cover corps seul, plein cadre — pensé pour L'arrêt de jeu) · `citation` · `cta` |
 | `tag` | **auto** = `N° + nom de série` (non éditable) |
-| `title` | titre de cover (MAJUSCULES, 2 lignes) |
+| `title` | titre de cover (MAJUSCULES, 2 lignes) — absent en template `corps` |
 | `greenWord` | mot-clé du titre coloré en signature de série |
-| `body` | sous-titre (cover) — `**gras**` supporté |
+| `body` | sous-titre (cover) — `**gras**` supporté ; occupe tout le cadre en template `corps` |
 | `cur` / `tot` | pagination (slide courante / total) |
 | `btnlabel` | libellé du bouton (template CTA uniquement) |
 
@@ -432,7 +432,7 @@ Hashtags : série (#lesouscotés, #undestinparjour, #lachutedesgéants, #ledéba
 - **Ce jour-là** · `#cejourla` — éphéméride calendaire (socle quotidien). Carrousel 3:4, ocre / sépia chaud.
 - **Les oubliés** · `#lesoubliés` — effacés de l'histoire, injustices. Carrousel 3:4, vert / N&B froid.
 - **Portraits** · `#portraits` — parcours d'un joueur par l'angle méconnu. Reel 9:16, N&B studio.
-- **L'arrêt de jeu** · `#arretdejeu` — mode enquête/hypothèse : on répond à une question foot (« pourquoi les Bleus ne rejouent plus en rouge ? »). Carrousel 3:4, rouille / légère surimpression sur les médias importés.
+- **L'arrêt de jeu** · `#arretdejeu` — mode enquête/hypothèse : on pose une question foot (« pourquoi les Bleus ne rejouent plus en rouge ? ») et on aligne les faits, sans jamais donner de réponse tranchée — on relance plutôt qu'on referme. Carrousel 3:4, rouille / légère surimpression sur les médias importés.
 
 Scénarios, prompts photo et légendes déclinés par série dans
 `exemples/scenarios-par-serie.md`, `exemples/prompts-par-serie.md`,
