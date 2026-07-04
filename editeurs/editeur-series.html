@@ -230,7 +230,7 @@ Et à la fin du match…</textarea>
 const C = {
   newsprint:'#F1ECE1', encre:'#2C2823', vert:'#27543C', vertD:'#1F4430',
   ocre:'#C2A04E', creme:'#EDDCB2', soustitre:'#D1C1A3', line:'#EDDCB2',
-  bleu:'#31527A'
+  rouille:'#A8452B'
 };
 
 /* ===== Séries : couche de signature par-dessus le template cover ===== */
@@ -244,9 +244,9 @@ const SERIES = {
   portraits:{ name:'Portraits', label:'PORTRAITS', num:'', sig:C.creme, swatch:C.encre,
     photo:'studio', vertical:true, desc:'Visages · reel',
     legend:'Format reel dédié · N&B studio · monogramme seul · titre vertical.' },
-  arretdejeu:{ name:"L'arrêt de jeu", label:"L'ARRÊT DE JEU", num:'N°1', sig:C.bleu, swatch:C.bleu,
+  arretdejeu:{ name:"L'arrêt de jeu", label:"L'ARRÊT DE JEU", num:'N°1', sig:C.rouille, swatch:C.rouille,
     photo:'enquete', desc:'Enquête & hypothèse · carrousel', sigTextColor:C.creme,
-    legend:"Même template cover · signature bleu enquête · virage froid + légère surimpression dossier sur le média. Répond à une question foot par l'hypothèse (« pourquoi les Bleus ne rejouent plus en rouge ? »)." }
+    legend:"Même template cover · signature rouille · virage sépia enquête + légère surimpression dossier sur le média. Répond à une question foot par l'hypothèse (« pourquoi les Bleus ne rejouent plus en rouge ? »)." }
 };
 
 /* ===== State (calé sur post.html) ===== */
@@ -567,7 +567,7 @@ function applyPhotoFilter(g,W,H,kind){
     const r=g.createRadialGradient(W/2,H*0.42,W*0.2,W/2,H*0.5,W*0.85); r.addColorStop(0,'rgba(0,0,0,0)');r.addColorStop(1,'rgba(0,0,0,0.5)');
     g.fillStyle=r; g.fillRect(0,0,W,H); }
   else if(kind==='enquete'){ g.save();g.globalCompositeOperation='saturation';g.globalAlpha=0.6;g.fillStyle='hsl(0,0%,50%)';g.fillRect(0,0,W,H);g.restore();
-    g.fillStyle='rgba(49,82,122,0.24)'; g.fillRect(0,0,W,H);
+    g.fillStyle='rgba(150,62,40,0.22)'; g.fillRect(0,0,W,H);
     /* légère surimpression dossier : trame de hachures fines, spécifique à cette série */
     g.save(); g.strokeStyle='rgba(241,236,225,0.06)'; g.lineWidth=1.5;
     for(let i=-H;i<W+H;i+=38){ g.beginPath(); g.moveTo(i,0); g.lineTo(i+H,H); g.stroke(); }
@@ -610,7 +610,7 @@ function draw(){
     const lg=g.createLinearGradient(0,0,0,H);
     if(s.photo==='studio'){lg.addColorStop(0,'#3a3833');lg.addColorStop(1,'#0d0c0a');}
     else if(s.photo==='cold'){lg.addColorStop(0,'#5a5d57');lg.addColorStop(1,'#23211d');}
-    else if(s.photo==='enquete'){lg.addColorStop(0,'#3f5568');lg.addColorStop(1,'#1b262e');}
+    else if(s.photo==='enquete'){lg.addColorStop(0,'#6e4433');lg.addColorStop(1,'#1c120d');}
     else{lg.addColorStop(0,'#9a968c');lg.addColorStop(1,'#4f4c44');}
     g.fillStyle=lg; g.fillRect(0,0,W,H);
   }

@@ -48,10 +48,10 @@ Toujours finir par `No text.` · Jamais de noms de police.
 ---
 
 ## L'arrêt de jeu — `#arretdejeu`
-*Virage : bleu enquête froid, légère surimpression dossier sur le média. Registre enquête/hypothèse sur une question foot.*
+*Virage : sépia rouille, légère surimpression dossier sur le média. Registre enquête/hypothèse sur une question foot.*
 
 ```
-[NOM + NATIONALITÉ] wearing the [MAILLOT + ANNÉE], aged [ÂGE] at the time, in [ANNÉE]. [ACTION/ÉMOTION], investigative documentary mood. Press photography, cool desaturated tone, balanced contrast, soft natural light, cinematic film grain, period stadium atmosphere. Realistic photograph, not illustration. Portrait 4:5. No text.
+[NOM + NATIONALITÉ] wearing the [MAILLOT + ANNÉE], aged [ÂGE] at the time, in [ANNÉE]. [ACTION/ÉMOTION], investigative documentary mood. Press photography, warm rust-toned sepia, balanced contrast, soft natural light, cinematic film grain, period stadium atmosphere. Realistic photograph, not illustration. Portrait 4:5. No text.
 ```
 
 ---

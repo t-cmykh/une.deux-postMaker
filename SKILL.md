@@ -432,7 +432,7 @@ Hashtags : série (#lesouscotés, #undestinparjour, #lachutedesgéants, #ledéba
 - **Ce jour-là** · `#cejourla` — éphéméride calendaire (socle quotidien). Carrousel 3:4, ocre / sépia chaud.
 - **Les oubliés** · `#lesoubliés` — effacés de l'histoire, injustices. Carrousel 3:4, vert / N&B froid.
 - **Portraits** · `#portraits` — parcours d'un joueur par l'angle méconnu. Reel 9:16, N&B studio.
-- **L'arrêt de jeu** · `#arretdejeu` — mode enquête/hypothèse : on répond à une question foot (« pourquoi les Bleus ne rejouent plus en rouge ? »). Carrousel 3:4, bleu enquête / légère surimpression sur les médias importés.
+- **L'arrêt de jeu** · `#arretdejeu` — mode enquête/hypothèse : on répond à une question foot (« pourquoi les Bleus ne rejouent plus en rouge ? »). Carrousel 3:4, rouille / légère surimpression sur les médias importés.
 
 Scénarios, prompts photo et légendes déclinés par série dans
 `exemples/scenarios-par-serie.md`, `exemples/prompts-par-serie.md`,
