@@ -1,0 +1,63 @@
+[
+  {
+    "template": "A",
+    "tag": "LA QUESTION",
+    "title": "POURQUOI LE BRÉSIL NE JOUE-T-IL PLUS JAMAIS EN BLANC ?",
+    "greenWord": "JAMAIS",
+    "body": "La réponse a un point commun avec l'adversaire qui l'a brisé.",
+    "media": "bresil_01.PNG"
+  },
+  {
+    "template": "A",
+    "tag": "16 JUILLET 1950",
+    "title": "LE MARACANÃ A ACCUEILLI LA PLUS GROSSE FOULE DU FOOT.",
+    "greenWord": "PLUS GROSSE FOULE",
+    "body": "173 850 billets vendus, plus de 200 000 personnes dans les tribunes selon les estimations. Un nul suffisait au Brésil, chez lui, pour être champion du monde. L'Uruguay gagne 2-1.",
+    "media": "bresil_02.PNG"
+  },
+  {
+    "template": "H",
+    "quote": "Et la première chose jugée coupable, c'est le maillot.",
+    "quoteAccent": "le maillot.",
+    "quoteAuthor": "",
+    "caption": ""
+  },
+  {
+    "template": "A",
+    "tag": "LE VERDICT",
+    "title": "LE MAILLOT BLANC A ÉTÉ DÉCLARÉ COUPABLE.",
+    "greenWord": "COUPABLE",
+    "body": "Blanc à col bleu, sans une seule couleur du drapeau : jugé antipatriotique après la défaite. En 1953, le journal Correio da Manhã lance un concours national pour le remplacer, à une condition : y faire tenir les quatre couleurs du Brésil.",
+    "media": "bresil_04.PNG"
+  },
+  {
+    "template": "G",
+    "quote": "Je suis supporter de la Celeste.",
+    "quoteAccent": "la Celeste.",
+    "quoteAuthor": "Aldyr Garcia Schlee, créateur du maillot brésilien, en 2007",
+    "caption": "L'AVEU"
+  },
+  {
+    "template": "A",
+    "tag": "LE DÉTAIL",
+    "title": "LE GAGNANT DU CONCOURS SOUTENAIT L'URUGUAY.",
+    "greenWord": "L'URUGUAY",
+    "body": "Aldyr Garcia Schlee a 19 ans, dessinateur dans un journal de Pelotas, ville frontalière avec l'Uruguay. Il remporte le concours avec un maillot jaune à col vert, short bleu, chaussettes blanches. Le pays qu'il admire, c'est celui qui vient d'humilier le Brésil.",
+    "media": "bresil_06.PNG"
+  },
+  {
+    "template": "A",
+    "tag": "LA PISTE",
+    "title": "PERSONNE N'A JAMAIS VRAIMENT EXPLIQUÉ CE HASARD.",
+    "greenWord": "HASARD",
+    "body": "Le maillot jaune débute en mars 1954, face au Chili, et n'a plus jamais changé. Schlee, lui, avouera plus tard être fatigué qu'on lui reparle de cette histoire vieille de 60 ans. Le symbole le plus sacré du Brésil est né du crayon d'un cœur qui battait pour l'ennemi.",
+    "media": "bresil_07.PNG"
+  },
+  {
+    "template": "D",
+    "tag": "L'ARRÊT DE JEU",
+    "title": "RESTE DANS LE JEU",
+    "body": "Une question foot par semaine. On aligne les faits, jamais de réponse toute faite.",
+    "btnlabel": "FOLLOW"
+  }
+]
