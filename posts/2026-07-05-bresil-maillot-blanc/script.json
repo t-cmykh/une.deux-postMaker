@@ -1,71 +1,76 @@
 [
   {
-    "template": "A",
-    "tag": "LA QUESTION",
+    "serie": "arretdejeu",
+    "template": "titre",
     "title": "POURQUOI LE BRÉSIL NE JOUE-T-IL PLUS JAMAIS EN BLANC ?",
     "greenWord": "JAMAIS",
-    "body": "La réponse commence par une désillusion, en 1950.",
+    "cur": "01",
+    "tot": "09",
     "media": "bresil_01.PNG"
   },
   {
-    "template": "A",
-    "tag": "16 JUILLET 1950",
-    "title": "LE BRÉSIL AVAIT ÉCRASÉ SES DEUX ADVERSAIRES PRÉCÉDENTS.",
-    "greenWord": "ÉCRASÉ",
-    "body": "7-1 contre la Suède, 6-1 contre l'Espagne. Un simple match nul contre l'Uruguay suffisait pour être champion du monde à domicile, devant plus de 200 000 personnes entassées au Maracanã.",
+    "serie": "arretdejeu",
+    "template": "corps",
+    "body": "Le jaune brésilien, c'est la samba, les dribbles chaloupés, le Joga Bonito. L'inverse total des maillots sombres de l'Ancien Monde. Sauf que cette couleur n'a pas toujours habillé la Seleção. De 1930 à 1950, le Brésil joue en blanc et bleu, écusson sur le cœur. Le jaune n'arrivera qu'en 1954, en Suisse.",
+    "cur": "02",
+    "tot": "09",
     "media": "bresil_02.PNG"
   },
   {
-    "template": "H",
-    "quote": "Puis, en 13 minutes, tout s'écroule.",
-    "quoteAccent": "tout s'écroule.",
-    "quoteAuthor": "",
-    "caption": ""
+    "serie": "arretdejeu",
+    "template": "corps",
+    "body": "Tout commence par deux démonstrations. 7-1 contre la Suède. 6-1 contre l'Espagne. Ademir et Chico affolent les défenses. Un pays entier se voit déjà champion du monde, chez lui. Le 16 juillet 1950, le Maracanã est plein à craquer. Rien ne semble pouvoir arrêter le Brésil.",
+    "cur": "03",
+    "tot": "09",
+    "media": "bresil_03.PNG"
   },
   {
-    "template": "A",
-    "tag": "LE COUP DE SIFFLET",
-    "title": "ON A REMIS LA COUPE DU MONDE EN CATIMINI.",
-    "greenWord": "EN CATIMINI",
-    "body": "Jules Rimet avait préparé un discours en portugais. Il ne servira jamais. Pas d'hymne, pas de haie d'honneur : juste une poignée de main pressée au capitaine uruguayen, devant 200 000 personnes changées en statues. Le pays, lui, cherche déjà un coupable.",
+    "serie": "arretdejeu",
+    "template": "corps",
+    "body": "Friaça ouvre le score. Le stade explose. À la 66e minute, Juan Alberto Schiaffino égalise pour l'Uruguay. À la 79e, l'ailier du CA Peñarol double la mise. Le Maracanã se tait d'un coup. Tout le monde comprend. Au coup de sifflet, la Coupe du Monde est remise au capitaine uruguayen, presque en catimini.",
+    "cur": "04",
+    "tot": "09",
     "media": "bresil_04.PNG"
   },
   {
-    "template": "G",
-    "quote": "La peine maximale, au Brésil, c'est 30 ans. Moi, je paie depuis 50 ans.",
-    "quoteAccent": "je paie depuis 50 ans.",
-    "quoteAuthor": "Moacir Barbosa, gardien du Brésil en 1950, peu avant sa mort en 2000",
-    "caption": "LA PEINE"
+    "serie": "arretdejeu",
+    "template": "corps",
+    "body": "Au lendemain, tout un pays cherche un coupable. Ce sera le gardien, Moacir Barbosa Nascimento. On le maudit, on l'accable. Jusqu'à sa mort, en 2000, les Brésiliens ne lui pardonneront jamais cette défaite.",
+    "cur": "05",
+    "tot": "09",
+    "media": "bresil_05.PNG"
   },
   {
-    "template": "A",
-    "tag": "LE MAILLOT AUSSI",
-    "title": "LE BLANC A ÉTÉ JUGÉ « INSUFFISAMMENT PATRIOTIQUE ».",
-    "greenWord": "INSUFFISAMMENT PATRIOTIQUE",
-    "body": "Le maillot blanc à col bleu ne portait aucune couleur du drapeau. La fédération le condamne à son tour et lance un concours national pour le redessiner : une seule règle, y faire tenir le jaune, le vert, le bleu et le blanc du Brésil.",
+    "serie": "arretdejeu",
+    "template": "corps",
+    "body": "Puisque les symboles comptent, le maillot blanc est jugé lui aussi. Il ne porte aucune des couleurs du drapeau : on le déclare insuffisamment patriotique. Dans la précipitation, la fédération brésilienne lance un grand concours pour le redessiner entièrement.",
+    "cur": "06",
+    "tot": "09",
     "media": "bresil_06.PNG"
   },
   {
-    "template": "A",
-    "tag": "LE DÉTAIL",
-    "title": "LE GAGNANT DU CONCOURS SOUTENAIT L'URUGUAY.",
-    "greenWord": "L'URUGUAY",
-    "body": "Aldyr Garcia Schlee a 19 ans, dessinateur dans un journal de Pelotas, ville frontalière avec l'Uruguay. Il remporte le concours avec un maillot jaune à col vert, short bleu, chaussettes blanches. Le pays qu'il admire, c'est celui qui vient d'humilier le Brésil.",
+    "serie": "arretdejeu",
+    "template": "corps",
+    "body": "Aldyr Garcia Schlee, 19 ans, propose un maillot jaune à parements verts, un short bleu, des chaussettes blanches. Presque celui d'aujourd'hui. Il remporte le concours. Le jaune évoque la richesse minérale du pays, l'or en particulier. Le vert, l'Amazonie. Le bleu, son fleuve. Le blanc, les étoiles de la bannière nationale.",
+    "cur": "07",
+    "tot": "09",
     "media": "bresil_07.PNG"
   },
   {
-    "template": "A",
-    "tag": "LA PISTE",
-    "title": "PERSONNE N'A JAMAIS VRAIMENT EXPLIQUÉ CE HASARD.",
-    "greenWord": "HASARD",
-    "body": "Le maillot jaune débute le 14 mars 1954 contre le Chili, puis part en Coupe du Monde en Suisse la même année. Jaune pour l'or, vert pour l'Amazonie, bleu et blanc pour compléter le drapeau : un symbole national entier dessiné par un supporter adverse. Le maillot le plus mythique du foot est né d'une punition.",
+    "serie": "arretdejeu",
+    "template": "corps",
+    "body": "En 2018, Nike reprend ces codes avec un jaune plus sombre et un col vert. À l'intérieur, une pastille reprend le globe du drapeau, entourée du message : « Você é Seleção. » Tu es la sélection. Des zigzags discrets ornent les manches. Une façon de réinterpréter le mythe, sans jamais le dénaturer.",
+    "cur": "08",
+    "tot": "09",
     "media": "bresil_08.PNG"
   },
   {
-    "template": "D",
-    "tag": "L'ARRÊT DE JEU",
+    "serie": "arretdejeu",
+    "template": "cta",
     "title": "RESTE DANS LE JEU",
-    "body": "Une question foot par semaine. On aligne les faits, jamais de réponse toute faite.",
-    "btnlabel": "FOLLOW"
+    "body": "Une histoire par semaine. On aligne les faits, jamais de réponse toute faite.",
+    "btnlabel": "FOLLOW",
+    "cur": "09",
+    "tot": "09"
   }
 ]

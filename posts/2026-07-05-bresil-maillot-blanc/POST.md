@@ -1,68 +1,114 @@
 # L'arrêt de jeu — Pourquoi le Brésil ne joue plus en blanc
 
 **Série :** L'arrêt de jeu · `#arretdejeu` · Carrousel 3:4 · signature rouille / surimpression dossier
-**Émotion unique :** curiosité → ironie du destin
-**Angle :** enquête — on pose la question, on aligne les faits, on ne referme pas la boucle par un « voici pourquoi » définitif
-**Boucle cover→climax :** « pourquoi plus jamais de blanc ? » → le maillot jaune qu'on croit sacré a été dessiné par un supporter de l'Uruguay, l'équipe qui a brisé le Brésil — et est né d'une double punition (le gardien, le maillot).
+**Production :** 100% `editeurs/editeur-series.html` — série `arretdejeu` verrouillée sur toutes les slides.
+Pas de `post.html` sur ce post : le template **corps** (« cover corps seul, plein cadre ») est
+pensé pour L'arrêt de jeu et porte tout le texte narratif, slide après slide.
 
-Source d'inspiration : article L'Officiel, *« Brésil : les dessous d'un maillot mythique »* (04.07.2018), texte intégral fourni par Thomas. Repris et complété par une vérification factuelle indépendante (règle des 3 sources).
+**Méthode :** reformulation de l'article L'Officiel *« Brésil : les dessous d'un maillot
+mythique »* (04.07.2018, texte intégral fourni par Thomas) — pas une synthèse. Le récit et
+les faits de l'article sont conservés dans l'ordre, réécrits dans la voix une·deux (phrases
+courtes, dépouillées, ton archiviste-conteur), répartis sur les slides `corps`.
 
----
-
-## Éditeur séries (`editeurs/editeur-series.html`) — COVER & CTA
-
-> À saisir dans l'éditeur principal (série `arretdejeu` verrouille couleur / virage / format 3:4).
-
-**COVER (slide 01)** — série `arretdejeu`, template `cover`
-- title : `POURQUOI LE BRÉSIL NE JOUE-T-IL PLUS JAMAIS EN BLANC ?`
-- greenWord : `JAMAIS`
-- body : `La réponse commence par une désillusion, en 1950.`
-- cur/tot : `01` / `09`
-
-**CTA (slide 09)** — série `arretdejeu`, template `cta`
-- title : `RESTE DANS LE JEU`
-- body : `Une question foot par semaine. On aligne les faits, jamais de réponse toute faite.`
-- btnlabel : `FOLLOW`
-
-Les slides intérieures (02→08) sont dans `script.json` (format `post.html`, templates A/H/G/A/A/A).
-
-**Débat (sous le CTA, pour la légende — pas dans le JSON) :**
-« Hasard ou clin d'œil du destin ? »
+⚠️ `editeur-series.html` n'a pas d'import JSON : chaque slide se saisit à la main dans le
+formulaire (série + template + champs + photo). Le tableau ci-dessous sert de feuille de
+saisie ; `script.json` reprend les mêmes valeurs en machine-readable pour archivage.
 
 ---
 
-## Prompts photo (L'arrêt de jeu — sépia rouille, `nano_banana_pro`, 4:5)
+## Feuille de saisie — éditeur séries (les 9 slides, `serie = arretdejeu`)
 
-Slides illustrées : S1, S2, S4, S6, S7, S8 (pas les templates H ni G).
+### Slide 01 — template `titre` (COVER · TITRE SEUL)
+- Titre : `POURQUOI LE BRÉSIL NE JOUE-T-IL PLUS JAMAIS EN BLANC ?`
+- Mot-clé coloré : `JAMAIS`
+- Slide / Total : `01` / `09`
+- Photo : bresil_01.PNG
 
-**bresil_01.PNG (COVER — le maillot blanc)**
+### Slide 02 — template `corps` (COVER · CORPS SEUL)
+- Corps : « Le jaune brésilien, c'est la samba, les dribbles chaloupés, le Joga Bonito. L'inverse total des maillots sombres de l'Ancien Monde. Sauf que cette couleur n'a pas toujours habillé la Seleção. De 1930 à 1950, le Brésil joue en blanc et bleu, écusson sur le cœur. Le jaune n'arrivera qu'en 1954, en Suisse. »
+- Slide / Total : `02` / `09`
+- Photo : bresil_02.PNG
+
+### Slide 03 — template `corps`
+- Corps : « Tout commence par deux démonstrations. 7-1 contre la Suède. 6-1 contre l'Espagne. Ademir et Chico affolent les défenses. Un pays entier se voit déjà champion du monde, chez lui. Le 16 juillet 1950, le Maracanã est plein à craquer. Rien ne semble pouvoir arrêter le Brésil. »
+- Slide / Total : `03` / `09`
+- Photo : bresil_03.PNG
+
+### Slide 04 — template `corps`
+- Corps : « Friaça ouvre le score. Le stade explose. À la 66e minute, Juan Alberto Schiaffino égalise pour l'Uruguay. À la 79e, l'ailier du CA Peñarol double la mise. Le Maracanã se tait d'un coup. Tout le monde comprend. Au coup de sifflet, la Coupe du Monde est remise au capitaine uruguayen, presque en catimini. »
+- Slide / Total : `04` / `09`
+- Photo : bresil_04.PNG
+
+### Slide 05 — template `corps`
+- Corps : « Au lendemain, tout un pays cherche un coupable. Ce sera le gardien, Moacir Barbosa Nascimento. On le maudit, on l'accable. Jusqu'à sa mort, en 2000, les Brésiliens ne lui pardonneront jamais cette défaite. »
+- Slide / Total : `05` / `09`
+- Photo : bresil_05.PNG
+
+### Slide 06 — template `corps`
+- Corps : « Puisque les symboles comptent, le maillot blanc est jugé lui aussi. Il ne porte aucune des couleurs du drapeau : on le déclare insuffisamment patriotique. Dans la précipitation, la fédération brésilienne lance un grand concours pour le redessiner entièrement. »
+- Slide / Total : `06` / `09`
+- Photo : bresil_06.PNG
+
+### Slide 07 — template `corps`
+- Corps : « Aldyr Garcia Schlee, 19 ans, propose un maillot jaune à parements verts, un short bleu, des chaussettes blanches. Presque celui d'aujourd'hui. Il remporte le concours. Le jaune évoque la richesse minérale du pays, l'or en particulier. Le vert, l'Amazonie. Le bleu, son fleuve. Le blanc, les étoiles de la bannière nationale. »
+- Slide / Total : `07` / `09`
+- Photo : bresil_07.PNG
+
+### Slide 08 — template `corps`
+- Corps : « En 2018, Nike reprend ces codes avec un jaune plus sombre et un col vert. À l'intérieur, une pastille reprend le globe du drapeau, entourée du message : « Você é Seleção. » Tu es la sélection. Des zigzags discrets ornent les manches. Une façon de réinterpréter le mythe, sans jamais le dénaturer. »
+- Slide / Total : `08` / `09`
+- Photo : bresil_08.PNG
+
+### Slide 09 — template `cta` (CTA ENREGISTRE)
+- Titre : `RESTE DANS LE JEU`
+- Corps : `Une histoire par semaine. On aligne les faits, jamais de réponse toute faite.`
+- Libellé bouton : `FOLLOW`
+- Slide / Total : `09` / `09`
+
+**Débat (pour la légende, pas dans l'éditeur) :** « Le vrai génie du Brésil, c'est le foot ou le marketing d'un traumatisme ? »
+
+---
+
+## Prompts photo (style presse, `nano_banana_pro`, 4:5, virage rouille enquête)
+
+**bresil_01.PNG (cover — le maillot blanc de 1950)**
 ```
 The Brazil national football team wearing the 1950 Brazil white home kit with blue trim, in 1950. Players walking onto the pitch at a packed stadium, tense atmosphere before kickoff. Press photography, investigative documentary mood, warm rust-toned sepia, balanced contrast, soft natural light, cinematic film grain, period stadium atmosphere. Realistic photograph, not illustration. Portrait 4:5. No text.
 ```
 
-**bresil_02.PNG (16 JUILLET 1950 — les larges victoires avant la finale)**
+**bresil_02.PNG (le jaune aujourd'hui vs hier)**
+```
+The Brazil national football team wearing a modern Brazil yellow home kit, in the present day. Players celebrating a goal together on the pitch with joyful, expressive body language. Press photography, investigative documentary mood, warm rust-toned sepia, balanced contrast, soft natural light, cinematic film grain, modern stadium atmosphere. Realistic photograph, not illustration. Portrait 4:5. No text.
+```
+
+**bresil_03.PNG (la marche vers 1950 — 7-1, 6-1)**
 ```
 The Brazil national football team wearing the 1950 Brazil white home kit with blue trim, in 1950. Players celebrating a goal together on the pitch, joyful confident mood. Press photography, investigative documentary mood, warm rust-toned sepia, balanced contrast, soft natural light, cinematic film grain, period stadium atmosphere. Realistic photograph, not illustration. Portrait 4:5. No text.
 ```
 
-**bresil_04.PNG (LE COUP DE SIFFLET — la remise en catimini)**
+**bresil_04.PNG (la chute — remise en catimini)**
 ```
 The Uruguay national football team captain receiving the Jules Rimet trophy on the pitch at a packed stadium, in 1950. A brief handshake, no ceremony, subdued silent crowd in the background. Press photography, investigative documentary mood, warm rust-toned sepia, balanced contrast, soft natural light, cinematic film grain, period stadium atmosphere. Realistic photograph, not illustration. Portrait 4:5. No text.
 ```
 
-**bresil_06.PNG (LE MAILLOT AUSSI — le verdict sur le blanc)**
+**bresil_05.PNG (le bouc émissaire — Moacir Barbosa)**
+```
+Moacir Barbosa, Brazilian football goalkeeper, aged 29 at the time, in 1950. Solitary pensive portrait, melancholic downcast mood. Press photography, investigative documentary mood, warm rust-toned sepia, balanced contrast, soft natural light, cinematic film grain. Realistic photograph, not illustration. Portrait 4:5. No text.
+```
+
+**bresil_06.PNG (le maillot aussi jugé)**
 ```
 The Brazil national football team wearing the 1950 Brazil white home kit with blue trim, in 1950. Players sitting in the locker room after the match, dejected and silent mood. Press photography, investigative documentary mood, warm rust-toned sepia, balanced contrast, soft natural light, cinematic film grain, period locker room atmosphere. Realistic photograph, not illustration. Portrait 4:5. No text.
 ```
 
-**bresil_07.PNG (LE DÉTAIL — Aldyr Garcia Schlee)**
+**bresil_07.PNG (le concours — Aldyr Garcia Schlee)**
 ```
 Aldyr Garcia Schlee, Brazilian newspaper illustrator, aged 19 at the time, in 1953. Sitting at a drawing desk in a small newsroom in Pelotas, sketching a football jersey design, focused expression. Press photography, investigative documentary mood, warm rust-toned sepia, balanced contrast, soft natural light, cinematic film grain, period newsroom atmosphere. Realistic photograph, not illustration. Portrait 4:5. No text.
 ```
 
-**bresil_08.PNG (LA PISTE — le nouveau maillot jaune)**
+**bresil_08.PNG (le mythe aujourd'hui — maillot 2018)**
 ```
-The Brazil national football team wearing the new 1954 Brazil yellow home kit with green trim and blue shorts, in 1954. Players walking out of the tunnel onto a Swiss stadium pitch, confident mood. Press photography, investigative documentary mood, warm rust-toned sepia, balanced contrast, soft natural light, cinematic film grain, period stadium atmosphere. Realistic photograph, not illustration. Portrait 4:5. No text.
+Close-up of a Brazilian football player wearing the 2018 Brazil yellow home kit with green collar detailing, in 2018. Focus on the collar and crest details, proud confident mood. Press photography, investigative documentary mood, warm rust-toned sepia, balanced contrast, soft natural light, cinematic film grain, modern stadium atmosphere. Realistic photograph, not illustration. Portrait 4:5. No text.
 ```
 
 ---
@@ -72,11 +118,11 @@ The Brazil national football team wearing the new 1954 Brazil yellow home kit wi
 ```
 **Pourquoi le Brésil ne porte plus jamais de maillot blanc ? 🤔🇧🇷**
 
-Le 16 juillet 1950, un nul contre l'Uruguay suffisait au Brésil pour être champion du monde à domicile. Défaite 2-1, devant plus de 200 000 personnes pétrifiées au Maracanã. La coupe est remise en catimini, sans cérémonie. Le pays cherche un coupable : ce sera le gardien Moacir Barbosa, puni jusqu'à sa mort en 2000. Le maillot blanc, lui, est jugé « insuffisamment patriotique ». Un concours national le redessine.
+Jusqu'en 1950, la Seleção jouait en blanc et bleu. Le 16 juillet, au Maracanã, l'Uruguay prive le Brésil du titre à domicile : défaite 2-1, un silence de 200 000 personnes. Le pays cherche un coupable : ce sera le gardien Moacir Barbosa, puni jusqu'à sa mort en 2000. Le maillot blanc, lui, est jugé « insuffisamment patriotique ». Un concours national le redessine : jaune, vert, bleu, blanc, les couleurs du drapeau.
 
-Et le plus fou ? Le gagnant du concours, Aldyr Garcia Schlee, 19 ans, admettra plus tard être supporter de la Celeste — l'Uruguay, l'équipe qui venait d'humilier le Brésil.
+Et le plus fou ? Ce maillot dessiné dans l'urgence, par un inconnu de 19 ans, n'a plus jamais changé depuis 1954.
 
-Alors dis-nous : hasard ou clin d'œil du destin ? 👇
+Alors dis-nous : le vrai génie du Brésil, c'est le foot ou le marketing d'un traumatisme ? 👇
 @une.deux ⚽️
 .
 .
@@ -89,56 +135,49 @@ Alors dis-nous : hasard ou clin d'œil du destin ? 👇
 
 | Fait | Statut | Sources indépendantes |
 |------|--------|------------------------|
-| Brésil bat la Suède 7-1 et l'Espagne 6-1 au tour final 1950, un nul suffisait face à l'Uruguay | ✅ | Wikipedia EN (1950 FIFA World Cup) · FIFA.com · article L'Officiel (source Thomas) |
-| Finale du 16/07/1950 au Maracanã : Uruguay bat le Brésil 2-1 (buts Schiaffino 66e, Ghiggia 79e) | ✅ | Wikipedia EN · FIFA.com · beIN Sports |
-| Affluence : 173 850 billets vendus (record Guinness), estimation réelle > 200 000 | ✅ | Guinness World Records · FIFA.com · Rio-de-Janeiro.com |
-| Trophée Jules Rimet remis sans cérémonie, discours en portugais jamais prononcé | ✅ | Wikipedia (Jules Rimet) · ExtraTime · Translating Cuba |
-| Moacir Barbosa, gardien du Brésil, bouc émissaire jusqu'à sa mort en 2000 | ✅ | Wikipedia EN (Moacir Barbosa) · CNN · ESPN |
-| Citation de Barbosa sur la « peine de 30 ans / 50 ans payés », peu avant sa mort | ✅ | ESPN · World Soccer · btsgoalies.com *(citation traduite, originellement en portugais)* |
-| Maillot blanc à col bleu porté en 1950, jugé « antipatriotique »/« insuffisamment patriotique » | ✅ | Wikipedia EN · Global Voices · article L'Officiel |
-| Concours 1953 du Correio da Manhã, condition : les 4 couleurs du drapeau | ✅ | Wikipedia EN (Aldyr Schlee) · Global Voices · article L'Officiel |
-| Vainqueur : Aldyr Garcia Schlee, 19 ans, dessinateur à Pelotas (ville frontalière Uruguay) | ✅ | Wikipedia EN · Boston Globe (nécrologie) · article L'Officiel |
-| Design retenu : maillot jaune, col vert, short bleu, chaussettes blanches | ✅ | Wikipedia EN · Google Arts & Culture · article L'Officiel |
-| Premier match du nouveau maillot : 14 mars 1954 contre le Chili (qualif.), puis Coupe du Monde 1954 en Suisse | ✅ | Wikipedia EN (History of Brazil NT) · National-football-teams.com · TBS News |
-| Symbolique des couleurs : jaune = richesse minérale/or, vert = Amazonie, bleu/blanc = drapeau | ✅ | Article L'Officiel · Google Arts & Culture · TBS News |
-| Schlee, supporter autoproclamé de la Celeste (Uruguay) : « Sou torcedor da Celeste Olímpica » (2007) | ✅ | Maisfutebol (IOL) · Boston Globe · Brasil de Fato |
+| Blanc et bleu de 1930 à 1950, jaune à partir de 1954 | ✅ | Article L'Officiel · Wikipedia EN (History of Brazil NT) · Google Arts & Culture |
+| Brésil bat la Suède 7-1 et l'Espagne 6-1 au tour final 1950 | ✅ | Article L'Officiel · Wikipedia EN (1950 FIFA World Cup) · FIFA.com |
+| Ademir et Chico, attaquants brésiliens du Mondial 1950 | ✅ | Article L'Officiel · ESPN (further lives of 1950 finalists) · 11v11 / National-football-teams.com |
+| Finale du 16/07/1950 : but de Friaça, puis Schiaffino (66e) et l'ailier du CA Peñarol (79e) pour l'Uruguay, 2-1 | ✅ | Article L'Officiel · Wikipedia EN (Uruguay v Brazil 1950) · FIFA.com |
+| Coupe remise sans cérémonie, quasi en catimini | ✅ | Wikipedia (Jules Rimet) · ExtraTime · Translating Cuba |
+| Moacir Barbosa Nascimento, gardien, bouc émissaire jusqu'à sa mort en 2000 | ✅ | Article L'Officiel · Wikipedia EN (Moacir Barbosa) · ESPN/CNN |
+| Maillot blanc jugé « insuffisamment patriotique », concours national lancé par la fédération | ✅ | Article L'Officiel · Wikipedia EN (Aldyr Schlee) · Global Voices |
+| Aldyr Garcia Schlee, 19 ans, gagne avec jaune/vert/bleu/blanc | ✅ | Article L'Officiel · Wikipedia EN · Boston Globe (nécrologie) |
+| Symbolique couleurs : jaune = richesse minérale/or, vert = Amazonie, bleu = fleuve, blanc = étoiles du drapeau | ✅ | Article L'Officiel · Google Arts & Culture · TBS News |
+| Maillot Nike 2018 : jaune plus sombre, col vert, pastille « Você é Seleção », zigzags sur les manches | ✅ | Article L'Officiel (source directe et unique pour ce détail 2018, non repris ailleurs à l'identique — détail produit officiel Nike, cohérent avec le lancement du maillot 2018) |
 
 **Sources :**
+- https://www.lofficiel.com/hommes/bresil-les-dessous-d-un-maillot-mythique (article source, texte intégral fourni par Thomas)
 - https://en.wikipedia.org/wiki/1950_FIFA_World_Cup
 - https://en.wikipedia.org/wiki/Uruguay_v_Brazil_(1950_FIFA_World_Cup)
 - https://en.wikipedia.org/wiki/Jules_Rimet
 - https://en.wikipedia.org/wiki/Moacir_Barbosa
 - https://en.wikipedia.org/wiki/Aldyr_Schlee
 - https://en.wikipedia.org/wiki/History_of_the_Brazil_national_football_team
-- https://www.guinnessworldrecords.com/news/2014/6/world-cup-rewind-world-cup-rewind-largest-attendance-at-a-match-in-the-1950-brazil-final
+- https://www.espn.com/soccer/story/_/id/37363781/the-further-lives-all-1950-world-cup-finalists-brazil-uruguay
 - https://www.fifa.com/en/tournaments/mens/worldcup/articles/uruguay-brazil-1950-maracanazo
-- https://www.cnn.com/2013/06/14/sport/football/brazil-confederations-cup-neymar-pele-football
-- https://www.espn.com/soccer/story/_/id/37372808/not-country-keeper-tale-moacyr-barbosa
-- https://extratime.world/football-stories/maracanazo-1950-world-cup
-- https://www.bostonglobe.com/metro/obituaries/2018/11/19/aldyr-schlee-designer-brazil-iconic-uniform-dies/PXiyGxtn3aykzWt2sJjbAP/story.html
-- https://maisfutebol.iol.pt/anatomia-de-uma-foto/aldyr-schlee/a-grande-historia-do-adepto-do-uruguai-que-criou-o-simbolo-do-brasil
-- https://www.lofficiel.com/hommes/bresil-les-dessous-d-un-maillot-mythique (article source, fourni par Thomas)
 
-**Détail écarté (non triple-sourcé de façon cohérente) :** le nombre exact de candidatures au concours de 1953 varie selon les sources (200, 301 ou 401 citées ailleurs) → non utilisé.
-
-**Détail de l'article source non retenu :** l'anecdote du patch intérieur du col (« VOCÊ É SELEÇÃO ») et des motifs zigzag du maillot Nike 2018 est vraie mais hors-sujet pour l'angle « pourquoi le blanc a disparu » — gardée de côté, utilisable pour un futur post sur le maillot 2018 spécifiquement.
+**Point non retenu de la v1 (research indépendante) :** l'ironie « le créateur du maillot était supporter de l'Uruguay » (Aldyr Garcia Schlee) est vraie et solidement sourcée (Boston Globe, Maisfutebol, Brasil de Fato), mais absente de l'article L'Officiel. Écartée de cette version car la consigne est de reformuler l'article, pas d'y ajouter une recherche externe. Gardée en réserve pour un futur post dédié à Schlee.
 
 ---
 
 ## Notes skills chaînés
 
 `hook-writer-sms` et `humanizer` sont référencés par le SKILL mais ne sont pas
-disponibles comme skills séparés dans cette session : le hook (question cash) et
-le style (phrases courtes, tutoiement, zéro remplissage) ont été travaillés
-manuellement dans leur esprit. À repasser par ces skills si Thomas les a côté
-éditeur avant publication.
+disponibles comme skills séparés dans cette session : le hook et le style (phrases
+courtes, tutoiement ponctuel, zéro remplissage) ont été travaillés manuellement
+dans leur esprit. À repasser par ces skills si Thomas les a côté éditeur.
 
 ## Historique de version
 
-- v1 : post construit sans accès à l'article intégral (paywall), reconstruction
-  par recherche web indépendante (Maracanazo → concours 1953 → Schlee).
-- v2 (actuelle) : article intégral fourni par Thomas, intégré. Ajout du calvaire
-  de Moacir Barbosa et de la remise du trophée « en catimini », vérifiés par
-  3 sources indépendantes. Structure étendue de 8 à 9 slides (règle SKILL :
-  on étend le TEASE, jamais le HOOK ni l'ACTION). Dates de scores (7-1, 6-1)
-  et de première sortie du maillot (14 mars 1954 vs Chili) précisées.
+- v1 : post construit sans accès à l'article intégral (paywall) — reconstruction
+  par recherche web indépendante (Maracanazo → concours 1953 → Schlee), format
+  script.json / `post.html` (templates A/H/G/D).
+- v2 : article intégral fourni par Thomas, intégré au format `post.html` — ajout
+  de Moacir Barbosa et de la remise en catimini.
+- v3 (actuelle) : refonte demandée par Thomas — production **entièrement** via
+  `editeur-series.html` (plus de `post.html`). Slide 1 en template `titre` (titre
+  seul), toutes les slides intérieures en template `corps` (corps seul plein
+  cadre), CTA en template `cta`. Le texte est une **reformulation fidèle de
+  l'article** (pas une synthèse à hooks) : tout le contenu de l'article est
+  conservé et réécrit dans la voix une·deux, dans l'ordre du récit original.
