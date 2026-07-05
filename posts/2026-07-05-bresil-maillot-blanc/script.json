@@ -4,38 +4,46 @@
     "tag": "LA QUESTION",
     "title": "POURQUOI LE BRÉSIL NE JOUE-T-IL PLUS JAMAIS EN BLANC ?",
     "greenWord": "JAMAIS",
-    "body": "La réponse a un point commun avec l'adversaire qui l'a brisé.",
+    "body": "La réponse commence par une désillusion, en 1950.",
     "media": "bresil_01.PNG"
   },
   {
     "template": "A",
     "tag": "16 JUILLET 1950",
-    "title": "LE MARACANÃ A ACCUEILLI LA PLUS GROSSE FOULE DU FOOT.",
-    "greenWord": "PLUS GROSSE FOULE",
-    "body": "173 850 billets vendus, plus de 200 000 personnes dans les tribunes selon les estimations. Un nul suffisait au Brésil, chez lui, pour être champion du monde. L'Uruguay gagne 2-1.",
+    "title": "LE BRÉSIL AVAIT ÉCRASÉ SES DEUX ADVERSAIRES PRÉCÉDENTS.",
+    "greenWord": "ÉCRASÉ",
+    "body": "7-1 contre la Suède, 6-1 contre l'Espagne. Un simple match nul contre l'Uruguay suffisait pour être champion du monde à domicile, devant plus de 200 000 personnes entassées au Maracanã.",
     "media": "bresil_02.PNG"
   },
   {
     "template": "H",
-    "quote": "Et la première chose jugée coupable, c'est le maillot.",
-    "quoteAccent": "le maillot.",
+    "quote": "Puis, en 13 minutes, tout s'écroule.",
+    "quoteAccent": "tout s'écroule.",
     "quoteAuthor": "",
     "caption": ""
   },
   {
     "template": "A",
-    "tag": "LE VERDICT",
-    "title": "LE MAILLOT BLANC A ÉTÉ DÉCLARÉ COUPABLE.",
-    "greenWord": "COUPABLE",
-    "body": "Blanc à col bleu, sans une seule couleur du drapeau : jugé antipatriotique après la défaite. En 1953, le journal Correio da Manhã lance un concours national pour le remplacer, à une condition : y faire tenir les quatre couleurs du Brésil.",
+    "tag": "LE COUP DE SIFFLET",
+    "title": "ON A REMIS LA COUPE DU MONDE EN CATIMINI.",
+    "greenWord": "EN CATIMINI",
+    "body": "Jules Rimet avait préparé un discours en portugais. Il ne servira jamais. Pas d'hymne, pas de haie d'honneur : juste une poignée de main pressée au capitaine uruguayen, devant 200 000 personnes changées en statues. Le pays, lui, cherche déjà un coupable.",
     "media": "bresil_04.PNG"
   },
   {
     "template": "G",
-    "quote": "Je suis supporter de la Celeste.",
-    "quoteAccent": "la Celeste.",
-    "quoteAuthor": "Aldyr Garcia Schlee, créateur du maillot brésilien, en 2007",
-    "caption": "L'AVEU"
+    "quote": "La peine maximale, au Brésil, c'est 30 ans. Moi, je paie depuis 50 ans.",
+    "quoteAccent": "je paie depuis 50 ans.",
+    "quoteAuthor": "Moacir Barbosa, gardien du Brésil en 1950, peu avant sa mort en 2000",
+    "caption": "LA PEINE"
+  },
+  {
+    "template": "A",
+    "tag": "LE MAILLOT AUSSI",
+    "title": "LE BLANC A ÉTÉ JUGÉ « INSUFFISAMMENT PATRIOTIQUE ».",
+    "greenWord": "INSUFFISAMMENT PATRIOTIQUE",
+    "body": "Le maillot blanc à col bleu ne portait aucune couleur du drapeau. La fédération le condamne à son tour et lance un concours national pour le redessiner : une seule règle, y faire tenir le jaune, le vert, le bleu et le blanc du Brésil.",
+    "media": "bresil_06.PNG"
   },
   {
     "template": "A",
@@ -43,15 +51,15 @@
     "title": "LE GAGNANT DU CONCOURS SOUTENAIT L'URUGUAY.",
     "greenWord": "L'URUGUAY",
     "body": "Aldyr Garcia Schlee a 19 ans, dessinateur dans un journal de Pelotas, ville frontalière avec l'Uruguay. Il remporte le concours avec un maillot jaune à col vert, short bleu, chaussettes blanches. Le pays qu'il admire, c'est celui qui vient d'humilier le Brésil.",
-    "media": "bresil_06.PNG"
+    "media": "bresil_07.PNG"
   },
   {
     "template": "A",
     "tag": "LA PISTE",
     "title": "PERSONNE N'A JAMAIS VRAIMENT EXPLIQUÉ CE HASARD.",
     "greenWord": "HASARD",
-    "body": "Le maillot jaune débute en mars 1954, face au Chili, et n'a plus jamais changé. Schlee, lui, avouera plus tard être fatigué qu'on lui reparle de cette histoire vieille de 60 ans. Le symbole le plus sacré du Brésil est né du crayon d'un cœur qui battait pour l'ennemi.",
-    "media": "bresil_07.PNG"
+    "body": "Le maillot jaune débute le 14 mars 1954 contre le Chili, puis part en Coupe du Monde en Suisse la même année. Jaune pour l'or, vert pour l'Amazonie, bleu et blanc pour compléter le drapeau : un symbole national entier dessiné par un supporter adverse. Le maillot le plus mythique du foot est né d'une punition.",
+    "media": "bresil_08.PNG"
   },
   {
     "template": "D",
