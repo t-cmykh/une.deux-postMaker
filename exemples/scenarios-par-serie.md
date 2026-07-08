@@ -63,6 +63,13 @@ les faits, mais on ne referme pas la boucle par un « voici pourquoi » définit
 La dernière slide relance ou expose la piste la plus solide sans trancher —
 c'est ce suspense non résolu qui fait discuter en commentaires.
 
+**Densité du corps de texte (spécifique à cette série) :** contrairement à *Ce
+jour-là* ou *Les oubliés*, les slides hors cover/CTA ne sont pas des punchlines
+compressées. Ce sont des blocs de corps de texte qui approfondissent le sujet
+façon dossier : on reprend le paragraphe quasi complet de la source (chiffres
+secondaires, nuances, citations d'appoint), pas une phrase unique. S'il y a trop
+de matière pour une seule slide, on en ajoute une plutôt que de compresser.
+
 | Slide | Fonction | Contenu |
 |-------|----------|---------|
 | S1 | HOOK | La question foot posée cash, sans détour. Ex : « Mais pourquoi l'équipe de France ne joue-t-elle plus jamais en rouge ? » |

@@ -432,7 +432,24 @@ Hashtags : série (#lesouscotés, #undestinparjour, #lachutedesgéants, #ledéba
 - **Ce jour-là** · `#cejourla` — éphéméride calendaire (socle quotidien). Carrousel 3:4, ocre / sépia chaud.
 - **Les oubliés** · `#lesoubliés` — effacés de l'histoire, injustices. Carrousel 3:4, vert / N&B froid.
 - **Portraits** · `#portraits` — parcours d'un joueur par l'angle méconnu. Reel 9:16, N&B studio.
-- **L'arrêt de jeu** · `#arretdejeu` — mode enquête/hypothèse : on pose une question foot (« pourquoi les Bleus ne rejouent plus en rouge ? ») et on aligne les faits, sans jamais donner de réponse tranchée — on relance plutôt qu'on referme. Carrousel 3:4, rouille / légère surimpression sur les médias importés.
+- **L'arrêt de jeu** · `#arretdejeu` — mode enquête/hypothèse : on pose une question foot (« pourquoi les Bleus ne rejouent plus en rouge ? ») et on aligne les faits, sans jamais donner de réponse tranchée — on relance plutôt qu'on referme. Carrousel 3:4, rouille / légère surimpression sur les médias importés. **Slides hors cover/CTA = corps de texte dense** (voir « Densité du corps de texte par série » ci-dessous), pas des punchlines compressées.
+
+### Densité du corps de texte par série (règle importante)
+
+Le degré de compression du `body` des slides A n'est **pas le même** selon la série :
+
+- **Ce jour-là, Les oubliés, Portraits** : slides « punchline ». Une idée, une phrase
+  ou deux, densité factuelle mais phrasé court — le lecteur swipe vite, chaque slide
+  doit se lire en 1-2 secondes.
+- **L'arrêt de jeu** : slides « dossier ». Le lecteur qui reste sur ce carrousel est
+  déjà en lecture longue ; chaque slide de corps (hors S1 cover et Sn CTA) doit
+  **approfondir**, pas résumer. Reprendre le paragraphe quasi complet de la source
+  (chiffres secondaires, nuances, citations d'appoint, contradictions internes —
+  ex. « rien n'est prouvé, mais... »), pas une phrase unique compressée. Les slides H
+  (respiration) et G (citation) restent courtes par nature, elles ne sont pas
+  concernées par cette règle. Ne pas hésiter à multiplier les slides A plutôt que
+  d'entasser plusieurs faits compressés sur une seule — le format « sans limite de
+  slides » de la série est fait pour ça.
 
 Scénarios, prompts photo et légendes déclinés par série dans
 `exemples/scenarios-par-serie.md`, `exemples/prompts-par-serie.md`,
