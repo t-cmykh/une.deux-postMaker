@@ -57,44 +57,14 @@ Les slides intérieures (02→11) sont dans `script.json` (format `post.html`, t
 
 ---
 
-## Prompts photo (L'arrêt de jeu — rouille investigative, `nano_banana_pro`, 4:5)
+## Photos — pas de prompts pour cette série
 
-Slides illustrées : S1, S2, S4, S6, S8, S9, S11 (pas les H ni G).
-
-**argentine_01.PNG (COVER)**
-```
-Lionel Messi, argentine football player wearing the 2022 Argentina World Cup home kit, aged 35 at the time, in 2022. Standing alone on the pitch, pensive expression, investigative documentary mood. Press photography, warm rust-toned sepia, balanced contrast, soft natural light, cinematic film grain, period stadium atmosphere. Realistic photograph, not illustration. Portrait 4:5. No text.
-```
-
-**argentine_02.PNG (1978 — LE CONTEXTE)**
-```
-Mario Kempes, argentine football player wearing the 1978 Argentina home kit, aged 24 at the time, in 1978. Celebrating a goal, intense focus, investigative documentary mood. Press photography, warm rust-toned sepia, balanced contrast, soft natural light, cinematic film grain, period stadium atmosphere. Realistic photograph, not illustration. Portrait 4:5. No text.
-```
-
-**argentine_03.PNG (L'HYPOTHÈSE — le vestiaire)**
-```
-Argentina national football team players wearing the 1978 Argentina home kit, in 1978. Walking through the stadium tunnel toward the locker room, tense and guarded mood, investigative documentary feel. Press photography, warm rust-toned sepia, balanced contrast, soft natural light, cinematic film grain, period stadium atmosphere. Realistic photograph, not illustration. Portrait 4:5. No text.
-```
-
-**argentine_04.PNG (2022 — le penalty)**
-```
-Lionel Messi, argentine football player wearing the 2022 Argentina World Cup home kit, aged 35 at the time, in 2022. Taking a penalty kick, focused determined expression, investigative documentary mood. Press photography, warm rust-toned sepia, balanced contrast, soft natural light, cinematic film grain, period stadium atmosphere. Realistic photograph, not illustration. Portrait 4:5. No text.
-```
-
-**argentine_05.PNG (2026 — le tirage)**
-```
-Argentina national football team players wearing the 2026 Argentina home kit, in 2026. Standing together in a tight huddle before kickoff, focused and united, investigative documentary mood. Press photography, warm rust-toned sepia, balanced contrast, soft natural light, cinematic film grain, period stadium atmosphere. Realistic photograph, not illustration. Portrait 4:5. No text.
-```
-
-**argentine_06.PNG (LE DÉTAIL FOU — le classement qui bascule, le match sous soupçon)**
-```
-Lionel Messi, argentine football player wearing the 2026 Argentina World Cup home kit, aged 38 at the time, in 2026. Reacting with intense relief after a last-minute goal, dramatic emotion, investigative documentary mood. Press photography, warm rust-toned sepia, balanced contrast, soft natural light, cinematic film grain, period stadium atmosphere. Realistic photograph, not illustration. Portrait 4:5. No text.
-```
-
-**argentine_07.PNG (LA PISTE — climax)**
-```
-Lionel Messi, argentine football player wearing the 2026 Argentina World Cup home kit, aged 38 at the time, in 2026. Standing alone in an empty stadium, pensive and distant gaze, investigative documentary mood. Press photography, warm rust-toned sepia, balanced contrast, soft natural light, cinematic film grain, period stadium atmosphere. Realistic photograph, not illustration. Portrait 4:5. No text.
-```
+**Règle Thomas (ajoutée le 08/07) : plus de prompts photo livrés sur L'arrêt de
+jeu.** Les noms de fichiers restent dans `script.json` (`argentine_01.PNG` à
+`argentine_07.PNG`, sur S1, S2, S4, S6, S8, S9, S11) pour que l'éditeur ait ses
+emplacements média, mais Thomas source/produit ces visuels lui-même — Claude ne
+rédige plus de prompt texte pour cette série. Voir la règle codifiée dans
+`SKILL.md` (§ Livrables par post) et `exemples/prompts-par-serie.md`.
 
 ---
 

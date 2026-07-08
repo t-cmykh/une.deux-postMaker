@@ -48,7 +48,11 @@ Toujours finir par `No text.` · Jamais de noms de police.
 ---
 
 ## L'arrêt de jeu — `#arretdejeu`
-*Virage : sépia rouille, légère surimpression dossier sur le média. Registre enquête/hypothèse sur une question foot.*
+
+**Pas de prompts photo livrés pour cette série** (règle Thomas). Le champ `media`
+reste dans `script.json` pour l'éditeur, mais Claude ne rédige plus de prompt
+photo pour L'arrêt de jeu — Thomas gère les visuels lui-même. Gabarit ci-dessous
+conservé pour mémoire seulement, à ne plus utiliser :
 
 ```
 [NOM + NATIONALITÉ] wearing the [MAILLOT + ANNÉE], aged [ÂGE] at the time, in [ANNÉE]. [ACTION/ÉMOTION], investigative documentary mood. Press photography, warm rust-toned sepia, balanced contrast, soft natural light, cinematic film grain, period stadium atmosphere. Realistic photograph, not illustration. Portrait 4:5. No text.

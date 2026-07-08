@@ -100,6 +100,11 @@ Dès que Thomas dit "on va faire un post pour une·deux", livrer **3 éléments*
 2. **PROMPTS PHOTO** style presse (un par slide illustrée)
 3. **LÉGENDE** complète (gabarit 5 temps + hashtags de série)
 
+**Exception — L'arrêt de jeu (`#arretdejeu`) : PAS de prompts photo.** Pour cette
+série, livrer uniquement SCRIPT SLIDES + LÉGENDE (2 éléments). Ne pas produire de
+prompts photo, même à titre indicatif. Le `media` reste dans `script.json` pour
+l'éditeur, mais Thomas s'occupe des visuels lui-même pour cette série.
+
 Le **Reel-promo** n'est fourni que si Thomas le demande explicitement.
 
 Workflow v7 : Claude ne génère PAS d'images (pas d'appels Higgsfield). Claude
@@ -342,6 +347,9 @@ Toujours valider le JSON (parse) avant livraison. Un dossier par post :
 
 ## Format prompts photo (style presse, Workflow v7)
 
+**Ne s'applique pas à L'arrêt de jeu (`#arretdejeu`)** — voir « Livrables par
+post » : pas de prompts photo pour cette série.
+
 Un prompt par slide illustrée (S1, S2, S4, S6, S7 — pas H ni G). Format :
 ```
 nom_NN (LABEL) : Press photography. [sujet nommé / maillot précis] [action/émotion],
@@ -377,9 +385,9 @@ donc **risquées à republier** sur le compte.
   archive copyrightée dans un post publié. Toujours indiquer la licence.
 - Ne pas lancer de génération d'images (Higgsfield) sans demande explicite de
   Thomas.
-- Séries à faits récents (*Portraits*, *L'arrêt de jeu* quand l'hypothèse porte sur un sujet actuel) :
-  davantage de sources visuelles disponibles, mais la même règle de droits
-  s'applique.
+- Séries à faits récents (*Portraits*) : davantage de sources visuelles
+  disponibles, mais la même règle de droits s'applique.
+- *L'arrêt de jeu* : pas de prompts photo livrés (voir « Livrables par post »).
 
 ## Livrable quotidien de la routine « post du jour »
 
@@ -432,7 +440,7 @@ Hashtags : série (#lesouscotés, #undestinparjour, #lachutedesgéants, #ledéba
 - **Ce jour-là** · `#cejourla` — éphéméride calendaire (socle quotidien). Carrousel 3:4, ocre / sépia chaud.
 - **Les oubliés** · `#lesoubliés` — effacés de l'histoire, injustices. Carrousel 3:4, vert / N&B froid.
 - **Portraits** · `#portraits` — parcours d'un joueur par l'angle méconnu. Reel 9:16, N&B studio.
-- **L'arrêt de jeu** · `#arretdejeu` — mode enquête/hypothèse : on pose une question foot (« pourquoi les Bleus ne rejouent plus en rouge ? ») et on aligne les faits, sans jamais donner de réponse tranchée — on relance plutôt qu'on referme. Carrousel 3:4, rouille / légère surimpression sur les médias importés. **Slides hors cover/CTA = corps de texte dense** (voir « Densité du corps de texte par série » ci-dessous), pas des punchlines compressées.
+- **L'arrêt de jeu** · `#arretdejeu` — mode enquête/hypothèse : on pose une question foot (« pourquoi les Bleus ne rejouent plus en rouge ? ») et on aligne les faits, sans jamais donner de réponse tranchée — on relance plutôt qu'on referme. Carrousel 3:4, rouille / légère surimpression sur les médias importés. **Slides hors cover/CTA = corps de texte dense** (voir « Densité du corps de texte par série » ci-dessous), pas des punchlines compressées. **Pas de prompts photo livrés pour cette série** (voir « Livrables par post »).
 
 ### Densité du corps de texte par série (règle importante)
 
