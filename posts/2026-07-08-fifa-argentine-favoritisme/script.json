@@ -1,0 +1,78 @@
+[
+  {
+    "template": "A",
+    "tag": "L'ENQUÊTE",
+    "title": "POURQUOI TOUT LE MONDE PENSE QUE LA FIFA AVANTAGE L'ARGENTINE ?",
+    "greenWord": "AVANTAGE",
+    "body": "1978. 2022. 2026. Et à chaque fois, la même phrase revient.",
+    "media": "argentine_01.PNG"
+  },
+  {
+    "template": "A",
+    "tag": "1978",
+    "title": "UN 6-0 QUE PERSONNE N'A COMPRIS",
+    "greenWord": "6-0",
+    "body": "Pour aller en finale, l'Argentine doit battre le Pérou par 4 buts d'écart. La FIFA lui accorde une dérogation : elle joue après le Brésil, en connaissant déjà le score qu'il lui faut. Résultat : 6-0.",
+    "media": "argentine_02.PNG"
+  },
+  {
+    "template": "H",
+    "quote": "Le score interroge. Le calendrier, encore plus.",
+    "quoteAccent": "Le calendrier, encore plus.",
+    "quoteAuthor": "",
+    "caption": ""
+  },
+  {
+    "template": "A",
+    "tag": "L'HYPOTHÈSE",
+    "title": "TREIZE PRISONNIERS CONTRE UNE DÉFAITE ?",
+    "greenWord": "TREIZE PRISONNIERS",
+    "body": "Des documents liés à l'opération Condor évoquent un accord entre les deux dictatures : en échange de sa défaite, le Pérou aurait reçu treize opposants politiques argentins. Rien n'est prouvé. Mais Videla est entré dans le vestiaire péruvien avant le match.",
+    "media": "argentine_03.PNG"
+  },
+  {
+    "template": "G",
+    "quote": "La manipulation politique du sport la plus flagrante depuis les Jeux de Berlin, en 1936.",
+    "quoteAccent": "depuis les Jeux de Berlin, en 1936.",
+    "quoteAuthor": "Ezequiel Fernández Moores, journaliste",
+    "caption": "LE CONSTAT"
+  },
+  {
+    "template": "A",
+    "tag": "2022",
+    "title": "SIX PENALTYS EN SEPT MATCHS",
+    "greenWord": "SIX PENALTYS",
+    "body": "Certains indiscutables. D'autres beaucoup moins, comme celui de Messi en demie contre la Croatie. Cinq ans plus tôt, Infantino avait dit qu'il serait « injuste » que Messi termine sa carrière sans Coupe du monde.",
+    "media": "argentine_04.PNG"
+  },
+  {
+    "template": "G",
+    "quote": "Ils peuvent donner le titre à l'Argentine maintenant.",
+    "quoteAccent": "donner le titre à l'Argentine maintenant.",
+    "quoteAuthor": "Pepe, après l'élimination du Portugal",
+    "caption": "LE SOUPÇON"
+  },
+  {
+    "template": "A",
+    "tag": "LE DÉTAIL FOU",
+    "title": "DÉPLACÉE À LA MAIN VERS LE TABLEAU LE PLUS DÉGAGÉ",
+    "greenWord": "DÉPLACÉE À LA MAIN",
+    "body": "Au tirage de 2026, l'Argentine change de poule en cours de route pour ne pas croiser l'Espagne trop tôt. Elle hérite d'un groupe abordable. Le numéro 1 mondial qui justifiait ce privilège a changé quatre fois en trois mois.",
+    "media": "argentine_05.PNG"
+  },
+  {
+    "template": "A",
+    "tag": "LA PISTE",
+    "title": "PAS UN COMPLOT. UN BIAIS.",
+    "greenWord": "UN BIAIS",
+    "body": "Aucun accord organisé n'a jamais été prouvé. Mais Trump a suffi à faire lever une suspension d'un simple coup de fil à Infantino, en pleine compétition. Une institution qui protège ses stars finit par ressembler à une institution qui triche, même quand elle ne triche pas.",
+    "media": "argentine_06.PNG"
+  },
+  {
+    "template": "D",
+    "tag": "LE RECAP",
+    "title": "RESTE DANS LE JEU",
+    "body": "Officiellement, personne ne l'a jamais vraiment expliqué. Le foot en deux touches, tous les jours.",
+    "btnlabel": "FOLLOW"
+  }
+]
