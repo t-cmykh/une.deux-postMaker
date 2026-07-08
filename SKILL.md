@@ -45,12 +45,21 @@ signature visuelle de la série (couleur, virage photo, format) sur la **cover**
 et la **slide CTA**. Les autres éditeurs (`post.html`, `reel.html`) restent
 disponibles pour les slides intérieures et les reels.
 
-**Modèle de données de l'éditeur (cover / CTA) :**
+**Exception — L'arrêt de jeu (`#arretdejeu`) : PAS de `post.html`, PAS de
+templates A/H/G/D.** Sur cette série, `editeur-series.html` sert pour **toutes**
+les slides, pas seulement cover/CTA : cover en `titre`, chaque slide
+intérieure en `corps` (un seul paragraphe, fond uni, pas de photo ni de
+titre/tag par slide), dernière slide en `cta`. Voir
+`posts/2026-07-08-fifa-argentine-favoritisme/POST.md` pour un exemple complet
+et la règle « Densité du corps de texte par série » plus bas.
+
+**Modèle de données de l'éditeur (cover / CTA, et TOUTES les slides pour
+L'arrêt de jeu) :**
 
 | Champ | Rôle |
 |-------|------|
 | `serie` | `cejourla` · `oublies` · `portraits` · `arretdejeu` (verrouille couleur, virage photo, format) |
-| `template` | `cover` · `titre` (cover titre seul) · `corps` (cover corps seul, plein cadre — pensé pour L'arrêt de jeu) · `citation` · `cta` |
+| `template` | `cover` · `titre` (titre seul — cover) · `corps` (corps seul, plein cadre — cover **ou** toute slide intérieure de L'arrêt de jeu) · `citation` · `cta` |
 | `tag` | **auto** = `N° + nom de série` (non éditable) |
 | `title` | titre de cover (MAJUSCULES, 2 lignes) — absent en template `corps` |
 | `greenWord` | mot-clé du titre coloré en signature de série |
@@ -100,10 +109,13 @@ Dès que Thomas dit "on va faire un post pour une·deux", livrer **3 éléments*
 2. **PROMPTS PHOTO** style presse (un par slide illustrée)
 3. **LÉGENDE** complète (gabarit 5 temps + hashtags de série)
 
-**Exception — L'arrêt de jeu (`#arretdejeu`) : PAS de prompts photo.** Pour cette
-série, livrer uniquement SCRIPT SLIDES + LÉGENDE (2 éléments). Ne pas produire de
-prompts photo, même à titre indicatif. Le `media` reste dans `script.json` pour
-l'éditeur, mais Thomas s'occupe des visuels lui-même pour cette série.
+**Exception — L'arrêt de jeu (`#arretdejeu`) : PAS de prompts photo, PAS de
+templates A/H/G/D.** Pour cette série, livrer uniquement SCRIPT SLIDES + LÉGENDE
+(2 éléments), avec un SCRIPT SLIDES au format `editeur-series.html`
+(`titre`/`corps`/`cta` — voir « Densité du corps de texte par série » et
+« Format script.json »), pas au format `post.html`. Ne pas produire de prompts
+photo, même à titre indicatif : seule la cover a besoin d'un visuel, et Thomas
+s'en occupe lui-même.
 
 Le **Reel-promo** n'est fourni que si Thomas le demande explicitement.
 
@@ -112,6 +124,10 @@ fournit uniquement les prompts texte ; Thomas génère les photos et les intègr
 dans son éditeur.
 
 ## Structure des 8 slides (gabarit de référence)
+
+**Ne s'applique pas à L'arrêt de jeu** (`#arretdejeu`) — cette série n'utilise
+pas les templates A/H/G/D de `post.html`, voir « Éditeur principal »
+ci-dessus et « Densité du corps de texte par série » plus bas.
 
 | # | Template | Fonction | Rôle |
 |---|----------|----------|------|
@@ -279,6 +295,11 @@ la posture archiviste (on constate, on ne sermonne pas).
 
 ## Format script.json (post carrousel — référence `script_post.json`)
 
+**Ne s'applique pas à L'arrêt de jeu.** Pour cette série, `script.json` est un
+tableau de slides `editeur-series.html` (`template: "titre" | "corps" |
+"cta"`), pas ce modèle A/H/G/D — voir
+`posts/2026-07-08-fifa-argentine-favoritisme/script.json` comme référence.
+
 Tableau d'objets, 1 objet par slide, 8 slides dans l'ordre : A, A, H, A, G, A, A, D.
 
 **Accents :** autorisés partout (`title`, `greenWord`, `tag`, `body`, `quote`,
@@ -444,20 +465,27 @@ Hashtags : série (#lesouscotés, #undestinparjour, #lachutedesgéants, #ledéba
 
 ### Densité du corps de texte par série (règle importante)
 
-Le degré de compression du `body` des slides A n'est **pas le même** selon la série :
+Le degré de compression du texte n'est **pas le même** selon la série :
 
-- **Ce jour-là, Les oubliés, Portraits** : slides « punchline ». Une idée, une phrase
-  ou deux, densité factuelle mais phrasé court — le lecteur swipe vite, chaque slide
-  doit se lire en 1-2 secondes.
-- **L'arrêt de jeu** : slides « dossier ». Le lecteur qui reste sur ce carrousel est
-  déjà en lecture longue ; chaque slide de corps (hors S1 cover et Sn CTA) doit
-  **approfondir**, pas résumer. Reprendre le paragraphe quasi complet de la source
-  (chiffres secondaires, nuances, citations d'appoint, contradictions internes —
-  ex. « rien n'est prouvé, mais... »), pas une phrase unique compressée. Les slides H
-  (respiration) et G (citation) restent courtes par nature, elles ne sont pas
-  concernées par cette règle. Ne pas hésiter à multiplier les slides A plutôt que
-  d'entasser plusieurs faits compressés sur une seule — le format « sans limite de
-  slides » de la série est fait pour ça.
+- **Ce jour-là, Les oubliés, Portraits** (`post.html`, templates A/H/G/D) :
+  slides « punchline ». Une idée, une phrase ou deux, densité factuelle mais
+  phrasé court — le lecteur swipe vite, chaque slide doit se lire en 1-2
+  secondes.
+- **L'arrêt de jeu** (`editeur-series.html`, templates `titre`/`corps`/`cta`
+  uniquement — pas de post.html) : **seules la cover (`titre`) et la dernière
+  slide (`cta`) ont une mise en page structurée** (titre, mot-clé coloré,
+  bouton). **Toutes les slides intérieures sont en template `corps` : un seul
+  champ `body`, aucun titre, aucun tag personnalisé, aucune photo.** Chaque
+  slide `corps` doit **approfondir**, pas résumer : reprendre le paragraphe
+  quasi complet de la source (chiffres secondaires, nuances, citations
+  d'appoint intégrées au texte courant, contradictions internes — ex. « rien
+  n'est prouvé, mais... »), jamais une phrase unique compressée. Il n'y a pas
+  de slide-respiration ni de slide-citation à part : une citation réelle se
+  fond dans le paragraphe (guillemets + attribution en incise). Ne pas
+  hésiter à multiplier les slides `corps` plutôt que d'entasser plusieurs
+  faits sur une seule — le format « sans limite de slides » de la série est
+  fait pour ça. Référence complète :
+  `posts/2026-07-08-fifa-argentine-favoritisme/` (script.json + POST.md).
 
 Scénarios, prompts photo et légendes déclinés par série dans
 `exemples/scenarios-par-serie.md`, `exemples/prompts-par-serie.md`,

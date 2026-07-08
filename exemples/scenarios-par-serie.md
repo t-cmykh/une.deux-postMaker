@@ -63,22 +63,30 @@ les faits, mais on ne referme pas la boucle par un « voici pourquoi » définit
 La dernière slide relance ou expose la piste la plus solide sans trancher —
 c'est ce suspense non résolu qui fait discuter en commentaires.
 
-**Densité du corps de texte (spécifique à cette série) :** contrairement à *Ce
-jour-là* ou *Les oubliés*, les slides hors cover/CTA ne sont pas des punchlines
-compressées. Ce sont des blocs de corps de texte qui approfondissent le sujet
-façon dossier : on reprend le paragraphe quasi complet de la source (chiffres
-secondaires, nuances, citations d'appoint), pas une phrase unique. S'il y a trop
-de matière pour une seule slide, on en ajoute une plutôt que de compresser.
+**Pipeline (spécifique à cette série) :** L'arrêt de jeu ne se construit **pas**
+avec `post.html` (pas de templates A/H/G/D). Tout se fait dans
+`editeur-series.html`, slide par slide, avec 3 templates seulement : `titre`
+(cover), `corps` (toutes les slides intérieures), `cta` (dernière slide). Voir
+`SKILL.md` § « Densité du corps de texte par série » et
+`posts/2026-07-08-fifa-argentine-favoritisme/` pour un exemple complet.
 
-| Slide | Fonction | Contenu |
-|-------|----------|---------|
-| S1 | HOOK | La question foot posée cash, sans détour. Ex : « Mais pourquoi l'équipe de France ne joue-t-elle plus jamais en rouge ? » |
-| S2 | CONSTAT | Le fait qui rend la question légitime — un chiffre, une asymétrie, une récurrence qui interpelle. |
-| S3…Sn | ENQUÊTE | Les indices s'accumulent étape par étape (dates, chiffres, déclarations) — sans jamais les relier en une explication officielle unique. |
-| S(n-1) | PISTE | La piste la plus solide qu'on ait trouvée, présentée comme hypothèse — pas comme un verdict. |
-| Sn | ACTION | CTA ouvert qui relance la question plutôt que de la refermer. → FOLLOW. |
+**Densité du corps de texte :** contrairement à *Ce jour-là* ou *Les oubliés*,
+les slides intérieures ne sont pas des punchlines compressées avec tag/titre.
+Ce sont des blocs `corps` (un seul champ `body`, fond uni, pas de photo) qui
+approfondissent le sujet façon dossier : on reprend le paragraphe quasi complet
+de la source (chiffres secondaires, nuances, citations d'appoint intégrées au
+texte courant), pas une phrase unique. S'il y a trop de matière pour une seule
+slide, on en ajoute une plutôt que de compresser.
 
-> **CTA ouvert type** : « Officiellement, personne ne l'a jamais vraiment expliqué. Et toi, t'en penses quoi ? »
+| Slide | Template | Fonction | Contenu |
+|-------|----------|----------|---------|
+| S1 | `titre` | HOOK | Cover — la question foot posée cash, sans détour. Ex : « Mais pourquoi l'équipe de France ne joue-t-elle plus jamais en rouge ? » Titre + mot-clé coloré + photo. Pas de sous-titre. |
+| S2 | `corps` | CONSTAT | Le fait qui rend la question légitime — un chiffre, une asymétrie, une récurrence qui interpelle. Paragraphe dense. |
+| S3…S(n-1) | `corps` | ENQUÊTE | Les indices s'accumulent étape par étape (dates, chiffres, déclarations, citations réelles intégrées au texte) — sans jamais les relier en une explication officielle unique. Un paragraphe dense par slide, autant de slides que la matière l'exige. |
+| S(n-1) | `corps` | PISTE | La piste la plus solide qu'on ait trouvée, présentée comme hypothèse — pas comme un verdict. |
+| Sn | `cta` | ACTION | CTA ouvert qui relance la question plutôt que de la refermer. → FOLLOW. |
+
+> **CTA ouvert type** : « Une histoire par semaine. On aligne les faits, jamais de réponse toute faite. »
 
 ---
 

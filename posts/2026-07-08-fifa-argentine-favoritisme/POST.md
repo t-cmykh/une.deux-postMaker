@@ -1,70 +1,70 @@
 # L'arrêt de jeu — Pourquoi tout le monde pense que la FIFA avantage l'Argentine ?
 
-**Série :** L'arrêt de jeu · `#arretdejeu` · Carrousel 3:4 · signature rouille / surimpression dossier
+**Série :** L'arrêt de jeu · `#arretdejeu` · Carrousel 3:4 · signature rouille
 **Émotion unique :** curiosité → révélation (enquête, jamais de verdict tranché)
-**Famille de hook :** question foot posée cash (signature de série) — variante autorisée sur le moule commun
 **Boucle cover→climax :** « la même phrase revient depuis 1978 » → « pas un complot, un biais qui protège les stars »
 
-Source : article fourni par Thomas, adapté au gabarit 12 slides une·deux (le contenu factuel, y compris les nuances « prouvé / non prouvé », est repris tel qu'écrit dans l'article d'origine).
-
-**Règle de série appliquée ici (correction du 08/07) :** dans *L'arrêt de jeu*, les
-slides hors cover/CTA sont des blocs de corps de texte qui **approfondissent** le
-sujet façon dossier — pas des punchlines compressées comme sur *Ce jour-là* ou
-*Les oubliés*. Chaque slide A reprend le paragraphe quasi complet de l'article
-(chiffres secondaires, nuances, citations d'appoint), pas une phrase unique. Voir
-la règle codifiée dans `SKILL.md` et `exemples/scenarios-par-serie.md`.
+Source : article fourni par Thomas, adapté au format réel de la série (voir
+correction du 08/07 ci-dessous).
 
 ---
 
-## Éditeur séries (`editeur-series.html`) — COVER & CTA
+## Pipeline — correction du 08/07 (règle de série)
 
-> À saisir dans l'éditeur principal (série `arretdejeu` verrouille couleur rouille, virage photo et format 3:4).
+**L'arrêt de jeu ne se construit PAS avec `post.html` / les templates A·H·G·D.**
+Tout le post se fait dans **`editeur-series.html`**, slide par slide, avec
+seulement 3 templates :
 
-**COVER (slide 01)** — série `arretdejeu`, template `cover`
-- title : `POURQUOI TOUT LE MONDE PENSE QUE LA FIFA AVANTAGE L'ARGENTINE ?`
-- greenWord : `AVANTAGE`
-- body : `1978. 2022. 2026. Et à chaque fois, la même phrase revient.`
-- cur/tot : `01` / `12`
+- **`titre`** (cover, S1 uniquement) — titre 2-4 lignes avec un mot-clé coloré
+  (`greenWord`), média photo plein cadre. **Pas de sous-titre/body.**
+- **`corps`** (toutes les slides intérieures) — **un seul champ `body`** : un
+  paragraphe dense qui approfondit le fait, fond uni (pas de photo), pas de
+  titre, pas de tag personnalisé par slide. Le bandeau « L'ARRÊT DE JEU » est
+  automatique (fixé par la série), pas un champ à remplir.
+- **`cta`** (dernière slide) — `title` + `body` + `btnlabel`.
 
-**CTA (slide 12)** — série `arretdejeu`, template `cta`
-- title : `RESTE DANS LE JEU`
-- body : `Officiellement, personne ne l'a jamais vraiment expliqué. Le foot en deux touches, tous les jours.`
-- btnlabel : `FOLLOW`
+Autrement dit : **seules la cover et le CTA ont une mise en page « titre ».
+Tout le reste est du corps de texte pur**, un paragraphe complet par slide (pas
+une punchline compressée — cf. la règle « densité du corps de texte » déjà
+codifiée dans `SKILL.md`). Voir l'exemple fourni par Thomas (post « Pourquoi le
+Brésil ne joue-t-il plus jamais en blanc ? ») : 01/08 = cover photo + titre
+seul, 02→07 = fond uni + un paragraphe, 08 = CTA.
 
-Les slides intérieures (02→11) sont dans `script.json` (format `post.html`, templates A/H/G) — corps de texte denses, pas des punchlines (voir règle de série ci-dessus).
+`script.json` de ce post reflète ce modèle (`template: "titre" | "corps" |
+"cta"`), pas le modèle `post.html`. Il sert de référence texte à ressaisir
+dans `editeur-series.html` slide par slide (l'éditeur n'a pas d'import JSON en
+masse).
 
-**Débat (sous le CTA, réservé à la légende, pas dans le JSON) :**
+---
+
+## Slides (10, à saisir dans `editeur-series.html`, série `arretdejeu`)
+
+| # | Template | Contenu |
+|---|----------|---------|
+| 01 | `titre` | Cover — titre + `AVANTAGE` en rouille, photo argentine_01.PNG |
+| 02 | `corps` | 1978 — la dérogation d'horaire FIFA, le 6-0, la protestation du Brésil, la règle post-Gijón |
+| 03 | `corps` | L'hypothèse opération Condor : accord non prouvé, déni des joueurs, nuances sur le jeu, mais Videla au vestiaire et l'ESMA à 2 km + citation Fernández Moores |
+| 04 | `corps` | 2022 — les six penaltys, le penalty Messi-Croatie, la citation d'Infantino sur Messi (2017/La Nación) |
+| 05 | `corps` | Les réactions : Pepe, Ibrahimović, Marciniak — et la nuance (pas un complot, Maradona puis Messi suffisent à expliquer la fréquence) |
+| 06 | `corps` | 2026 — le tirage de Washington, bascule poule I→J, règle des 48 équipes, groupe abordable et tableau « boulevard » |
+| 07 | `corps` | Le classement FIFA qui bascule 4 fois en 3 mois + Cap-Vert (3-2) + but égyptien annulé |
+| 08 | `corps` | La réaction égyptienne « match truqué » + la levée de la suspension de Balogun après l'appel de Trump à Infantino |
+| 09 | `corps` | PISTE (climax) — pas un complot, un biais qui protège les stars ; la leçon transposable |
+| 10 | `cta` | RESTE DANS LE JEU — tagline de série + FOLLOW |
+
+Détail des champs : voir `script.json`.
+
+**Débat (réservé à la légende, pas dans le JSON) :**
 > Débat : « Alors dis-nous : biais inconscient, ou vrai favoritisme organisé ? »
-
----
-
-## Structure narrative (12 slides)
-
-| # | Template | Fonction | Contenu |
-|---|----------|----------|---------|
-| S1 | A | HOOK | La question posée cash + boucle « la même phrase revient » |
-| S2 | A | CONSTAT | 1978 — le 6-0, la dérogation d'horaire FIFA, la protestation du Brésil, la règle instaurée après Gijón |
-| S3 | H | respiration | « Le score interroge. Le calendrier, encore plus. » |
-| S4 | A | ENQUÊTE | L'hypothèse opération Condor : accord non prouvé, déni des joueurs péruviens, occasions du Pérou en jeu, mais Videla au vestiaire et l'ESMA à 2 km |
-| S5 | G | citation réelle | Fernández Moores, journaliste |
-| S6 | A | ENQUÊTE | 2022 — les six penaltys, le penalty Messi-Croatie, la citation Infantino (2017/La Nación), Marciniak et Ibrahimović |
-| S7 | G | citation réelle | Pepe, après l'élimination du Portugal |
-| S8 | A | ENQUÊTE | 2026 — tirage de Washington, bascule poule I→J, règle des 48 équipes, groupe abordable et tableau « boulevard » |
-| S9 | A | ENQUÊTE | Les 4 changements de leader FIFA en 3 mois + Cap-Vert (3-2) + but égyptien annulé et l'accusation de match truqué |
-| S10 | H | respiration | « Le privilège est resté. La raison a disparu. » |
-| S11 | A | PISTE (climax) | Balogun/Trump + la leçon transposable : pas un complot, un biais qui protège les stars |
-| S12 | D | ACTION | CTA ouvert, ne referme pas la question |
 
 ---
 
 ## Photos — pas de prompts pour cette série
 
-**Règle Thomas (ajoutée le 08/07) : plus de prompts photo livrés sur L'arrêt de
-jeu.** Les noms de fichiers restent dans `script.json` (`argentine_01.PNG` à
-`argentine_07.PNG`, sur S1, S2, S4, S6, S8, S9, S11) pour que l'éditeur ait ses
-emplacements média, mais Thomas source/produit ces visuels lui-même — Claude ne
-rédige plus de prompt texte pour cette série. Voir la règle codifiée dans
-`SKILL.md` (§ Livrables par post) et `exemples/prompts-par-serie.md`.
+**Règle Thomas (rappel du 08/07) : plus de prompts photo sur L'arrêt de jeu.**
+Seule la cover (S1) a besoin d'un visuel (`argentine_01.PNG`) ; toutes les
+slides `corps` et la slide `cta` sont en fond uni, sans photo. Thomas
+source/produit ce visuel de cover lui-même — aucun prompt texte n'est fourni.
 
 ---
 
@@ -96,17 +96,17 @@ distinction est conservée sans être aplatie dans le carrousel :
 
 | Fait | Statut dans le post |
 |------|----------------------|
-| Dérogation d'horaire FIFA, Argentine-Pérou 6-0 (21/06/1978) | ✅ présenté comme fait acquis (S2/S3) |
-| Hypothèse opération Condor / accord Argentine-Pérou | ⚠️ présenté explicitement comme non prouvé (S4) |
-| Citation Ezequiel Fernández Moores | ✅ citée telle quelle, attribuée (S5) |
-| 6 penaltys Argentine, Mondial 2022 | ✅ présenté comme fait acquis (S6) |
-| Citation Infantino sur Messi (2017, La Nación) | ✅ citée telle quelle, attribuée (S6) |
-| Citation Pepe après l'élimination du Portugal | ✅ citée telle quelle, attribuée (S7) |
-| Tirage au sort 2026 : Argentine déplacée de poule I à J | ✅ présenté comme fait acquis, réglementaire (S8) |
-| 4 changements de leader au classement FIFA (déc. 2025 → juil. 2026) | ✅ présenté comme fait acquis (S9) |
-| Cap-Vert 3-2 (a.p.) en 16es, but égyptien annulé, accusation « match truqué » | ✅ présenté comme fait acquis, réaction citée en discours indirect (S9) |
-| Levée de la suspension de Balogun après un appel de Trump à Infantino | ✅ présenté comme fait acquis (S11) |
-| Conclusion « biais qui protège les stars » | 🧭 présentée comme piste/hypothèse, pas comme un verdict (S11), conforme à la posture éditoriale de la série |
+| Dérogation d'horaire FIFA, Argentine-Pérou 6-0 (21/06/1978) | ✅ présenté comme fait acquis (S02) |
+| Hypothèse opération Condor / accord Argentine-Pérou | ⚠️ présenté explicitement comme non prouvé (S03) |
+| Citation Ezequiel Fernández Moores | ✅ citée telle quelle, attribuée (S03) |
+| 6 penaltys Argentine, Mondial 2022 | ✅ présenté comme fait acquis (S04) |
+| Citation Infantino sur Messi (2017, La Nación) | ✅ citée telle quelle, attribuée (S04) |
+| Citations Pepe / Ibrahimović après l'élimination du Portugal | ✅ citées telles quelles, attribuées (S05) |
+| Tirage au sort 2026 : Argentine déplacée de poule I à J | ✅ présenté comme fait acquis, réglementaire (S06) |
+| 4 changements de leader au classement FIFA (déc. 2025 → juil. 2026) | ✅ présenté comme fait acquis (S07) |
+| Cap-Vert 3-2 (a.p.) en 16es, but égyptien annulé, accusation « match truqué » | ✅ présenté comme fait acquis, réaction citée en discours indirect (S07/S08) |
+| Levée de la suspension de Balogun après un appel de Trump à Infantino | ✅ présenté comme fait acquis (S08) |
+| Conclusion « biais qui protège les stars » | 🧭 présentée comme piste/hypothèse, pas comme un verdict (S09), conforme à la posture éditoriale de la série |
 
 **Recommandation avant publication :** si ce post doit sortir avec la même rigueur que
 *Ce jour-là*, refaire une passe de vérification à 3 sources indépendantes sur chaque
