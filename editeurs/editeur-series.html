@@ -433,7 +433,7 @@ function setVerbatimLabels(isVerbatim){
   /* interview : pas d'auteur/nom ni de légende — juste la citation en duo photo/texte */
   document.getElementById('field_quoteAuthor_row').style.display = isVerbatim ? 'none' : 'block';
   document.getElementById('field_caption_row').style.display = isVerbatim ? 'none' : 'block';
-  document.getElementById('hint_quote').textContent = isVerbatim ? "Entrée = nouvelle ligne · **gras** supporté · casse conservée (pas de MAJUSCULES forcées)" : "Entrée = nouvelle ligne · **gras** supporté";
+  document.getElementById('hint_quote').textContent = isVerbatim ? "Entrée = nouvelle ligne · Entrée deux fois = paragraphe · **gras** supporté · casse conservée (pas de MAJUSCULES forcées)" : "Entrée = nouvelle ligne · **gras** supporté";
 }
 
 /* ===== quote accent picker (mots de la citation) ===== */
@@ -1210,27 +1210,32 @@ function drawVerbatim(W,H,s){
   const maxW2=rightW;
 
   function layoutRichWords(size){
-    const plain=stripBold(state.quote), mask=boldMask(state.quote);
-    const words=[]; let m, re=/\S+/g;
-    while((m=re.exec(plain))!==null){ words.push({w:m[0], start:m.index, end:m.index+m[0].length, bold:mask[m.index]||false}); }
-    if(accentLower){
-      const idx=plain.toLowerCase().indexOf(accentLower);
-      if(idx>=0){ const end=idx+accentLower.length;
-        words.forEach(o=>{ o.accent = o.start>=idx && (o.start+o.w.length)<=end; }); }
-    }
+    /* découpage en paragraphes sur chaque Entrée : une ligne vide (Entrée deux fois) devient un
+       vrai saut de paragraphe (ligne vide conservée dans le rendu), pas seulement un retour ligne */
+    const plainFull=stripBold(state.quote), mask=boldMask(state.quote);
+    const accentIdx = accentLower ? plainFull.toLowerCase().indexOf(accentLower) : -1;
+    const accentEnd = accentIdx>=0 ? accentIdx+accentLower.length : -1;
     g.font="500 "+size+"px 'Archivo'"; const space=g.measureText(' ').width;
-    const lines=[]; let cur=[]; let curW=0;
-    words.forEach((o,i)=>{
-      /* retour à la ligne saisi par l'utilisateur (Entrée) : on force le passage à la ligne,
-         en plus du retour automatique par largeur de cadre */
-      const prev=words[i-1];
-      const forcedBreak = prev && plain.slice(prev.end,o.start).indexOf('\n')>=0;
-      g.font=(o.bold?'700 ':'500 ')+size+"px 'Archivo'";
-      const ww=g.measureText(o.w).width;
-      if((forcedBreak || curW+ww>maxW2) && cur.length){ lines.push(cur); cur=[]; curW=0; }
-      cur.push(o); curW+=ww+space;
+    const lines=[]; let offset=0;
+    plainFull.split('\n').forEach(paraText=>{
+      if(paraText.trim()===''){ lines.push([]); offset+=paraText.length+1; return; }
+      const words=[]; let m, re=/\S+/g;
+      while((m=re.exec(paraText))!==null){
+        const start=offset+m.index;
+        const o={w:m[0], start, bold:mask[start]||false};
+        if(accentIdx>=0) o.accent = start>=accentIdx && (start+m[0].length)<=accentEnd;
+        words.push(o);
+      }
+      let cur=[]; let curW=0;
+      words.forEach(o=>{
+        g.font=(o.bold?'700 ':'500 ')+size+"px 'Archivo'";
+        const ww=g.measureText(o.w).width;
+        if(curW+ww>maxW2 && cur.length){ lines.push(cur); cur=[]; curW=0; }
+        cur.push(o); curW+=ww+space;
+      });
+      if(cur.length) lines.push(cur);
+      offset+=paraText.length+1;
     });
-    if(cur.length) lines.push(cur);
     return lines;
   }
   const sizes=[54,48,42,38,34,30,27];
