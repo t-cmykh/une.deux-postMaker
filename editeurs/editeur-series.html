@@ -433,7 +433,7 @@ function setVerbatimLabels(isVerbatim){
   /* interview : pas d'auteur/nom ni de légende — juste la citation en duo photo/texte */
   document.getElementById('field_quoteAuthor_row').style.display = isVerbatim ? 'none' : 'block';
   document.getElementById('field_caption_row').style.display = isVerbatim ? 'none' : 'block';
-  document.getElementById('hint_quote').textContent = isVerbatim ? "**gras** supporté · casse conservée (pas de MAJUSCULES forcées)" : "Entrée = nouvelle ligne · **gras** supporté";
+  document.getElementById('hint_quote').textContent = isVerbatim ? "Entrée = nouvelle ligne · **gras** supporté · casse conservée (pas de MAJUSCULES forcées)" : "Entrée = nouvelle ligne · **gras** supporté";
 }
 
 /* ===== quote accent picker (mots de la citation) ===== */
@@ -1212,7 +1212,7 @@ function drawVerbatim(W,H,s){
   function layoutRichWords(size){
     const plain=stripBold(state.quote), mask=boldMask(state.quote);
     const words=[]; let m, re=/\S+/g;
-    while((m=re.exec(plain))!==null){ words.push({w:m[0], start:m.index, bold:mask[m.index]||false}); }
+    while((m=re.exec(plain))!==null){ words.push({w:m[0], start:m.index, end:m.index+m[0].length, bold:mask[m.index]||false}); }
     if(accentLower){
       const idx=plain.toLowerCase().indexOf(accentLower);
       if(idx>=0){ const end=idx+accentLower.length;
@@ -1220,10 +1220,14 @@ function drawVerbatim(W,H,s){
     }
     g.font="500 "+size+"px 'Archivo'"; const space=g.measureText(' ').width;
     const lines=[]; let cur=[]; let curW=0;
-    words.forEach(o=>{
+    words.forEach((o,i)=>{
+      /* retour à la ligne saisi par l'utilisateur (Entrée) : on force le passage à la ligne,
+         en plus du retour automatique par largeur de cadre */
+      const prev=words[i-1];
+      const forcedBreak = prev && plain.slice(prev.end,o.start).indexOf('\n')>=0;
       g.font=(o.bold?'700 ':'500 ')+size+"px 'Archivo'";
       const ww=g.measureText(o.w).width;
-      if(curW+ww>maxW2 && cur.length){ lines.push(cur); cur=[]; curW=0; }
+      if((forcedBreak || curW+ww>maxW2) && cur.length){ lines.push(cur); cur=[]; curW=0; }
       cur.push(o); curW+=ww+space;
     });
     if(cur.length) lines.push(cur);
