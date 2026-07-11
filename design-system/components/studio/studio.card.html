@@ -1,0 +1,66 @@
+<!-- @dsCard group="Components" viewport="700x420" name="Studio controls" subtitle="Editor chrome: series picker, chips, toggles, sliders, buttons" -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../../styles.css">
+<script src="../../_ds_bundle.js"></script>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+  body{margin:0;background:var(--ink);padding:18px;box-sizing:border-box;font-family:var(--font-body)}
+  .row{margin-bottom:16px}
+  .row-label{color:#776f60;font-family:var(--font-label);font-size:10px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px}
+  .flex{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-width:340px}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { Chip, ToggleSwitch, RangeRow, SerieButton, StudioButton } = window.UneDeuxDesignSystem_8067cc;
+function App(){
+  const [tpl, setTpl] = React.useState('cover');
+  const [serie, setSerie] = React.useState('cejourla');
+  const [safe, setSafe] = React.useState(true);
+  const [zoom, setZoom] = React.useState(140);
+  return (
+    <div>
+      <div className="row">
+        <div className="row-label">Series picker</div>
+        <div className="grid2">
+          <SerieButton name="Ce jour-là" description="Éphéméride · carrousel" swatch="var(--sig-cejourla)" active={serie==='cejourla'} onClick={()=>setSerie('cejourla')}/>
+          <SerieButton name="Les oubliés" description="Injustices · carrousel" swatch="var(--sig-oublies)" active={serie==='oublies'} onClick={()=>setSerie('oublies')}/>
+          <SerieButton name="Portraits" description="Visages · reel" swatch="var(--swatch-portraits)" active={serie==='portraits'} onClick={()=>setSerie('portraits')}/>
+          <SerieButton name="L'arrêt de jeu" description="Enquête · carrousel" swatch="var(--sig-arretdejeu)" active={serie==='arretdejeu'} onClick={()=>setSerie('arretdejeu')}/>
+        </div>
+      </div>
+      <div className="row">
+        <div className="row-label">Template chips</div>
+        <div className="flex">
+          {['cover','titre','corps','citation','cta'].map(t=>(
+            <Chip key={t} active={tpl===t} onClick={()=>setTpl(t)}>{t}</Chip>
+          ))}
+        </div>
+      </div>
+      <div className="row" style={{maxWidth:340}}>
+        <div className="row-label">Sliders</div>
+        <RangeRow label="Zoom" value={zoom} min={100} max={260} onChange={setZoom} display={(zoom/100).toFixed(1)} />
+        <RangeRow label="Assombrir" value={78} min={20} max={95} onChange={()=>{}} />
+      </div>
+      <div className="row">
+        <div className="row-label">Toggle</div>
+        <ToggleSwitch label="Zone sûre Instagram" on={safe} onChange={setSafe} />
+      </div>
+      <div className="row flex" style={{maxWidth:340}}>
+        <StudioButton>Exporter PNG</StudioButton>
+        <StudioButton variant="ghost">Réinit.</StudioButton>
+      </div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
