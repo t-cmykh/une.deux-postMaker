@@ -1,0 +1,28 @@
+/* une·deux — spacing & shape tokens, taken verbatim from editeur-series.html editor UI CSS
+   (do not round to a 4/8 grid — these are the source's real values). */
+
+:root{
+  --space-1: 4px;
+  --space-2: 6px;
+  --space-3: 8px;
+  --space-4: 9px;
+  --space-5: 11px;
+  --space-6: 13px;
+  --space-7: 16px;
+  --space-8: 18px;
+  --space-9: 22px;
+  --space-10: 28px;
+
+  --radius-sm: 7px;    /* ratio tabs, chips-adjacent controls */
+  --radius-md: 9px;    /* buttons, media dropzone, serie-btn */
+  --radius-lg: 10px;   /* canvas shell */
+  --radius-pill: 20px; /* chips */
+  --radius-full: 50%;  /* monogram ring, toggle knob, swipe circle, bookmark corner */
+
+  /* slide-canvas margins (px @1080 canvas width — convert to cqw in components) */
+  --slide-margin-x-square: 50px;    /* 3:4 / 4:5 / 1:1 left margin */
+  --slide-margin-right-square: 120px;
+  --slide-margin-x-vertical: 96px;  /* 9:16 left/right margin */
+  --slide-safe-top-vertical: 150px;
+  --slide-safe-bottom-vertical: 120px;
+}
