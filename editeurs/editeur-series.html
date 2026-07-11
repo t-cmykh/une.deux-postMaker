@@ -205,6 +205,10 @@ Et à la fin du match…</textarea>
       <div class="field"><label>Total</label><input id="f_tot" type="text" value="09"></div>
     </div>
 
+    <div id="field_pagination" style="display:none">
+      <div class="toggle-row on" id="t_pagination"><div class="tg"></div><span>Pagination</span></div>
+    </div>
+
     <div class="section-h">Photo de fond</div>
     <div class="media-zone" id="mzone">
       <div class="mt">CLIQUE OU GLISSE UNE PHOTO</div>
@@ -267,7 +271,7 @@ const state = {
   body:"Tu t'apprêtes à jouer une demi-finale de Coupe du monde.\nEt à la fin du match…",
   cur:'01', tot:'09',
   img:null, vid:null, isVideo:false, zoom:1, posx:0.5, posy:0.5, dark:0.78,
-  ratio:'9:16', safeOn:true, showSwipe:true,
+  ratio:'9:16', safeOn:true, showSwipe:true, paginationOn:true,
   template:'cover',
   btnlabel:'ENREGISTRE',
   quote:"Sur le terrain, tout s'est joué en deux passes.",
@@ -338,6 +342,8 @@ function selectSerie(key){
   document.getElementById('f_tag').value=defaultTag(key);
   /* champ fond corps : uniquement Portraits */
   document.getElementById('field_bodybox').style.display = (key==='portraits')?'block':'none';
+  /* toggle pagination : uniquement L'arrêt de jeu */
+  document.getElementById('field_pagination').style.display = (key==='arretdejeu')?'block':'none';
   /* apparition ligne par ligne du titre : uniquement Ce jour-là */
   document.getElementById('field_titleanim').style.display = (state.template==='titre' && key==='cejourla')?'block':'none';
   if(state.template==='titre' && key==='cejourla') restartTitleReveal();
@@ -377,6 +383,7 @@ const rx=document.getElementById('r_px');rx.oninput=()=>{state.posx=+rx.value/10
 const ry=document.getElementById('r_py');ry.oninput=()=>{state.posy=+ry.value/100;document.getElementById('v_py').textContent=ry.value;draw();};
 const rd=document.getElementById('r_dark');rd.oninput=()=>{state.dark=+rd.value/100;document.getElementById('v_dark').textContent=rd.value;draw();};
 const tsafe=document.getElementById('t_safe');tsafe.onclick=()=>{state.safeOn=!state.safeOn;tsafe.classList.toggle('on',state.safeOn);draw();};
+const tpagination=document.getElementById('t_pagination');tpagination.onclick=()=>{state.paginationOn=!state.paginationOn;tpagination.classList.toggle('on',state.paginationOn);draw();};
 
 /* sélecteur de template (cover / citation / cta) */
 document.querySelectorAll('#tpl_chips .chip').forEach(c=>{
@@ -852,7 +859,7 @@ function draw(){
   }
 
   /* 9. pagination — cur en signature, /tot en crème */
-  if(!isVert){
+  if(!isVert && (state.serie!=='arretdejeu' || state.paginationOn)){
     g.textAlign='right'; g.textBaseline='middle'; g.font="68px 'Anton'";
     const totTxt='/'+state.tot;
     g.fillStyle = C.creme;
@@ -1076,7 +1083,7 @@ function drawCitation(W,H,s){
   }
 
   /* filet bas + pagination (masqués en vertical 9:16) */
-  if(!isVert){
+  if(!isVert && (state.serie!=='arretdejeu' || state.paginationOn)){
     const footY=H-70-safeBottom();
     g.fillStyle=C.encre; g.fillRect(M, footY-46, W-M-MR, 3);
     g.textAlign='right'; g.textBaseline='middle'; g.font="60px 'Anton'";
