@@ -1141,6 +1141,7 @@ function drawCitation(W,H,s){
    drawCitation, mais en deux panneaux au lieu d'un plein cadre. ===== */
 function drawVerbatim(W,H,s){
   const g=ctx, isVert=state.ratio==='9:16';
+  const M = isVert ? 96 : 50, MR = isVert ? 96 : 120;
   const splitX=Math.round(W*0.47);
   const panelPad=isVert?72:56;
   const padX=splitX+panelPad, rightEdge=W-panelPad, rightW=rightEdge-padX;
@@ -1167,26 +1168,42 @@ function drawVerbatim(W,H,s){
   for(let i=-H;i<W+H;i+=46){ g.beginPath(); g.moveTo(i,0); g.lineTo(i+H,H); g.stroke(); }
   g.restore();
 
-  /* header (anneau + wordmark), confiné au panneau droit */
-  const ringD=64, ringY=64+safeTop(), ringC=ringY+ringD/2;
-  g.strokeStyle=C.encre; g.lineWidth=3;
-  g.beginPath(); g.arc(padX+ringD/2, ringC, ringD/2-2, 0, Math.PI*2); g.stroke();
-  g.fillStyle=C.encre; g.font="26px 'Saira Condensed'"; g.textAlign='center'; g.textBaseline='middle';
-  g.fillText('1·2', padX+ringD/2, ringC+1);
-  g.textAlign='left'; g.font="40px 'Anton'";
-  g.fillText('une·deux', padX+ringD+18, ringC+2);
-  g.textAlign='left'; g.textBaseline='alphabetic';
-
-  /* tag de série (couleur signature), aligné à droite sous le header */
-  const tagY=ringY+ringD+32;
-  g.font="700 22px 'Saira Condensed'"; g.textAlign='right';
-  g.fillStyle=s.sig; g.fillText(s.label.toUpperCase(), rightEdge, tagY);
+  // ===== HEADER — identique aux autres templates de L'arrêt de jeu (cover/titre/corps) :
+  // même anneau/monogramme, même wordmark, même tag de série, mêmes marges M/MR pleine largeur.
+  // Seule la couleur du texte s'adapte au fond qu'il recouvre (crème sur la photo, encre sur le
+  // panneau clair) puisque ce template est le seul à juxtaposer les deux fonds sur une même ligne.
+  const ringD=92, ringX=M, ringY=66+safeTop(), ringC=ringY+ringD/2;
+  g.strokeStyle=C.creme; g.lineWidth=4;
+  g.beginPath(); g.arc(ringX+ringD/2, ringC, ringD/2-2, 0, Math.PI*2); g.stroke();
+  g.fillStyle=C.creme; g.textBaseline='middle';
+  g.font="38px 'Saira Condensed'"; g.textAlign='center';
+  g.fillText('1·2', ringX+ringD/2, ringC+1);
   g.textAlign='left';
+  g.font="58px 'Anton'";
+  g.fillText('une·deux', ringX+ringD+26, ringC+2);
+  // @handle — retombe sur le panneau crème : encre pour rester lisible
+  g.textAlign='right'; g.fillStyle=C.encre;
+  g.font="32px 'Saira Condensed'";
+  g.fillText('@UNE.DEUX', W-MR, ringC);
+  g.textAlign='left';
+  // filet sous header — bicolore pour rester visible sur les deux fonds
+  g.fillStyle=C.creme; g.fillRect(M, 168+safeTop(), splitX-M, 4);
+  g.fillStyle=C.encre; g.fillRect(splitX, 168+safeTop(), (W-MR)-splitX, 4);
+
+  // TAG SÉRIE : nom de série sur fond coloré (identique cover/titre/corps)
+  const tagY=200+safeTop(), tagH=58;
+  g.font="32px 'Saira Condensed'"; g.textBaseline='middle';
+  const nameTxt=s.label.toUpperCase();
+  const nameW=g.measureText(nameTxt).width+30;
+  g.fillStyle=s.sig; g.fillRect(M,tagY,nameW,tagH);
+  g.fillStyle=s.sigTextColor||C.encre;
+  g.fillText(nameTxt, M+15, tagY+tagH/2+1);
+  g.textBaseline='alphabetic'; g.textAlign='left';
 
   /* --- citation : Archivo casse naturelle, **gras** + segment coloré (signature) --- */
   const footY=H-70-safeBottom();
   const showFooter = !isVert && (state.serie!=='arretdejeu' || state.paginationOn);
-  const quoteTop=tagY+64;
+  const quoteTop=tagY+tagH+48;
   const quoteBottom=(showFooter?footY-46:H-70-safeBottom())-34;
   const maxH=Math.max(60,quoteBottom-quoteTop);
   const accentLower=(state.quoteAccent||'').trim().toLowerCase();
