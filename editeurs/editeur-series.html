@@ -184,13 +184,13 @@ Et à la fin du match…</textarea>
         <label>Segment coloré (mots de la citation)</label>
         <div class="chips" id="quotepicker"></div>
       </div>
-      <div class="field">
-        <label id="lbl_quoteAuthor">Auteur de la citation</label>
+      <div class="field" id="field_quoteAuthor_row">
+        <label>Auteur de la citation</label>
         <input id="f_quoteAuthor" type="text" value="" maxlength="40" placeholder="Ex : Zinédine Zidane">
-        <div class="hint" id="hint_quoteAuthor">Affiché sous la citation. Laisse vide pour masquer.</div>
+        <div class="hint">Affiché sous la citation. Laisse vide pour masquer.</div>
       </div>
       <div class="field" id="field_caption_row">
-        <label id="lbl_caption">Légende bas</label>
+        <label>Légende bas</label>
         <input id="f_caption" type="text" value="L'ANALYSE" maxlength="40">
       </div>
     </div>
@@ -430,9 +430,9 @@ document.getElementById('f_caption').oninput=e=>{state.caption=e.target.value;dr
 
 /* ===== bascule des libellés du bloc citation selon le template (citation vs interview) ===== */
 function setVerbatimLabels(isVerbatim){
-  document.getElementById('lbl_quoteAuthor').textContent = isVerbatim ? 'Nom (affiché en haut, à côté du visuel)' : 'Auteur de la citation';
-  document.getElementById('hint_quoteAuthor').textContent = isVerbatim ? "Affiché en haut de la citation, à côté de la vignette. Laisse vide pour masquer." : "Affiché sous la citation. Laisse vide pour masquer.";
-  document.getElementById('lbl_caption').textContent = isVerbatim ? 'Rôle / fonction (optionnel)' : 'Légende bas';
+  /* interview : pas d'auteur/nom ni de légende — juste la citation en duo photo/texte */
+  document.getElementById('field_quoteAuthor_row').style.display = isVerbatim ? 'none' : 'block';
+  document.getElementById('field_caption_row').style.display = isVerbatim ? 'none' : 'block';
   document.getElementById('hint_quote').textContent = isVerbatim ? "**gras** supporté · casse conservée (pas de MAJUSCULES forcées)" : "Entrée = nouvelle ligne · **gras** supporté";
 }
 
@@ -1183,34 +1183,10 @@ function drawVerbatim(W,H,s){
   g.fillStyle=s.sig; g.fillText(s.label.toUpperCase(), rightEdge, tagY);
   g.textAlign='left';
 
-  /* vignette carrée (détail du visuel) + nom + rôle, cote à cote */
-  const sq=110, sqY=tagY+34;
-  if(state.img){
-    const img=state.img, ir=mediaW(img)/mediaH(img); let dw,dh;
-    const z=Math.max(state.zoom,1.15);
-    if(ir>1){ dh=sq*z; dw=dh*ir; } else { dw=sq*z; dh=dw/ir; }
-    g.save(); g.beginPath(); g.rect(padX,sqY,sq,sq); g.clip();
-    g.drawImage(img, padX-(dw-sq)*state.posx, sqY-(dh-sq)*state.posy, dw, dh);
-    g.restore();
-  } else {
-    g.fillStyle=s.sig; g.fillRect(padX,sqY,sq,sq);
-  }
-
-  const nameX=padX+sq+26, nameMaxW=rightW-sq-26;
-  const nameLines=simpleWrap(g,(state.quoteAuthor||'').toUpperCase(),nameMaxW,"700 30px 'Saira Condensed'");
-  const roleTxt=(state.caption||'').trim();
-  const roleLines=roleTxt?simpleWrap(g,roleTxt.toUpperCase(),nameMaxW,"600 20px 'Saira Condensed'"):[];
-  const nameLH=34, roleLH=24;
-  const blockH=nameLines.length*nameLH+(roleLines.length?roleLines.length*roleLH+6:0);
-  let by=sqY+Math.max(0,(sq-blockH)/2)+nameLH*0.78;
-  g.textBaseline='alphabetic'; g.textAlign='left';
-  nameLines.forEach(ln=>{ g.font="700 30px 'Saira Condensed'"; g.fillStyle=C.encre; g.fillText(ln,nameX,by); by+=nameLH; });
-  if(roleLines.length){ by+=4; roleLines.forEach(ln=>{ g.font="600 20px 'Saira Condensed'"; g.fillStyle='#8a8478'; g.fillText(ln,nameX,by); by+=roleLH; }); }
-
   /* --- citation : Archivo casse naturelle, **gras** + segment coloré (signature) --- */
   const footY=H-70-safeBottom();
   const showFooter = !isVert && (state.serie!=='arretdejeu' || state.paginationOn);
-  const quoteTop=sqY+sq+56;
+  const quoteTop=tagY+64;
   const quoteBottom=(showFooter?footY-46:H-70-safeBottom())-34;
   const maxH=Math.max(60,quoteBottom-quoteTop);
   const accentLower=(state.quoteAccent||'').trim().toLowerCase();
@@ -1243,10 +1219,11 @@ function drawVerbatim(W,H,s){
     if(ls.length*lh<=maxH || i===sizes.length-1){ qSize=sz; qLines=ls; break; }
   }
   const qLineH=Math.round(qSize*1.28);
+  const qBlockTop=quoteTop+Math.max(0,(maxH-qLines.length*qLineH)/2);
   const qSpace=(()=>{ g.font="500 "+qSize+"px 'Archivo'"; return g.measureText(' ').width; })();
   g.textAlign='left'; g.textBaseline='alphabetic';
   qLines.forEach((ln,li)=>{
-    let cx=padX; const y=quoteTop+(li+1)*qLineH-qLineH*0.22;
+    let cx=padX; const y=qBlockTop+(li+1)*qLineH-qLineH*0.22;
     ln.forEach(o=>{
       g.font=(o.bold?'700 ':'500 ')+qSize+"px 'Archivo'";
       g.fillStyle=o.accent?s.sig:C.encre;
