@@ -1203,7 +1203,7 @@ function drawVerbatim(W,H,s){
   /* --- citation : Archivo casse naturelle, **gras** + segment coloré (signature) --- */
   const footY=H-70-safeBottom();
   const showFooter = !isVert && (state.serie!=='arretdejeu' || state.paginationOn);
-  const quoteTop=tagY+tagH+48;
+  const quoteTop=tagY+tagH+36;
   const quoteBottom=(showFooter?footY-46:H-70-safeBottom())-34;
   const maxH=Math.max(60,quoteBottom-quoteTop);
   const accentLower=(state.quoteAccent||'').trim().toLowerCase();
@@ -1232,11 +1232,12 @@ function drawVerbatim(W,H,s){
   const sizes=[54,48,42,38,34,30,27];
   let qSize=sizes[sizes.length-1], qLines=[];
   for(let i=0;i<sizes.length;i++){
-    const sz=sizes[i], lh=Math.round(sz*1.28), ls=layoutRichWords(sz);
+    const sz=sizes[i], lh=Math.round(sz*1.32), ls=layoutRichWords(sz);
     if(ls.length*lh<=maxH || i===sizes.length-1){ qSize=sz; qLines=ls; break; }
   }
-  const qLineH=Math.round(qSize*1.28);
-  const qBlockTop=quoteTop+Math.max(0,(maxH-qLines.length*qLineH)/2);
+  const qLineH=Math.round(qSize*1.32);
+  /* ancré en haut du cadre (pas de centrage vertical), comme le corps des autres templates */
+  const qBlockTop=quoteTop;
   const qSpace=(()=>{ g.font="500 "+qSize+"px 'Archivo'"; return g.measureText(' ').width; })();
   g.textAlign='left'; g.textBaseline='alphabetic';
   qLines.forEach((ln,li)=>{
