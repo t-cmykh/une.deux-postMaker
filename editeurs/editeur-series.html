@@ -124,6 +124,7 @@ input[type=range]{flex:1;accent-color:var(--sig)}
         <div class="chip" data-tpl="titre">COVER · TITRE SEUL</div>
         <div class="chip" data-tpl="corps">COVER · CORPS SEUL</div>
         <div class="chip" data-tpl="citation">CITATION</div>
+        <div class="chip" data-tpl="verbatim" id="chip_verbatim" style="display:none">CITATION · INTERVIEW</div>
         <div class="chip" data-tpl="cta">CTA ENREGISTRE</div>
       </div>
     </div>
@@ -177,17 +178,18 @@ Et à la fin du match…</textarea>
       <div class="field">
         <label>Citation</label>
         <textarea id="f_quote" rows="3">Sur le terrain, tout s'est joué en deux passes.</textarea>
+        <div class="hint" id="hint_quote">Entrée = nouvelle ligne · **gras** supporté</div>
       </div>
       <div class="field">
         <label>Segment coloré (mots de la citation)</label>
         <div class="chips" id="quotepicker"></div>
       </div>
-      <div class="field">
+      <div class="field" id="field_quoteAuthor_row">
         <label>Auteur de la citation</label>
         <input id="f_quoteAuthor" type="text" value="" maxlength="40" placeholder="Ex : Zinédine Zidane">
         <div class="hint">Affiché sous la citation. Laisse vide pour masquer.</div>
       </div>
-      <div class="field">
+      <div class="field" id="field_caption_row">
         <label>Légende bas</label>
         <input id="f_caption" type="text" value="L'ANALYSE" maxlength="40">
       </div>
@@ -344,6 +346,12 @@ function selectSerie(key){
   document.getElementById('field_bodybox').style.display = (key==='portraits')?'block':'none';
   /* toggle pagination : uniquement L'arrêt de jeu */
   document.getElementById('field_pagination').style.display = (key==='arretdejeu')?'block':'none';
+  /* template "citation · interview" (duo photo/texte) : réservé à L'arrêt de jeu */
+  const chipVerbatim=document.getElementById('chip_verbatim');
+  chipVerbatim.style.display = (key==='arretdejeu')?'':'none';
+  if(state.template==='verbatim' && key!=='arretdejeu'){
+    document.querySelector('#tpl_chips [data-tpl="citation"]').click();
+  }
   /* apparition ligne par ligne du titre : uniquement Ce jour-là */
   document.getElementById('field_titleanim').style.display = (state.template==='titre' && key==='cejourla')?'block':'none';
   if(state.template==='titre' && key==='cejourla') restartTitleReveal();
@@ -391,12 +399,13 @@ document.querySelectorAll('#tpl_chips .chip').forEach(c=>{
     document.querySelectorAll('#tpl_chips .chip').forEach(x=>x.classList.remove('on'));
     c.classList.add('on'); state.template=c.dataset.tpl;
     document.getElementById('field_btnlabel').style.display = (state.template==='cta')?'block':'none';
-    document.getElementById('field_citation').style.display = (state.template==='citation')?'block':'none';
+    document.getElementById('field_citation').style.display = (state.template==='citation'||state.template==='verbatim')?'block':'none';
     document.getElementById('field_body').style.display = (state.template==='titre')?'none':'block';
     document.getElementById('field_titlesize').style.display = (state.template==='titre')?'block':'none';
     document.getElementById('field_titleanim').style.display = (state.template==='titre' && state.serie==='cejourla')?'block':'none';
     document.getElementById('field_textbg').style.display = (state.template==='corps')?'block':'none';
-    if(state.template==='citation') rebuildQuotePicker();
+    setVerbatimLabels(state.template==='verbatim');
+    if(state.template==='citation'||state.template==='verbatim') rebuildQuotePicker();
     if(state.template==='titre'){
       state.titleSizeManual = clampTitle();
       const rts=document.getElementById('r_titlesize');
@@ -419,13 +428,21 @@ document.getElementById('f_quote').oninput=e=>{state.quote=e.target.value;rebuil
 document.getElementById('f_quoteAuthor').oninput=e=>{state.quoteAuthor=e.target.value;draw();};
 document.getElementById('f_caption').oninput=e=>{state.caption=e.target.value;draw();};
 
+/* ===== bascule des libellés du bloc citation selon le template (citation vs interview) ===== */
+function setVerbatimLabels(isVerbatim){
+  /* interview : pas d'auteur/nom ni de légende — juste la citation en duo photo/texte */
+  document.getElementById('field_quoteAuthor_row').style.display = isVerbatim ? 'none' : 'block';
+  document.getElementById('field_caption_row').style.display = isVerbatim ? 'none' : 'block';
+  document.getElementById('hint_quote').textContent = isVerbatim ? "**gras** supporté · casse conservée (pas de MAJUSCULES forcées)" : "Entrée = nouvelle ligne · **gras** supporté";
+}
+
 /* ===== quote accent picker (mots de la citation) ===== */
 function rebuildQuotePicker(){
   const box=document.getElementById('quotepicker'); if(!box) return; box.innerHTML='';
   const none=document.createElement('div');
   none.className='chip'+(!state.quoteAccent||!state.quoteAccent.trim()?' on':''); none.textContent='Aucun';
   none.onclick=()=>{state.quoteAccent='';rebuildQuotePicker();draw();}; box.appendChild(none);
-  [...new Set(state.quote.trim().split(/\s+/).filter(Boolean))].forEach(w=>{
+  [...new Set(stripBold(state.quote).trim().split(/\s+/).filter(Boolean))].forEach(w=>{
     const c=document.createElement('div');
     const sel=(state.quoteAccent||'').trim().toLowerCase()===w.toLowerCase();
     c.className='chip'+(sel?' on':''); c.textContent=w;
@@ -557,6 +574,28 @@ function clampTitle(minS,maxS){
   return Math.max(minS,Math.min(maxS,size));
 }
 function stripBold(s){ return String(s).replace(/\*\*/g,''); }
+/* mask bold->plein: pour un texte à balises **gras**, renvoie un tableau de booléens
+   (un par caractère du texte "à plat", **retirées) indiquant si ce caractère est en gras */
+function boldMask(original){
+  const mask=[]; let bold=false;
+  const s=String(original);
+  for(let i=0;i<s.length;i++){
+    if(s[i]==='*' && s[i+1]==='*'){ bold=!bold; i++; continue; }
+    mask.push(bold);
+  }
+  return mask;
+}
+/* retour à la ligne simple (une police donnée, sans **gras**) — utilisé pour les libellés
+   courts (nom, rôle) qui n'ont pas besoin du moteur d'emphase de wrapBody */
+function simpleWrap(g,text,maxW,font){
+  g.font=font;
+  const words=String(text).trim().split(/\s+/).filter(Boolean);
+  const lines=[]; let cur='';
+  words.forEach(w=>{ const t=cur?cur+' '+w:w;
+    if(g.measureText(t).width>maxW && cur){ lines.push(cur); cur=w; } else cur=t; });
+  if(cur) lines.push(cur);
+  return lines;
+}
 function parseBoldSegments(line){ const segs=[]; const parts=String(line).split('**');
   for(let i=0;i<parts.length;i++){ if(parts[i]==='')continue; segs.push({text:parts[i],bold:(i%2===1)}); }
   return segs.length?segs:[{text:String(line),bold:false}]; }
@@ -702,6 +741,9 @@ function draw(){
 
   /* router CITATION */
   if(state.template==='citation'){ drawCitation(W,H,s); if(state.safeOn) drawSafeGuides(W,H); return; }
+
+  /* router CITATION · INTERVIEW (duo photo/texte, L'arrêt de jeu) */
+  if(state.template==='verbatim'){ drawVerbatim(W,H,s); if(state.safeOn) drawSafeGuides(W,H); return; }
 
   /* 1. média de fond */
   if(state.img){
@@ -1089,6 +1131,112 @@ function drawCitation(W,H,s){
     g.textAlign='right'; g.textBaseline='middle'; g.font="60px 'Anton'";
     const totTxt='/'+state.tot; g.fillStyle=C.encre; g.fillText(totTxt, W-MR, footY);
     const tw=g.measureText(totTxt).width; g.fillStyle=ACC; g.fillText(state.cur, W-MR-tw-4, footY);
+  }
+  g.textAlign='left';
+}
+
+/* ===== TEMPLATE CITATION · INTERVIEW — duo photo plein cadre (moitié gauche) + citation
+   sur fond crème (moitié droite), pensé pour L'arrêt de jeu (mode enquête : verbatim d'une
+   source). Reprend le habillage brand (anneau/wordmark, tag signature, filet + pagination) de
+   drawCitation, mais en deux panneaux au lieu d'un plein cadre. ===== */
+function drawVerbatim(W,H,s){
+  const g=ctx, isVert=state.ratio==='9:16';
+  const splitX=Math.round(W*0.47);
+  const panelPad=isVert?72:56;
+  const padX=splitX+panelPad, rightEdge=W-panelPad, rightW=rightEdge-padX;
+
+  /* --- panneau gauche : photo plein cadre, virage de série --- */
+  if(state.img){
+    const img=state.img, ir=mediaW(img)/mediaH(img), cr=splitX/H; let dw,dh;
+    if(ir>cr){dh=H*state.zoom;dw=dh*ir;}else{dw=splitX*state.zoom;dh=dw/ir;}
+    g.save(); g.beginPath(); g.rect(0,0,splitX,H); g.clip();
+    g.drawImage(img,(splitX-dw)*state.posx,(H-dh)*state.posy,dw,dh);
+    applyPhotoFilter(g,splitX,H,s.photo);
+    g.restore();
+  } else {
+    const lg=g.createLinearGradient(0,0,0,H);
+    if(s.photo==='enquete'){lg.addColorStop(0,'#3a332c');lg.addColorStop(1,'#161310');}
+    else{lg.addColorStop(0,'#9a968c');lg.addColorStop(1,'#4f4c44');}
+    g.fillStyle=lg; g.fillRect(0,0,splitX,H);
+  }
+
+  /* --- panneau droit : fond crème + stries fines (identique drawCitation) --- */
+  g.fillStyle=C.creme; g.fillRect(splitX,0,W-splitX,H);
+  g.save(); g.beginPath(); g.rect(splitX,0,W-splitX,H); g.clip();
+  g.strokeStyle='rgba(44,40,35,0.05)'; g.lineWidth=2;
+  for(let i=-H;i<W+H;i+=46){ g.beginPath(); g.moveTo(i,0); g.lineTo(i+H,H); g.stroke(); }
+  g.restore();
+
+  /* header (anneau + wordmark), confiné au panneau droit */
+  const ringD=64, ringY=64+safeTop(), ringC=ringY+ringD/2;
+  g.strokeStyle=C.encre; g.lineWidth=3;
+  g.beginPath(); g.arc(padX+ringD/2, ringC, ringD/2-2, 0, Math.PI*2); g.stroke();
+  g.fillStyle=C.encre; g.font="26px 'Saira Condensed'"; g.textAlign='center'; g.textBaseline='middle';
+  g.fillText('1·2', padX+ringD/2, ringC+1);
+  g.textAlign='left'; g.font="40px 'Anton'";
+  g.fillText('une·deux', padX+ringD+18, ringC+2);
+  g.textAlign='left'; g.textBaseline='alphabetic';
+
+  /* tag de série (couleur signature), aligné à droite sous le header */
+  const tagY=ringY+ringD+32;
+  g.font="700 22px 'Saira Condensed'"; g.textAlign='right';
+  g.fillStyle=s.sig; g.fillText(s.label.toUpperCase(), rightEdge, tagY);
+  g.textAlign='left';
+
+  /* --- citation : Archivo casse naturelle, **gras** + segment coloré (signature) --- */
+  const footY=H-70-safeBottom();
+  const showFooter = !isVert && (state.serie!=='arretdejeu' || state.paginationOn);
+  const quoteTop=tagY+64;
+  const quoteBottom=(showFooter?footY-46:H-70-safeBottom())-34;
+  const maxH=Math.max(60,quoteBottom-quoteTop);
+  const accentLower=(state.quoteAccent||'').trim().toLowerCase();
+  const maxW2=rightW;
+
+  function layoutRichWords(size){
+    const plain=stripBold(state.quote), mask=boldMask(state.quote);
+    const words=[]; let m, re=/\S+/g;
+    while((m=re.exec(plain))!==null){ words.push({w:m[0], start:m.index, bold:mask[m.index]||false}); }
+    if(accentLower){
+      const idx=plain.toLowerCase().indexOf(accentLower);
+      if(idx>=0){ const end=idx+accentLower.length;
+        words.forEach(o=>{ o.accent = o.start>=idx && (o.start+o.w.length)<=end; }); }
+    }
+    g.font="500 "+size+"px 'Archivo'"; const space=g.measureText(' ').width;
+    const lines=[]; let cur=[]; let curW=0;
+    words.forEach(o=>{
+      g.font=(o.bold?'700 ':'500 ')+size+"px 'Archivo'";
+      const ww=g.measureText(o.w).width;
+      if(curW+ww>maxW2 && cur.length){ lines.push(cur); cur=[]; curW=0; }
+      cur.push(o); curW+=ww+space;
+    });
+    if(cur.length) lines.push(cur);
+    return lines;
+  }
+  const sizes=[54,48,42,38,34,30,27];
+  let qSize=sizes[sizes.length-1], qLines=[];
+  for(let i=0;i<sizes.length;i++){
+    const sz=sizes[i], lh=Math.round(sz*1.28), ls=layoutRichWords(sz);
+    if(ls.length*lh<=maxH || i===sizes.length-1){ qSize=sz; qLines=ls; break; }
+  }
+  const qLineH=Math.round(qSize*1.28);
+  const qBlockTop=quoteTop+Math.max(0,(maxH-qLines.length*qLineH)/2);
+  const qSpace=(()=>{ g.font="500 "+qSize+"px 'Archivo'"; return g.measureText(' ').width; })();
+  g.textAlign='left'; g.textBaseline='alphabetic';
+  qLines.forEach((ln,li)=>{
+    let cx=padX; const y=qBlockTop+(li+1)*qLineH-qLineH*0.22;
+    ln.forEach(o=>{
+      g.font=(o.bold?'700 ':'500 ')+qSize+"px 'Archivo'";
+      g.fillStyle=o.accent?s.sig:C.encre;
+      g.fillText(o.w,cx,y); cx+=g.measureText(o.w).width+qSpace;
+    });
+  });
+
+  /* filet bas + pagination (masqués en vertical) */
+  if(showFooter){
+    g.fillStyle=C.encre; g.fillRect(padX, footY-46, rightW, 3);
+    g.textAlign='right'; g.textBaseline='middle'; g.font="60px 'Anton'";
+    const totTxt='/'+state.tot; g.fillStyle=C.encre; g.fillText(totTxt, rightEdge, footY);
+    const tw=g.measureText(totTxt).width; g.fillStyle=s.sig; g.fillText(state.cur, rightEdge-tw-4, footY);
   }
   g.textAlign='left';
 }
