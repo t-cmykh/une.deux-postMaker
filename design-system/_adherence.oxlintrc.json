@@ -1,0 +1,328 @@
+{
+  "plugins": [
+    "react",
+    "import"
+  ],
+  "rules": {
+    "react/forbid-elements": [
+      "warn",
+      {
+        "forbid": []
+      }
+    ],
+    "no-restricted-imports": [
+      "warn",
+      {
+        "patterns": [
+          {
+            "group": [
+              "components/slides/**",
+              "components/studio/**",
+              "ui_kits/studio/**"
+            ],
+            "message": "Import design-system components from 'index.js', not component internals."
+          }
+        ]
+      }
+    ],
+    "no-restricted-syntax": [
+      "warn",
+      {
+        "selector": "Literal[value=/#[0-9a-fA-F]{3,8}\\b/]",
+        "message": "Raw hex color — use a design-system color token via var()."
+      },
+      {
+        "selector": "Literal[value=/\\b\\d+px\\b/]",
+        "message": "Raw px value — use a design-system spacing token via var()."
+      },
+      {
+        "selector": "Literal[value=/font-family\\s*:\\s*(?!['\\\"]?(?:Anton|Archivo|Saira Condensed))/i]",
+        "message": "Font not provided by the design system. Available: Anton, Archivo, Saira Condensed."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='BrandHeader'] > JSXAttribute > JSXIdentifier[name!=/^(?:dark|ring|handle|key|ref|className|style|children)$/]",
+        "message": "<BrandHeader> doesn't accept that prop. Declared props: dark, ring, handle."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='BreathSlide'] > JSXAttribute > JSXIdentifier[name!=/^(?:quote|quoteAccent|sig|key|ref|className|style|children)$/]",
+        "message": "<BreathSlide> doesn't accept that prop. Declared props: quote, quoteAccent, sig."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Chip'] > JSXAttribute > JSXIdentifier[name!=/^(?:children|active|onClick|key|ref|className|style|children)$/]",
+        "message": "<Chip> doesn't accept that prop. Declared props: children, active, onClick."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='CoverSlide'] > JSXAttribute > JSXIdentifier[name!=/^(?:serie|variant|title|greenWord|body|cur|tot|mediaUrl|showSwipe|showPagination|key|ref|className|style|children)$/]",
+        "message": "<CoverSlide> doesn't accept that prop. Declared props: serie, variant, title, greenWord, body, cur, tot, mediaUrl, showSwipe, showPagination."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='CoverSlide'] > JSXAttribute[name.name='variant'] > Literal[value!=/^(?:cover|titre|corps)$/]",
+        "message": "<CoverSlide> variant must be one of 'cover' | 'titre' | 'corps'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='CTASlide'] > JSXAttribute > JSXIdentifier[name!=/^(?:title|greenWord|body|btnlabel|sig|onSig|key|ref|className|style|children)$/]",
+        "message": "<CTASlide> doesn't accept that prop. Declared props: title, greenWord, body, btnlabel, sig, onSig."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='QuoteSlide'] > JSXAttribute > JSXIdentifier[name!=/^(?:quote|quoteAccent|quoteAuthor|caption|cur|tot|accent|key|ref|className|style|children)$/]",
+        "message": "<QuoteSlide> doesn't accept that prop. Declared props: quote, quoteAccent, quoteAuthor, caption, cur, tot, accent."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='RangeRow'] > JSXAttribute > JSXIdentifier[name!=/^(?:label|value|min|max|step|onChange|display|key|ref|className|style|children)$/]",
+        "message": "<RangeRow> doesn't accept that prop. Declared props: label, value, min, max, step, onChange, display."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='SerieButton'] > JSXAttribute > JSXIdentifier[name!=/^(?:name|description|swatch|active|onClick|key|ref|className|style|children)$/]",
+        "message": "<SerieButton> doesn't accept that prop. Declared props: name, description, swatch, active, onClick."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='SeriesTag'] > JSXAttribute > JSXIdentifier[name!=/^(?:label|bg|color|key|ref|className|style|children)$/]",
+        "message": "<SeriesTag> doesn't accept that prop. Declared props: label, bg, color."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='StudioButton'] > JSXAttribute > JSXIdentifier[name!=/^(?:children|variant|onClick|key|ref|className|style|children)$/]",
+        "message": "<StudioButton> doesn't accept that prop. Declared props: children, variant, onClick."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='StudioButton'] > JSXAttribute[name.name='variant'] > Literal[value!=/^(?:primary|ghost)$/]",
+        "message": "<StudioButton> variant must be one of 'primary' | 'ghost'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='ToggleSwitch'] > JSXAttribute > JSXIdentifier[name!=/^(?:label|on|onChange|key|ref|className|style|children)$/]",
+        "message": "<ToggleSwitch> doesn't accept that prop. Declared props: label, on, onChange."
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": [
+        "**/index.js"
+      ],
+      "rules": {
+        "no-restricted-imports": "off"
+      }
+    }
+  ],
+  "x-omelette": {
+    "components": {
+      "BrandHeader": {
+        "replaces": []
+      },
+      "BreathSlide": {
+        "replaces": []
+      },
+      "Chip": {
+        "replaces": []
+      },
+      "CoverSlide": {
+        "replaces": []
+      },
+      "CTASlide": {
+        "replaces": []
+      },
+      "QuoteSlide": {
+        "replaces": []
+      },
+      "RangeRow": {
+        "replaces": []
+      },
+      "SerieButton": {
+        "replaces": []
+      },
+      "SeriesTag": {
+        "replaces": []
+      },
+      "StudioButton": {
+        "replaces": []
+      },
+      "ToggleSwitch": {
+        "replaces": []
+      }
+    },
+    "tokens": [
+      "--border-editor",
+      "--border-editor-hover",
+      "--cream",
+      "--font-body",
+      "--font-display",
+      "--font-label",
+      "--fs-body-editor",
+      "--fs-body-slide",
+      "--fs-body-slide-sm",
+      "--fs-display-cover-title",
+      "--fs-display-cta-title",
+      "--fs-display-pagination",
+      "--fs-display-quote",
+      "--fs-display-wordmark",
+      "--fs-label-editor-field",
+      "--fs-label-editor-section",
+      "--fs-label-handle",
+      "--fs-label-monogram",
+      "--fs-label-swipe",
+      "--fs-label-tag",
+      "--grade-arretdejeu",
+      "--grade-cejourla",
+      "--grade-oublies",
+      "--grade-portraits",
+      "--hatch-enquete",
+      "--hatch-on-cream",
+      "--hatch-on-cream-faint",
+      "--ink",
+      "--lh-body",
+      "--lh-display",
+      "--lh-tight",
+      "--line-dark",
+      "--link",
+      "--link-hover",
+      "--muted-cream",
+      "--ocre",
+      "--on-sig-arretdejeu",
+      "--on-sig-cejourla",
+      "--on-sig-oublies",
+      "--panel",
+      "--paper",
+      "--radius-full",
+      "--radius-lg",
+      "--radius-md",
+      "--radius-pill",
+      "--radius-sm",
+      "--rouille",
+      "--scrim-cover",
+      "--sig-arretdejeu",
+      "--sig-cejourla",
+      "--sig-oublies",
+      "--sig-portraits",
+      "--slide-margin-right-square",
+      "--slide-margin-x-square",
+      "--slide-margin-x-vertical",
+      "--slide-safe-bottom-vertical",
+      "--slide-safe-top-vertical",
+      "--space-1",
+      "--space-10",
+      "--space-2",
+      "--space-3",
+      "--space-4",
+      "--space-5",
+      "--space-6",
+      "--space-7",
+      "--space-8",
+      "--space-9",
+      "--surface-dark",
+      "--surface-editor-bg",
+      "--surface-editor-input",
+      "--surface-editor-panel",
+      "--surface-light",
+      "--swatch-portraits",
+      "--text-body-on-dark",
+      "--text-body-on-light",
+      "--text-heading-on-dark",
+      "--text-heading-on-light",
+      "--text-label-faint",
+      "--text-label-muted",
+      "--tracking-display",
+      "--tracking-label",
+      "--tracking-label-wide",
+      "--vert",
+      "--vert-deep",
+      "--weight-body-bold",
+      "--weight-body-medium",
+      "--weight-body-regular",
+      "--weight-label"
+    ],
+    "tokenKinds": {
+      "--ink": "color",
+      "--paper": "color",
+      "--cream": "color",
+      "--muted-cream": "color",
+      "--line-dark": "color",
+      "--panel": "color",
+      "--ocre": "color",
+      "--vert": "color",
+      "--vert-deep": "color",
+      "--rouille": "color",
+      "--surface-dark": "color",
+      "--surface-light": "color",
+      "--surface-editor-bg": "color",
+      "--surface-editor-panel": "color",
+      "--surface-editor-input": "color",
+      "--text-heading-on-dark": "font",
+      "--text-body-on-dark": "font",
+      "--text-heading-on-light": "font",
+      "--text-body-on-light": "font",
+      "--text-label-muted": "font",
+      "--text-label-faint": "font",
+      "--border-editor": "color",
+      "--border-editor-hover": "color",
+      "--sig-cejourla": "color",
+      "--on-sig-cejourla": "color",
+      "--sig-oublies": "color",
+      "--on-sig-oublies": "color",
+      "--sig-arretdejeu": "color",
+      "--on-sig-arretdejeu": "color",
+      "--sig-portraits": "color",
+      "--swatch-portraits": "color",
+      "--link": "color",
+      "--link-hover": "color",
+      "--font-display": "font",
+      "--font-body": "font",
+      "--font-label": "font",
+      "--fs-display-cover-title": "font",
+      "--fs-display-cta-title": "font",
+      "--fs-display-quote": "font",
+      "--fs-display-pagination": "font",
+      "--fs-display-wordmark": "font",
+      "--fs-body-slide": "font",
+      "--fs-body-slide-sm": "font",
+      "--fs-body-editor": "font",
+      "--fs-label-tag": "font",
+      "--fs-label-handle": "font",
+      "--fs-label-monogram": "font",
+      "--fs-label-swipe": "font",
+      "--fs-label-editor-section": "font",
+      "--fs-label-editor-field": "font",
+      "--tracking-label": "font",
+      "--tracking-label-wide": "font",
+      "--tracking-display": "font",
+      "--lh-display": "other",
+      "--lh-body": "other",
+      "--lh-tight": "other",
+      "--weight-body-regular": "font",
+      "--weight-body-medium": "font",
+      "--weight-body-bold": "font",
+      "--weight-label": "font",
+      "--space-1": "spacing",
+      "--space-2": "spacing",
+      "--space-3": "spacing",
+      "--space-4": "spacing",
+      "--space-5": "spacing",
+      "--space-6": "spacing",
+      "--space-7": "spacing",
+      "--space-8": "spacing",
+      "--space-9": "spacing",
+      "--space-10": "spacing",
+      "--radius-sm": "radius",
+      "--radius-md": "radius",
+      "--radius-lg": "radius",
+      "--radius-pill": "radius",
+      "--radius-full": "radius",
+      "--slide-margin-x-square": "spacing",
+      "--slide-margin-right-square": "spacing",
+      "--slide-margin-x-vertical": "spacing",
+      "--slide-safe-top-vertical": "spacing",
+      "--slide-safe-bottom-vertical": "spacing",
+      "--hatch-on-cream": "other",
+      "--hatch-on-cream-faint": "other",
+      "--hatch-enquete": "other",
+      "--scrim-cover": "other",
+      "--grade-cejourla": "color",
+      "--grade-oublies": "color",
+      "--grade-portraits": "other",
+      "--grade-arretdejeu": "color"
+    },
+    "fontFamilies": [
+      "Anton",
+      "Archivo",
+      "Saira Condensed"
+    ]
+  }
+}
