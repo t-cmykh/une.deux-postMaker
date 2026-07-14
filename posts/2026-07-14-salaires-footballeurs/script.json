@@ -1,0 +1,63 @@
+[
+  {
+    "template": "A",
+    "tag": "L'ARRÊT DE JEU",
+    "title": "LES FOOTBALLEURS SONT-ILS VRAIMENT SI BIEN PAYÉS QUE ÇA ?",
+    "greenWord": "SI BIEN PAYÉS",
+    "body": "Deux joueurs, un seul métier. Et deux vies qui n'ont rien à voir.",
+    "media": "salaire_01.PNG"
+  },
+  {
+    "template": "A",
+    "tag": "CE QU'ON VOIT",
+    "title": "MBAPPÉ TOUCHE JUSQU'À 110 MILLIONS D'EUROS PAR AN. C'EST L'ARBRE.",
+    "greenWord": "L'ARBRE",
+    "body": "Salaire de base, primes et droits à l'image compris, au Real Madrid. C'est le chiffre que tout le monde connaît. Il cache une forêt bien plus grande.",
+    "media": "salaire_02.PNG"
+  },
+  {
+    "template": "H",
+    "quote": "La forêt, personne n'en parle.",
+    "quoteAccent": "personne n'en parle.",
+    "quoteAuthor": "",
+    "caption": ""
+  },
+  {
+    "template": "A",
+    "tag": "L'ENQUÊTE FIFPRO",
+    "title": "UN FOOTBALLEUR PRO SUR DEUX TOUCHE MOINS DE 1000 DOLLARS PAR MOIS.",
+    "greenWord": "MOINS DE 1000 DOLLARS",
+    "body": "En 2016, le syndicat mondial FIFPro interroge 14 000 joueurs dans 54 pays et 87 championnats. Plus de 45% déclarent gagner moins de 1000 dollars par mois. 41% ont déjà touché leur salaire en retard.",
+    "media": "salaire_04.PNG"
+  },
+  {
+    "template": "G",
+    "quote": "Près de 41% des joueurs dans le monde ne recevaient pas leur salaire à temps. C'est une situation inacceptable !",
+    "quoteAccent": "situation inacceptable !",
+    "quoteAuthor": "Philippe Piat, président de la FIFPro",
+    "caption": "LE CONSTAT"
+  },
+  {
+    "template": "A",
+    "tag": "LE DÉTAIL FOU",
+    "title": "EN FRANCE, UNE CARRIÈRE DE FOOTBALLEUR PRO DURE EN MOYENNE 5 ANS ET DEMI.",
+    "greenWord": "5 ANS ET DEMI",
+    "body": "Une étude de l'université d'Essex, qui a suivi des jeunes de centres de formation pendant dix ans, montre que seuls 4% d'entre eux percent au plus haut niveau. Le salaire à sept chiffres, c'est le sommet d'une pyramide très étroite.",
+    "media": "salaire_06.PNG"
+  },
+  {
+    "template": "A",
+    "tag": "LA RÉPONSE",
+    "title": "OUI, ET NON. LES DEUX RÉPONSES SONT VRAIES EN MÊME TEMPS.",
+    "greenWord": "LES DEUX RÉPONSES",
+    "body": "Sur son seul salaire de base, Mbappé touche en une semaine plus que ce qu'un pro sur deux gagne dans toute une année. Même sport, même ballon, deux industries. Le mythe, ce n'est pas que les footballeurs sont trop payés. C'est de croire qu'ils le sont tous.",
+    "media": "salaire_07.PNG"
+  },
+  {
+    "template": "D",
+    "tag": "L'ARRÊT DE JEU",
+    "title": "RESTE DANS LE JEU",
+    "body": "Une question foot, les faits, jamais de réponse toute faite.",
+    "btnlabel": "FOLLOW"
+  }
+]
