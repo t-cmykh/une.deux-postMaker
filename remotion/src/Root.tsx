@@ -6,6 +6,7 @@ import {
   totalDurationInFrames,
 } from './HighlightReel';
 import segmentsData from './segments.json';
+import trackData from './track.json';
 
 const FPS = 30;
 
@@ -13,6 +14,9 @@ const defaultProps: HighlightReelProps = {
   videoSrc: 'gaetjens_source.mp4',
   segments: segmentsData.segments,
   fps: FPS,
+  sourceWidth: 2868,
+  sourceHeight: 1320,
+  track: trackData.keyframes,
 };
 
 export const RemotionRoot: React.FC = () => {
