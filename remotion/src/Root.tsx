@@ -10,7 +10,7 @@ import segmentsData from './segments.json';
 const FPS = 30;
 
 const defaultProps: HighlightReelProps = {
-  videoSrc: 'source_placeholder.mp4',
+  videoSrc: 'gaetjens_source.mp4',
   segments: segmentsData.segments,
   fps: FPS,
 };
