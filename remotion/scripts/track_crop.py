@@ -63,8 +63,11 @@ def load_person_detector(model_path):
 
 def detect_person_boxes(net, frame):
     """Returns list of (cx, cy, w, h, conf) in 0..1 fractions of the frame."""
+    # This model expects raw 0-255 pixel values, not 0-1 normalized input
+    # (verified against the model zoo's reference test tensors -- scalefactor
+    # 1/255 silently produces near-zero objectness everywhere).
     blob = cv2.dnn.blobFromImage(
-        frame, scalefactor=1 / 255.0, size=(416, 416), swapRB=True, crop=False
+        frame, scalefactor=1.0, size=(416, 416), swapRB=True, crop=False
     )
     net.setInput(blob)
     out = net.forward()[0].reshape(5, 25, 13, 13)

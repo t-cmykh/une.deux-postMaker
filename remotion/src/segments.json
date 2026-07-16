@@ -1,20 +1,15 @@
 {
   "segments": [
     {
-      "start": 5.0,
-      "end": 11.0,
-      "score": 0.7158
+      "start": 9.0,
+      "end": 14.0,
+      "score": 0.7996
     },
     {
-      "start": 14.0,
-      "end": 17.0,
-      "score": 0.8768
-    },
-    {
-      "start": 22.0,
-      "end": 29.0,
-      "score": 0.8577
+      "start": 17.0,
+      "end": 21.0,
+      "score": 0.7043
     }
   ],
-  "totalDuration": 16.0
+  "totalDuration": 9.0
 }
