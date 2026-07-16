@@ -2,3 +2,4 @@ node_modules
 out
 public/*.mp4
 models/*.onnx
+scripts/__pycache__
