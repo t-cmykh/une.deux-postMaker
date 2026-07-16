@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>une·deux — Montage auto</title>
+<style>
+  :root{ --newsprint:#F1ECE1; --encre:#2C2823; --vert:#27543C; --ocre:#C2A04E; --rouge:#9C4A3C; }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--encre);color:var(--newsprint);}
+  header{padding:16px 18px 10px;border-bottom:1px solid rgba(241,236,225,.12);}
+  header h1{margin:0;font-size:16px;letter-spacing:.02em;}
+  header p{margin:6px 0 0;font-size:12px;opacity:.7;}
+  main{max-width:520px;margin:0 auto;padding:16px 16px 60px;}
+  .panel{background:rgba(241,236,225,.04);border:1px solid rgba(241,236,225,.1);border-radius:14px;padding:14px;margin-bottom:16px;}
+  .panel h2{margin:0 0 10px;font-size:12px;text-transform:uppercase;letter-spacing:.08em;opacity:.75;}
+  .drop{border:1.5px dashed rgba(241,236,225,.3);border-radius:12px;padding:22px 12px;text-align:center;font-size:13px;opacity:.85;cursor:pointer;}
+  .drop.hover{border-color:var(--ocre);color:var(--ocre);}
+  input[type=file]{display:none;}
+  .video-wrap{position:relative;margin-top:12px;border-radius:10px;overflow:hidden;background:#000;display:none;}
+  .video-wrap.show{display:block;}
+  .video-wrap video{display:block;width:100%;height:auto;}
+  .crop-ov{position:absolute;border:3px solid var(--ocre);box-shadow:0 0 0 3000px rgba(0,0,0,.45);pointer-events:none;transition:left .08s linear, top .08s linear, width .08s linear, height .08s linear;}
+  .tap-ov{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;}
+  .tap-ov.active{pointer-events:auto;cursor:crosshair;background:rgba(194,160,78,.06);outline:2px dashed rgba(194,160,78,.6);outline-offset:-2px;}
+  .tap-mark{position:absolute;width:22px;height:22px;margin:-11px 0 0 -11px;border:2px solid var(--ocre);border-radius:50%;pointer-events:none;animation:tapfade .7s ease-out forwards;}
+  @keyframes tapfade{ from{transform:scale(1.6);opacity:1;} to{transform:scale(1);opacity:0;} }
+  .corr-row{display:flex;gap:8px;margin-top:10px;}
+  .corr-row .btn{margin-top:0;flex:1;padding:11px;font-size:12px;}
+  .corr-row .btn.clear{flex:0 0 auto;padding:11px 14px;background:rgba(241,236,225,.1);color:var(--newsprint);}
+  .btn.active{background:var(--ocre);color:var(--encre);}
+  .cfg-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+  .cfg-row.three{grid-template-columns:1fr 1fr 1fr;}
+  label.field{font-size:11px;opacity:.75;display:block;margin-bottom:4px;}
+  select,input[type=number],input[type=range]{width:100%;background:rgba(241,236,225,.06);border:1px solid rgba(241,236,225,.18);border-radius:8px;color:var(--newsprint);padding:8px;font-size:13px;}
+  .modes{display:flex;gap:14px;font-size:12px;margin:6px 0 4px;flex-wrap:wrap;}
+  .modes label{display:flex;align-items:center;gap:6px;opacity:.9;}
+  .btn{display:block;width:100%;padding:13px;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;margin-top:6px;}
+  .btn.primary{background:var(--ocre);color:var(--encre);}
+  .btn.secondary{background:var(--vert);color:var(--newsprint);}
+  .btn:disabled{opacity:.4;cursor:not-allowed;}
+  .stats{font-size:12px;opacity:.75;margin-top:10px;min-height:16px;}
+  .progress{display:none;margin-top:12px;}
+  .progress.show{display:block;}
+  .pbar{height:8px;border-radius:6px;background:rgba(241,236,225,.12);overflow:hidden;}
+  .pbar i{display:block;height:100%;width:0;background:var(--ocre);transition:width .2s;}
+  .plog{font-size:11px;opacity:.7;margin-top:6px;}
+  .result{display:none;margin-top:14px;}
+  .result.show{display:block;}
+  .result video{width:100%;border-radius:10px;}
+  .dl{display:block;width:100%;text-align:center;margin-top:10px;padding:12px;border:none;border-radius:10px;background:var(--vert);color:var(--newsprint);text-decoration:none;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;}
+  .warn{font-size:11px;opacity:.65;margin-top:10px;line-height:1.4;}
+  .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:var(--newsprint);color:var(--encre);padding:9px 16px;border-radius:20px;font-size:12px;opacity:0;transition:all .25s;pointer-events:none;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .target-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+  .target-row input{width:90px;flex:0 0 auto;}
+  .target-row .tot{font-size:12px;opacity:.8;flex:1;text-align:right;}
+  .moments{max-height:340px;overflow-y:auto;margin-top:6px;}
+  .moment-row{display:flex;align-items:center;gap:10px;padding:9px 4px;border-bottom:1px solid rgba(241,236,225,.08);}
+  .moment-row:last-child{border-bottom:none;}
+  .moment-row input[type=checkbox]{width:19px;height:19px;flex:0 0 auto;accent-color:var(--ocre);}
+  .moment-row .info{flex:1;min-width:0;}
+  .moment-row .rng{font-size:13px;font-weight:600;}
+  .moment-row .dur{font-size:11px;opacity:.6;}
+  .moment-row .bar{height:4px;border-radius:3px;background:rgba(241,236,225,.12);margin-top:5px;overflow:hidden;}
+  .moment-row .bar i{display:block;height:100%;background:var(--ocre);}
+  .moment-row.off{opacity:.4;}
+  .moment-row .play{flex:0 0 auto;background:rgba(241,236,225,.1);border:none;color:var(--newsprint);border-radius:8px;padding:7px 10px;font-size:12px;cursor:pointer;}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>une·deux — Montage auto</h1>
+  <p>Repère les moments les plus intenses, raccourcit, recadre en 9:16 en suivant l'action — sans overlay pour l'instant.</p>
+</header>
+
+<main>
+  <div class="panel">
+    <h2>1 — Vidéo source</h2>
+    <div class="drop" id="drop">Dépose une vidéo ici ou clique pour choisir<br><span style="opacity:.6">MP4 / MOV</span></div>
+    <input type="file" id="fileInput" accept="video/*">
+    <div class="video-wrap" id="videoWrap">
+      <video id="preview" playsinline muted controls></video>
+      <div class="crop-ov" id="cropOv" style="display:none"></div>
+      <div class="tap-ov" id="tapOv"></div>
+    </div>
+    <div class="corr-row">
+      <button class="btn secondary" id="correctBtn" type="button">Corriger le suivi (tape sur le sujet)</button>
+      <button class="btn clear" id="clearAnchorsBtn" type="button">Effacer</button>
+    </div>
+    <div class="stats" id="anchorStats"></div>
+  </div>
+
+  <div class="panel">
+    <h2>2 — Durée cible &amp; moments</h2>
+    <div class="target-row">
+      <div>
+        <label class="field">Durée cible</label>
+        <input type="number" id="targetDuration" value="45" min="5" max="600" step="1"> s
+      </div>
+      <div class="tot" id="totDuration"></div>
+    </div>
+    <button class="btn primary" id="momentsBtn" disabled>Analyser les moments</button>
+    <div class="progress" id="momentsProgress">
+      <div class="pbar"><i id="momentsBarFill"></i></div>
+      <div class="plog" id="momentsLog">Initialisation…</div>
+    </div>
+    <div class="moments" id="momentsList"></div>
+    <div class="stats" id="momentsStats"></div>
+  </div>
+
+  <div class="panel">
+    <h2>3 — Réglages cadrage</h2>
+    <div class="cfg-row">
+      <div>
+        <label class="field">Format de sortie</label>
+        <select id="cfgRatio">
+          <option value="1080x1920" selected>9:16 (Reel/Story)</option>
+          <option value="1080x1350">4:5 (Post)</option>
+          <option value="1080x1080">1:1 (Carré)</option>
+        </select>
+      </div>
+      <div>
+        <label class="field">Pas d'analyse (images)</label>
+        <select id="cfgWin">
+          <option value="1">1 image sur 1 (précis, lent)</option>
+          <option value="5">1 image sur 5</option>
+          <option value="15" selected>1 image sur 15 (équilibré)</option>
+          <option value="30">1 image sur 30 (plus stable)</option>
+        </select>
+      </div>
+    </div>
+    <label class="field">Mode de détection</label>
+    <div class="modes">
+      <label><input type="radio" name="mode" value="auto" checked> Auto (IA + repli mouvement)</label>
+      <label><input type="radio" name="mode" value="ai"> IA seule (joueurs/ballon)</label>
+      <label><input type="radio" name="mode" value="motion"> Mouvement/détail seul</label>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>4 — Cadrage</h2>
+    <button class="btn primary" id="analyzeBtn" disabled>Analyser le cadrage</button>
+    <div class="progress" id="progress">
+      <div class="pbar"><i id="pbarFill"></i></div>
+      <div class="plog" id="plog">Initialisation…</div>
+    </div>
+    <div class="stats" id="stats"></div>
+  </div>
+
+  <div class="panel">
+    <h2>5 — Export</h2>
+    <button class="btn secondary" id="exportBtn" disabled>Exporter le montage</button>
+    <div class="progress" id="exportProgress">
+      <div class="pbar"><i id="exportBarFill"></i></div>
+      <div class="plog" id="exportLog">Initialisation…</div>
+    </div>
+    <div class="result" id="result">
+      <video id="outVideo" controls playsinline></video>
+      <button class="dl" id="shareBtn" type="button" style="display:none">Partager / Enregistrer la vidéo</button>
+      <a class="dl" id="dlLink" download="montage_auto.mp4">Télécharger le fichier</a>
+      <div class="warn">Sur iPhone, si rien ne se passe au clic : appuie longuement sur la vidéo ci-dessus puis « Enregistrer la vidéo ».</div>
+    </div>
+    <div class="warn">Tout se passe dans le navigateur (rien n'est envoyé sur un serveur). Modèle de détection + moteur vidéo se téléchargent au premier lancement — garde l'onglet ouvert pendant l'export.</div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.20.0/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.3/dist/coco-ssd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
+function toast(m){ const t=$('toast'); t.textContent=m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'), 2200); }
+function plog(m){ $('plog').textContent=m; }
+function setBar(p){ $('pbarFill').style.width = Math.round(clamp(p,0,1)*100)+'%'; }
+function momentsLog(m){ $('momentsLog').textContent=m; }
+function setMomentsBar(p){ $('momentsBarFill').style.width = Math.round(clamp(p,0,1)*100)+'%'; }
+function exportLog(m){ $('exportLog').textContent=m; }
+function setExportBar(p){ $('exportBarFill').style.width = Math.round(clamp(p,0,1)*100)+'%'; }
+
+/* ---------- état ---------- */
+const preview = $('preview');
+let srcFile=null, srcW=0, srcH=0, hasAudio=null, duration=0;
+let W=1080, H=1920, fps=30, winLen=1;
+let candidateSegments=[];   // [{start,end,score,keep}] — moments retenus (temps ORIGINAUX, secondes)
+let sampleTimes=[];         // temps d'echantillon (t reel dans la video source), parallele a xs[]
+let xs=[];                  // position x du crop, un par sampleTimes[i]
+let shots=[];               // plans {startIdx,endIdx,t0,t1} — coupure forcee a chaque debut de moment retenu
+let analyzedCrop=false;
+let manualAnchors=[];       // reperes manuels {t, normX}
+let correctionMode=false;
+let ffmpeg=null, ffLoaded=false;
+
+/* ---------- 1) chargement du fichier ---------- */
+const drop=$('drop');
+drop.addEventListener('click', ()=>$('fileInput').click());
+['dragover','dragenter'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault(); drop.classList.add('hover');}));
+['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault(); drop.classList.remove('hover');}));
+drop.addEventListener('drop', e=>{ if(e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]); });
+$('fileInput').addEventListener('change', e=>{ if(e.target.files[0]) loadFile(e.target.files[0]); e.target.value=''; });
+
+function resetPipelineState(){
+  candidateSegments=[]; sampleTimes=[]; xs=[]; shots=[]; analyzedCrop=false;
+  manualAnchors=[]; setCorrectionMode(false); updateAnchorStats();
+  $('momentsBtn').disabled=true; $('analyzeBtn').disabled=true; $('exportBtn').disabled=true;
+  $('momentsList').innerHTML=''; $('momentsStats').textContent=''; $('totDuration').textContent='';
+  $('stats').textContent=''; $('result').classList.remove('show');
+  $('cropOv').style.display='none';
+}
+
+function loadFile(file){
+  if(!file.type.startsWith('video/')){ toast('Choisis un fichier vidéo'); return; }
+  srcFile=file; hasAudio=null;
+  resetPipelineState();
+  preview.src = URL.createObjectURL(file);
+  preview.load();
+  $('videoWrap').classList.add('show');
+  probeAudio(file);
+}
+preview.addEventListener('loadedmetadata', ()=>{
+  srcW=preview.videoWidth; srcH=preview.videoHeight;
+  duration=preview.duration;
+  if(srcW && srcH){ $('momentsBtn').disabled=false; }
+  else toast('Impossible de lire les dimensions de la vidéo');
+});
+preview.addEventListener('error', ()=> toast('Vidéo illisible par le navigateur'));
+
+function probeAudio(file){
+  const url=URL.createObjectURL(file);
+  const v=document.createElement('video');
+  v.preload='metadata'; v.muted=true;
+  const done=()=>{ try{URL.revokeObjectURL(url);}catch(e){} };
+  v.addEventListener('loadeddata', ()=>{
+    let has=null;
+    if(typeof v.mozHasAudio==='boolean') has=v.mozHasAudio;
+    else if(typeof v.webkitAudioDecodedByteCount==='number') has=v.webkitAudioDecodedByteCount>0;
+    else if(v.audioTracks && typeof v.audioTracks.length==='number') has=v.audioTracks.length>0;
+    hasAudio=has; done();
+  }, {once:true});
+  v.addEventListener('error', done, {once:true});
+  v.addEventListener('loadedmetadata', ()=>{ v.currentTime=Math.min(0.1,(v.duration||1)/2); }, {once:true});
+  v.src=url;
+}
+
+/* ---------- repères manuels : "regarde ici" quand le suivi est perdu ---------- */
+function currentScaledW(){ return Math.round(srcW*Math.max(W/srcW, H/srcH)); }
+function toPixelX(normX){ const sw=currentScaledW(); return clamp(Math.round(normX*sw - W/2), 0, sw-W); }
+function idxForTime(t){
+  if(!sampleTimes.length) return 0;
+  if(t<=sampleTimes[0]) return 0;
+  if(t>=sampleTimes[sampleTimes.length-1]) return sampleTimes.length-1;
+  for(let i=1;i<sampleTimes.length;i++){ if(sampleTimes[i]>t) return i-1; }
+  return sampleTimes.length-1;
+}
+function shotForTime(t){
+  if(!shots.length) return null;
+  const found=shots.find(s=> t>=s.t0 && t<s.t1);
+  return found || shots[shots.length-1];
+}
+function anchorsForShot(shot){
+  return manualAnchors.filter(a=>a.t>=shot.t0 && a.t<shot.t1).sort((a,b)=>a.t-b.t);
+}
+function updateAnchorStats(){
+  $('anchorStats').textContent = manualAnchors.length
+    ? `${manualAnchors.length} repère(s) manuel(s) posé(s).`
+    : '';
+}
+function setCorrectionMode(on){
+  correctionMode=on;
+  $('tapOv').classList.toggle('active', on);
+  $('correctBtn').classList.toggle('active', on);
+  $('correctBtn').textContent = on ? 'Corriger le suivi (tape sur le sujet) — actif' : 'Corriger le suivi (tape sur le sujet)';
+}
+$('correctBtn').addEventListener('click', ()=>{
+  if(!srcW){ toast('Choisis une vidéo'); return; }
+  setCorrectionMode(!correctionMode);
+  if(correctionMode) toast('Mets en pause au bon moment puis tape sur le sujet');
+});
+$('clearAnchorsBtn').addEventListener('click', ()=>{
+  manualAnchors=[]; updateAnchorStats(); toast('Repères manuels effacés');
+});
+$('tapOv').addEventListener('click', e=>{
+  if(!correctionMode || !srcW) return;
+  const rect=$('tapOv').getBoundingClientRect();
+  const normX=clamp((e.clientX-rect.left)/rect.width, 0, 1);
+  preview.pause();
+  manualAnchors.push({t:preview.currentTime, normX});
+  updateAnchorStats();
+  const dot=document.createElement('div');
+  dot.className='tap-mark';
+  dot.style.left=(e.clientX-rect.left)+'px';
+  dot.style.top=(e.clientY-rect.top)+'px';
+  $('videoWrap').appendChild(dot);
+  setTimeout(()=>dot.remove(), 700);
+  toast(`Repère ajouté à ${preview.currentTime.toFixed(1)}s`);
+});
+
+/* ---------- overlay de prévisualisation du crop ---------- */
+function xAtTime(t){
+  if(!xs.length) return 0;
+  const shot=shotForTime(t);
+  if(shot){
+    const anchors=anchorsForShot(shot);
+    if(anchors.length){
+      if(t<=anchors[0].t) return toPixelX(anchors[0].normX);
+      if(t>=anchors[anchors.length-1].t) return toPixelX(anchors[anchors.length-1].normX);
+      for(let i=0;i<anchors.length-1;i++){
+        const a=anchors[i], b=anchors[i+1];
+        if(t>=a.t && t<=b.t){
+          const f=(t-a.t)/((b.t-a.t)||1e-6);
+          return toPixelX(a.normX+(b.normX-a.normX)*f);
+        }
+      }
+    }
+  }
+  const i=idxForTime(t);
+  return xs[i];
+}
+function inKeptMoment(t){
+  return candidateSegments.some(s=>s.keep && t>=s.start && t<s.end);
+}
+function overlayLoop(){
+  requestAnimationFrame(overlayLoop);
+  if(!xs.length || !srcW){ $('cropOv').style.display='none'; return; }
+  const t=preview.currentTime||0;
+  if(!inKeptMoment(t)){ $('cropOv').style.display='none'; return; }
+  const ov=$('cropOv');
+  ov.style.display='block';
+  const x=xAtTime(t);
+  const scale=Math.max(W/srcW, H/srcH);
+  const srcCropX=x/scale, srcCropW=W/scale, srcCropY=0/scale, srcCropH=H/scale;
+  const dispW=preview.clientWidth, dispH=preview.clientHeight;
+  if(!dispW || !dispH) return;
+  const kx=dispW/srcW, ky=dispH/srcH;
+  ov.style.left=(srcCropX*kx)+'px';
+  ov.style.top=(srcCropY*ky)+'px';
+  ov.style.width=Math.min(srcCropW*kx, dispW)+'px';
+  ov.style.height=Math.min(srcCropH*ky, dispH)+'px';
+}
+requestAnimationFrame(overlayLoop);
+
+function seekPreview(t){
+  return new Promise(res=>{
+    let done=false;
+    const onSeeked=()=>{ if(done)return; done=true; preview.removeEventListener('seeked',onSeeked); res(); };
+    preview.addEventListener('seeked', onSeeked, {once:true});
+    setTimeout(()=>{ if(!done){done=true; preview.removeEventListener('seeked',onSeeked); res();} }, 1500);
+    preview.currentTime=clamp(t, 0, Math.max(0, (preview.duration||t)-0.02));
+  });
+}
+
+/* ================================================================
+   2 — SELECTION DES MOMENTS
+   Fusion d'un score visuel (diff de gris, echantillonne a 1 image/s,
+   moins cher qu'une pleine detection IA) et d'un score audio (RMS,
+   decode via Web Audio API) : sur du contenu reel, le son (foule,
+   sifflet) est souvent le signal le plus fiable, le visuel seul
+   suffit rarement (cf. tests sur archive : score visuel quasi plat
+   sur du grain de pellicule). Segments candidats affiches avec case
+   a cocher — coche automatiquement les mieux notes jusqu'a la duree
+   cible, mais tout reste modifiable a la main.
+   ================================================================ */
+function computeAudioRms(audioBuffer, nSec){
+  const sr=audioBuffer.sampleRate;
+  const ch0=audioBuffer.getChannelData(0);
+  const rms=new Array(nSec).fill(0);
+  for(let s=0;s<nSec;s++){
+    const start=Math.floor(s*sr), end=Math.min(ch0.length, Math.floor((s+1)*sr));
+    let sumSq=0, n=0;
+    for(let i=start;i<end;i++){ sumSq+=ch0[i]*ch0[i]; n++; }
+    rms[s]= n>0 ? Math.sqrt(sumSq/n) : 0;
+  }
+  return rms;
+}
+function normalizeArr(arr){
+  const lo=Math.min(...arr), hi=Math.max(...arr);
+  if(hi-lo<1e-9) return arr.map(()=>0.5);
+  return arr.map(v=>(v-lo)/(hi-lo));
+}
+function buildCandidateSegments(visualScore, audioRms, nSec, targetS){
+  const visN=normalizeArr(visualScore);
+  const combined = audioRms
+    ? (()=>{ const audN=normalizeArr(audioRms); return visN.map((v,i)=> 0.35*v + 0.65*audN[i]); })()
+    : visN;
+  const TOP_FRACTION=0.35, MIN_LEN=2, PAD=0.5;
+  const rankedIdx=[...Array(nSec).keys()].sort((a,b)=>combined[b]-combined[a]);
+  const keepCount=Math.max(1, Math.round(nSec*TOP_FRACTION));
+  const keptSet=new Set(rankedIdx.slice(0,keepCount));
+  const sortedIdx=[...keptSet].sort((a,b)=>a-b);
+  const runs=[]; let start=sortedIdx[0], prev=sortedIdx[0];
+  for(let k=1;k<sortedIdx.length;k++){
+    const i=sortedIdx[k];
+    if(i-prev<=1){ prev=i; continue; }
+    runs.push([start,prev+1]); start=i; prev=i;
+  }
+  runs.push([start,prev+1]);
+
+  let scored=runs.map(([s,e])=>{
+    let sum=0; for(let i=s;i<e;i++) sum+=combined[i];
+    const avg=sum/(e-s);
+    let ss=s, ee=e;
+    if((ee-ss)<MIN_LEN){ const extra=(MIN_LEN-(ee-ss))/2; ss=Math.max(0,ss-extra); ee=ee+extra; }
+    return {start:Math.max(0,ss-PAD), end:Math.min(nSec,ee+PAD), score:avg};
+  });
+  scored.sort((a,b)=>a.start-b.start);
+  const merged=[];
+  scored.forEach(seg=>{
+    if(merged.length && seg.start<=merged[merged.length-1].end){
+      merged[merged.length-1].end=Math.max(merged[merged.length-1].end, seg.end);
+      merged[merged.length-1].score=Math.max(merged[merged.length-1].score, seg.score);
+    } else merged.push({...seg});
+  });
+
+  const byScore=[...merged].sort((a,b)=>b.score-a.score);
+  let total=0;
+  byScore.forEach(seg=>{
+    const dur=seg.end-seg.start;
+    seg.keep = total<targetS;
+    if(seg.keep) total+=dur;
+  });
+  merged.sort((a,b)=>a.start-b.start);
+  return merged;
+}
+
+function fmtT(s){ const m=Math.floor(s/60), sec=Math.round(s%60); return `${m}:${String(sec).padStart(2,'0')}`; }
+
+function renderMomentsList(){
+  const list=$('momentsList');
+  list.innerHTML='';
+  const maxScore=Math.max(...candidateSegments.map(s=>s.score), 1e-6);
+  candidateSegments.forEach((seg, i)=>{
+    const row=document.createElement('div');
+    row.className='moment-row'+(seg.keep?'':' off');
+    row.innerHTML=`
+      <input type="checkbox" ${seg.keep?'checked':''}>
+      <div class="info">
+        <div class="rng">${fmtT(seg.start)} → ${fmtT(seg.end)}</div>
+        <div class="dur">${(seg.end-seg.start).toFixed(1)}s</div>
+        <div class="bar"><i style="width:${Math.round(seg.score/maxScore*100)}%"></i></div>
+      </div>
+      <button class="play" type="button">▶</button>
+    `;
+    const cb=row.querySelector('input');
+    cb.addEventListener('change', ()=>{
+      seg.keep=cb.checked;
+      row.classList.toggle('off', !seg.keep);
+      updateTotDuration();
+      analyzedCrop=false; $('analyzeBtn').disabled=candidateSegments.every(s=>!s.keep);
+    });
+    row.querySelector('.play').addEventListener('click', ()=>{
+      preview.currentTime=seg.start;
+      preview.play();
+    });
+    list.appendChild(row);
+  });
+  updateTotDuration();
+}
+function updateTotDuration(){
+  const total=candidateSegments.filter(s=>s.keep).reduce((a,s)=>a+(s.end-s.start),0);
+  $('totDuration').textContent = `${candidateSegments.filter(s=>s.keep).length} moment(s) · ${total.toFixed(1)}s retenues`;
+  $('analyzeBtn').disabled = total<=0;
+}
+
+$('momentsBtn').addEventListener('click', runMomentsAnalysis);
+
+async function runMomentsAnalysis(){
+  if(!srcFile){ toast('Choisis une vidéo'); return; }
+  duration=preview.duration;
+  if(!duration || !isFinite(duration)){ toast('Durée introuvable'); return; }
+  const target=parseFloat($('targetDuration').value)||45;
+
+  $('momentsBtn').disabled=true; $('analyzeBtn').disabled=true; $('exportBtn').disabled=true;
+  $('momentsProgress').classList.add('show'); momentsLog('Préparation…'); setMomentsBar(0);
+
+  try{
+    let audioRms=null;
+    const nSec=Math.max(1, Math.ceil(duration));
+    if(hasAudio!==false){
+      try{
+        momentsLog('Analyse du son…');
+        const buf=await srcFile.arrayBuffer();
+        const Ctx=window.AudioContext||window.webkitAudioContext;
+        const actx=new Ctx();
+        const audioBuffer=await actx.decodeAudioData(buf.slice(0));
+        audioRms=computeAudioRms(audioBuffer, nSec);
+        actx.close();
+      }catch(e){ console.warn('audio decode failed', e); audioRms=null; }
+    }
+    setMomentsBar(0.15);
+
+    const AW=160, AH=Math.max(1, Math.round(AW*srcH/srcW));
+    const acv=document.createElement('canvas'); acv.width=AW; acv.height=AH;
+    const actx2=acv.getContext('2d', {willReadFrequently:true});
+    const visualScore=new Array(nSec).fill(0);
+    let prevGray=null;
+    for(let s=0;s<nSec;s++){
+      const t=Math.min(duration-0.02, s);
+      await seekPreview(t);
+      actx2.drawImage(preview, 0, 0, AW, AH);
+      const {data}=actx2.getImageData(0,0,AW,AH);
+      const gray=new Float64Array(AW*AH);
+      for(let p=0;p<AW*AH;p++) gray[p]=0.299*data[p*4]+0.587*data[p*4+1]+0.114*data[p*4+2];
+      if(prevGray){
+        let diff=0; for(let p=0;p<AW*AH;p++) diff+=Math.abs(gray[p]-prevGray[p]);
+        visualScore[s]=diff/(AW*AH);
+      }
+      prevGray=gray;
+      setMomentsBar(0.15+0.8*((s+1)/nSec));
+      momentsLog(`Analyse des moments — ${s+1}/${nSec}s…`);
+    }
+
+    candidateSegments=buildCandidateSegments(visualScore, audioRms, nSec, target);
+    renderMomentsList();
+    $('momentsStats').textContent = audioRms
+      ? `Fusion son + image sur ${nSec}s de vidéo.`
+      : `Analyse image seule (pas de son détecté) sur ${nSec}s de vidéo.`;
+    setMomentsBar(1); momentsLog('Analyse terminée.');
+    toast('Moments repérés — ajuste les cases si besoin');
+  }catch(e){
+    console.error(e); toast('Erreur d’analyse des moments : '+(e.message||e));
+  }finally{
+    $('momentsBtn').disabled=false;
+  }
+}
+
+/* ================================================================
+   3/4 — DETECTION IA (joueurs / ballon) + ANALYSE DU CADRAGE
+   Identique dans l'esprit a crop-focus.html (fusion ballon > joueurs
+   > mouvement, inspiree d'AutoFlip), mais restreinte aux moments
+   retenus : chaque moment retenu force une coupure de plan (le
+   suivi ne "glisse" jamais d'un moment garde a l'autre).
+   ================================================================ */
+let detectorPromise=null;
+function loadDetector(){
+  if(detectorPromise) return detectorPromise;
+  detectorPromise=(async()=>{
+    try{
+      const vision=await import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.17/vision_bundle.mjs');
+      const {ObjectDetector, FilesetResolver}=vision;
+      const fileset=await FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.17/wasm');
+      const det=await ObjectDetector.createFromOptions(fileset, {
+        baseOptions:{modelAssetPath:'https://storage.googleapis.com/mediapipe-models/object_detector/efficientdet_lite2/int8/latest/efficientdet_lite2.tflite'},
+        scoreThreshold:0.1, maxResults:20, runningMode:'IMAGE',
+      });
+      return {
+        kind:'mediapipe',
+        detect:(cv)=>{
+          const res=det.detect(cv);
+          return res.detections.map(d=>({
+            className:(d.categories[0]||{}).categoryName||'',
+            score:(d.categories[0]||{}).score||0,
+            bbox:[d.boundingBox.originX, d.boundingBox.originY, d.boundingBox.width, d.boundingBox.height],
+          }));
+        },
+      };
+    }catch(e){
+      console.warn('MediaPipe indisponible, repli sur coco-ssd.', e);
+    }
+    try{
+      if(typeof cocoSsd==='undefined' || typeof tf==='undefined') throw new Error('tfjs indisponible');
+      const model=await cocoSsd.load({base:'lite_mobilenet_v2'});
+      return {
+        kind:'coco-ssd',
+        detect:async(cv)=>{
+          const preds=await model.detect(cv, 20, 0.15);
+          return preds.map(p=>({className:p.class, score:p.score, bbox:p.bbox}));
+        },
+      };
+    }catch(e){
+      console.warn('Détection IA indisponible, repli sur heuristique mouvement/détail.', e);
+      return null;
+    }
+  })();
+  return detectorPromise;
+}
+async function detectFrame(detector, cv){ return await detector.detect(cv); }
+
+function smoothSeries(raw, maxStep, alpha, resetIndices){
+  const resets=new Set(resetIndices||[]);
+  const out=new Array(raw.length); let prev=raw[0]; out[0]=prev;
+  for(let i=1;i<raw.length;i++){
+    if(resets.has(i)){ prev=raw[i]; out[i]=prev; continue; }
+    const target=alpha*raw[i] + (1-alpha)*prev;
+    const delta=clamp(target-prev, -maxStep, maxStep);
+    prev=clamp(prev+delta, 0, 1);
+    out[i]=prev;
+  }
+  return out;
+}
+
+$('analyzeBtn').addEventListener('click', runCropAnalysis);
+
+async function runCropAnalysis(){
+  const kept=candidateSegments.filter(s=>s.keep).sort((a,b)=>a.start-b.start);
+  if(!kept.length){ toast('Coche au moins un moment (étape 2)'); return; }
+  const [w,h]=$('cfgRatio').value.split('x').map(Number);
+  W=w; H=h;
+  const frameStep=parseInt($('cfgWin').value)||15;
+  winLen=frameStep/fps;
+  const mode=document.querySelector('input[name=mode]:checked').value;
+
+  $('analyzeBtn').disabled=true; $('momentsBtn').disabled=true; $('exportBtn').disabled=true;
+  $('progress').classList.add('show'); plog('Préparation de l’analyse…'); setBar(0);
+
+  try{
+    let model=null;
+    if(mode!=='motion'){
+      plog('Chargement du modèle de détection (joueurs / ballon)…');
+      model=await loadDetector();
+      if(!model && mode==='ai') toast('IA indisponible, repli sur mouvement/détail');
+    }
+
+    const scale=Math.max(W/srcW, H/srcH);
+    const scaledW=Math.round(srcW*scale), scaledH=Math.round(srcH*scale);
+    const needX=scaledW-W;
+
+    const AW=160, AH=Math.max(1, Math.round(AW*srcH/srcW));
+    const acv=document.createElement('canvas'); acv.width=AW; acv.height=AH;
+    const actx=acv.getContext('2d', {willReadFrequently:true});
+
+    const aiW=640, aiH=Math.max(1, Math.round(aiW*srcH/srcW));
+    const aicv=document.createElement('canvas'); aicv.width=aiW; aicv.height=aiH;
+    const aictx=aicv.getContext('2d');
+
+    const totalSamples = kept.reduce((a,seg)=>a+Math.max(1, Math.ceil((seg.end-seg.start)/winLen)), 0);
+    const raw=[]; sampleTimes=[]; shots=[];
+    let prevGray=null, prevCutGray=null, aiHits=0, ballHits=0;
+    let lastBallNormX=null, missStreak=0;
+    const BALL_HOLD=6;
+    const BALL_W=100, PERSON_W=15, MOTION_W=4;
+    const CUT_THRESHOLD=55;
+    let doneSamples=0;
+
+    function openShot(t0){ shots.push({startIdx:sampleTimes.length, endIdx:null, t0, t1:null}); }
+    function closeShot(t1){ if(shots.length){ const s=shots[shots.length-1]; s.endIdx=sampleTimes.length; s.t1=t1; } }
+
+    let prevSegEnd=null;
+    for(const seg of kept){
+      if(prevSegEnd!==null) closeShot(prevSegEnd);
+      openShot(seg.start);
+      prevSegEnd=seg.end;
+      prevGray=null; prevCutGray=null; lastBallNormX=null; missStreak=0;
+
+      const segDur=seg.end-seg.start;
+      const nWinSeg=Math.max(1, Math.ceil(segDur/winLen));
+      for(let i=0;i<nWinSeg;i++){
+        const t=Math.min(seg.end-0.02, seg.start+i*winLen);
+        await seekPreview(t);
+
+        actx.drawImage(preview, 0, 0, AW, AH);
+        const {data}=actx.getImageData(0,0,AW,AH);
+        const gray=new Float64Array(AW*AH);
+        for(let p=0;p<AW*AH;p++) gray[p]=0.299*data[p*4]+0.587*data[p*4+1]+0.114*data[p*4+2];
+
+        if(prevCutGray){
+          let diffSum=0; for(let p=0;p<AW*AH;p++) diffSum+=Math.abs(gray[p]-prevCutGray[p]);
+          if(diffSum/(AW*AH)>CUT_THRESHOLD){
+            closeShot(t); openShot(t);
+            lastBallNormX=null; missStreak=0; prevGray=null;
+          }
+        }
+        prevCutGray=gray;
+
+        const colE=new Float64Array(AW);
+        for(let y=0;y<AH;y++){
+          for(let x=0;x<AW;x++){
+            const idx=y*AW+x;
+            const gxN=x<AW-1?gray[idx+1]:gray[idx];
+            const gyN=y<AH-1?gray[idx+AW]:gray[idx];
+            const edge=Math.abs(gray[idx]-gxN)+Math.abs(gray[idx]-gyN);
+            const motion=prevGray?Math.abs(gray[idx]-prevGray[idx]):0;
+            colE[x]+=edge+motion*3;
+          }
+        }
+        let colTotal=0, colWeighted=0;
+        for(let x=0;x<AW;x++){ colTotal+=colE[x]; colWeighted+=colE[x]*(x+0.5); }
+        const motionNormX = colTotal>0 ? colWeighted/colTotal/AW : null;
+        const motionWeight = motionNormX!=null ? Math.min(1, (colTotal/(AW*AH))/30)*MOTION_W : 0;
+        prevGray=gray;
+
+        let ballNormX=null, ballWeight=0, personNormX=null, personWeight=0;
+        if(model){
+          aictx.drawImage(preview, 0, 0, aiW, aiH);
+          try{
+            const preds=await detectFrame(model, aicv);
+            const balls=preds.filter(p=>p.className==='sports ball' && p.score>=0.15);
+            const persons=preds.filter(p=>p.className==='person' && p.score>=0.45);
+
+            if(balls.length){
+              const best=balls.reduce((a,b)=> b.score>a.score ? b : a);
+              const [bx,,bw]=best.bbox;
+              ballNormX=(bx+bw/2)/aiW;
+              lastBallNormX=ballNormX; missStreak=0;
+              ballWeight=BALL_W*Math.max(0.3,best.score);
+              ballHits++;
+            } else if(lastBallNormX!=null && missStreak<BALL_HOLD){
+              ballNormX=lastBallNormX; missStreak++;
+              ballWeight=BALL_W*(1-missStreak/BALL_HOLD)*0.6;
+              ballHits++;
+            }
+            if(ballNormX!=null) aiHits++;
+
+            if(persons.length){
+              let xsum=0, wsum=0;
+              persons.forEach(p=>{
+                const [x,,pw,ph]=p.bbox;
+                const w=p.score*Math.sqrt(pw*ph);
+                xsum+=(x+pw/2)*w; wsum+=w;
+              });
+              if(wsum>0){
+                personNormX=xsum/wsum/aiW;
+                personWeight=PERSON_W*Math.min(1, wsum/400);
+                if(ballNormX==null) aiHits++;
+              }
+            }
+          }catch(e){ /* une frame ratee ne doit pas arreter l'analyse */ }
+        }
+
+        const wsum=ballWeight+personWeight+motionWeight;
+        const normX = wsum>0
+          ? ((ballNormX||0)*ballWeight + (personNormX||0)*personWeight + (motionNormX!=null?motionNormX:0.5)*motionWeight) / wsum
+          : 0.5;
+
+        raw.push(normX);
+        sampleTimes.push(t);
+        doneSamples++;
+        setBar(0.65*(doneSamples/totalSamples));
+        plog(`Analyse du cadrage — ${doneSamples}/${totalSamples}…`);
+      }
+    }
+    closeShot(kept[kept.length-1].end);
+
+    const smoothed = smoothSeries(raw, 0.14, 0.4, shots.map(s=>s.startIdx).filter(idx=>idx>0));
+    xs = smoothed.map(nx=>{
+      if(needX<=1) return 0;
+      const centerScaled = nx*scaledW;
+      return clamp(Math.round(centerScaled - W/2), 0, scaledW-W);
+    });
+
+    const shotInfo = shots.length>1 ? ` · ${shots.length} plans détectés` : '';
+    $('stats').textContent = model
+      ? `IA : ballon détecté/maintenu sur ${ballHits}/${sampleTimes.length} image(s), joueurs ou mouvement en repli sur le reste${shotInfo}.`
+      : `Mode mouvement/détail (pas de détection IA)${shotInfo}.`;
+
+    analyzedCrop=true;
+    $('exportBtn').disabled=false;
+    setBar(1); plog('Analyse terminée.');
+    toast('Cadrage analysé — regarde le cadre orange sur la vidéo');
+  }catch(e){
+    console.error(e); toast('Erreur d’analyse : '+(e.message||e));
+  }finally{
+    $('analyzeBtn').disabled=false; $('momentsBtn').disabled=false;
+  }
+}
+
+/* ---------- ffmpeg.wasm (mono-thread, stable iOS) ---------- */
+async function ensureFF(){
+  if(ffLoaded) return;
+  const { createFFmpeg } = FFmpeg;
+  ffmpeg=createFFmpeg({
+    log:false, mainName:'main',
+    corePath:'https://cdn.jsdelivr.net/npm/@ffmpeg/core-st@0.11.1/dist/ffmpeg-core.js',
+  });
+  ffmpeg.setProgress(({ratio})=>{ if(ratio>=0 && ratio<=1) setExportBar(curBase + ratio*curSpan); });
+  exportLog('Téléchargement du moteur vidéo (~25 Mo, 1ère fois)…');
+  await ffmpeg.load();
+  ffLoaded=true;
+}
+let curBase=0, curSpan=0;
+function phase(base, span, msg){ curBase=base; curSpan=span; if(msg) exportLog(msg); setExportBar(base); }
+async function resetFF(){ ffLoaded=false; ffmpeg=null; await ensureFF(); }
+
+async function runFFtoBytes(args, outName){
+  let quirk=false;
+  try{ await ffmpeg.run(...args); }
+  catch(err){
+    const m=(err && (err.message||String(err)))||'';
+    if(!/exit\(0\)/.test(m)) throw err;
+    quirk=true;
+  }
+  let ok=false;
+  try{ ok=ffmpeg.FS('readdir','/').includes(outName); }catch(e){ ok=false; }
+  if(!ok) throw new Error('Sortie non produite ('+outName+')');
+  const bytes=ffmpeg.FS('readFile', outName);
+  try{ ffmpeg.FS('unlink', outName); }catch(e){}
+  if(quirk) await resetFF();
+  return bytes;
+}
+async function readFileBytes(file){ return new Uint8Array(await file.arrayBuffer()); }
+
+/* Construit une expression ffmpeg (variable "t" = temps en secondes, sur la
+   timeline ORIGINALE de la source) qui interpole lineairement la position x
+   du crop entre points-cles, pour un panoramique fluide. */
+function buildCropXExpr(kf){
+  if(kf.length===1) return String(kf[0].x);
+  let expr=String(kf[kf.length-1].x);
+  for(let i=kf.length-2;i>=0;i--){
+    const a=kf[i], b=kf[i+1];
+    const dt=(b.t-a.t)||1e-6;
+    const lerp=`(${a.x}+(${b.x-a.x})*(t-${a.t.toFixed(3)})/${dt.toFixed(6)})`;
+    expr=`if(lt(t,${b.t.toFixed(3)}),${lerp},${expr})`;
+  }
+  return `if(lt(t,${kf[0].t.toFixed(3)}),${kf[0].x},${expr})`;
+}
+
+/* ---------- 5) export ---------- */
+$('exportBtn').addEventListener('click', runExport);
+
+async function runExport(){
+  if(!analyzedCrop){ toast('Lance d’abord l’analyse du cadrage (étape 4)'); return; }
+  const kept=candidateSegments.filter(s=>s.keep).sort((a,b)=>a.start-b.start);
+  if(!kept.length){ toast('Coche au moins un moment (étape 2)'); return; }
+
+  $('exportBtn').disabled=true; $('analyzeBtn').disabled=true; $('momentsBtn').disabled=true;
+  $('result').classList.remove('show');
+  $('exportProgress').classList.add('show');
+
+  try{
+    await resetFF();
+    phase(0.05, 0, 'Préparation…');
+
+    const inName='src_in.mp4';
+    const srcBytes=await readFileBytes(srcFile);
+    ffmpeg.FS('writeFile', inName, srcBytes);
+
+    // points-cles de cadrage, un plan a la fois (jamais interpoles a travers
+    // une coupure de plan ou une frontiere entre deux moments retenus)
+    let keyframes=[];
+    shots.forEach(shot=>{
+      const idxs=[]; for(let i=shot.startIdx;i<shot.endIdx;i++) idxs.push(i);
+      if(!idxs.length) return;
+      const anchors=anchorsForShot(shot);
+      if(anchors.length){
+        keyframes.push({t:shot.t0, x:toPixelX(anchors[0].normX)});
+        anchors.forEach(a=>keyframes.push({t:a.t, x:toPixelX(a.normX)}));
+        keyframes.push({t:shot.t1, x:toPixelX(anchors[anchors.length-1].normX)});
+        return;
+      }
+      keyframes.push({t:shot.t0, x:xs[shot.startIdx]});
+      idxs.forEach(i=> keyframes.push({t:sampleTimes[i], x:xs[i]}));
+      keyframes.push({t:shot.t1, x:xs[shot.endIdx-1]});
+    });
+    if(!keyframes.length) keyframes=[{t:0, x:xs[0]||0}];
+    const xExpr=buildCropXExpr(keyframes).replace(/:/g,'\\:').replace(/,/g,'\\,');
+
+    // ne garder que les moments retenus, dans l'ordre : select+setpts (methode
+    // ffmpeg standard pour concatener des plages de temps en un seul passage,
+    // sans demuxer/reencoder par segment).
+    const selectExpr=kept.map(s=>`between(t\\,${s.start.toFixed(3)}\\,${s.end.toFixed(3)})`).join('+');
+
+    phase(0.05, 0.85, 'Encodage…');
+
+    const vf=`select='${selectExpr}',scale=${W}:${H}:force_original_aspect_ratio=increase,crop=w=${W}:h=${H}:x=${xExpr}:y=0,setpts=N/(${fps}*TB),fps=${fps},format=yuv420p`;
+    const af=`aselect='${selectExpr}',asetpts=N/SR/TB`;
+    const common=['-i', inName, '-vf', vf, '-r', String(fps)];
+    const enc=['-c:v','libx264','-preset','ultrafast','-crf','20','-pix_fmt','yuv420p'];
+    const aenc=['-af', af, '-c:a','aac','-b:a','160k','-ar','48000','-ac','2'];
+
+    let finalBytes;
+    if(hasAudio===false){
+      finalBytes=await runFFtoBytes([...common, '-map','0:v', ...enc, 'out.mp4'], 'out.mp4');
+    } else if(hasAudio===true){
+      finalBytes=await runFFtoBytes([...common, '-map','0:v','-map','0:a', ...enc, ...aenc, 'out.mp4'], 'out.mp4');
+    } else {
+      try{
+        finalBytes=await runFFtoBytes([...common, '-map','0:v','-map','0:a', ...enc, ...aenc, 'out.mp4'], 'out.mp4');
+      }catch(e){
+        await resetFF();
+        ffmpeg.FS('writeFile', inName, srcBytes);
+        finalBytes=await runFFtoBytes([...common, '-map','0:v', ...enc, 'out.mp4'], 'out.mp4');
+      }
+    }
+
+    phase(0.95, 0.05, 'Finalisation…');
+    const blob=new Blob([finalBytes], {type:'video/mp4'});
+    const url=URL.createObjectURL(blob);
+    const file=new File([finalBytes], 'montage_auto.mp4', {type:'video/mp4'});
+    $('outVideo').src=url;
+    $('dlLink').href=url;
+
+    const shareBtn=$('shareBtn');
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      shareBtn.style.display='block';
+      shareBtn.onclick=async ()=>{
+        try{ await navigator.share({files:[file], title:'Montage auto'}); }
+        catch(e){ /* partage annule par l'utilisateur : rien a faire */ }
+      };
+    } else {
+      shareBtn.style.display='none';
+    }
+
+    $('result').classList.add('show');
+    $('result').scrollIntoView({behavior:'smooth', block:'start'});
+    setExportBar(1); exportLog('Terminé.');
+    toast('Export terminé');
+  }catch(e){
+    console.error(e); toast('Erreur d’export : '+(e.message||e));
+  }finally{
+    $('exportBtn').disabled=false; $('analyzeBtn').disabled=false; $('momentsBtn').disabled=false;
+  }
+}
+</script>
+</body>
+</html>
