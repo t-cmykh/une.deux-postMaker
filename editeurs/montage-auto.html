@@ -529,6 +529,27 @@ function buildCandidateSegments(visualScore, audioRms, nSec, targetS){
     } else merged.push({...seg});
   });
 
+  // plafond de duree par plan : un plan de plus de 4s a l'ecran donne
+  // l'impression que le montage "traine" — on retaille chaque segment trop
+  // long sur sa fenetre de 4s la mieux notee (recherche glissante sur le
+  // signal seconde par seconde deja calcule), plutot que de le couper au
+  // milieu sans tenir compte du contenu.
+  const MAX_LEN=4;
+  merged.forEach(seg=>{
+    const dur=seg.end-seg.start;
+    if(dur<=MAX_LEN) return;
+    const s0=Math.max(0, Math.floor(seg.start));
+    const e0=Math.min(nSec, Math.ceil(seg.end));
+    let bestScore=-Infinity, bestStart=seg.start;
+    for(let ws=s0; ws<=e0-MAX_LEN; ws++){
+      let sum=0;
+      for(let i=ws; i<ws+MAX_LEN; i++) sum+=combined[Math.min(nSec-1,Math.max(0,i))];
+      if(sum>bestScore){ bestScore=sum; bestStart=ws; }
+    }
+    seg.start=bestStart;
+    seg.end=Math.min(nSec, bestStart+MAX_LEN);
+  });
+
   const byScore=[...merged].sort((a,b)=>b.score-a.score);
   let total=0;
   byScore.forEach(seg=>{
@@ -967,9 +988,32 @@ function ovClampTitle(g,title,W,M,MR,minS,maxS){
   return Math.max(minS,Math.min(maxS,size));
 }
 
+function ovWrapTitleLines(g,title,tSize,avail){
+  g.font=tSize+"px 'Anton'";
+  const words=title.trim().split(/\s+/).filter(Boolean);
+  const lines=[]; let cur=[];
+  words.forEach(w=>{
+    const test=cur.concat([w]).join(' ').toUpperCase();
+    if(cur.length && g.measureText(test).width>avail){ lines.push(cur); cur=[w]; }
+    else if(!cur.length && g.measureText(w.toUpperCase()).width>avail){ lines.push([w]); cur=[]; }
+    else cur.push(w);
+  });
+  if(cur.length) lines.push(cur);
+  return lines;
+}
+// nombre de lignes du titre 'titre seul', pour le calcul de la duree de
+// reveal (1s/ligne) avant meme d'avoir rendu le PNG de l'overlay.
+function ovCountTitleLines(title, titleSize, W){
+  const cv=document.createElement('canvas'); cv.width=W; cv.height=10;
+  const g=cv.getContext('2d');
+  const M=96, MR=96;
+  return ovWrapTitleLines(g, title, titleSize||130, W-M-MR).length;
+}
+
 /* dessine le calque overlay (fond transparent, W x H) pour le template
-   'titre' (titre seul, taille reglable) ou 'cover' (titre auto + corps). */
-function renderCejourlaOverlay(template, W, H, {title, greenWord, body, titleSize}){
+   'titre' (titre seul, taille reglable, reveal ligne par ligne via
+   visibleLines) ou 'cover' (titre auto + corps). */
+function renderCejourlaOverlay(template, W, H, {title, greenWord, body, titleSize, visibleLines}){
   const cv=document.createElement('canvas'); cv.width=W; cv.height=H;
   const g=cv.getContext('2d');
   g.clearRect(0,0,W,H);
@@ -1015,15 +1059,7 @@ function renderCejourlaOverlay(template, W, H, {title, greenWord, body, titleSiz
     const tSize=titleSize||130;
     g.font=tSize+"px 'Anton'"; g.textAlign='left'; g.textBaseline='alphabetic';
     const avail=W-M-MR;
-    const words=title.trim().split(/\s+/).filter(Boolean);
-    const lines=[]; let cur=[];
-    words.forEach(w=>{
-      const test=cur.concat([w]).join(' ').toUpperCase();
-      if(cur.length && g.measureText(test).width>avail){ lines.push(cur); cur=[w]; }
-      else if(!cur.length && g.measureText(w.toUpperCase()).width>avail){ lines.push([w]); cur=[]; }
-      else cur.push(w);
-    });
-    if(cur.length) lines.push(cur);
+    const lines=ovWrapTitleLines(g, title, tSize, avail);
     const lineGap=tSize*0.92;
     const lastBaseline=(footY+18)-30;
     let baselines=lines.map((_,i)=> lastBaseline-(lines.length-1-i)*lineGap );
@@ -1035,7 +1071,8 @@ function renderCejourlaOverlay(template, W, H, {title, greenWord, body, titleSiz
     const bottomEdge=baselines[baselines.length-1]+descent+shift;
     if(bottomEdge>safeBottomBound) shift-=(bottomEdge-safeBottomBound);
     baselines=baselines.map(b=>b+shift);
-    lines.forEach((lw,i)=> ovDrawWordLine(g,lw,M,baselines[i],greenWord));
+    const nShow=(visibleLines==null)?lines.length:Math.max(0,Math.min(lines.length,visibleLines));
+    lines.forEach((lw,i)=>{ if(i<nShow) ovDrawWordLine(g,lw,M,baselines[i],greenWord); });
   } else {
     const bodyMaxW=W-M-MR, maxBodyLines=12;
     let bodyFont=40,bodyLineH=50;
@@ -1182,18 +1219,15 @@ async function runExport(){
     const aenc=['-af', af, '-c:a','aac','-b:a','160k','-ar','48000','-ac','2'];
 
     const overlayOn=$('ovEnable').checked;
-    let extraInputs=[], videoArgs, titreBytes=null, coverBytes=null;
+    let extraInputs=[], videoArgs, overlayStages=[];
 
     if(overlayOn){
       phase(0.05, 0.15, 'Préparation de l’overlay…');
       await ensureOverlayFonts();
 
-      // les moments retenus s'enchainent sans trou sur la NOUVELLE timeline
-      // (post select+setpts) : 1er moment -> overlay "titre", le reste (s'il
-      // y en a) -> overlay "cover", chacun sur une plage continue.
-      let cum=0;
-      const newSegs=kept.map(s=>{ const dur=s.end-s.start; const seg={start:cum,end:cum+dur}; cum+=dur; return seg; });
-      const totalDur=cum;
+      // duree totale sur la NOUVELLE timeline (post select+setpts, moments
+      // retenus enchaines sans trou).
+      const totalDur=kept.reduce((a,s)=>a+(s.end-s.start),0);
 
       const ovOpts={
         title: $('ovTitle').value||'',
@@ -1202,20 +1236,37 @@ async function runExport(){
         titleSize: parseInt($('ovTitleSize').value,10)||130,
       };
 
-      titreBytes=await canvasToPngBytes(renderCejourlaOverlay('titre', W, H, ovOpts));
-      ffmpeg.FS('writeFile', 'overlay_titre.png', titreBytes);
-      extraInputs.push('-i','overlay_titre.png');
+      // le titre seul se revele ligne par ligne (1s/ligne) puis reste
+      // affiche 1s de plus une fois complet — sa duree depend donc du
+      // nombre de lignes, pas du decoupage en plans : il peut deborder sur
+      // le(s) moment(s) suivant(s) si le premier ne suffit pas.
+      const nLines=Math.max(1, ovCountTitleLines(ovOpts.title, ovOpts.titleSize, W));
+      const REVEAL_STEP=1, HOLD_AFTER=1;
+      const titreDuration=Math.min(nLines*REVEAL_STEP+HOLD_AFTER, totalDur);
 
-      let filterComplex=`[0:v]${baseVf}[base];[base][1:v]overlay=enable='between(t\\,${newSegs[0].start.toFixed(3)}\\,${newSegs[0].end.toFixed(3)})'`;
-
-      if(newSegs.length>1){
-        coverBytes=await canvasToPngBytes(renderCejourlaOverlay('cover', W, H, ovOpts));
-        ffmpeg.FS('writeFile', 'overlay_cover.png', coverBytes);
-        extraInputs.push('-i','overlay_cover.png');
-        filterComplex+=`[v1];[v1][2:v]overlay=enable='between(t\\,${newSegs[1].start.toFixed(3)}\\,${totalDur.toFixed(3)})'[vout]`;
-      } else {
-        filterComplex+='[vout]';
+      for(let i=1;i<=nLines;i++){
+        const bytes=await canvasToPngBytes(renderCejourlaOverlay('titre', W, H, {...ovOpts, visibleLines:i}));
+        const start=(i-1)*REVEAL_STEP;
+        const end=(i===nLines) ? titreDuration : Math.min(i*REVEAL_STEP, titreDuration);
+        overlayStages.push({bytes, start, end});
       }
+      if(totalDur>titreDuration){
+        const bytes=await canvasToPngBytes(renderCejourlaOverlay('cover', W, H, ovOpts));
+        overlayStages.push({bytes, start:titreDuration, end:totalDur});
+      }
+
+      let filterComplex=`[0:v]${baseVf}[base]`;
+      let prevLabel='base';
+      overlayStages.forEach((st,idx)=>{
+        const fname=`overlay_${idx}.png`;
+        st.fname=fname;
+        ffmpeg.FS('writeFile', fname, st.bytes);
+        extraInputs.push('-i', fname);
+        const inputIdx=idx+1;
+        const outLabel=(idx===overlayStages.length-1) ? 'vout' : `v${idx}`;
+        filterComplex+=`;[${prevLabel}][${inputIdx}:v]overlay=enable='between(t\\,${st.start.toFixed(3)}\\,${st.end.toFixed(3)})'[${outLabel}]`;
+        prevLabel=outLabel;
+      });
 
       videoArgs=['-filter_complex', filterComplex, '-map','[vout]', '-r', String(fps)];
     } else {
@@ -1230,8 +1281,7 @@ async function runExport(){
     // reinitialise (resetFF vide le systeme de fichiers virtuel).
     function rewriteInputs(){
       ffmpeg.FS('writeFile', inName, srcBytes);
-      if(titreBytes) ffmpeg.FS('writeFile', 'overlay_titre.png', titreBytes);
-      if(coverBytes) ffmpeg.FS('writeFile', 'overlay_cover.png', coverBytes);
+      overlayStages.forEach(st=> ffmpeg.FS('writeFile', st.fname, st.bytes));
     }
 
     let finalBytes;
