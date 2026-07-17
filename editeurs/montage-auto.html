@@ -1164,12 +1164,19 @@ async function runExport(){
     // sans demuxer/reencoder par segment).
     const selectExpr=kept.map(s=>`between(t\\,${s.start.toFixed(3)}\\,${s.end.toFixed(3)})`).join('+');
 
-    // setpts must renumber the *surviving* select()ed frames using the
-    // SOURCE's native frame rate (FRAME_RATE, resolved by ffmpeg at filter
-    // init) so real elapsed time is preserved; using the target export fps
-    // here instead stretched a 60fps source's kept frames across 2x their
-    // real duration (a 9s selection came out as an 18s video).
-    const baseVf=`select='${selectExpr}',scale=${W}:${H}:force_original_aspect_ratio=increase,crop=w=${W}:h=${H}:x=${xExpr}:y=0,setpts=N/FRAME_RATE/TB,fps=${fps},format=yuv420p`;
+    // fps=<target> must run FIRST, before select: phone screen recordings
+    // are commonly variable-frame-rate (container declares e.g. 60fps but
+    // only encodes ~30fps worth of real frames), and setpts=N/FRAME_RATE/TB
+    // assumes the frames it's renumbering are evenly spaced at that rate --
+    // on VFR source that assumption is false and produces sped-up sections
+    // (confirmed: a whole-video select of a real 15.6s VFR clip came out as
+    // 8.5s with setpts alone). Normalizing to CFR first makes every
+    // downstream frame genuinely evenly spaced, so select's real-time
+    // between(t,...) windows and setpts's frame-index renumbering both
+    // become valid again. (fps= after select would be wrong here: select
+    // introduces real time GAPS between kept ranges, and fps= fills gaps by
+    // freeze-framing the last frame, which is not what we want between cuts.)
+    const baseVf=`fps=${fps},select='${selectExpr}',scale=${W}:${H}:force_original_aspect_ratio=increase,crop=w=${W}:h=${H}:x=${xExpr}:y=0,setpts=N/(${fps}*TB),format=yuv420p`;
     const af=`aselect='${selectExpr}',asetpts=N/SR/TB`;
     const enc=['-c:v','libx264','-preset','ultrafast','-crf','20','-pix_fmt','yuv420p'];
     const aenc=['-af', af, '-c:a','aac','-b:a','160k','-ar','48000','-ac','2'];
