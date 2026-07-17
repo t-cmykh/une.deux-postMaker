@@ -1362,6 +1362,19 @@ async function runExport(){
       keyframes.push({t:shot.t1, x:xs[shot.endIdx-1]});
     });
     if(!keyframes.length) keyframes=[{t:0, x:xs[0]||0}];
+    // ffmpeg's expression evaluator hard-fails ("Missing ')' or too many
+    // args") past ~100 levels of nested if() -- confirmed empiriquement sur
+    // ce moteur. buildCropXExpr imbrique un if() par point-cle, donc une
+    // video avec beaucoup de plans/moments retenus peut largement depasser
+    // cette limite et faire echouer tout l'export (crop invalide -> sortie
+    // corrompue ou vide). On sous-echantillonne uniformement si besoin,
+    // plutot que de laisser grandir l'expression sans limite.
+    const MAX_KEYFRAMES=80;
+    if(keyframes.length>MAX_KEYFRAMES){
+      const thinned=[]; const step=(keyframes.length-1)/(MAX_KEYFRAMES-1);
+      for(let i=0;i<MAX_KEYFRAMES;i++) thinned.push(keyframes[Math.round(i*step)]);
+      keyframes=thinned;
+    }
     const xExpr=buildCropXExpr(keyframes).replace(/:/g,'\\:').replace(/,/g,'\\,');
 
     // ne garder que les moments retenus, dans l'ordre : select+setpts (methode
