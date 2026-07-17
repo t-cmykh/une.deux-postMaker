@@ -465,15 +465,45 @@ function normalizeArr(arr){
   if(hi-lo<1e-9) return arr.map(()=>0.5);
   return arr.map(v=>(v-lo)/(hi-lo));
 }
+function smoothArr(arr, radius){
+  const n=arr.length;
+  return arr.map((_,i)=>{
+    let sum=0, cnt=0;
+    for(let j=Math.max(0,i-radius); j<=Math.min(n-1,i+radius); j++){ sum+=arr[j]; cnt++; }
+    return sum/cnt;
+  });
+}
 function buildCandidateSegments(visualScore, audioRms, nSec, targetS){
   const visN=normalizeArr(visualScore);
-  const combined = audioRms
+  const combinedRaw = audioRms
     ? (()=>{ const audN=normalizeArr(audioRms); return visN.map((v,i)=> 0.35*v + 0.65*audN[i]); })()
     : visN;
-  const TOP_FRACTION=0.35, MIN_LEN=2, PAD=0.5;
-  const rankedIdx=[...Array(nSec).keys()].sort((a,b)=>combined[b]-combined[a]);
-  const keepCount=Math.max(1, Math.round(nSec*TOP_FRACTION));
-  const keptSet=new Set(rankedIdx.slice(0,keepCount));
+  // lissage leger (fenetre 3s) : un score brut seconde par seconde est
+  // assez bruite pour faire ressortir des pics isoles sans signification —
+  // premiere cause d'une selection qui "semble aleatoire" sur un signal
+  // globalement plat (ambiance de foule continue, camera qui bouge tout le
+  // temps, etc).
+  const combined=smoothArr(combinedRaw, 1);
+
+  // seuil statistique (moyenne + 0.75 ecart-type) plutot qu'un pourcentage
+  // fixe : un pourcentage fixe garde toujours "les X% du haut" meme quand
+  // rien ne se distingue vraiment dans la video (signal plat) — le seuil
+  // ne retient que ce qui depasse reellement la norme de CETTE video,
+  // avec un plancher/plafond de secours pour les cas extremes (aucun pic
+  // net, ou au contraire action quasi continue).
+  const MIN_LEN=2, PAD=0.5, MIN_FRACTION=0.08, MAX_FRACTION=0.45;
+  const mean=combined.reduce((a,b)=>a+b,0)/nSec;
+  const variance=combined.reduce((a,b)=>a+(b-mean)*(b-mean),0)/nSec;
+  const threshold=mean+0.75*Math.sqrt(variance);
+  const minCount=Math.max(1, Math.round(nSec*MIN_FRACTION));
+  const maxCount=Math.max(minCount, Math.round(nSec*MAX_FRACTION));
+
+  let keptSet=new Set([...Array(nSec).keys()].filter(i=>combined[i]>=threshold));
+  if(keptSet.size<minCount || keptSet.size>maxCount){
+    const rankedIdx=[...Array(nSec).keys()].sort((a,b)=>combined[b]-combined[a]);
+    const count=Math.min(maxCount, Math.max(minCount, keptSet.size||minCount));
+    keptSet=new Set(rankedIdx.slice(0,count));
+  }
   const sortedIdx=[...keptSet].sort((a,b)=>a-b);
   const runs=[]; let start=sortedIdx[0], prev=sortedIdx[0];
   for(let k=1;k<sortedIdx.length;k++){
