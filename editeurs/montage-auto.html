@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>une·deux — Montage auto</title>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600&family=Saira+Condensed:wght@600;700&display=swap');
   :root{ --newsprint:#F1ECE1; --encre:#2C2823; --vert:#27543C; --ocre:#C2A04E; --rouge:#9C4A3C; }
   *{box-sizing:border-box;}
   body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--encre);color:var(--newsprint);}
@@ -150,7 +151,36 @@
   </div>
 
   <div class="panel">
-    <h2>5 — Export</h2>
+    <h2>5 — Overlay « Ce jour-là »</h2>
+    <label style="display:flex;align-items:center;gap:9px;font-size:13px;margin-bottom:14px;cursor:pointer;">
+      <input type="checkbox" id="ovEnable" style="width:19px;height:19px;flex:0 0 auto;accent-color:var(--ocre);">
+      Ajouter l'overlay (1er plan : titre seul · autres plans : cover)
+    </label>
+    <div id="ovFields" style="display:none;">
+      <div class="field">
+        <label class="field">Titre</label>
+        <input type="text" id="ovTitle" value="DES AMATEURS HUMILIENT LES ROIS DU FOOT">
+      </div>
+      <div class="cfg-row">
+        <div>
+          <label class="field">Mot-clé coloré</label>
+          <input type="text" id="ovGreenWord" value="AMATEURS">
+        </div>
+        <div>
+          <label class="field">Taille titre (1er plan)</label>
+          <input type="number" id="ovTitleSize" value="130" min="40" max="130">
+        </div>
+      </div>
+      <div class="field">
+        <label class="field">Sous-titre / corps (autres plans)</label>
+        <textarea id="ovBody" rows="3" style="width:100%;background:rgba(241,236,225,.06);border:1px solid rgba(241,236,225,.18);border-radius:8px;color:var(--newsprint);padding:8px;font-size:13px;">Et personne, chez eux, ne l'a remarqué.</textarea>
+      </div>
+      <div class="warn">Pensé pour le format 9:16 (comme dans l'éditeur séries) — avec 4:5 ou 1:1 les proportions seront moins ajustées.</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>6 — Export</h2>
     <button class="btn secondary" id="exportBtn" disabled>Exporter le montage</button>
     <div class="progress" id="exportProgress">
       <div class="pbar"><i id="exportBarFill"></i></div>
@@ -194,6 +224,10 @@ let analyzedCrop=false;
 let manualAnchors=[];       // reperes manuels {t, normX}
 let correctionMode=false;
 let ffmpeg=null, ffLoaded=false;
+
+$('ovEnable').addEventListener('change', ()=>{
+  $('ovFields').style.display = $('ovEnable').checked ? 'block' : 'none';
+});
 
 /* ---------- 1) chargement du fichier ---------- */
 const drop=$('drop');
@@ -757,6 +791,190 @@ async function runCropAnalysis(){
   }
 }
 
+/* ================================================================
+   5 — OVERLAY "CE JOUR-LA" (repris de editeur-series.html : memes
+   couleurs/polices/gabarits que le template cover de la serie, mais sans
+   le media de fond ni les gardes visuelles — juste les elements
+   graphiques dessines sur un canvas transparent, composite par-dessus la
+   video via ffmpeg (filtre overlay). Pense pour le format 9:16 de la
+   serie (RAT_BY_SERIE.cejourla dans editeur-series.html).
+   ================================================================ */
+const OV_C = {encre:'#2C2823', creme:'#EDDCB2', soustitre:'#D1C1A3', line:'#EDDCB2', ocre:'#C2A04E'};
+const OV_SERIE = {label:'CE JOUR LÀ …', sig:OV_C.ocre};
+const OV_SAFE_TOP=150, OV_SAFE_BOTTOM=120;
+
+// polices chargees via @import dans <style> (comme editeur-series.html) :
+// il suffit d'attendre qu'elles soient pretes avant de dessiner sur le canvas.
+let ovFontsPromise=null;
+function ensureOverlayFonts(){
+  if(ovFontsPromise) return ovFontsPromise;
+  ovFontsPromise=(async()=>{
+    await Promise.all([
+      document.fonts.load("58px 'Anton'"), document.fonts.load("130px 'Anton'"),
+      document.fonts.load("32px 'Saira Condensed'"),
+      document.fonts.load("500 40px 'Archivo'"), document.fonts.load("700 40px 'Archivo'"),
+    ]);
+    await document.fonts.ready;
+  })();
+  return ovFontsPromise;
+}
+
+function ovStripBold(s){ return String(s).replace(/\*\*/g,''); }
+function ovParseBoldSegments(line){
+  const segs=[]; const parts=String(line).split('**');
+  for(let i=0;i<parts.length;i++){ if(parts[i]==='')continue; segs.push({text:parts[i],bold:(i%2===1)}); }
+  return segs.length?segs:[{text:String(line),bold:false}];
+}
+function ovDrawBodyRich(g,line,x,y,fontPx){
+  const segs=ovParseBoldSegments(line); let cx=x;
+  segs.forEach(s=>{ g.font=(s.bold?"700 ":"500 ")+fontPx+"px 'Archivo'"; g.fillText(s.text,cx,y); cx+=g.measureText(s.text).width; });
+}
+function ovWrapBody(g,text,maxW,maxLines){
+  g.font="500 40px 'Archivo'"; const lines=[];
+  String(text).split('\n').forEach(para=>{
+    if(para.trim()===''){lines.push('');return;}
+    const words=para.split(/\s+/).filter(Boolean); let cur='';
+    words.forEach(w=>{ const test=cur?cur+' '+w:w;
+      if(g.measureText(ovStripBold(test)).width>maxW && cur){lines.push(cur);cur=w;} else cur=test; });
+    if(cur)lines.push(cur);
+  });
+  let openBold=false;
+  const balanced=lines.map(ln=>{ let out=ln; if(openBold)out='**'+out;
+    const n=(out.match(/\*\*/g)||[]).length; openBold=(n%2!==0); if(openBold)out=out+'**'; return out; });
+  return balanced.slice(0,maxLines||4);
+}
+function ovDrawWordLine(g,words,x,y,greenWord){
+  let cx=x; const space=g.measureText(' ').width;
+  const gw=(greenWord||'').trim().toUpperCase();
+  words.forEach(w=>{
+    const up=w.toUpperCase();
+    const isAccent=(gw && up===gw);
+    g.fillStyle=isAccent?OV_SERIE.sig:OV_C.creme; g.fillText(up,cx,y);
+    cx+=g.measureText(up).width+space;
+  });
+}
+function ovSplitTitleTwoLines(words){
+  if(words.length<=1) return [words,[]];
+  let best=1,bestDiff=1e9;
+  for(let i=1;i<words.length;i++){
+    const a=words.slice(0,i).join(' ').length, b=words.slice(i).join(' ').length;
+    const diff=Math.abs(a-b); if(diff<=bestDiff){bestDiff=diff;best=i;}
+  }
+  return [words.slice(0,best),words.slice(best)];
+}
+function ovClampTitle(g,title,W,M,MR,minS,maxS){
+  minS=minS||58; maxS=maxS||120;
+  const words=title.trim().split(/\s+/).filter(Boolean);
+  const [a,b]=ovSplitTitleTwoLines(words);
+  const longest=Math.max(a.join(' ').length,b.join(' ').length,1);
+  g.font=maxS+"px 'Anton'";
+  const w=g.measureText('A'.repeat(longest)).width, avail=W-M-MR;
+  let size=maxS; if(w>avail) size=Math.floor(maxS*avail/w);
+  return Math.max(minS,Math.min(maxS,size));
+}
+
+/* dessine le calque overlay (fond transparent, W x H) pour le template
+   'titre' (titre seul, taille reglable) ou 'cover' (titre auto + corps). */
+function renderCejourlaOverlay(template, W, H, {title, greenWord, body, titleSize}){
+  const cv=document.createElement('canvas'); cv.width=W; cv.height=H;
+  const g=cv.getContext('2d');
+  g.clearRect(0,0,W,H);
+
+  const M=96, MR=96;
+
+  // degrade encre montant (lisibilite du texte sur la video en dessous)
+  const start=H*0.42, end=H*0.80, al=0.78;
+  const grad=g.createLinearGradient(0,start,0,end);
+  grad.addColorStop(0,'rgba(44,40,35,0)'); grad.addColorStop(1,'rgba(44,40,35,'+al+')');
+  g.fillStyle=grad; g.fillRect(0,start,W,end-start);
+  g.fillStyle='rgba(44,40,35,'+al+')'; g.fillRect(0,end,W,H-end);
+
+  // header : anneau + monogramme + wordmark
+  const ringD=92, ringY=66+OV_SAFE_TOP, ringC=ringY+ringD/2;
+  g.strokeStyle=OV_C.creme; g.lineWidth=4;
+  g.beginPath(); g.arc(M+ringD/2, ringC, ringD/2-2, 0, Math.PI*2); g.stroke();
+  g.fillStyle=OV_C.creme; g.textBaseline='middle';
+  g.font="38px 'Saira Condensed'"; g.textAlign='center';
+  g.fillText('1·2', M+ringD/2, ringC+1);
+  g.textAlign='left';
+  g.font="58px 'Anton'";
+  g.fillText('une·deux', M+ringD+26, ringC+2);
+  g.textAlign='right';
+  g.font="32px 'Saira Condensed'";
+  g.fillText('@UNE.DEUX', W-MR, ringC);
+  g.textAlign='left';
+  g.fillStyle=OV_C.line; g.fillRect(M, 168+OV_SAFE_TOP, W-M-MR, 4);
+
+  // tag serie
+  const tagY=200+OV_SAFE_TOP, tagH=58;
+  g.font="32px 'Saira Condensed'"; g.textBaseline='middle';
+  const nameTxt=OV_SERIE.label.toUpperCase();
+  const nameW=g.measureText(nameTxt).width+30;
+  g.fillStyle=OV_SERIE.sig; g.fillRect(M,tagY,nameW,tagH);
+  g.fillStyle=OV_C.encre;
+  g.fillText(nameTxt, M+15, tagY+tagH/2+1);
+  g.textBaseline='alphabetic';
+
+  const footY=H-60-OV_SAFE_BOTTOM;
+
+  if(template==='titre'){
+    const tSize=titleSize||130;
+    g.font=tSize+"px 'Anton'"; g.textAlign='left'; g.textBaseline='alphabetic';
+    const avail=W-M-MR;
+    const words=title.trim().split(/\s+/).filter(Boolean);
+    const lines=[]; let cur=[];
+    words.forEach(w=>{
+      const test=cur.concat([w]).join(' ').toUpperCase();
+      if(cur.length && g.measureText(test).width>avail){ lines.push(cur); cur=[w]; }
+      else if(!cur.length && g.measureText(w.toUpperCase()).width>avail){ lines.push([w]); cur=[]; }
+      else cur.push(w);
+    });
+    if(cur.length) lines.push(cur);
+    const lineGap=tSize*0.92;
+    const lastBaseline=(footY+18)-30;
+    let baselines=lines.map((_,i)=> lastBaseline-(lines.length-1-i)*lineGap );
+    const ascent=tSize*0.78, descent=tSize*0.22;
+    let shift=0;
+    const topEdge=baselines[0]-ascent;
+    if(topEdge<OV_SAFE_TOP) shift=OV_SAFE_TOP-topEdge;
+    const safeBottomBound=H-OV_SAFE_BOTTOM;
+    const bottomEdge=baselines[baselines.length-1]+descent+shift;
+    if(bottomEdge>safeBottomBound) shift-=(bottomEdge-safeBottomBound);
+    baselines=baselines.map(b=>b+shift);
+    lines.forEach((lw,i)=> ovDrawWordLine(g,lw,M,baselines[i],greenWord));
+  } else {
+    const bodyMaxW=W-M-MR, maxBodyLines=12;
+    let bodyFont=40,bodyLineH=50;
+    let bodyLines=ovWrapBody(g,body,bodyMaxW,maxBodyLines);
+    if(bodyLines.length>=5){bodyFont=34;bodyLineH=44;bodyLines=ovWrapBody(g,body,bodyMaxW,maxBodyLines);}
+    if(bodyLines.length>=7){bodyFont=30;bodyLineH=39;}
+    const bodyBottom=footY+18;
+    const bodyTop=bodyBottom-bodyLines.length*bodyLineH;
+
+    const tSize=ovClampTitle(g,title,W,M,MR,58,120);
+    const lineGap=tSize*0.92;
+    const titleBaseline2=bodyTop-30, titleBaseline1=titleBaseline2-lineGap;
+    g.font=tSize+"px 'Anton'"; g.textAlign='left'; g.textBaseline='alphabetic';
+    const words=title.trim().split(/\s+/).filter(Boolean);
+    const [l1,l2]=ovSplitTitleTwoLines(words);
+    ovDrawWordLine(g,l1,M,titleBaseline1,greenWord);
+    ovDrawWordLine(g,l2,M,titleBaseline2,greenWord);
+
+    g.fillStyle=OV_C.soustitre; g.textBaseline='alphabetic';
+    bodyLines.forEach((ln,i)=>{ ovDrawBodyRich(g,ln,M,bodyTop+(i+1)*bodyLineH-12,bodyFont); });
+  }
+
+  return cv;
+}
+function canvasToPngBytes(cv){
+  return new Promise((resolve,reject)=>{
+    cv.toBlob(blob=>{
+      if(!blob){ reject(new Error('toBlob a échoué')); return; }
+      blob.arrayBuffer().then(buf=>resolve(new Uint8Array(buf))).catch(reject);
+    }, 'image/png');
+  });
+}
+
 /* ---------- ffmpeg.wasm (mono-thread, stable iOS) ---------- */
 async function ensureFF(){
   if(ffLoaded) return;
@@ -852,31 +1070,81 @@ async function runExport(){
     // sans demuxer/reencoder par segment).
     const selectExpr=kept.map(s=>`between(t\\,${s.start.toFixed(3)}\\,${s.end.toFixed(3)})`).join('+');
 
-    phase(0.05, 0.85, 'Encodage…');
-
     // setpts must renumber the *surviving* select()ed frames using the
     // SOURCE's native frame rate (FRAME_RATE, resolved by ffmpeg at filter
     // init) so real elapsed time is preserved; using the target export fps
     // here instead stretched a 60fps source's kept frames across 2x their
     // real duration (a 9s selection came out as an 18s video).
-    const vf=`select='${selectExpr}',scale=${W}:${H}:force_original_aspect_ratio=increase,crop=w=${W}:h=${H}:x=${xExpr}:y=0,setpts=N/FRAME_RATE/TB,fps=${fps},format=yuv420p`;
+    const baseVf=`select='${selectExpr}',scale=${W}:${H}:force_original_aspect_ratio=increase,crop=w=${W}:h=${H}:x=${xExpr}:y=0,setpts=N/FRAME_RATE/TB,fps=${fps},format=yuv420p`;
     const af=`aselect='${selectExpr}',asetpts=N/SR/TB`;
-    const common=['-i', inName, '-vf', vf, '-r', String(fps)];
     const enc=['-c:v','libx264','-preset','ultrafast','-crf','20','-pix_fmt','yuv420p'];
     const aenc=['-af', af, '-c:a','aac','-b:a','160k','-ar','48000','-ac','2'];
 
+    const overlayOn=$('ovEnable').checked;
+    let extraInputs=[], videoArgs, titreBytes=null, coverBytes=null;
+
+    if(overlayOn){
+      phase(0.05, 0.15, 'Préparation de l’overlay…');
+      await ensureOverlayFonts();
+
+      // les moments retenus s'enchainent sans trou sur la NOUVELLE timeline
+      // (post select+setpts) : 1er moment -> overlay "titre", le reste (s'il
+      // y en a) -> overlay "cover", chacun sur une plage continue.
+      let cum=0;
+      const newSegs=kept.map(s=>{ const dur=s.end-s.start; const seg={start:cum,end:cum+dur}; cum+=dur; return seg; });
+      const totalDur=cum;
+
+      const ovOpts={
+        title: $('ovTitle').value||'',
+        greenWord: $('ovGreenWord').value||'',
+        body: $('ovBody').value||'',
+        titleSize: parseInt($('ovTitleSize').value,10)||130,
+      };
+
+      titreBytes=await canvasToPngBytes(renderCejourlaOverlay('titre', W, H, ovOpts));
+      ffmpeg.FS('writeFile', 'overlay_titre.png', titreBytes);
+      extraInputs.push('-i','overlay_titre.png');
+
+      let filterComplex=`[0:v]${baseVf}[base];[base][1:v]overlay=enable='between(t\\,${newSegs[0].start.toFixed(3)}\\,${newSegs[0].end.toFixed(3)})'`;
+
+      if(newSegs.length>1){
+        coverBytes=await canvasToPngBytes(renderCejourlaOverlay('cover', W, H, ovOpts));
+        ffmpeg.FS('writeFile', 'overlay_cover.png', coverBytes);
+        extraInputs.push('-i','overlay_cover.png');
+        filterComplex+=`[v1];[v1][2:v]overlay=enable='between(t\\,${newSegs[1].start.toFixed(3)}\\,${totalDur.toFixed(3)})'[vout]`;
+      } else {
+        filterComplex+='[vout]';
+      }
+
+      videoArgs=['-filter_complex', filterComplex, '-map','[vout]', '-r', String(fps)];
+    } else {
+      videoArgs=['-vf', baseVf, '-map','0:v', '-r', String(fps)];
+    }
+
+    phase(overlayOn?0.15:0.05, overlayOn?0.75:0.85, 'Encodage…');
+
+    const common=['-i', inName, ...extraInputs, ...videoArgs];
+
+    // reecrit tous les fichiers d'entree dans un moteur ffmpeg fraichement
+    // reinitialise (resetFF vide le systeme de fichiers virtuel).
+    function rewriteInputs(){
+      ffmpeg.FS('writeFile', inName, srcBytes);
+      if(titreBytes) ffmpeg.FS('writeFile', 'overlay_titre.png', titreBytes);
+      if(coverBytes) ffmpeg.FS('writeFile', 'overlay_cover.png', coverBytes);
+    }
+
     let finalBytes;
     if(hasAudio===false){
-      finalBytes=await runFFtoBytes([...common, '-map','0:v', ...enc, 'out.mp4'], 'out.mp4');
+      finalBytes=await runFFtoBytes([...common, ...enc, 'out.mp4'], 'out.mp4');
     } else if(hasAudio===true){
-      finalBytes=await runFFtoBytes([...common, '-map','0:v','-map','0:a', ...enc, ...aenc, 'out.mp4'], 'out.mp4');
+      finalBytes=await runFFtoBytes([...common, ...enc, '-map','0:a', ...aenc, 'out.mp4'], 'out.mp4');
     } else {
       try{
-        finalBytes=await runFFtoBytes([...common, '-map','0:v','-map','0:a', ...enc, ...aenc, 'out.mp4'], 'out.mp4');
+        finalBytes=await runFFtoBytes([...common, ...enc, '-map','0:a', ...aenc, 'out.mp4'], 'out.mp4');
       }catch(e){
         await resetFF();
-        ffmpeg.FS('writeFile', inName, srcBytes);
-        finalBytes=await runFFtoBytes([...common, '-map','0:v', ...enc, 'out.mp4'], 'out.mp4');
+        rewriteInputs();
+        finalBytes=await runFFtoBytes([...common, ...enc, 'out.mp4'], 'out.mp4');
       }
     }
 
