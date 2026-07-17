@@ -410,6 +410,56 @@ function computeAudioRms(audioBuffer, nSec){
   }
   return rms;
 }
+
+/* ---------- classification audio (YAMNet / MediaPipe Audio Classifier) ----------
+   Repli sur le volume brut (RMS) si le modele ne se charge pas : le RMS ne
+   distingue pas un commentateur qui parle fort d'une vraie reaction de foule,
+   YAMNet si. Classes AudioSet retenues : reactions de foule/public plutot que
+   le volume seul. */
+const CROWD_CLASSES=new Set(['Cheering','Applause','Crowd','Chant','Whistling','Shout','Booing']);
+let audioClassifierPromise=null;
+function loadAudioClassifier(){
+  if(audioClassifierPromise) return audioClassifierPromise;
+  audioClassifierPromise=(async()=>{
+    const audio=await import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-audio@0.10.35/audio_bundle.mjs');
+    const {AudioClassifier, FilesetResolver}=audio;
+    const fileset=await FilesetResolver.forAudioTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-audio@0.10.35/wasm');
+    return await AudioClassifier.createFromOptions(fileset, {
+      baseOptions:{modelAssetPath:'https://tfhub.dev/google/lite-model/yamnet/classification/tflite/1?lite-format=tflite'},
+      maxResults:10,
+    });
+  })();
+  return audioClassifierPromise;
+}
+/* classify() renvoie un resultat par fenetre interne du modele (~2 pour 1s
+   d'audio) ; on prend le score max des classes foule/public tous fenetres
+   confondues, pour chaque seconde. */
+function crowdScoreFromClassifyResult(result){
+  let best=0;
+  (result||[]).forEach(win=>{
+    (win.classifications||[]).forEach(cls=>{
+      (cls.categories||[]).forEach(cat=>{
+        if(CROWD_CLASSES.has(cat.categoryName)) best=Math.max(best, cat.score);
+      });
+    });
+  });
+  return best;
+}
+async function computeAudioCrowdScore(audioBuffer, nSec, classifier, onProgress){
+  const sr=audioBuffer.sampleRate;
+  const ch0=audioBuffer.getChannelData(0);
+  const scores=new Array(nSec).fill(0);
+  for(let s=0;s<nSec;s++){
+    const start=Math.floor(s*sr), end=Math.min(ch0.length, Math.floor((s+1)*sr));
+    const chunk=ch0.subarray(start,end);
+    if(chunk.length>0){
+      try{ scores[s]=crowdScoreFromClassifyResult(classifier.classify(chunk, sr)); }
+      catch(e){ scores[s]=0; }
+    }
+    if(onProgress) onProgress(s+1, nSec);
+  }
+  return scores;
+}
 function normalizeArr(arr){
   const lo=Math.min(...arr), hi=Math.max(...arr);
   if(hi-lo<1e-9) return arr.map(()=>0.5);
@@ -511,7 +561,7 @@ async function runMomentsAnalysis(){
   $('momentsProgress').classList.add('show'); momentsLog('Préparation…'); setMomentsBar(0);
 
   try{
-    let audioRms=null;
+    let audioRms=null, audioMode=null;
     const nSec=Math.max(1, Math.ceil(duration));
     if(hasAudio!==false){
       try{
@@ -520,8 +570,21 @@ async function runMomentsAnalysis(){
         const Ctx=window.AudioContext||window.webkitAudioContext;
         const actx=new Ctx();
         const audioBuffer=await actx.decodeAudioData(buf.slice(0));
-        audioRms=computeAudioRms(audioBuffer, nSec);
         actx.close();
+
+        try{
+          momentsLog('Chargement du modèle audio (réactions de foule)…');
+          const classifier=await loadAudioClassifier();
+          audioRms=await computeAudioCrowdScore(audioBuffer, nSec, classifier, (done,total)=>{
+            setMomentsBar(0.05+0.10*(done/total));
+            momentsLog(`Analyse du son (réactions de foule) — ${done}/${total}s…`);
+          });
+          audioMode='yamnet';
+        }catch(e){
+          console.warn('audio classifier unavailable, repli sur le volume brut', e);
+          audioRms=computeAudioRms(audioBuffer, nSec);
+          audioMode='rms';
+        }
       }catch(e){ console.warn('audio decode failed', e); audioRms=null; }
     }
     setMomentsBar(0.15);
@@ -549,8 +612,9 @@ async function runMomentsAnalysis(){
 
     candidateSegments=buildCandidateSegments(visualScore, audioRms, nSec, target);
     renderMomentsList();
-    $('momentsStats').textContent = audioRms
-      ? `Fusion son + image sur ${nSec}s de vidéo.`
+    const audioLabel = audioMode==='yamnet' ? 'son (réactions de foule)' : audioMode==='rms' ? 'son (volume)' : null;
+    $('momentsStats').textContent = audioLabel
+      ? `Fusion ${audioLabel} + image sur ${nSec}s de vidéo.`
       : `Analyse image seule (pas de son détecté) sur ${nSec}s de vidéo.`;
     setMomentsBar(1); momentsLog('Analyse terminée.');
     toast('Moments repérés — ajuste les cases si besoin');
