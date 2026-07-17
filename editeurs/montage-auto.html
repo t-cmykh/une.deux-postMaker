@@ -573,11 +573,11 @@ async function runMomentsAnalysis(){
         actx.close();
 
         try{
-          momentsLog('Chargement du modèle audio (réactions de foule)…');
+          momentsLog('Chargement du modèle audio YAMNet (réactions de foule)…');
           const classifier=await loadAudioClassifier();
           audioRms=await computeAudioCrowdScore(audioBuffer, nSec, classifier, (done,total)=>{
             setMomentsBar(0.05+0.10*(done/total));
-            momentsLog(`Analyse du son (réactions de foule) — ${done}/${total}s…`);
+            momentsLog(`Analyse du son YAMNet (réactions de foule) — ${done}/${total}s…`);
           });
           audioMode='yamnet';
         }catch(e){
@@ -612,7 +612,7 @@ async function runMomentsAnalysis(){
 
     candidateSegments=buildCandidateSegments(visualScore, audioRms, nSec, target);
     renderMomentsList();
-    const audioLabel = audioMode==='yamnet' ? 'son (réactions de foule)' : audioMode==='rms' ? 'son (volume)' : null;
+    const audioLabel = audioMode==='yamnet' ? 'son YAMNet (réactions de foule)' : audioMode==='rms' ? 'son (volume)' : null;
     $('momentsStats').textContent = audioLabel
       ? `Fusion ${audioLabel} + image sur ${nSec}s de vidéo.`
       : `Analyse image seule (pas de son détecté) sur ${nSec}s de vidéo.`;
