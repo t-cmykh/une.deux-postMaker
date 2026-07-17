@@ -496,13 +496,29 @@ function buildCandidateSegments(visualScore, audioRms, nSec, targetS){
   const variance=combined.reduce((a,b)=>a+(b-mean)*(b-mean),0)/nSec;
   const threshold=mean+0.75*Math.sqrt(variance);
   const minCount=Math.max(1, Math.round(nSec*MIN_FRACTION));
-  const maxCount=Math.max(minCount, Math.round(nSec*MAX_FRACTION));
+  // le plafond doit laisser assez de candidats pour COUVRIR la duree cible
+  // une fois le plafond de 4s/plan applique : un run contigu de N secondes
+  // ne donne jamais qu'un seul plan de 4s, pas N/4 — la marge x1.6 absorbe
+  // cette perte plus le fait que des runs se recouvrent/fusionnent.
+  const neededCount=Math.min(nSec, Math.ceil(targetS*1.6));
+  const maxCount=Math.max(Math.round(nSec*MAX_FRACTION), minCount, neededCount);
 
   let keptSet=new Set([...Array(nSec).keys()].filter(i=>combined[i]>=threshold));
   if(keptSet.size<minCount || keptSet.size>maxCount){
     const rankedIdx=[...Array(nSec).keys()].sort((a,b)=>combined[b]-combined[a]);
     const count=Math.min(maxCount, Math.max(minCount, keptSet.size||minCount));
     keptSet=new Set(rankedIdx.slice(0,count));
+  }
+  // meme quand le seuil naturel tombe dans la fourchette [minCount,maxCount]
+  // et n'est donc pas retouche ci-dessus, s'assurer qu'il y a assez de
+  // secondes candidates pour approcher la duree cible : completer avec les
+  // secondes les mieux notees restantes.
+  if(keptSet.size<neededCount){
+    const rankedIdx=[...Array(nSec).keys()].sort((a,b)=>combined[b]-combined[a]);
+    for(const i of rankedIdx){
+      if(keptSet.size>=neededCount) break;
+      keptSet.add(i);
+    }
   }
   const sortedIdx=[...keptSet].sort((a,b)=>a-b);
   const runs=[]; let start=sortedIdx[0], prev=sortedIdx[0];
@@ -521,7 +537,7 @@ function buildCandidateSegments(visualScore, audioRms, nSec, targetS){
     return {start:Math.max(0,ss-PAD), end:Math.min(nSec,ee+PAD), score:avg};
   });
   scored.sort((a,b)=>a.start-b.start);
-  const merged=[];
+  let merged=[];
   scored.forEach(seg=>{
     if(merged.length && seg.start<=merged[merged.length-1].end){
       merged[merged.length-1].end=Math.max(merged[merged.length-1].end, seg.end);
@@ -530,33 +546,98 @@ function buildCandidateSegments(visualScore, audioRms, nSec, targetS){
   });
 
   // plafond de duree par plan : un plan de plus de 4s a l'ecran donne
-  // l'impression que le montage "traine" — on retaille chaque segment trop
-  // long sur sa fenetre de 4s la mieux notee (recherche glissante sur le
-  // signal seconde par seconde deja calcule), plutot que de le couper au
-  // milieu sans tenir compte du contenu.
+  // l'impression que le montage "traine" — un segment trop long est decoupe
+  // en plusieurs plans de 4s maximum (parts egales, pas de reliquat court),
+  // au lieu d'etre retaille a une seule fenetre de 4s qui jetterait le
+  // reste : ca respecte le plafond par plan SANS perdre de matiere utile
+  // pour approcher la duree cible.
   const MAX_LEN=4;
+  const capped=[];
   merged.forEach(seg=>{
     const dur=seg.end-seg.start;
-    if(dur<=MAX_LEN) return;
-    const s0=Math.max(0, Math.floor(seg.start));
-    const e0=Math.min(nSec, Math.ceil(seg.end));
-    let bestScore=-Infinity, bestStart=seg.start;
-    for(let ws=s0; ws<=e0-MAX_LEN; ws++){
-      let sum=0;
-      for(let i=ws; i<ws+MAX_LEN; i++) sum+=combined[Math.min(nSec-1,Math.max(0,i))];
-      if(sum>bestScore){ bestScore=sum; bestStart=ws; }
+    if(dur<=MAX_LEN){ capped.push(seg); return; }
+    const nChunks=Math.ceil(dur/MAX_LEN);
+    const chunkLen=dur/nChunks;
+    for(let k=0;k<nChunks;k++){
+      const cs=seg.start+k*chunkLen, ce=seg.start+(k+1)*chunkLen;
+      const s0=Math.max(0,Math.floor(cs)), e0=Math.min(nSec,Math.ceil(ce));
+      let sum=0, cnt=0;
+      for(let i=s0;i<e0;i++){ sum+=combined[Math.min(nSec-1,Math.max(0,i))]; cnt++; }
+      capped.push({start:cs, end:ce, score: cnt?sum/cnt:seg.score});
     }
-    seg.start=bestStart;
-    seg.end=Math.min(nSec, bestStart+MAX_LEN);
   });
+  merged=capped;
 
-  const byScore=[...merged].sort((a,b)=>b.score-a.score);
-  let total=0;
-  byScore.forEach(seg=>{
-    const dur=seg.end-seg.start;
-    seg.keep = total<targetS;
-    if(seg.keep) total+=dur;
-  });
+  // selection finale : coller a +/- 1s de la duree cible plutot que de
+  // s'arreter des qu'elle est depassee (ce qui peut laisser un ecart aussi
+  // grand que le dernier segment ajoute). Sac a dos 0/1 sur une grille de
+  // 0.1s : on maximise le score total sous la contrainte duree <= cible +
+  // tolerance, ce qui respecte la duree ET privilegie les meilleurs moments.
+  const TOL=1;
+  const totalAvailable=merged.reduce((a,s)=>a+(s.end-s.start),0);
+  if(totalAvailable<=targetS+TOL){
+    // pas assez de matiere pour depasser la marge : tout garder, impossible
+    // de faire mieux.
+    merged.forEach(seg=> seg.keep=true);
+  } else {
+    const RES=10; // dixiemes de seconde
+    const cap=Math.max(0, Math.round((targetS+TOL)*RES));
+    // arrondi vers le haut : garantit que la duree REELLE d'une combinaison
+    // retenue par le sac a dos ne depasse jamais la capacite nominale
+    // (arrondir au plus proche pourrait sous-compter chaque segment et
+    // laisser passer un total legerement au-dessus de cible+tolerance).
+    const weights=merged.map(seg=> Math.max(1, Math.ceil((seg.end-seg.start)*RES)));
+    // legere prime proportionnelle au poids : depage les egalites de score
+    // vers les combinaisons qui remplissent le mieux la duree cible plutot
+    // que d'ignorer arbitrairement des segments a score quasi nul.
+    const values=merged.map((seg,i)=> seg.score + weights[i]*1e-6);
+    const n=merged.length;
+    const dp=new Float64Array(cap+1);
+    const choice=[];
+    for(let i=0;i<n;i++){
+      const w=weights[i], v=values[i];
+      const taken=new Uint8Array(cap+1);
+      for(let c=cap;c>=w;c--){
+        const alt=dp[c-w]+v;
+        if(alt>dp[c]){ dp[c]=alt; taken[c]=1; }
+      }
+      choice.push(taken);
+    }
+    // dp est croissant en c (score>=0) : dp[cap] est l'optimum global,
+    // inutile de chercher un c<cap.
+    let c=cap;
+    const keepIdx=new Set();
+    for(let i=n-1;i>=0;i--){
+      if(choice[i][c]){ keepIdx.add(i); c-=weights[i]; }
+    }
+    merged.forEach((seg,i)=> seg.keep=keepIdx.has(i));
+
+    // le sac a dos maximise le score, pas le remplissage : avec des plans
+    // qui font tous 2-4s, il peut rester un ecart resultant sous la
+    // tolerance si aucun plan restant n'entre exactement dans la place
+    // libre. Complement final : ajouter les plus courts plans non retenus
+    // tant que ca reduit l'ecart, pour coller au plus pres de la cible.
+    let curTotal=merged.filter(s=>s.keep).reduce((a,s)=>a+(s.end-s.start),0);
+    if(curTotal<targetS-TOL){
+      const unused=merged.filter(s=>!s.keep).sort((a,b)=>(a.end-a.start)-(b.end-b.start));
+      for(const seg of unused){
+        const dur=seg.end-seg.start;
+        if(curTotal+dur<=targetS+TOL){ seg.keep=true; curTotal+=dur; }
+        if(curTotal>=targetS-TOL) break;
+      }
+    }
+    // dernier recours : si tous les plans restants sont trop longs pour
+    // entrer dans la place libre (granularite 2-4s > fenetre de tolerance
+    // 2s), on en retaille un a la taille exacte qui manque plutot que de
+    // rester en dessous de la tolerance.
+    if(curTotal<targetS-TOL){
+      const room=Math.min(MAX_LEN, targetS+TOL-curTotal);
+      if(room>=1){
+        const candidate=merged.filter(s=>!s.keep).sort((a,b)=>b.score-a.score)[0];
+        if(candidate){ candidate.end=candidate.start+room; candidate.keep=true; curTotal+=room; }
+      }
+    }
+  }
   merged.sort((a,b)=>a.start-b.start);
   return merged;
 }
@@ -925,9 +1006,9 @@ function ensureOverlayFonts(){
   if(ovFontsPromise) return ovFontsPromise;
   ovFontsPromise=(async()=>{
     await Promise.all([
-      document.fonts.load("58px 'Anton'"), document.fonts.load("130px 'Anton'"),
-      document.fonts.load("32px 'Saira Condensed'"),
-      document.fonts.load("500 40px 'Archivo'"), document.fonts.load("700 40px 'Archivo'"),
+      document.fonts.load("58px 'Anton'"), document.fonts.load("130px 'Anton'"), document.fonts.load("104px 'Anton'"),
+      document.fonts.load("32px 'Saira Condensed'"), document.fonts.load("34px 'Saira Condensed'"),
+      document.fonts.load("500 40px 'Archivo'"), document.fonts.load("700 40px 'Archivo'"), document.fonts.load("40px 'Archivo'"),
     ]);
     await document.fonts.ready;
   })();
@@ -1097,6 +1178,93 @@ function renderCejourlaOverlay(template, W, H, {title, greenWord, body, titleSiz
 
   return cv;
 }
+
+/* carte de fin fixe ("RDV DEMAIN"), plan final du montage -- repompe le
+   template CTA/teaser d'editeur-series.html (fond creme + stries, icone
+   bookmark, tag et titre centres, signature ocre de la serie). Contenu fixe
+   (pas de champs UI dedies), texte identique a la carte de reference. */
+function renderTeaserCard(W, H){
+  const cv=document.createElement('canvas'); cv.width=W; cv.height=H;
+  const g=cv.getContext('2d');
+  const M=96, MR=96;
+
+  g.fillStyle=OV_C.creme; g.fillRect(0,0,W,H);
+  g.save(); g.strokeStyle='rgba(44,40,35,0.06)'; g.lineWidth=2;
+  for(let i=-H;i<W+H;i+=46){ g.beginPath(); g.moveTo(i,0); g.lineTo(i+H,H); g.stroke(); }
+  g.restore();
+
+  const ringD=92, ringC=66+OV_SAFE_TOP+ringD/2;
+  g.strokeStyle=OV_C.encre; g.lineWidth=4;
+  g.beginPath(); g.arc(M+ringD/2, ringC, ringD/2-2, 0, Math.PI*2); g.stroke();
+  g.fillStyle=OV_C.encre; g.textBaseline='middle'; g.textAlign='center';
+  g.font="38px 'Saira Condensed'"; g.fillText('1·2', M+ringD/2, ringC+1);
+  g.textAlign='left'; g.font="58px 'Anton'"; g.fillText('une·deux', M+ringD+26, ringC+2);
+  g.textAlign='right'; g.font="32px 'Saira Condensed'"; g.fillText('@UNE.DEUX', W-MR, ringC);
+  g.textAlign='left';
+  g.fillStyle=OV_C.encre; g.fillRect(M, 168+OV_SAFE_TOP, W-M-MR, 4);
+
+  const cx=W/2, iconY=H*0.34, bw=120, bh=156;
+  g.save(); g.fillStyle=OV_SERIE.sig;
+  const bx=cx-bw/2, by=iconY-bh/2, r=14;
+  g.beginPath(); g.moveTo(bx+r,by);
+  g.lineTo(bx+bw-r,by); g.arcTo(bx+bw,by,bx+bw,by+r,r);
+  g.lineTo(bx+bw,by+bh); g.lineTo(cx,by+bh-58); g.lineTo(bx,by+bh);
+  g.lineTo(bx,by+r); g.arcTo(bx,by,bx+r,by,r); g.closePath(); g.fill(); g.restore();
+
+  g.font="34px 'Saira Condensed'"; g.textAlign='center'; g.textBaseline='middle';
+  const tagTxt=OV_SERIE.label.toUpperCase();
+  const tagW=g.measureText(tagTxt).width+48, tagH=66, tagY=iconY+bh/2+40;
+  g.fillStyle=OV_SERIE.sig; g.fillRect(cx-tagW/2,tagY,tagW,tagH);
+  g.fillStyle=OV_C.encre; g.fillText(tagTxt,cx,tagY+tagH/2+1);
+
+  const words='RDV DEMAIN'.split(/\s+/);
+  const [l1,l2]=ovSplitTitleTwoLines(words);
+  let tSize=104; g.font=tSize+"px 'Anton'";
+  const avail=W-M-MR;
+  const longest=Math.max(g.measureText(l1.join(' ')).width, l2.length?g.measureText(l2.join(' ')).width:0, 1);
+  if(longest>avail) tSize=Math.floor(104*avail/longest);
+  tSize=Math.max(54,Math.min(104,tSize));
+  const lh=tSize*0.94;
+  g.font=tSize+"px 'Anton'"; g.textBaseline='alphabetic'; g.textAlign='center';
+  const ty1=tagY+tagH+tSize+30, ty2=ty1+lh;
+  const drawCenterLine=(ws,y)=>{
+    const full=ws.join(' '); const totalW=g.measureText(full).width; let x=cx-totalW/2;
+    const space=g.measureText(' ').width;
+    g.textAlign='left'; g.fillStyle=OV_C.encre;
+    ws.forEach(w=>{ g.fillText(w,x,y); x+=g.measureText(w).width+space; });
+    g.textAlign='center';
+  };
+  drawCenterLine(l1,ty1);
+  if(l2.length) drawCenterLine(l2,ty2);
+
+  g.fillStyle=OV_C.encre; g.font="40px 'Archivo'"; g.textAlign='center'; g.textBaseline='alphabetic';
+  const subY=(l2.length?ty2:ty1)+60;
+  const bodyTxt="Tout les jours ont revient sur les moments marquants du foot qui se sont passé ce jour là…";
+  const subWords=bodyTxt.split(/\s+/).filter(Boolean);
+  const subLines=[]; let cur='';
+  subWords.forEach(w=>{ const test=cur?cur+' '+w:w;
+    if(g.measureText(test).width>avail-120 && cur){ subLines.push(cur); cur=w; } else cur=test; });
+  if(cur) subLines.push(cur);
+  subLines.slice(0,6).forEach((ln,i)=> g.fillText(ln, cx, subY+i*48));
+
+  const footY=H-70-OV_SAFE_BOTTOM;
+  g.fillStyle=OV_C.encre; g.fillRect(M, footY-46, W-M-MR, 3);
+  g.textBaseline='middle'; g.textAlign='left';
+  g.font="32px 'Saira Condensed'"; g.fillText('@UNE.DEUX', M, footY);
+
+  return cv;
+}
+
+// calque plein cadre quasi-blanc pour le pulse "flash" des transitions
+// secousse+flash (superpose brievement, cf. runExport).
+function renderFlashOverlay(W, H){
+  const cv=document.createElement('canvas'); cv.width=W; cv.height=H;
+  const g=cv.getContext('2d');
+  g.fillStyle='rgba(255,255,255,0.92)';
+  g.fillRect(0,0,W,H);
+  return cv;
+}
+
 function canvasToPngBytes(cv){
   return new Promise((resolve,reject)=>{
     cv.toBlob(blob=>{
@@ -1213,13 +1381,20 @@ async function runExport(){
     // become valid again. (fps= after select would be wrong here: select
     // introduces real time GAPS between kept ranges, and fps= fills gaps by
     // freeze-framing the last frame, which is not what we want between cuts.)
-    const baseVf=`fps=${fps},select='${selectExpr}',scale=${W}:${H}:force_original_aspect_ratio=increase,crop=w=${W}:h=${H}:x=${xExpr}:y=0,setpts=N/(${fps}*TB),format=yuv420p`;
-    const af=`aselect='${selectExpr}',asetpts=N/SR/TB`;
+    function buildVf(xE, extraFilters){
+      const extra=(extraFilters&&extraFilters.length) ? ','+extraFilters.join(',') : '';
+      return `fps=${fps},select='${selectExpr}',scale=${W}:${H}:force_original_aspect_ratio=increase,crop=w=${W}:h=${H}:x=${xE}:y=0${extra},setpts=N/(${fps}*TB),format=yuv420p,setsar=1`;
+    }
+    const baseVf=buildVf(xExpr, []);
+    const CARD_DUR=3;
+    const overlayOn=$('ovEnable').checked;
+    const af=overlayOn
+      ? `aselect='${selectExpr}',asetpts=N/SR/TB,apad=pad_dur=${CARD_DUR}`
+      : `aselect='${selectExpr}',asetpts=N/SR/TB`;
     const enc=['-c:v','libx264','-preset','ultrafast','-crf','20','-pix_fmt','yuv420p'];
     const aenc=['-af', af, '-c:a','aac','-b:a','160k','-ar','48000','-ac','2'];
 
-    const overlayOn=$('ovEnable').checked;
-    let extraInputs=[], videoArgs, overlayStages=[];
+    let extraInputs=[], videoArgs, overlayStages=[], cardBytes=null;
 
     if(overlayOn){
       phase(0.05, 0.15, 'Préparation de l’overlay…');
@@ -1250,12 +1425,66 @@ async function runExport(){
         const end=(i===nLines) ? titreDuration : Math.min(i*REVEAL_STEP, titreDuration);
         overlayStages.push({bytes, start, end});
       }
+
+      // transition "secousse+flash" : convertit un instant de la NOUVELLE
+      // timeline (post select+setpts) vers son equivalent sur la timeline
+      // ORIGINALE, puisque le crop/x tourne avant setpts (necessaire pour
+      // rester dans le meme referentiel de temps que le suivi de cadrage).
+      function newTimeToOrigTime(newT){
+        let cum=0;
+        for(const seg of kept){
+          const dur=seg.end-seg.start;
+          if(newT<=cum+dur+1e-6) return seg.start+(newT-cum);
+          cum+=dur;
+        }
+        return kept[kept.length-1].end;
+      }
+      // entre le titre seul et le cover (si le cover existe), et toujours
+      // juste avant le dernier plan (la carte de fin qu'on ajoute plus bas).
+      // la coupure reelle (select+fps quantifie sur des images entieres, et
+      // la duree "nominale" d'un moment retenu peut deborder la duree
+      // reellement decodable de la source) tombe presque toujours un peu
+      // AVANT la fin nominale -- marge de securite pour rester dans les
+      // images qui existent vraiment.
+      const QUANT_SAFETY=0.6;
+      const FLASH_D=0.16;
+      const transitions=[];
+      if(totalDur>titreDuration) transitions.push({tOrig:newTimeToOrigTime(titreDuration), tNew:titreDuration});
+      transitions.push({tOrig:kept[kept.length-1].end-QUANT_SAFETY, tNew:totalDur-QUANT_SAFETY});
+
+      // secousse : petite oscillation horizontale ajoutee au suivi de
+      // cadrage, dans le referentiel ORIGINAL (pre-setpts) comme le reste
+      // du crop.
+      const SHAKE_D=0.22, SHAKE_AMP=16, SHAKE_FREQ=9;
+      const scaledW=currentScaledW();
+      const jitterTerms=transitions.map(({tOrig:t0})=>{
+        const t0s=t0.toFixed(3), starts=(t0-SHAKE_D).toFixed(3);
+        return `(if(between(t\\,${starts}\\,${t0s})\\,${SHAKE_AMP}*sin(2*PI*${SHAKE_FREQ}*(t-${starts}))\\,0))`;
+      });
+      const xExprJittered=`min(max(${xExpr}+${jitterTerms.join('+')}\\,0)\\,${scaledW-W})`;
+      const brandedVf=buildVf(xExprJittered, []);
+
+      // flash : superposition d'un calque blanc bref (meme technique que le
+      // reveal du titre) -- des essais avec le filtre ffmpeg "fade" chaine
+      // deux fois de suite ont produit une sortie totalement blanche sur ce
+      // moteur (bug/limite du build ffmpeg.wasm 4.2.2 embarque, confirme en
+      // isolant chaque filtre), d'ou ce choix plus robuste. Chaque flash
+      // doit etre empile APRES le calque qu'il interrompt (titre ou cover)
+      // pour rester visible par-dessus au bon instant.
+      const flashBytes=await canvasToPngBytes(renderFlashOverlay(W, H));
+      const flashStage=(t0)=>{
+        const end=Math.max(0,t0), start=Math.max(0,end-FLASH_D);
+        overlayStages.push({bytes:flashBytes, start, end});
+      };
+
       if(totalDur>titreDuration){
+        flashStage(transitions[0].tNew);
         const bytes=await canvasToPngBytes(renderCejourlaOverlay('cover', W, H, ovOpts));
         overlayStages.push({bytes, start:titreDuration, end:totalDur});
       }
+      flashStage(transitions[transitions.length-1].tNew);
 
-      let filterComplex=`[0:v]${baseVf}[base]`;
+      let filterComplex=`[0:v]${brandedVf}[base]`;
       let prevLabel='base';
       overlayStages.forEach((st,idx)=>{
         const fname=`overlay_${idx}.png`;
@@ -1263,10 +1492,19 @@ async function runExport(){
         ffmpeg.FS('writeFile', fname, st.bytes);
         extraInputs.push('-i', fname);
         const inputIdx=idx+1;
-        const outLabel=(idx===overlayStages.length-1) ? 'vout' : `v${idx}`;
+        const outLabel=`v${idx}`;
         filterComplex+=`;[${prevLabel}][${inputIdx}:v]overlay=enable='between(t\\,${st.start.toFixed(3)}\\,${st.end.toFixed(3)})'[${outLabel}]`;
         prevLabel=outLabel;
       });
+
+      // dernier plan : carte de fin fixe ("RDV DEMAIN"), en image statique
+      // bouclee sur CARD_DUR secondes puis concatenee a la suite du montage.
+      cardBytes=await canvasToPngBytes(renderTeaserCard(W, H));
+      ffmpeg.FS('writeFile', 'endcard.png', cardBytes);
+      const cardInputIdx=1+overlayStages.length;
+      extraInputs.push('-loop','1','-t',String(CARD_DUR),'-i','endcard.png');
+      filterComplex+=`;[${cardInputIdx}:v]fps=${fps},format=yuv420p,setsar=1,setpts=PTS-STARTPTS[cardv]`;
+      filterComplex+=`;[${prevLabel}][cardv]concat=n=2:v=1:a=0[vout]`;
 
       videoArgs=['-filter_complex', filterComplex, '-map','[vout]', '-r', String(fps)];
     } else {
@@ -1282,6 +1520,7 @@ async function runExport(){
     function rewriteInputs(){
       ffmpeg.FS('writeFile', inName, srcBytes);
       overlayStages.forEach(st=> ffmpeg.FS('writeFile', st.fname, st.bytes));
+      if(cardBytes) ffmpeg.FS('writeFile', 'endcard.png', cardBytes);
     }
 
     let finalBytes;
