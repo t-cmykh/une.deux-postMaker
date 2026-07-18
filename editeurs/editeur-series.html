@@ -198,8 +198,12 @@ Et à la fin du match…</textarea>
     <div class="field" id="field_bodybox" style="display:none">
       <div class="range-row"><label>Fond corps</label><input id="r_bodybox" type="range" min="0" max="100" value="0"><span class="val" id="v_bodybox">0</span></div>
       <div class="range-row"><label>Saturation</label><input id="r_sat" type="range" min="0" max="100" value="0"><span class="val" id="v_sat">0</span></div>
+      <div class="hint">Portraits : fond encre semi-transparent derrière le corps de texte · saturation du média (0 = N&B)</div>
+    </div>
+
+    <div class="field" id="field_kwpad" style="display:none">
       <div class="range-row"><label>Taille encadré mot-clé</label><input id="r_kwpad" type="range" min="0" max="60" value="10"><span class="val" id="v_kwpad">10</span></div>
-      <div class="hint">Portraits : fond encre semi-transparent derrière le corps de texte · saturation du média (0 = N&B) · mot-clé sur carré crème ajustable</div>
+      <div class="hint">Mot-clé du titre sur carré crème ajustable, texte dans la couleur de la série.</div>
     </div>
 
     <div class="row2">
@@ -355,8 +359,15 @@ function selectSerie(key){
   /* apparition ligne par ligne du titre : uniquement Ce jour-là */
   document.getElementById('field_titleanim').style.display = (state.template==='titre' && key==='cejourla')?'block':'none';
   if(state.template==='titre' && key==='cejourla') restartTitleReveal();
+  updateKwPadVisibility();
   state.ratio=RAT_BY_SERIE[key][0];  /* format verrouillé par série */
   buildRatioTabs(); draw();
+}
+
+/* réglage "carré mot-clé" : pertinent uniquement quand le titre est dessiné via
+   drawWordLine (templates cover et titre seul — pas citation/cta/corps seul) */
+function updateKwPadVisibility(){
+  document.getElementById('field_kwpad').style.display = (state.template==='cover'||state.template==='titre')?'block':'none';
 }
 
 function buildRatioTabs(){
@@ -404,6 +415,7 @@ document.querySelectorAll('#tpl_chips .chip').forEach(c=>{
     document.getElementById('field_titlesize').style.display = (state.template==='titre')?'block':'none';
     document.getElementById('field_titleanim').style.display = (state.template==='titre' && state.serie==='cejourla')?'block':'none';
     document.getElementById('field_textbg').style.display = (state.template==='corps')?'block':'none';
+    updateKwPadVisibility();
     setVerbatimLabels(state.template==='verbatim');
     if(state.template==='citation'||state.template==='verbatim') rebuildQuotePicker();
     if(state.template==='titre'){
@@ -632,19 +644,22 @@ function wrapAtSize(g,text,maxW,fontPx){
 }
 function drawWordLine(g,words,x,y){
   let cx=x; const space=g.measureText(' ').width; const s=SERIES[state.serie];
-  const portraitKw=(state.serie==='portraits');
   words.forEach(w=>{
     const isAccent=(state.greenWord!=='__none__' && w.toUpperCase()===state.greenWord.toUpperCase());
     const up=w.toUpperCase();
-    if(isAccent && portraitKw){
+    if(isAccent){
+      /* mot-clé mis en valeur : carré crème adaptatif (comme le reste du texte)
+         derrière le mot, texte dans la couleur de la série — sauf Portraits, dont
+         la couleur de série EST le crème : on y garde l'encre pour le contraste */
       const wW=g.measureText(up).width, pad=state.kwPad;
       const asc=g.measureText(up).actualBoundingBoxAscent||g.measureText('M').actualBoundingBoxAscent||0;
       const desc=g.measureText(up).actualBoundingBoxDescent||0;
       g.fillStyle=C.creme;
       g.fillRect(cx-pad, y-asc-pad, wW+pad*2, asc+desc+pad*2);
-      g.fillStyle=C.encre; g.fillText(up,cx,y);
+      g.fillStyle=(state.serie==='portraits')?C.encre:s.sig;
+      g.fillText(up,cx,y);
     } else {
-      g.fillStyle=isAccent?s.sig:C.creme; g.fillText(up,cx,y);
+      g.fillStyle=C.creme; g.fillText(up,cx,y);
     }
     cx+=g.measureText(up).width+space;
   });
@@ -1268,7 +1283,7 @@ function drawVerbatim(W,H,s){
   g.textAlign='left';
 }
 document.documentElement.style.setProperty('--sig',SERIES.cejourla.sig);
-rebuildPicker(); buildRatioTabs();
+rebuildPicker(); buildRatioTabs(); updateKwPadVisibility();
 document.getElementById('legend').innerHTML='<b>'+SERIES.cejourla.name+'</b> — '+SERIES.cejourla.legend;
 document.fonts.ready.then(draw); draw();
 </script>
