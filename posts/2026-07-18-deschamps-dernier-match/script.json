@@ -1,0 +1,63 @@
+[
+  {
+    "template": "A",
+    "tag": "LE RECORD",
+    "title": "DESCHAMPS A BATTU UN RECORD HISTORIQUE. IL A PERDU LE MATCH QUI ALLAIT AVEC.",
+    "greenWord": "UN RECORD HISTORIQUE",
+    "body": "Et ce soir, il joue son tout dernier match.",
+    "media": "deschamps_01.PNG"
+  },
+  {
+    "template": "A",
+    "tag": "L'ARRIVÉE",
+    "title": "8 JUILLET 2012 : LA FFF APPELLE UN ANCIEN CAPITAINE CHAMPION DU MONDE.",
+    "greenWord": "CHAMPION DU MONDE",
+    "body": "Personne n'imagine qu'il restera quatorze ans.",
+    "media": "deschamps_02.PNG"
+  },
+  {
+    "template": "H",
+    "quote": "Et ça a fini par payer.",
+    "quoteAccent": "payer.",
+    "quoteAuthor": "",
+    "caption": ""
+  },
+  {
+    "template": "A",
+    "tag": "2018",
+    "title": "IL DEVIENT CHAMPION DU MONDE. VINGT ANS APRÈS COMME JOUEUR.",
+    "greenWord": "VINGT ANS APRÈS",
+    "body": "Seuls Zagallo et Beckenbauer avaient fait pareil avant lui.",
+    "media": "deschamps_04.PNG"
+  },
+  {
+    "template": "G",
+    "quote": "Je suis prévu jusqu'en 2026, la prochaine Coupe du monde. Mais ça s'arrêtera là, car il faut que ça s'arrête à un moment.",
+    "quoteAccent": "il faut que ça s'arrête à un moment.",
+    "quoteAuthor": "Didier Deschamps, sur TF1, 8 janvier 2025",
+    "caption": "LA DÉCISION"
+  },
+  {
+    "template": "A",
+    "tag": "LE CHIFFRE",
+    "title": "EN 26 MATCHS DE MONDIAL, IL N'A PERDU QUE TROIS FOIS HORS TIRS AU BUT.",
+    "greenWord": "TROIS FOIS",
+    "body": "Allemagne 2014. Tunisie 2022. Et l'Espagne, il y a quatre jours.",
+    "media": "deschamps_06.PNG"
+  },
+  {
+    "template": "A",
+    "tag": "CE SOIR",
+    "title": "SON DERNIER MATCH SE JOUE À MIAMI, CONTRE L'ANGLETERRE.",
+    "greenWord": "SON DERNIER MATCH",
+    "body": "Il avait annoncé son départ dix-huit mois avant d'y être obligé. Les grands ne s'accrochent pas, ils choisissent leur sortie.",
+    "media": "deschamps_07.PNG"
+  },
+  {
+    "template": "D",
+    "tag": "LE RECAP",
+    "title": "RESTE DANS LE JEU",
+    "body": "Le foot en deux touches, tous les jours.",
+    "btnlabel": "FOLLOW"
+  }
+]
