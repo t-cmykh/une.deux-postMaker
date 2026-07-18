@@ -648,15 +648,17 @@ function drawWordLine(g,words,x,y){
     const isAccent=(state.greenWord!=='__none__' && w.toUpperCase()===state.greenWord.toUpperCase());
     const up=w.toUpperCase();
     if(isAccent){
-      /* mot-clé mis en valeur : carré crème adaptatif (comme le reste du texte)
-         derrière le mot, texte dans la couleur de la série — sauf Portraits, dont
-         la couleur de série EST le crème : on y garde l'encre pour le contraste */
+      /* mot-clé mis en valeur : carré adaptatif derrière le mot. Portraits n'a
+         pas de teinte propre (sa couleur de série est l'encre, proche du fond
+         sombre) : il garde le carré crème + texte encre. Les 3 autres séries
+         inversent — carré dans la couleur de la série, texte en crème */
       const wW=g.measureText(up).width, pad=state.kwPad;
       const asc=g.measureText(up).actualBoundingBoxAscent||g.measureText('M').actualBoundingBoxAscent||0;
       const desc=g.measureText(up).actualBoundingBoxDescent||0;
-      g.fillStyle=C.creme;
+      const portraitKw=(state.serie==='portraits');
+      g.fillStyle=portraitKw?C.creme:s.swatch;
       g.fillRect(cx-pad, y-asc-pad, wW+pad*2, asc+desc+pad*2);
-      g.fillStyle=(state.serie==='portraits')?C.encre:s.sig;
+      g.fillStyle=portraitKw?C.encre:C.creme;
       g.fillText(up,cx,y);
     } else {
       g.fillStyle=C.creme; g.fillText(up,cx,y);
