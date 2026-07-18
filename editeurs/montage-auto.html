@@ -176,6 +176,27 @@
         <textarea id="ovBody" rows="3" style="width:100%;background:rgba(241,236,225,.06);border:1px solid rgba(241,236,225,.18);border-radius:8px;color:var(--newsprint);padding:8px;font-size:13px;">Et personne, chez eux, ne l'a remarqué.</textarea>
       </div>
       <div class="warn">Pensé pour le format 9:16 (comme dans l'éditeur séries) — avec 4:5 ou 1:1 les proportions seront moins ajustées.</div>
+
+      <label style="display:flex;align-items:center;gap:9px;font-size:13px;margin:14px 0;cursor:pointer;">
+        <input type="checkbox" id="subEnable" style="width:19px;height:19px;flex:0 0 auto;accent-color:var(--ocre);">
+        Sous-titres (remplace le titre/corps du cover ci-dessus, ligne par ligne)
+      </label>
+      <div id="subFields" style="display:none;">
+        <div class="field">
+          <label class="field">Texte (une ligne = un sous-titre)</label>
+          <textarea id="subText" rows="4" style="width:100%;background:rgba(241,236,225,.06);border:1px solid rgba(241,236,225,.18);border-radius:8px;color:var(--newsprint);padding:8px;font-size:13px;" placeholder="Une ligne par sous-titre…"></textarea>
+        </div>
+        <div class="cfg-row">
+          <div>
+            <label class="field">Durée par ligne (s)</label>
+            <input type="number" id="subLineDur" value="2" min="0.2" max="30" step="0.1">
+          </div>
+          <div>
+            <label class="field">Taille du sous-titre</label>
+            <input type="number" id="subSize" value="44" min="20" max="90">
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -227,6 +248,9 @@ let ffmpeg=null, ffLoaded=false;
 
 $('ovEnable').addEventListener('change', ()=>{
   $('ovFields').style.display = $('ovEnable').checked ? 'block' : 'none';
+});
+$('subEnable').addEventListener('change', ()=>{
+  $('subFields').style.display = $('subEnable').checked ? 'block' : 'none';
 });
 
 /* ---------- 1) chargement du fichier ---------- */
@@ -1025,6 +1049,20 @@ function ovDrawBodyRich(g,line,x,y,fontPx){
   const segs=ovParseBoldSegments(line); let cx=x;
   segs.forEach(s=>{ g.font=(s.bold?"700 ":"500 ")+fontPx+"px 'Archivo'"; g.fillText(s.text,cx,y); cx+=g.measureText(s.text).width; });
 }
+// enveloppe de texte brut (sans markup gras), mesure avec le g.font deja en
+// place -- utilise pour la carte de fin et les sous-titres, ou la taille de
+// police n'est pas fixe comme pour ovWrapBody.
+function ovWrapPlain(g,text,maxW,maxLines){
+  const lines=[];
+  String(text).split('\n').forEach(para=>{
+    if(para.trim()===''){lines.push('');return;}
+    const words=para.split(/\s+/).filter(Boolean); let cur='';
+    words.forEach(w=>{ const test=cur?cur+' '+w:w;
+      if(g.measureText(test).width>maxW && cur){lines.push(cur);cur=w;} else cur=test; });
+    if(cur)lines.push(cur);
+  });
+  return lines.slice(0,maxLines||6);
+}
 function ovWrapBody(g,text,maxW,maxLines){
   g.font="500 40px 'Archivo'"; const lines=[];
   String(text).split('\n').forEach(para=>{
@@ -1094,7 +1132,7 @@ function ovCountTitleLines(title, titleSize, W){
 /* dessine le calque overlay (fond transparent, W x H) pour le template
    'titre' (titre seul, taille reglable, reveal ligne par ligne via
    visibleLines) ou 'cover' (titre auto + corps). */
-function renderCejourlaOverlay(template, W, H, {title, greenWord, body, titleSize, visibleLines}){
+function renderCejourlaOverlay(template, W, H, {title, greenWord, body, titleSize, visibleLines, subtitleText, subtitleSize}){
   const cv=document.createElement('canvas'); cv.width=W; cv.height=H;
   const g=cv.getContext('2d');
   g.clearRect(0,0,W,H);
@@ -1154,6 +1192,19 @@ function renderCejourlaOverlay(template, W, H, {title, greenWord, body, titleSiz
     baselines=baselines.map(b=>b+shift);
     const nShow=(visibleLines==null)?lines.length:Math.max(0,Math.min(lines.length,visibleLines));
     lines.forEach((lw,i)=>{ if(i<nShow) ovDrawWordLine(g,lw,M,baselines[i],greenWord); });
+  } else if(subtitleText!=null){
+    // sous-titres actives : remplace le titre + corps de ce template par
+    // une ligne de sous-titre (celle du moment courant), meme entete/tag
+    // de serie au-dessus.
+    const subSize=subtitleSize||44;
+    g.font="700 "+subSize+"px 'Archivo'";
+    const maxW=W-M-MR;
+    const subLines=ovWrapPlain(g, subtitleText, maxW, 4);
+    const lineH=subSize*1.2;
+    const bottom=footY+18;
+    const top=bottom-subLines.length*lineH;
+    g.fillStyle=OV_C.creme; g.textAlign='left'; g.textBaseline='alphabetic';
+    subLines.forEach((ln,i)=> g.fillText(ln, M, top+(i+1)*lineH-12));
   } else {
     const bodyMaxW=W-M-MR, maxBodyLines=12;
     let bodyFont=40,bodyLineH=50;
@@ -1240,28 +1291,14 @@ function renderTeaserCard(W, H){
   g.fillStyle=OV_C.encre; g.font="40px 'Archivo'"; g.textAlign='center'; g.textBaseline='alphabetic';
   const subY=(l2.length?ty2:ty1)+60;
   const bodyTxt="Tout les jours ont revient sur les moments marquants du foot qui se sont passé ce jour là…";
-  const subWords=bodyTxt.split(/\s+/).filter(Boolean);
-  const subLines=[]; let cur='';
-  subWords.forEach(w=>{ const test=cur?cur+' '+w:w;
-    if(g.measureText(test).width>avail-120 && cur){ subLines.push(cur); cur=w; } else cur=test; });
-  if(cur) subLines.push(cur);
-  subLines.slice(0,6).forEach((ln,i)=> g.fillText(ln, cx, subY+i*48));
+  const subLines=ovWrapPlain(g, bodyTxt, avail-120, 6);
+  subLines.forEach((ln,i)=> g.fillText(ln, cx, subY+i*48));
 
   const footY=H-70-OV_SAFE_BOTTOM;
   g.fillStyle=OV_C.encre; g.fillRect(M, footY-46, W-M-MR, 3);
   g.textBaseline='middle'; g.textAlign='left';
   g.font="32px 'Saira Condensed'"; g.fillText('@UNE.DEUX', M, footY);
 
-  return cv;
-}
-
-// calque plein cadre quasi-blanc pour le pulse "flash" des transitions
-// secousse+flash (superpose brievement, cf. runExport).
-function renderFlashOverlay(W, H){
-  const cv=document.createElement('canvas'); cv.width=W; cv.height=H;
-  const g=cv.getContext('2d');
-  g.fillStyle='rgba(255,255,255,0.92)';
-  g.fillRect(0,0,W,H);
   return cv;
 }
 
@@ -1394,11 +1431,7 @@ async function runExport(){
     // become valid again. (fps= after select would be wrong here: select
     // introduces real time GAPS between kept ranges, and fps= fills gaps by
     // freeze-framing the last frame, which is not what we want between cuts.)
-    function buildVf(xE, extraFilters){
-      const extra=(extraFilters&&extraFilters.length) ? ','+extraFilters.join(',') : '';
-      return `fps=${fps},select='${selectExpr}',scale=${W}:${H}:force_original_aspect_ratio=increase,crop=w=${W}:h=${H}:x=${xE}:y=0${extra},setpts=N/(${fps}*TB),format=yuv420p,setsar=1`;
-    }
-    const baseVf=buildVf(xExpr, []);
+    const baseVf=`fps=${fps},select='${selectExpr}',scale=${W}:${H}:force_original_aspect_ratio=increase,crop=w=${W}:h=${H}:x=${xExpr}:y=0,setpts=N/(${fps}*TB),format=yuv420p,setsar=1`;
     const CARD_DUR=3;
     const overlayOn=$('ovEnable').checked;
     const af=overlayOn
@@ -1439,65 +1472,31 @@ async function runExport(){
         overlayStages.push({bytes, start, end});
       }
 
-      // transition "secousse+flash" : convertit un instant de la NOUVELLE
-      // timeline (post select+setpts) vers son equivalent sur la timeline
-      // ORIGINALE, puisque le crop/x tourne avant setpts (necessaire pour
-      // rester dans le meme referentiel de temps que le suivi de cadrage).
-      function newTimeToOrigTime(newT){
-        let cum=0;
-        for(const seg of kept){
-          const dur=seg.end-seg.start;
-          if(newT<=cum+dur+1e-6) return seg.start+(newT-cum);
-          cum+=dur;
-        }
-        return kept[kept.length-1].end;
-      }
-      // entre le titre seul et le cover (si le cover existe), et toujours
-      // juste avant le dernier plan (la carte de fin qu'on ajoute plus bas).
-      // la coupure reelle (select+fps quantifie sur des images entieres, et
-      // la duree "nominale" d'un moment retenu peut deborder la duree
-      // reellement decodable de la source) tombe presque toujours un peu
-      // AVANT la fin nominale -- marge de securite pour rester dans les
-      // images qui existent vraiment.
-      const QUANT_SAFETY=0.6;
-      const FLASH_D=0.16;
-      const transitions=[];
-      if(totalDur>titreDuration) transitions.push({tOrig:newTimeToOrigTime(titreDuration), tNew:titreDuration});
-      transitions.push({tOrig:kept[kept.length-1].end-QUANT_SAFETY, tNew:totalDur-QUANT_SAFETY});
-
-      // secousse : petite oscillation horizontale ajoutee au suivi de
-      // cadrage, dans le referentiel ORIGINAL (pre-setpts) comme le reste
-      // du crop.
-      const SHAKE_D=0.22, SHAKE_AMP=16, SHAKE_FREQ=9;
-      const scaledW=currentScaledW();
-      const jitterTerms=transitions.map(({tOrig:t0})=>{
-        const t0s=t0.toFixed(3), starts=(t0-SHAKE_D).toFixed(3);
-        return `(if(between(t\\,${starts}\\,${t0s})\\,${SHAKE_AMP}*sin(2*PI*${SHAKE_FREQ}*(t-${starts}))\\,0))`;
-      });
-      const xExprJittered=`min(max(${xExpr}+${jitterTerms.join('+')}\\,0)\\,${scaledW-W})`;
-      const brandedVf=buildVf(xExprJittered, []);
-
-      // flash : superposition d'un calque blanc bref (meme technique que le
-      // reveal du titre) -- des essais avec le filtre ffmpeg "fade" chaine
-      // deux fois de suite ont produit une sortie totalement blanche sur ce
-      // moteur (bug/limite du build ffmpeg.wasm 4.2.2 embarque, confirme en
-      // isolant chaque filtre), d'ou ce choix plus robuste. Chaque flash
-      // doit etre empile APRES le calque qu'il interrompt (titre ou cover)
-      // pour rester visible par-dessus au bon instant.
-      const flashBytes=await canvasToPngBytes(renderFlashOverlay(W, H));
-      const flashStage=(t0)=>{
-        const end=Math.max(0,t0), start=Math.max(0,end-FLASH_D);
-        overlayStages.push({bytes:flashBytes, start, end});
-      };
-
       if(totalDur>titreDuration){
-        flashStage(transitions[0].tNew);
-        const bytes=await canvasToPngBytes(renderCejourlaOverlay('cover', W, H, ovOpts));
-        overlayStages.push({bytes, start:titreDuration, end:totalDur});
+        const subEnable=$('subEnable').checked;
+        const subLines=subEnable ? String($('subText').value||'').split('\n').filter(l=>l.trim()!=='') : [];
+        if(subEnable && subLines.length){
+          // sous-titres : une ligne du texte fourni par plage de duree
+          // fixe, a partir de la fin du titre seul ; la derniere ligne
+          // tient jusqu'a la fin si le texte s'epuise avant.
+          const lineDur=Math.max(0.1, parseFloat($('subLineDur').value)||2);
+          const subSize=parseInt($('subSize').value,10)||44;
+          let t=titreDuration, li=0;
+          while(t<totalDur){
+            const isLast=li>=subLines.length-1;
+            const end=isLast ? totalDur : Math.min(t+lineDur, totalDur);
+            const bytes=await canvasToPngBytes(renderCejourlaOverlay('cover', W, H, {...ovOpts, subtitleText:subLines[li], subtitleSize:subSize}));
+            overlayStages.push({bytes, start:t, end});
+            if(isLast) break;
+            t=end; li++;
+          }
+        } else {
+          const bytes=await canvasToPngBytes(renderCejourlaOverlay('cover', W, H, ovOpts));
+          overlayStages.push({bytes, start:titreDuration, end:totalDur});
+        }
       }
-      flashStage(transitions[transitions.length-1].tNew);
 
-      let filterComplex=`[0:v]${brandedVf}[base]`;
+      let filterComplex=`[0:v]${baseVf}[base]`;
       let prevLabel='base';
       overlayStages.forEach((st,idx)=>{
         const fname=`overlay_${idx}.png`;
