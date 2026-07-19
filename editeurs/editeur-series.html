@@ -681,8 +681,12 @@ function drawWordLine(g,words,x,y){
          sombre) : il garde le carré crème + texte encre. Les 3 autres séries
          inversent — carré dans la couleur de la série, texte en crème */
       const wW=g.measureText(up).width, pad=state.kwPad;
-      const asc=g.measureText(up).actualBoundingBoxAscent||g.measureText('M').actualBoundingBoxAscent||0;
-      const desc=g.measureText(up).actualBoundingBoxDescent||0;
+      /* hauteur du carré mesurée sur une référence fixe (M pour le haut de casse,
+         Ç pour la cédille) plutôt que sur le mot lui-même : un accent (É, Â…) ne
+         doit pas agrandir le carré et le faire déborder sur la ligne au-dessus */
+      const ref=g.measureText('MÇ');
+      const asc=ref.actualBoundingBoxAscent||g.measureText('M').actualBoundingBoxAscent||0;
+      const desc=ref.actualBoundingBoxDescent||0;
       const portraitKw=(state.serie==='portraits');
       g.fillStyle=portraitKw?C.creme:s.swatch;
       g.fillRect(cx-pad, y-asc-pad, wW+pad*2, asc+desc+pad*2);
