@@ -518,14 +518,32 @@ document.getElementById('b_export').onclick=async ()=>{
   if(state.isVideo){ await exportVideo(); }
   else { exportPNG(); }
 };
+/* livraison d'un fichier exporté : partage natif en priorité (seul moyen fiable
+   d'enregistrer dans Photos depuis Safari iPhone), sinon lien de téléchargement
+   classique — un <a href=data:> synthétique ne suffit plus sur mobile (silencieux
+   sur Safari, notamment pour les gros PNG dont la data URI dépasse ses limites) */
+async function deliverFile(blob,filename,mime){
+  const file = window.File ? new File([blob],filename,{type:mime}) : null;
+  if(file && navigator.canShare && navigator.canShare({files:[file]})){
+    try{ await navigator.share({files:[file]}); return; }
+    catch(e){ if(e && e.name==='AbortError') return; /* annulé par l'utilisateur : pas de repli */ }
+  }
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.download=filename; a.href=url;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(()=>{ try{URL.revokeObjectURL(url);}catch(e){} },4000);
+}
 function exportPNG(){
   const wasSafe=state.safeOn; state.safeOn=false;
   /* le PNG exporté montre toujours le titre entièrement révélé, même en cours d'animation */
   const wasReveal=state.titleRevealStart;
   if(state.serie==='cejourla' && state.template==='titre') state.titleRevealStart=-1e9;
   draw();
-  const a=document.createElement('a'); a.download='unedeux-'+state.serie+'-'+state.cur+'.png';
-  a.href=cv.toDataURL('image/png'); a.click();
+  const filename='unedeux-'+state.serie+'-'+state.cur+'.png';
+  cv.toBlob(blob=>{
+    if(!blob){ alert("Export impossible : image non générée."); return; }
+    deliverFile(blob,filename,'image/png');
+  },'image/png');
   state.safeOn=wasSafe; state.titleRevealStart=wasReveal; draw();
 }
 async function exportVideo(){
@@ -551,8 +569,7 @@ async function exportVideo(){
   exporting=false; state.safeOn=wasSafe; btn.textContent=orig; v.play().catch(()=>{}); startVideoLoop();
   const outType=mime.startsWith('video/mp4')?'video/mp4':'video/webm', ext=outType==='video/mp4'?'mp4':'webm';
   const blob=new Blob(chunks,{type:outType});
-  const a=document.createElement('a'); a.download='unedeux-'+state.serie+'-'+state.cur+'.'+ext;
-  a.href=URL.createObjectURL(blob); a.click();
+  deliverFile(blob,'unedeux-'+state.serie+'-'+state.cur+'.'+ext,outType);
 }
 document.getElementById('b_reset').onclick=()=>{
   clearMedia(); state.zoom=1;state.posx=0.5;state.posy=0.5;state.dark=0.78;
