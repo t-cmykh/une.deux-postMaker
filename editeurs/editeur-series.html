@@ -227,6 +227,11 @@ Et à la fin du match…</textarea>
     <div class="range-row"><label>Position Y</label><input id="r_py" type="range" min="0" max="100" value="50"><span class="val" id="v_py">50</span></div>
     <div class="range-row"><label>Assombrir</label><input id="r_dark" type="range" min="20" max="95" value="78"><span class="val" id="v_dark">78</span></div>
 
+    <div id="field_enquetefilter" style="display:none">
+      <div class="toggle-row" id="t_enquetefilter"><div class="tg"></div><span>Filtre rouille</span></div>
+      <div class="hint">Désactivé par défaut : teinte rouille + léger grain sur la photo.</div>
+    </div>
+
     <div class="toggle-row on" id="t_safe"><div class="tg"></div><span>Zone sûre Instagram</span></div>
 
     <div class="btns">
@@ -289,7 +294,8 @@ const state = {
   titleSizeManual:null,
   titleAnimSpeed:1,
   titleRevealStart:null,
-  textBgOpacity:55
+  textBgOpacity:55,
+  enqueteFilterOn:false
 };
 
 const RATIOS = {'3:4':[1080,1440], '4:5':[1080,1350], '9:16':[1080,1920], '1:1':[1080,1080]};
@@ -350,6 +356,8 @@ function selectSerie(key){
   document.getElementById('field_bodybox').style.display = (key==='portraits')?'block':'none';
   /* toggle pagination : uniquement L'arrêt de jeu */
   document.getElementById('field_pagination').style.display = (key==='arretdejeu')?'block':'none';
+  /* toggle filtre rouille (photo) : uniquement L'arrêt de jeu */
+  document.getElementById('field_enquetefilter').style.display = (key==='arretdejeu')?'block':'none';
   /* template "citation · interview" (duo photo/texte) : réservé à L'arrêt de jeu */
   const chipVerbatim=document.getElementById('chip_verbatim');
   chipVerbatim.style.display = (key==='arretdejeu')?'':'none';
@@ -403,6 +411,7 @@ const ry=document.getElementById('r_py');ry.oninput=()=>{state.posy=+ry.value/10
 const rd=document.getElementById('r_dark');rd.oninput=()=>{state.dark=+rd.value/100;document.getElementById('v_dark').textContent=rd.value;draw();};
 const tsafe=document.getElementById('t_safe');tsafe.onclick=()=>{state.safeOn=!state.safeOn;tsafe.classList.toggle('on',state.safeOn);draw();};
 const tpagination=document.getElementById('t_pagination');tpagination.onclick=()=>{state.paginationOn=!state.paginationOn;tpagination.classList.toggle('on',state.paginationOn);draw();};
+const tenquete=document.getElementById('t_enquetefilter');tenquete.onclick=()=>{state.enqueteFilterOn=!state.enqueteFilterOn;tenquete.classList.toggle('on',state.enqueteFilterOn);draw();};
 
 /* sélecteur de template (cover / citation / cta) */
 document.querySelectorAll('#tpl_chips .chip').forEach(c=>{
@@ -703,7 +712,7 @@ function applyPhotoFilter(g,W,H,kind){
     if(desat>0){ g.save();g.globalCompositeOperation='saturation';g.globalAlpha=desat;g.fillStyle='hsl(0,0%,50%)';g.fillRect(0,0,W,H);g.restore(); }
     const r=g.createRadialGradient(W/2,H*0.42,W*0.2,W/2,H*0.5,W*0.85); r.addColorStop(0,'rgba(0,0,0,0)');r.addColorStop(1,'rgba(0,0,0,0.5)');
     g.fillStyle=r; g.fillRect(0,0,W,H); }
-  else if(kind==='enquete'){ g.save();g.globalCompositeOperation='saturation';g.globalAlpha=0.6;g.fillStyle='hsl(0,0%,50%)';g.fillRect(0,0,W,H);g.restore();
+  else if(kind==='enquete' && state.enqueteFilterOn){ g.save();g.globalCompositeOperation='saturation';g.globalAlpha=0.6;g.fillStyle='hsl(0,0%,50%)';g.fillRect(0,0,W,H);g.restore();
     g.fillStyle='rgba(150,62,40,0.22)'; g.fillRect(0,0,W,H);
     /* légère surimpression dossier : trame de hachures fines, spécifique à cette série */
     g.save(); g.strokeStyle='rgba(241,236,225,0.06)'; g.lineWidth=1.5;
