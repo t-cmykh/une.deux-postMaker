@@ -1085,7 +1085,10 @@ function drawCTA(W,H,s){
 function drawCitation(W,H,s){
   const g=ctx; const isVert=state.ratio==='9:16';
   const M = isVert ? 96 : 50, MR = isVert ? 96 : 120;
-  const ACC = C.vert;  /* accent couleur série Les oubliés */
+  /* accent couleur de la série sélectionnée (avant : vert « Les oubliés » figé
+     pour toutes les séries) — Portraits n'a pas de teinte propre (sig = crème,
+     confondu avec le fond) : il garde l'encre du reste de la citation */
+  const ACC = (state.serie==='portraits') ? C.encre : s.sig;
 
   /* fond crème + stries sombres */
   g.fillStyle=C.creme; g.fillRect(0,0,W,H);
