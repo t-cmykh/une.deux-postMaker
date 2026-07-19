@@ -368,6 +368,7 @@ function selectSerie(key){
   document.getElementById('field_titleanim').style.display = (state.template==='titre' && key==='cejourla')?'block':'none';
   if(state.template==='titre' && key==='cejourla') restartTitleReveal();
   updateKwPadVisibility();
+  setVerbatimLabels(state.template==='verbatim');
   state.ratio=RAT_BY_SERIE[key][0];  /* format verrouillé par série */
   buildRatioTabs(); draw();
 }
@@ -451,9 +452,10 @@ document.getElementById('f_caption').oninput=e=>{state.caption=e.target.value;dr
 
 /* ===== bascule des libellés du bloc citation selon le template (citation vs interview) ===== */
 function setVerbatimLabels(isVerbatim){
-  /* interview : pas d'auteur/nom ni de légende — juste la citation en duo photo/texte */
+  /* interview : pas d'auteur/nom ni de légende — juste la citation en duo photo/texte.
+     L'arrêt de jeu (hors interview) : pas de légende non plus, le tag série en tient lieu */
   document.getElementById('field_quoteAuthor_row').style.display = isVerbatim ? 'none' : 'block';
-  document.getElementById('field_caption_row').style.display = isVerbatim ? 'none' : 'block';
+  document.getElementById('field_caption_row').style.display = (isVerbatim || state.serie==='arretdejeu') ? 'none' : 'block';
   document.getElementById('hint_quote').textContent = isVerbatim ? "Entrée = nouvelle ligne · Entrée deux fois = paragraphe · **gras** supporté · casse conservée (pas de MAJUSCULES forcées)" : "Entrée = nouvelle ligne · **gras** supporté";
 }
 
@@ -1174,24 +1176,13 @@ function drawCitation(W,H,s){
     g.fillText('— '+state.quoteAuthor.trim().toUpperCase(), M, attribTop + 84);
   }
 
-  /* légende bas */
-  if(state.caption && state.caption.trim()){
+  /* légende bas — absente pour L'arrêt de jeu (le tag série en tient déjà lieu) */
+  if(state.serie!=='arretdejeu' && state.caption && state.caption.trim()){
     const capY=H-150-safeBottom();
     g.strokeStyle=C.encre; g.lineWidth=3;
     g.beginPath(); g.moveTo(M, capY); g.lineTo(M+44, capY); g.stroke();
     g.fillStyle=C.encre; g.font="30px 'Saira Condensed'"; g.textBaseline='middle'; g.textAlign='left';
     g.fillText(state.caption.toUpperCase(), M+62, capY+1);
-  }
-
-  /* SWIPE + flèche : identique aux autres templates de L'arrêt de jeu */
-  if(state.serie==='arretdejeu' && state.showSwipe && !isVert){
-    const footY=H-70-safeBottom();
-    g.fillStyle=s.sig; g.font="36px 'Saira Condensed'"; g.textBaseline='middle'; g.textAlign='left';
-    g.fillText('SWIPE',M,footY);
-    const sw=g.measureText('SWIPE').width;
-    const circD=76, circX=M+sw+28+circD/2, circY=footY;
-    g.fillStyle=s.sig; g.beginPath(); g.arc(circX,circY,circD/2,0,Math.PI*2); g.fill();
-    roundedArrow(g,circX,circY,C.creme);
   }
 
   /* filet bas + pagination (masqués en vertical 9:16) */
