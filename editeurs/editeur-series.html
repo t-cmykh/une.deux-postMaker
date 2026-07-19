@@ -278,7 +278,7 @@ const SERIES = {
 /* ===== State (calé sur post.html) ===== */
 const state = {
   serie:'cejourla',
-  tag:'', title:'28 JUIN 1958 IMAGINE TU AS 17 ANS', greenWord:'IMAGINE',
+  tag:'', title:'28 JUIN 1958 IMAGINE TU AS 17 ANS', greenWords:new Set(['IMAGINE']),
   body:"Tu t'apprêtes à jouer une demi-finale de Coupe du monde.\nEt à la fin du match…",
   cur:'01', tot:'09',
   img:null, vid:null, isVideo:false, zoom:1, posx:0.5, posy:0.5, dark:0.78,
@@ -286,7 +286,7 @@ const state = {
   template:'cover',
   btnlabel:'ENREGISTRE',
   quote:"Sur le terrain, tout s'est joué en deux passes.",
-  quoteAccent:"tout s'est joué en deux passes.",
+  quoteWords:new Set(["tout","s'est","joué","en","deux","passes."]),
   quoteAuthor:'', caption:"L'ANALYSE",
   bodyBoxOpacity:0,
   satPortrait:0,
@@ -387,16 +387,27 @@ function buildRatioTabs(){
   });
 }
 
-/* ===== green word picker (mots du titre) ===== */
+/* ===== green word picker (mots du titre) — sélection multiple ===== */
 function rebuildPicker(){
   const box=document.getElementById('greenpicker'); box.innerHTML='';
+  const words=[...new Set(state.title.trim().split(/\s+/).filter(Boolean))];
   const none=document.createElement('div');
-  none.className='chip'+(state.greenWord==='__none__'?' on':''); none.textContent='Aucun';
-  none.onclick=()=>{state.greenWord='__none__';rebuildPicker();draw();}; box.appendChild(none);
-  [...new Set(state.title.trim().split(/\s+/).filter(Boolean))].forEach(w=>{
+  none.className='chip'+(state.greenWords.size===0?' on':''); none.textContent='Aucun';
+  none.onclick=()=>{state.greenWords.clear();rebuildPicker();draw();}; box.appendChild(none);
+  const all=document.createElement('div');
+  const allOn=words.length>0 && words.every(w=>state.greenWords.has(w.toUpperCase()));
+  all.className='chip'+(allOn?' on':''); all.textContent='Tout';
+  all.onclick=()=>{
+    state.greenWords = allOn ? new Set() : new Set(words.map(w=>w.toUpperCase()));
+    rebuildPicker();draw();
+  }; box.appendChild(all);
+  words.forEach(w=>{
+    const up=w.toUpperCase();
     const c=document.createElement('div');
-    c.className='chip'+(w.toUpperCase()===state.greenWord.toUpperCase()?' on':''); c.textContent=w;
-    c.onclick=()=>{state.greenWord=w;rebuildPicker();draw();}; box.appendChild(c);
+    const sel=state.greenWords.has(up);
+    c.className='chip'+(sel?' on':''); c.textContent=w;
+    c.onclick=()=>{ sel?state.greenWords.delete(up):state.greenWords.add(up); rebuildPicker();draw(); };
+    box.appendChild(c);
   });
 }
 
@@ -459,17 +470,27 @@ function setVerbatimLabels(isVerbatim){
   document.getElementById('hint_quote').textContent = isVerbatim ? "Entrée = nouvelle ligne · Entrée deux fois = paragraphe · **gras** supporté · casse conservée (pas de MAJUSCULES forcées)" : "Entrée = nouvelle ligne · **gras** supporté";
 }
 
-/* ===== quote accent picker (mots de la citation) ===== */
+/* ===== quote accent picker (mots de la citation) — sélection multiple ===== */
 function rebuildQuotePicker(){
   const box=document.getElementById('quotepicker'); if(!box) return; box.innerHTML='';
+  const words=[...new Set(stripBold(state.quote).trim().split(/\s+/).filter(Boolean))];
   const none=document.createElement('div');
-  none.className='chip'+(!state.quoteAccent||!state.quoteAccent.trim()?' on':''); none.textContent='Aucun';
-  none.onclick=()=>{state.quoteAccent='';rebuildQuotePicker();draw();}; box.appendChild(none);
-  [...new Set(stripBold(state.quote).trim().split(/\s+/).filter(Boolean))].forEach(w=>{
+  none.className='chip'+(state.quoteWords.size===0?' on':''); none.textContent='Aucun';
+  none.onclick=()=>{state.quoteWords.clear();rebuildQuotePicker();draw();}; box.appendChild(none);
+  const all=document.createElement('div');
+  const allOn=words.length>0 && words.every(w=>state.quoteWords.has(w.toLowerCase()));
+  all.className='chip'+(allOn?' on':''); all.textContent='Tout';
+  all.onclick=()=>{
+    state.quoteWords = allOn ? new Set() : new Set(words.map(w=>w.toLowerCase()));
+    rebuildQuotePicker();draw();
+  }; box.appendChild(all);
+  words.forEach(w=>{
+    const lo=w.toLowerCase();
     const c=document.createElement('div');
-    const sel=(state.quoteAccent||'').trim().toLowerCase()===w.toLowerCase();
+    const sel=state.quoteWords.has(lo);
     c.className='chip'+(sel?' on':''); c.textContent=w;
-    c.onclick=()=>{state.quoteAccent=w;rebuildQuotePicker();draw();}; box.appendChild(c);
+    c.onclick=()=>{ sel?state.quoteWords.delete(lo):state.quoteWords.add(lo); rebuildQuotePicker();draw(); };
+    box.appendChild(c);
   });
 }
 const rbb=document.getElementById('r_bodybox');
@@ -673,7 +694,7 @@ function wrapAtSize(g,text,maxW,fontPx){
 function drawWordLine(g,words,x,y){
   let cx=x; const space=g.measureText(' ').width; const s=SERIES[state.serie];
   words.forEach(w=>{
-    const isAccent=(state.greenWord!=='__none__' && w.toUpperCase()===state.greenWord.toUpperCase());
+    const isAccent=state.greenWords.has(w.toUpperCase());
     const up=w.toUpperCase();
     if(isAccent){
       /* mot-clé mis en valeur : carré adaptatif derrière le mot. Portraits n'a
@@ -1068,7 +1089,7 @@ function drawCTA(W,H,s){
     const full=words2.join(' '); const totalW=g.measureText(full).width; let x=cx-totalW/2;
     const space=g.measureText(' ').width;
     g.textAlign='left';
-    words2.forEach(w=>{ const acc=(state.greenWord!=='__none__'&&w===state.greenWord.toUpperCase());
+    words2.forEach(w=>{ const acc=state.greenWords.has(w);
       g.fillStyle=acc?s.sig:C.encre; g.fillText(w,x,y); x+=g.measureText(w).width+space; });
     g.textAlign='center';
   };
@@ -1129,12 +1150,9 @@ function drawCitation(W,H,s){
 
   /* découpe de la citation en mots + couleur (accent vert) */
   const quote=state.quote.trim();
-  const accent=state.quoteAccent.trim().toLowerCase();
-  const accentStart = accent? quote.toLowerCase().indexOf(accent) : -1;
-  const accentEnd = accentStart>=0 ? accentStart+accent.length : -1;
   const words=[]; let m, re=/\S+/g;
   while((m=re.exec(quote))!==null){ words.push({w:m[0], start:m.index, end:m.index+m[0].length}); }
-  words.forEach(o=>{ o.accent = accentStart>=0 && o.start>=accentStart && o.end<=accentEnd; });
+  words.forEach(o=>{ o.accent = state.quoteWords.has(o.w.toLowerCase()); });
 
   /* taille adaptative */
   const maxW=W-M-MR;
@@ -1272,15 +1290,12 @@ function drawVerbatim(W,H,s){
   const quoteTop=tagY+tagH+36;
   const quoteBottom=(showFooter?footY-46:H-70-safeBottom())-34;
   const maxH=Math.max(60,quoteBottom-quoteTop);
-  const accentLower=(state.quoteAccent||'').trim().toLowerCase();
   const maxW2=rightW;
 
   function layoutRichWords(size){
     /* découpage en paragraphes sur chaque Entrée : une ligne vide (Entrée deux fois) devient un
        vrai saut de paragraphe (ligne vide conservée dans le rendu), pas seulement un retour ligne */
     const plainFull=stripBold(state.quote), mask=boldMask(state.quote);
-    const accentIdx = accentLower ? plainFull.toLowerCase().indexOf(accentLower) : -1;
-    const accentEnd = accentIdx>=0 ? accentIdx+accentLower.length : -1;
     g.font="500 "+size+"px 'Archivo'"; const space=g.measureText(' ').width;
     const lines=[]; let offset=0;
     plainFull.split('\n').forEach(paraText=>{
@@ -1288,8 +1303,7 @@ function drawVerbatim(W,H,s){
       const words=[]; let m, re=/\S+/g;
       while((m=re.exec(paraText))!==null){
         const start=offset+m.index;
-        const o={w:m[0], start, bold:mask[start]||false};
-        if(accentIdx>=0) o.accent = start>=accentIdx && (start+m[0].length)<=accentEnd;
+        const o={w:m[0], start, bold:mask[start]||false, accent: state.quoteWords.has(m[0].toLowerCase())};
         words.push(o);
       }
       let cur=[]; let curW=0;
