@@ -1107,6 +1107,19 @@ function drawCitation(W,H,s){
   g.fillText('@UNE.DEUX',W-MR,ringC); g.textAlign='left';
   g.fillStyle=C.encre; g.fillRect(M,168+safeTop(),W-M-MR,4);
 
+  /* TAG SÉRIE : identique aux autres templates de L'arrêt de jeu (cover/titre/corps/
+     interview) — absent des autres séries en template Citation, comportement inchangé */
+  if(state.serie==='arretdejeu'){
+    const tagY=200+safeTop(), tagH=58;
+    g.font="32px 'Saira Condensed'"; g.textBaseline='middle';
+    const nameTxt=s.label.toUpperCase();
+    const nameW=g.measureText(nameTxt).width+30;
+    g.fillStyle=s.sig; g.fillRect(M,tagY,nameW,tagH);
+    g.fillStyle=s.sigTextColor||C.encre;
+    g.fillText(nameTxt, M+15, tagY+tagH/2+1);
+    g.textBaseline='alphabetic'; g.textAlign='left';
+  }
+
   /* découpe de la citation en mots + couleur (accent vert) */
   const quote=state.quote.trim();
   const accent=state.quoteAccent.trim().toLowerCase();
@@ -1168,6 +1181,17 @@ function drawCitation(W,H,s){
     g.beginPath(); g.moveTo(M, capY); g.lineTo(M+44, capY); g.stroke();
     g.fillStyle=C.encre; g.font="30px 'Saira Condensed'"; g.textBaseline='middle'; g.textAlign='left';
     g.fillText(state.caption.toUpperCase(), M+62, capY+1);
+  }
+
+  /* SWIPE + flèche : identique aux autres templates de L'arrêt de jeu */
+  if(state.serie==='arretdejeu' && state.showSwipe && !isVert){
+    const footY=H-70-safeBottom();
+    g.fillStyle=s.sig; g.font="36px 'Saira Condensed'"; g.textBaseline='middle'; g.textAlign='left';
+    g.fillText('SWIPE',M,footY);
+    const sw=g.measureText('SWIPE').width;
+    const circD=76, circX=M+sw+28+circD/2, circY=footY;
+    g.fillStyle=s.sig; g.beginPath(); g.arc(circX,circY,circD/2,0,Math.PI*2); g.fill();
+    roundedArrow(g,circX,circY,C.creme);
   }
 
   /* filet bas + pagination (masqués en vertical 9:16) */
