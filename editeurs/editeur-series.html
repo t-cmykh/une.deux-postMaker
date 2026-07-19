@@ -692,32 +692,45 @@ function wrapAtSize(g,text,maxW,fontPx){
     const n=(out.match(/\*\*/g)||[]).length; openBold=(n%2!==0); if(openBold)out=out+'**'; return out; });
 }
 function drawWordLine(g,words,x,y){
-  let cx=x; const space=g.measureText(' ').width; const s=SERIES[state.serie];
-  words.forEach(w=>{
-    const isAccent=state.greenWords.has(w.toUpperCase());
+  const space=g.measureText(' ').width, s=SERIES[state.serie], pad=state.kwPad;
+  /* hauteur du carré mesurée sur une référence fixe (haut de casse « M », sans
+     descente) plutôt que sur le mot lui-même : ni un accent (É, Â…) ni une
+     cédille ne doivent faire varier la marge, qui doit rester identique en
+     haut, en bas et sur les côtés (= pad) */
+  const ref=g.measureText('M');
+  const asc=ref.actualBoundingBoxAscent||0;
+  const desc=ref.actualBoundingBoxDescent||0;
+  const portraitKw=(state.serie==='portraits');
+
+  /* 1er passage : position/largeur de chaque mot + détection accent */
+  let cx=x;
+  const items=words.map(w=>{
     const up=w.toUpperCase();
-    if(isAccent){
-      /* mot-clé mis en valeur : carré adaptatif derrière le mot. Portraits n'a
-         pas de teinte propre (sa couleur de série est l'encre, proche du fond
-         sombre) : il garde le carré crème + texte encre. Les 3 autres séries
-         inversent — carré dans la couleur de la série, texte en crème */
-      const wW=g.measureText(up).width, pad=state.kwPad;
-      /* hauteur du carré mesurée sur une référence fixe (haut de casse « M », sans
-         descente) plutôt que sur le mot lui-même : ni un accent (É, Â…) ni une
-         cédille ne doivent faire varier la marge, qui doit rester identique en
-         haut, en bas et sur les côtés (= pad) */
-      const ref=g.measureText('M');
-      const asc=ref.actualBoundingBoxAscent||0;
-      const desc=ref.actualBoundingBoxDescent||0;
-      const portraitKw=(state.serie==='portraits');
-      g.fillStyle=portraitKw?C.creme:s.swatch;
-      g.fillRect(cx-pad, y-asc-pad, wW+pad*2, asc+desc+pad*2);
-      g.fillStyle=portraitKw?C.encre:C.creme;
-      g.fillText(up,cx,y);
-    } else {
-      g.fillStyle=C.creme; g.fillText(up,cx,y);
-    }
-    cx+=g.measureText(up).width+space;
+    const wW=g.measureText(up).width;
+    const item={up, x:cx, w:wW, isAccent:state.greenWords.has(up)};
+    cx+=wW+space;
+    return item;
+  });
+
+  /* 2e passage : un seul carré fusionné par groupe de mots accentués consécutifs
+     (mots-clé mis en valeur). Portraits n'a pas de teinte propre (sa couleur de
+     série est l'encre, proche du fond sombre) : il garde le carré crème + texte
+     encre. Les 3 autres séries inversent — carré dans la couleur de la série,
+     texte en crème */
+  g.fillStyle=portraitKw?C.creme:s.swatch;
+  for(let i=0;i<items.length;i++){
+    if(!items[i].isAccent) continue;
+    let j=i;
+    while(j+1<items.length && items[j+1].isAccent) j++;
+    const boxX=items[i].x-pad, boxEnd=items[j].x+items[j].w+pad;
+    g.fillRect(boxX, y-asc-pad, boxEnd-boxX, asc+desc+pad*2);
+    i=j;
+  }
+
+  /* texte */
+  items.forEach(o=>{
+    g.fillStyle=o.isAccent?(portraitKw?C.encre:C.creme):C.creme;
+    g.fillText(o.up,o.x,y);
   });
 }
 function drawTitle(g,x,y1,y2,size){
