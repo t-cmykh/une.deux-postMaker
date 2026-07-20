@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "start": "remotion studio src/index.ts",
-    "render": "remotion render src/index.ts HighlightReel out/highlight-reel.mp4"
+    "render": "remotion render src/index.ts HighlightReel out/highlight-reel.mp4",
+    "render:outro": "remotion render src/index.ts Outro out/outro.mp4"
   },
   "dependencies": {
     "react": "18.3.1",

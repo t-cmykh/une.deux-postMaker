@@ -5,6 +5,7 @@ import {
   HighlightReelProps,
   totalDurationInFrames,
 } from './HighlightReel';
+import {Outro, OUTRO_DURATION_IN_FRAMES} from './Outro';
 import segmentsData from './segments.json';
 import trackData from './track.json';
 
@@ -21,6 +22,7 @@ const defaultProps: HighlightReelProps = {
 
 export const RemotionRoot: React.FC = () => {
   return (
+    <>
     <Composition
       id="HighlightReel"
       component={HighlightReel}
@@ -33,5 +35,18 @@ export const RemotionRoot: React.FC = () => {
         durationInFrames: totalDurationInFrames(props.segments, props.fps),
       })}
     />
+    <Composition
+      id="Outro"
+      component={Outro}
+      fps={FPS}
+      width={1080}
+      height={1920}
+      durationInFrames={OUTRO_DURATION_IN_FRAMES}
+      defaultProps={{
+        tagline: 'LE FOOT EN DEUX TOUCHES',
+        handle: '@UNE.DEUX',
+      }}
+    />
+    </>
   );
 };
