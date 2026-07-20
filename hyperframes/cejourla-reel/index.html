@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · Reel prototype (29 juin 1950)</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <link rel="stylesheet" href="tokens/typography.css" />
+    <link rel="stylesheet" href="tokens/effects.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: var(--font-body); }
+
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; }
+
+      /* ---- shared scene shell (mirrors CoverSlide.jsx) ---- */
+      .scene {
+        position: absolute; inset: 0;
+        container-type: inline-size;
+        color: var(--cream);
+        overflow: hidden;
+      }
+      .scene .photo { position: absolute; inset: -6%; background: linear-gradient(180deg, #4f4c44, #23211c); }
+      .scene .grade { position: absolute; inset: 0; background: var(--grade-cejourla); }
+      .scene .scrim { position: absolute; inset: 0; background: var(--scrim-cover); }
+      .scene .frame {
+        position: absolute; inset: 0;
+        padding: 13.9cqw 8.9cqw;
+        display: flex; flex-direction: column;
+      }
+
+      /* brand header */
+      .brand-row { display: flex; align-items: center; gap: 2.4cqw; }
+      .brand-ring {
+        width: 8.52cqw; height: 8.52cqw; min-width: 28px; min-height: 28px;
+        border-radius: 50%; border: 0.37cqw solid currentColor;
+        display: flex; align-items: center; justify-content: center;
+        font-family: var(--font-label); font-weight: 700; font-size: var(--fs-label-monogram);
+        flex: 0 0 auto; box-sizing: border-box;
+      }
+      .brand-word { font-family: var(--font-display); font-size: var(--fs-display-wordmark); letter-spacing: .01em; }
+      .brand-handle { margin-left: auto; font-family: var(--font-label); font-weight: 600; font-size: var(--fs-label-handle); letter-spacing: .02em; }
+      .brand-rule { height: 2px; background: currentColor; margin-top: 3.7cqw; }
+
+      /* per-scene kicker pill (date / section label) */
+      .kicker {
+        display: inline-block; margin-top: 4cqw;
+        background: var(--ocre); color: var(--ink);
+        font-family: var(--font-label); font-weight: 700; font-size: var(--fs-label-tag);
+        letter-spacing: .08em; text-transform: uppercase;
+        padding: 1.4cqw 2.8cqw;
+      }
+
+      .spacer { flex: 1; }
+
+      .title {
+        font-family: var(--font-display); font-size: 9.5cqw; line-height: var(--lh-display);
+        margin-bottom: 2.4cqw; text-transform: uppercase; overflow-wrap: break-word;
+      }
+      .title .ocre { color: var(--ocre); }
+
+      .subtitle {
+        font-family: var(--font-body); font-weight: 500; font-size: var(--fs-body-slide);
+        line-height: var(--lh-body); color: var(--muted-cream);
+      }
+
+      .footer { display: flex; align-items: center; justify-content: flex-end; margin-top: 4.2cqw; }
+      .footer-rule { height: 3px; background: var(--cream); opacity: .9; margin-top: 4.3cqw; }
+      .pagination { font-family: var(--font-display); font-size: var(--fs-display-pagination); }
+      .pagination .cur { color: var(--ocre); }
+
+      /* ---- CTA scene (mirrors CTASlide.jsx) ---- */
+      .scene.cta {
+        background: var(--surface-light);
+        background-image: var(--hatch-on-cream);
+        color: var(--ink);
+      }
+      .scene.cta .frame {
+        align-items: center; text-align: center; padding: 13.9cqw 8.9cqw 8cqw;
+      }
+      .cta-bookmark { width: 12cqw; fill: var(--ocre); }
+      .cta-chip {
+        margin-top: 3.7cqw; background: var(--ocre); color: var(--ink);
+        font-family: var(--font-label); font-weight: 700; font-size: 3.6cqw;
+        letter-spacing: .03em; padding: 1.6cqw 3.4cqw;
+      }
+      .cta-title {
+        margin-top: 3cqw; font-family: var(--font-display); font-size: var(--fs-display-cta-title);
+        line-height: var(--lh-display); text-transform: uppercase;
+      }
+      .cta-body { margin-top: 2.4cqw; font-family: var(--font-body); font-size: 4.2cqw; max-width: 86%; }
+      .cta-rule { align-self: stretch; height: 3px; background: var(--ink); margin-bottom: 2.8cqw; }
+      .cta-handle { align-self: flex-start; font-family: var(--font-label); font-weight: 700; font-size: var(--fs-label-tag); }
+
+      /* kinetic title words: authored hidden, GSAP reveals them */
+      .w { display: inline-block; }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="30.5"
+      data-fps="30"
+    >
+      <!-- S1 — HOOK — 29 juin 1950 -->
+      <section id="s1" class="scene clip" data-start="0" data-duration="5" data-track-index="1">
+        <div class="photo" id="s1-photo" data-layout-allow-overflow="true"></div>
+        <div class="grade"></div><div class="scrim"></div>
+        <div class="frame">
+          <div class="brand-row"><div class="brand-ring">1·2</div><div class="brand-word">une·deux</div><div class="brand-handle">@UNE.DEUX</div></div>
+          <div class="brand-rule"></div>
+          <div class="kicker">29 JUIN 1950</div>
+          <div class="spacer"></div>
+          <div class="title" id="s1-title">
+            <div><span class="w ocre">DES</span> <span class="w ocre">AMATEURS</span></div>
+            <div><span class="w">HUMILIENT</span> <span class="w">LES</span> <span class="w">ROIS.</span></div>
+          </div>
+          <div class="subtitle" id="s1-sub">Et personne, chez eux, ne l'a remarqué.</div>
+          <div class="footer-rule"></div>
+          <div class="footer"><div class="pagination"><span class="cur">1</span>&nbsp;/&nbsp;6</div></div>
+        </div>
+      </section>
+
+      <!-- S2 — TRANSITION — le contexte -->
+      <section id="s2" class="scene clip" data-start="5" data-duration="4.5" data-track-index="1">
+        <div class="photo" id="s2-photo" data-layout-allow-overflow="true"></div>
+        <div class="grade"></div><div class="scrim"></div>
+        <div class="frame">
+          <div class="brand-row"><div class="brand-ring">1·2</div><div class="brand-word">une·deux</div><div class="brand-handle">@UNE.DEUX</div></div>
+          <div class="brand-rule"></div>
+          <div class="kicker">LE CONTEXTE</div>
+          <div class="spacer"></div>
+          <div class="title" id="s2-title">
+            <div><span class="w">L'ANGLETERRE</span> <span class="w">N'AVAIT</span></div>
+            <div><span class="w ocre">JAMAIS</span> <span class="w">PERDU</span> <span class="w">COMME</span> <span class="w">ÇA.</span></div>
+          </div>
+          <div class="subtitle" id="s2-sub">500 contre 1. Le match semblait joué d'avance.</div>
+          <div class="footer-rule"></div>
+          <div class="footer"><div class="pagination"><span class="cur">2</span>&nbsp;/&nbsp;6</div></div>
+        </div>
+      </section>
+
+      <!-- S3 — TEASE — l'équipe USA -->
+      <section id="s3" class="scene clip" data-start="9.5" data-duration="4.5" data-track-index="1">
+        <div class="photo" id="s3-photo" data-layout-allow-overflow="true"></div>
+        <div class="grade"></div><div class="scrim"></div>
+        <div class="frame">
+          <div class="brand-row"><div class="brand-ring">1·2</div><div class="brand-word">une·deux</div><div class="brand-handle">@UNE.DEUX</div></div>
+          <div class="brand-rule"></div>
+          <div class="kicker">L'ÉQUIPE USA</div>
+          <div class="spacer"></div>
+          <div class="title" id="s3-title">
+            <div><span class="w">UN</span> <span class="w">PROF,</span> <span class="w">UN</span> <span class="w">CHAUFFEUR</span></div>
+            <div><span class="w ocre">DE</span> <span class="w ocre">CORBILLARD,</span> <span class="w">UN</span> <span class="w">PLONGEUR.</span></div>
+          </div>
+          <div class="subtitle" id="s3-sub">Une équipe réunie à la va-vite.</div>
+          <div class="footer-rule"></div>
+          <div class="footer"><div class="pagination"><span class="cur">3</span>&nbsp;/&nbsp;6</div></div>
+        </div>
+      </section>
+
+      <!-- S4 — TEASE — le but -->
+      <section id="s4" class="scene clip" data-start="14" data-duration="5" data-track-index="1">
+        <div class="photo" id="s4-photo" data-layout-allow-overflow="true"></div>
+        <div class="grade"></div><div class="scrim"></div>
+        <div class="frame">
+          <div class="brand-row"><div class="brand-ring">1·2</div><div class="brand-word">une·deux</div><div class="brand-handle">@UNE.DEUX</div></div>
+          <div class="brand-rule"></div>
+          <div class="kicker">37e MINUTE</div>
+          <div class="spacer"></div>
+          <div class="title" id="s4-title">
+            <div><span class="w">BAHR</span> <span class="w">ARME</span> <span class="w">DE</span></div>
+            <div><span class="w">25</span> <span class="w">MÈTRES.</span> <span class="w ocre">GAETJENS</span> <span class="w ocre">PLONGE.</span></div>
+          </div>
+          <div class="subtitle" id="s4-sub">1-0. Ce sera le seul but du match.</div>
+          <div class="footer-rule"></div>
+          <div class="footer"><div class="pagination"><span class="cur">4</span>&nbsp;/&nbsp;6</div></div>
+        </div>
+      </section>
+
+      <!-- S5 — CLIMAX — la suite -->
+      <section id="s5" class="scene clip" data-start="19" data-duration="5.5" data-track-index="1">
+        <div class="photo" id="s5-photo" data-layout-allow-overflow="true"></div>
+        <div class="grade"></div><div class="scrim"></div>
+        <div class="frame">
+          <div class="brand-row"><div class="brand-ring">1·2</div><div class="brand-word">une·deux</div><div class="brand-handle">@UNE.DEUX</div></div>
+          <div class="brand-rule"></div>
+          <div class="kicker">LA SUITE</div>
+          <div class="spacer"></div>
+          <div class="title" id="s5-title">
+            <div><span class="w">L'HOMME</span> <span class="w">DU</span> <span class="w">BUT</span> <span class="w">LE</span> <span class="w">PLUS</span></div>
+            <div><span class="w">FOU</span> <span class="w">A</span> <span class="w ocre">DISPARU.</span></div>
+          </div>
+          <div class="subtitle" id="s5-sub">Arrêté en 1964. On ne l'a jamais revu.</div>
+          <div class="footer-rule"></div>
+          <div class="footer"><div class="pagination"><span class="cur">5</span>&nbsp;/&nbsp;6</div></div>
+        </div>
+      </section>
+
+      <!-- S6 — ACTION — CTA -->
+      <section id="s6" class="scene cta clip" data-start="24.5" data-duration="6" data-track-index="1">
+        <div class="frame">
+          <div class="brand-row" style="align-self:stretch;">
+            <div class="brand-ring">1·2</div><div class="brand-word">une·deux</div><div class="brand-handle">@UNE.DEUX</div>
+          </div>
+          <div class="spacer"></div>
+          <svg class="cta-bookmark" id="s6-bookmark" viewBox="0 0 120 156"><path d="M14 0h92a14 14 0 0 1 14 14v142L60 98 0 156V14A14 14 0 0 1 14 0Z"/></svg>
+          <div class="cta-chip" id="s6-chip">FOLLOW</div>
+          <div class="cta-title" id="s6-title">CHAQUE JOUR, UNE DATE.</div>
+          <div class="cta-body" id="s6-body">Reste pour ne pas rater la prochaine.</div>
+          <div class="spacer"></div>
+          <div class="cta-rule"></div>
+          <div class="cta-handle">@UNE.DEUX</div>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // Cover-family scenes: S1–S5. Each gets the same choreography, offset to its own data-start.
+      const coverScenes = [
+        { id: 's1', start: 0 },
+        { id: 's2', start: 5 },
+        { id: 's3', start: 9.5 },
+        { id: 's4', start: 14 },
+        { id: 's5', start: 19 },
+      ];
+
+      coverScenes.forEach(({ id, start }) => {
+        // slow Ken Burns drift on the placeholder photo — swap #{id}-photo's background
+        // for a real <img>/gradient once press photos exist; the drift stays.
+        tl.fromTo(`#${id}-photo`, { scale: 1.0 }, { scale: 1.08, duration: 5, ease: 'none' }, start);
+
+        tl.from(`#${id} .brand-row, #${id} .brand-rule`, { opacity: 0, duration: 0.35, ease: 'power1.out' }, start + 0.05);
+        tl.from(`#${id} .kicker`, { opacity: 0, y: -10, scale: 0.92, duration: 0.35, ease: 'back.out(2)' }, start + 0.2);
+
+        // kinetic title: word-by-word rise + fade, ocre keyword lands last of its line
+        tl.from(`#${id}-title .w`, { opacity: 0, y: 28, duration: 0.45, ease: 'power3.out', stagger: 0.06 }, start + 0.45);
+
+        tl.from(`#${id}-sub`, { opacity: 0, y: 12, duration: 0.4, ease: 'power2.out' }, start + 1.05);
+        tl.from(`#${id} .footer-rule, #${id} .pagination`, { opacity: 0, duration: 0.35 }, start + 1.25);
+      });
+
+      // S6 — CTA choreography
+      const ctaStart = 24.5;
+      tl.from('#s6 .brand-row', { opacity: 0, duration: 0.35 }, ctaStart + 0.1);
+      tl.from('#s6-bookmark', { opacity: 0, y: -16, scale: 0.7, duration: 0.5, ease: 'back.out(2.4)' }, ctaStart + 0.35);
+      tl.from('#s6-chip', { opacity: 0, y: 10, duration: 0.35 }, ctaStart + 0.7);
+      tl.from('#s6-title .w, #s6-title', { opacity: 0, y: 16, duration: 0.4, ease: 'power2.out' }, ctaStart + 0.95);
+      tl.from('#s6-body', { opacity: 0, duration: 0.4 }, ctaStart + 1.3);
+      tl.from('#s6 .cta-rule, #s6 .cta-handle', { opacity: 0, duration: 0.35 }, ctaStart + 1.6);
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
