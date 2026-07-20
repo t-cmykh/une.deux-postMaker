@@ -3,3 +3,10 @@ renders/
 snapshots/
 .debug/
 assets/*.mp4
+preview/*.mp4
+preview/*.webm
+preview/*.woff2
+preview/fonts.css
+preview/gsap.min.js
+preview/studio-preview-body.html
+preview/studio-preview.html
