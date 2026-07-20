@@ -349,8 +349,8 @@ nom_NN (LABEL) : Press photography. [sujet nommé / maillot précis] [action/ém
 ```
 
 **Règle nommage (obligatoire) :** chaque prompt doit identifier explicitement
-- **le joueur** par son nom complet + nationalité (`Kylian Mbappé, french player`),
-- **l'équipe / le maillot** précis (`with a PSG match kit`),
+- **le sujet** (joueur, entraîneur, arbitre, dirigeant...) par son nom complet + nationalité/fonction (`Kylian Mbappé, french player` / `Arrigo Sacchi, italian football manager`),
+- **la tenue précise** liée à sa fonction — maillot d'équipe pour un joueur (`with a PSG match kit`), survêtement ou costume de touche pour un entraîneur, kit d'arbitre, costume pour un dirigeant,
 - **l'année** de la scène (`in 2020`).
 
 Exemple : pour Mbappé au PSG en 2020 →
@@ -431,7 +431,7 @@ Hashtags : série (#lesouscotés, #undestinparjour, #lachutedesgéants, #ledéba
 ### Les 4 séries (modèle éditeur — voir `planning/planning-unedeux.md`)
 - **Ce jour-là** · `#cejourla` — éphéméride calendaire (socle quotidien). Carrousel 3:4, ocre / sépia chaud.
 - **Les oubliés** · `#lesoubliés` — effacés de l'histoire, injustices. Carrousel 3:4, vert / N&B froid.
-- **Portraits** · `#portraits` — parcours d'un joueur par l'angle méconnu. Reel 9:16, N&B studio.
+- **Portraits** · `#portraits` — parcours d'une personnalité marquante du foot (joueur, entraîneur, arbitre, dirigeant, pionnier·ère, voix du foot...) par l'angle méconnu. Reel 9:16, N&B studio.
 - **L'arrêt de jeu** · `#arretdejeu` — mode enquête/hypothèse : on pose une question foot (« pourquoi les Bleus ne rejouent plus en rouge ? ») et on aligne les faits, sans jamais donner de réponse tranchée — on relance plutôt qu'on referme. Carrousel 3:4, rouille / légère surimpression sur les médias importés.
 
 Scénarios, prompts photo et légendes déclinés par série dans
@@ -440,7 +440,7 @@ Scénarios, prompts photo et légendes déclinés par série dans
 
 ### Hashtags thématiques (transverses)
 - **#lesouscotés** — équipes sous-estimées
-- **#undestinparjour** — portraits joueurs
+- **#undestinparjour** — portraits de personnalités du foot
 - **#lachutedesgéants** — grands qui s'effondrent
 - **#ledébat** — questions clivantes
 

@@ -44,7 +44,7 @@ Structure reel (scènes), pas un carrousel. Chaque scène = 1 media + subs (2 li
 
 | Scène | Fonction | Contenu |
 |-------|----------|---------|
-| 1 | HOOK | Accroche sur l'angle méconnu, pas la gloire évidente. Ex : « Tout le monde connaît [joueur]. Personne ne connaît [le détail]. » |
+| 1 | HOOK | Accroche sur l'angle méconnu, pas la gloire évidente. Ex : « Tout le monde connaît [personnalité]. Personne ne connaît [le détail]. » |
 | 2 | CONTEXTE | Qui il est, situé rapidement, mais par l'angle choisi. |
 | 3 | EXPLOIT/RÉVÉLATION | Le moment ou le trait qui change le regard sur lui. |
 | 4 | DÉTAIL FOU | La relance : le fait que personne ne formule. |

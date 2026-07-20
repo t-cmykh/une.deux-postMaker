@@ -29,7 +29,7 @@
 |-------|---------|-------|---------|--------|--------------------|
 | **Ce jour-là** | `#cejourla` | Éphéméride calendaire | nostalgie / surprise | Carrousel 3:4 | Ocre · sépia chaud |
 | **Les oubliés** | `#lesoubliés` | Effacés de l'histoire, injustices | injustice / révélation | Carrousel 3:4 | Vert · N&B froid |
-| **Portraits** | `#portraits` | Parcours d'un joueur par l'angle méconnu | fierté / admiration | Reel 9:16 | N&B studio · titre vertical |
+| **Portraits** | `#portraits` | Parcours d'une personnalité marquante du foot (joueur, entraîneur, arbitre, dirigeant, pionnier·ère...) par l'angle méconnu | fierté / admiration | Reel 9:16 | N&B studio · titre vertical |
 | **L'arrêt de jeu** | `#arretdejeu` | Enquête/hypothèse sur une question foot | curiosité / révélation | Carrousel 3:4 | Rouille · légère surimpression média |
 
 ---

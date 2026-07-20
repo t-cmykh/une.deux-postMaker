@@ -39,11 +39,13 @@ Toujours finir par `No text.` · Jamais de noms de police.
 ---
 
 ## Portraits — `#portraits` (slides intérieures uniquement, PAS la cover)
-*Virage : N&B studio contrasté, registre fierté/admiration.*
+*Virage : N&B studio contrasté, registre fierté/admiration. Sujet = joueur, entraîneur, arbitre, dirigeant, pionnier·ère... pas seulement un joueur.*
 
 ```
-[NOM + NATIONALITÉ] wearing the [MAILLOT + ANNÉE], aged [ÂGE] at the time, in [ANNÉE]. [ACTION/ÉMOTION], strong character expression. Press photography, black and white, deep studio-like contrast, sharp directional light carving the features, shallow depth of field, fine film grain. Realistic photograph, not illustration. Portrait 9:16. No text.
+[NOM + NATIONALITÉ/FONCTION] wearing the [TENUE LIÉE À SA FONCTION + ANNÉE], aged [ÂGE] at the time, in [ANNÉE]. [ACTION/ÉMOTION], strong character expression. Press photography, black and white, deep studio-like contrast, sharp directional light carving the features, shallow depth of field, fine film grain. Realistic photograph, not illustration. Portrait 9:16. No text.
 ```
+
+> `TENUE` s'adapte au rôle : maillot d'équipe pour un joueur, survêtement/costume de touche pour un entraîneur, kit d'arbitre, costume pour un dirigeant.
 
 ---
 

@@ -88,9 +88,9 @@ Alors dis-nous : [question débat sur l'oubli / la reconnaissance] 👇
 ## Portraits — `#portraits`
 
 ```
-**[Accroche sur l'angle méconnu du joueur, pas sa gloire évidente] 🇫🇷**
+**[Accroche sur l'angle méconnu de la personnalité, pas sa gloire évidente] 🇫🇷**
 
-[2 touches : le parcours par l'angle choisi, le détail qui change le regard sur lui. Registre fierté/admiration.]
+[2 touches : le parcours par l'angle choisi, le détail qui change le regard sur elle. Registre fierté/admiration.]
 
 [Punchline : ce qui fait sa singularité.]
 
@@ -98,7 +98,7 @@ Alors dis-nous : [question sur sa place / son statut] 👇
 @une.deux ⚽️
 .
 .
-#portraits #[nom du joueur] #undestinparjour #lefootendeuxtouches #unedeux
+#portraits #[nom] #undestinparjour #lefootendeuxtouches #unedeux
 ```
 
 > Reel : la légende reste courte et autonome, elle ne reprend pas le texte du reel verbatim.
