@@ -22,12 +22,12 @@ PREVIEW = Path(__file__).resolve().parent  # hyperframes/cejourla-reel/preview/
 # sync with the <video src="assets/..."> tags in ../index.html. Full length
 # is used (no trim) — "garder la totalité des vidéos" per the brief.
 CLIPS = {
-    "v1": "wc1-bresil-but.mp4",
-    "v2": "wc2-bresil-reaction.mp4",
-    "v3": "wc3-angleterre-a.mp4",
-    "v4": "wc4-angleterre-b.mp4",
-    "v5": "wc5-angleterre-c.mp4",
-    "v6": "wc6-angleterre-d.mp4",
+    "ch1-video": "wc1-bresil-but.mp4",
+    "v1": "wc2-bresil-reaction.mp4",
+    "v2": "wc3-angleterre-a.mp4",
+    "v3": "wc4-angleterre-b.mp4",
+    "v4": "wc5-angleterre-c.mp4",
+    "v5": "wc6-angleterre-d.mp4",
 }
 
 GSAP_URL = "https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"
