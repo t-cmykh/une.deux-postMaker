@@ -6,6 +6,7 @@ import {
   totalDurationInFrames,
 } from './HighlightReel';
 import {Outro, OUTRO_DURATION_IN_FRAMES} from './Outro';
+import {OutroPresse, OUTRO_PRESSE_DURATION_IN_FRAMES} from './OutroPresse';
 import segmentsData from './segments.json';
 import trackData from './track.json';
 
@@ -42,6 +43,18 @@ export const RemotionRoot: React.FC = () => {
       width={1080}
       height={1920}
       durationInFrames={OUTRO_DURATION_IN_FRAMES}
+      defaultProps={{
+        tagline: 'LE FOOT EN DEUX TOUCHES',
+        handle: '@UNE.DEUX',
+      }}
+    />
+    <Composition
+      id="OutroPresse"
+      component={OutroPresse}
+      fps={FPS}
+      width={1080}
+      height={1920}
+      durationInFrames={OUTRO_PRESSE_DURATION_IN_FRAMES}
       defaultProps={{
         tagline: 'LE FOOT EN DEUX TOUCHES',
         handle: '@UNE.DEUX',
