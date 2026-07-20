@@ -25,6 +25,9 @@
   .tap-ov.active{pointer-events:auto;cursor:crosshair;background:rgba(194,160,78,.06);outline:2px dashed rgba(194,160,78,.6);outline-offset:-2px;}
   .tap-mark{position:absolute;width:22px;height:22px;margin:-11px 0 0 -11px;border:2px solid var(--ocre);border-radius:50%;pointer-events:none;animation:tapfade .7s ease-out forwards;}
   @keyframes tapfade{ from{transform:scale(1.6);opacity:1;} to{transform:scale(1);opacity:0;} }
+  .sel-ov{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;touch-action:none;}
+  .sel-ov.active{pointer-events:auto;cursor:crosshair;background:rgba(39,84,60,.06);outline:2px dashed rgba(39,84,60,.6);outline-offset:-2px;}
+  .sel-box{position:absolute;border:2px solid var(--vert);background:rgba(39,84,60,.18);pointer-events:none;display:none;}
   .corr-row{display:flex;gap:8px;margin-top:10px;}
   .corr-row .btn{margin-top:0;flex:1;padding:11px;font-size:12px;}
   .corr-row .btn.clear{flex:0 0 auto;padding:11px 14px;background:rgba(241,236,225,.1);color:var(--newsprint);}
@@ -69,8 +72,15 @@
     <div class="video-wrap" id="videoWrap">
       <video id="preview" playsinline muted controls></video>
       <div class="crop-ov" id="cropOv" style="display:none"></div>
+      <div class="sel-box" id="selBox"></div>
+      <div class="sel-ov" id="selectOv"></div>
       <div class="tap-ov" id="tapOv"></div>
     </div>
+    <div class="corr-row">
+      <button class="btn secondary" id="selectTargetBtn" type="button">Sélectionner la cible (image 1)</button>
+      <button class="btn clear" id="clearTargetBtn" type="button">Effacer</button>
+    </div>
+    <div class="stats" id="targetStats"></div>
     <div class="corr-row">
       <button class="btn secondary" id="correctBtn" type="button">Corriger le suivi (tape sur le sujet)</button>
       <button class="btn clear" id="clearAnchorsBtn" type="button">Effacer</button>
@@ -145,6 +155,8 @@ let W=1080, H=1920, fps=30, winLen=1, xs=[];
 let shots=[];   // plans detectes {startIdx,endIdx} (indices dans xs/raw) separes par des coupes
 let manualAnchors=[];   // reperes manuels {t, normX} — "regarde ici" quand le suivi est perdu
 let correctionMode=false;
+let targetSeed=null;    // rectangle choisi sur l'image 1 {nx,ny,nw,nh} normalise au cadre SOURCE (0..1)
+let selectingTarget=false, dragStart=null;
 let ffmpeg=null, ffLoaded=false;
 
 /* ---------- 1) chargement du fichier ---------- */
@@ -159,6 +171,7 @@ function loadFile(file){
   if(!file.type.startsWith('video/')){ toast('Choisis un fichier vidéo'); return; }
   srcFile=file; analyzed=false; xs=[]; shots=[]; hasAudio=null;
   manualAnchors=[]; setCorrectionMode(false); updateAnchorStats();
+  targetSeed=null; setSelectingTarget(false); updateTargetStats(); $('selBox').style.display='none';
   $('analyzeBtn').disabled=true; $('exportBtn').disabled=true;
   $('result').classList.remove('show'); $('stats').textContent='';
   preview.src = URL.createObjectURL(file);
@@ -220,6 +233,7 @@ function setCorrectionMode(on){
 }
 $('correctBtn').addEventListener('click', ()=>{
   if(!srcW){ toast('Choisis une vidéo'); return; }
+  if(selectingTarget) setSelectingTarget(false);
   setCorrectionMode(!correctionMode);
   if(correctionMode) toast('Mets en pause au bon moment puis tape sur le sujet');
 });
@@ -240,6 +254,71 @@ $('tapOv').addEventListener('click', e=>{
   $('videoWrap').appendChild(dot);
   setTimeout(()=>dot.remove(), 700);
   toast(`Repère ajouté à ${preview.currentTime.toFixed(1)}s`);
+});
+
+/* ---------- cible manuelle : rectangle dessine sur l'image 1 ----------
+   Alternative a la detection IA generique (ballon/personne) : l'utilisateur
+   pointe sur l'image 1 exactement ce qu'il veut suivre (un joueur precis
+   plutot que "un ballon" ou "une personne" au sens large). Le rectangle
+   sert de patch de reference a un suivi par correlation (cf. trackTarget
+   plus bas), recherche image par image dans runAnalysis() — un suivi "a la
+   KCF" ecrit en JS pur, faute de tracker CSRT/KCF disponible dans le build
+   opencv.js distribue en CDN (module contrib non compile). */
+function setSelectingTarget(on){
+  selectingTarget=on;
+  $('selectOv').classList.toggle('active', on);
+  $('selectTargetBtn').classList.toggle('active', on);
+  $('selectTargetBtn').textContent = on ? 'Dessine un rectangle sur le sujet…' : 'Sélectionner la cible (image 1)';
+}
+function updateTargetStats(){
+  $('targetStats').textContent = targetSeed
+    ? 'Cible sélectionnée sur l’image 1 — le suivi part de là (prioritaire sur le mode de détection ci-dessous).'
+    : '';
+}
+$('selectTargetBtn').addEventListener('click', async ()=>{
+  if(!srcW){ toast('Choisis une vidéo'); return; }
+  if(selectingTarget){ setSelectingTarget(false); return; }
+  if(correctionMode) setCorrectionMode(false);
+  preview.pause();
+  await seekPreview(0);
+  setSelectingTarget(true);
+  toast('Dessine un rectangle autour du sujet à suivre');
+});
+$('clearTargetBtn').addEventListener('click', ()=>{
+  targetSeed=null; updateTargetStats(); $('selBox').style.display='none';
+  toast('Cible effacée');
+});
+const selOv=$('selectOv'), selBox=$('selBox');
+selOv.addEventListener('pointerdown', e=>{
+  if(!selectingTarget) return;
+  selOv.setPointerCapture(e.pointerId);
+  const rect=selOv.getBoundingClientRect();
+  dragStart={x:clamp(e.clientX-rect.left,0,rect.width), y:clamp(e.clientY-rect.top,0,rect.height)};
+  selBox.style.display='block';
+  selBox.style.left=dragStart.x+'px'; selBox.style.top=dragStart.y+'px';
+  selBox.style.width='0px'; selBox.style.height='0px';
+});
+selOv.addEventListener('pointermove', e=>{
+  if(!selectingTarget || !dragStart) return;
+  const rect=selOv.getBoundingClientRect();
+  const x=clamp(e.clientX-rect.left,0,rect.width), y=clamp(e.clientY-rect.top,0,rect.height);
+  const left=Math.min(dragStart.x,x), top=Math.min(dragStart.y,y);
+  selBox.style.left=left+'px'; selBox.style.top=top+'px';
+  selBox.style.width=Math.abs(x-dragStart.x)+'px';
+  selBox.style.height=Math.abs(y-dragStart.y)+'px';
+});
+selOv.addEventListener('pointerup', e=>{
+  if(!selectingTarget || !dragStart) return;
+  const rect=selOv.getBoundingClientRect();
+  const x=clamp(e.clientX-rect.left,0,rect.width), y=clamp(e.clientY-rect.top,0,rect.height);
+  const left=Math.min(dragStart.x,x)/rect.width, top=Math.min(dragStart.y,y)/rect.height;
+  const w=Math.abs(x-dragStart.x)/rect.width, h=Math.abs(y-dragStart.y)/rect.height;
+  dragStart=null;
+  if(w<0.02 || h<0.02){ selBox.style.display='none'; toast('Rectangle trop petit, réessaie'); return; }
+  targetSeed={nx:clamp(left,0,1), ny:clamp(top,0,1), nw:clamp(w,0,1-left), nh:clamp(h,0,1-top)};
+  updateTargetStats();
+  setSelectingTarget(false);
+  toast('Cible enregistrée');
 });
 
 /* ---------- overlay de prévisualisation du crop ---------- */
@@ -363,6 +442,58 @@ function smoothSeries(raw, maxStep, alpha, resetIndices){
   return out;
 }
 
+/* ---------- suivi par correlation (cible manuelle) ----------
+   Patch de reference extrait au moment de la selection, recherche par
+   correlation croisee normalisee (NCC) dans une fenetre autour de la
+   derniere position connue a chaque image echantillonnee — approche
+   "a la KCF" sans dependance externe, sur la meme grille basse-resolution
+   (AW x AH) deja utilisee pour la coupe de plan / le mouvement. */
+function extractPatch(gray, gw, gh, x, y, w, h){
+  const out=new Float64Array(w*h);
+  for(let j=0;j<h;j++){
+    const sy=clamp(y+j, 0, gh-1);
+    for(let i=0;i<w;i++){
+      const sx=clamp(x+i, 0, gw-1);
+      out[j*w+i]=gray[sy*gw+sx];
+    }
+  }
+  return out;
+}
+function tplStats(tpl){
+  let sum=0; for(let i=0;i<tpl.length;i++) sum+=tpl[i];
+  const mean=sum/tpl.length;
+  let norm=0; for(let i=0;i<tpl.length;i++){ const d=tpl[i]-mean; norm+=d*d; }
+  return {mean, norm};
+}
+function nccScoreAt(gray, gw, gh, x, y, tpl, tw, th, tplMean, tplNorm){
+  if(x<0||y<0||x+tw>gw||y+th>gh) return -1;
+  let sum=0;
+  for(let j=0;j<th;j++){ const row=(y+j)*gw+x; for(let i=0;i<tw;i++) sum+=gray[row+i]; }
+  const mean=sum/(tw*th);
+  let num=0, denom=0;
+  for(let j=0;j<th;j++){
+    const row=(y+j)*gw+x;
+    for(let i=0;i<tw;i++){
+      const gv=gray[row+i]-mean, tv=tpl[j*tw+i]-tplMean;
+      num+=gv*tv; denom+=gv*gv;
+    }
+  }
+  if(denom<=0 || tplNorm<=0) return -1;
+  return num/Math.sqrt(denom*tplNorm);
+}
+function trackTarget(gray, gw, gh, tpl, tw, th, tplMean, tplNorm, lastPos, radius){
+  const x0=Math.round(lastPos.cx-tw/2), y0=Math.round(lastPos.cy-th/2);
+  let bestScore=-2, bestPos=null;
+  for(let dy=-radius;dy<=radius;dy++){
+    for(let dx=-radius;dx<=radius;dx++){
+      const x=x0+dx, y=y0+dy;
+      const score=nccScoreAt(gray, gw, gh, x, y, tpl, tw, th, tplMean, tplNorm);
+      if(score>bestScore){ bestScore=score; bestPos={cx:x+tw/2, cy:y+th/2}; }
+    }
+  }
+  return {pos:bestPos, score:bestScore};
+}
+
 /* ---------- 2) analyse ---------- */
 $('analyzeBtn').addEventListener('click', runAnalysis);
 
@@ -379,7 +510,7 @@ async function runAnalysis(){
 
   try{
     let model=null;
-    if(mode!=='motion'){
+    if(!targetSeed && mode!=='motion'){
       plog('Chargement du modèle de détection (joueurs / ballon)…');
       model=await loadDetector();
       if(!model && mode==='ai') toast('IA indisponible, repli sur mouvement/détail');
@@ -408,6 +539,15 @@ async function runAnalysis(){
     const BALL_W=100, PERSON_W=15, MOTION_W=4;   // poids de base par signal (fusion ponderee, cf. AutoFlip)
     const CUT_THRESHOLD=55; // diff moyenne de gris (0-255) entre deux images echantillonnees -> coupe de plan
 
+    // cible manuelle (rectangle choisi sur l'image 1) : suivi par correlation,
+    // desactive definitivement a la premiere coupe de plan (le sujet choisi
+    // n'a plus de sens une fois qu'on change de plan) ; le reste de la video
+    // retombe alors sur le mouvement/detail comme en mode automatique.
+    let tpl=null, tplW=0, tplH=0, tplMean=0, tplNorm=0, lastPos=null;
+    let targetMissStreak=0, targetActive=!!targetSeed, targetHits=0;
+    const TARGET_W=170, TARGET_HOLD=6;
+    const TPL_MAX=44;   // taille max du patch sur la grille AWxAH (perf)
+
     shots=[{startIdx:0, endIdx:nWin}];
 
     for(let i=0;i<nWin;i++){
@@ -429,6 +569,7 @@ async function runAnalysis(){
           shots[shots.length-1].endIdx=i;
           shots.push({startIdx:i, endIdx:nWin});
           lastBallNormX=null; missStreak=0; prevGray=null;
+          targetActive=false;   // la cible choisie appartenait au plan precedent
         }
       }
       prevCutGray=gray;
@@ -449,6 +590,42 @@ async function runAnalysis(){
       const motionNormX = colTotal>0 ? colWeighted/colTotal/AW : null;
       const motionWeight = motionNormX!=null ? Math.min(1, (colTotal/(AW*AH))/30)*MOTION_W : 0;
       prevGray=gray;
+
+      // --- cible manuelle : init du patch sur l'image 1, puis suivi par correlation ---
+      let targetNormX=null, targetWeight=0;
+      if(targetActive){
+        if(tpl===null){
+          const tx=Math.round(clamp(targetSeed.nx,0,1)*AW), ty=Math.round(clamp(targetSeed.ny,0,1)*AH);
+          tplW=clamp(Math.round(targetSeed.nw*AW), 2, TPL_MAX);
+          tplH=clamp(Math.round(targetSeed.nh*AH), 2, TPL_MAX);
+          tpl=extractPatch(gray, AW, AH, tx, ty, tplW, tplH);
+          ({mean:tplMean, norm:tplNorm}=tplStats(tpl));
+          lastPos={cx:clamp(tx+tplW/2,0,AW), cy:clamp(ty+tplH/2,0,AH)};
+          targetNormX=clamp(lastPos.cx/AW,0,1); targetWeight=TARGET_W; targetHits++;
+        } else {
+          const radius=Math.min(40, 14+targetMissStreak*6);
+          const {pos,score}=trackTarget(gray, AW, AH, tpl, tplW, tplH, tplMean, tplNorm, lastPos, radius);
+          if(pos && score>=0.35){
+            lastPos=pos; targetMissStreak=0;
+            targetNormX=clamp(pos.cx/AW,0,1);
+            targetWeight=TARGET_W*clamp(score,0,1);
+            targetHits++;
+            // adaptation lente du patch (derive limitee : melange avec la reference initiale)
+            const fresh=extractPatch(gray, AW, AH, Math.round(pos.cx-tplW/2), Math.round(pos.cy-tplH/2), tplW, tplH);
+            for(let k=0;k<tpl.length;k++) tpl[k]=tpl[k]*0.85+fresh[k]*0.15;
+            ({mean:tplMean, norm:tplNorm}=tplStats(tpl));
+          } else if(targetMissStreak<TARGET_HOLD){
+            // occlusion/flou passager : on tient la derniere position connue,
+            // poids qui decroit, comme la memoire du ballon en mode auto.
+            targetMissStreak++;
+            targetNormX=clamp(lastPos.cx/AW,0,1);
+            targetWeight=TARGET_W*(1-targetMissStreak/TARGET_HOLD)*0.5;
+            targetHits++;
+          } else {
+            targetActive=false;   // cible perdue durablement : repli sur le mouvement pour la suite du plan
+          }
+        }
+      }
 
       // --- signaux IA : ballon prioritaire, joueurs en soutien ---
       let ballNormX=null, ballWeight=0, personNormX=null, personWeight=0;
@@ -499,9 +676,9 @@ async function runAnalysis(){
       //     signal detecte pese sur la position finale plutot qu'un unique
       //     "gagnant" par image — le ballon domine largement quand il est
       //     fiable, les joueurs/le mouvement stabilisent le cadrage sinon. ---
-      const wsum=ballWeight+personWeight+motionWeight;
+      const wsum=ballWeight+personWeight+motionWeight+targetWeight;
       const normX = wsum>0
-        ? ((ballNormX||0)*ballWeight + (personNormX||0)*personWeight + (motionNormX!=null?motionNormX:0.5)*motionWeight) / wsum
+        ? ((ballNormX||0)*ballWeight + (personNormX||0)*personWeight + (motionNormX!=null?motionNormX:0.5)*motionWeight + (targetNormX||0)*targetWeight) / wsum
         : 0.5;
 
       raw[i]=normX;
@@ -518,7 +695,9 @@ async function runAnalysis(){
     });
 
     const shotInfo = shots.length>1 ? ` · ${shots.length} plans détectés` : '';
-    $('stats').textContent = model
+    $('stats').textContent = targetSeed
+      ? `Cible suivie sur ${targetHits}/${nWin} image(s) (mouvement en repli après perte ou coupe de plan)${shotInfo}.`
+      : model
       ? `IA : ballon détecté/maintenu sur ${ballHits}/${nWin} image(s), joueurs ou mouvement en repli sur le reste${shotInfo}.`
       : `Mode mouvement/détail (pas de détection IA)${shotInfo}.`;
 
