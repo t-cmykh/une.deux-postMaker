@@ -23,7 +23,6 @@
       }
       .wordmark { position: absolute; left: 188px; top: 162px; font-family: 'Anton', sans-serif; font-size: 46px; color: var(--cream); }
       .handle { position: absolute; right: 96px; top: 174px; font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 26px; color: var(--cream); }
-      .header-tag { position: absolute; right: 96px; top: 216px; font-family: 'Saira Condensed', sans-serif; font-weight: 700; font-size: 19px; letter-spacing: 0.06em; color: var(--ocre); }
       .hairline { position: absolute; left: 96px; right: 96px; top: 252px; height: 3px; background: var(--cream); }
       .progress-track { position: absolute; left: 96px; right: 96px; top: 262px; height: 4px; background: rgba(237, 220, 178, 0.25); }
       .progress-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0%; background: var(--ocre); }
@@ -39,11 +38,11 @@
          reveal ligne par ligne, gros dans le cadre. */
       .hook-zone {
         position: absolute; left: 96px; right: 96px; top: 300px; bottom: 200px; z-index: 10;
-        display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+        display: flex; flex-direction: column; align-items: flex-start; justify-content: center; text-align: left;
       }
       .stamp {
         display: flex; align-items: center; gap: 16px; background: var(--ocre); color: var(--ink);
-        padding: 12px 22px; margin-bottom: 40px;
+        padding: 12px 22px; margin-bottom: 40px; perspective: 400px;
       }
       .stamp-d { font-family: 'Anton', sans-serif; font-size: 56px; line-height: 0.9; }
       .stamp-m { font-family: 'Saira Condensed', sans-serif; font-weight: 700; font-size: 22px; line-height: 1.15; letter-spacing: 0.04em; text-align: left; }
@@ -57,7 +56,7 @@
         position: absolute; left: 0; right: 0; bottom: 0; opacity: 0;
         font-family: 'Anton', sans-serif; font-size: 46px; line-height: 1.32; text-transform: uppercase;
       }
-      .w { display: inline-block; color: #F7F1E2; background: rgba(0, 0, 0, 0); padding: 2px 8px; transition: none; }
+      .w { display: inline-block; color: #F7F1E2; border: 3px solid rgba(0, 0, 0, 0); padding: 2px 8px; transition: none; }
 
       /* Chiffres clés — gros, punchy, sur fond dédié */
       .stat-zone {
@@ -99,14 +98,13 @@
       data-start="0"
       data-width="1080"
       data-height="1920"
-      data-duration="68.6"
+      data-duration="53.3"
       data-fps="30"
     >
       <div id="hdr">
         <div class="ring">1·2</div>
         <div class="wordmark">une·deux</div>
         <div class="handle">@UNE.DEUX</div>
-        <div class="header-tag">N°1 · 21 JUILLET</div>
         <div class="hairline"></div>
         <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
       </div>
@@ -116,7 +114,7 @@
         <div class="photo" id="ch1-photo" data-layout-allow-overflow="true"></div>
         <div class="grade"></div><div class="scrim"></div>
         <div class="hook-zone">
-          <div class="stamp anim" id="stamp"><span class="stamp-d">21</span><span class="stamp-m">JUIL.<br />2000</span></div>
+          <div class="stamp anim" id="stamp"><span class="stamp-d" id="stamp-day">07</span><span class="stamp-m">JUIL.<br />2000</span></div>
           <div class="hook" id="ch1-hook">
             <div class="hline">21 JUILLET 2000.</div>
             <div class="hline">NÉ À <span class="accent">LEEDS,</span></div>
@@ -127,7 +125,7 @@
       </section>
 
       <!-- CH2 — naissance / père -->
-      <section id="ch2" class="chapter clip" data-start="3.5" data-duration="12.87" data-track-index="2">
+      <section id="ch2" class="chapter clip" data-start="3.5" data-duration="9.71" data-track-index="2">
         <div class="photo" id="ch2-photo" data-layout-allow-overflow="true"></div>
         <div class="grade"></div><div class="scrim"></div>
         <div class="cap-zone">
@@ -139,7 +137,7 @@
       </section>
 
       <!-- CH3 — mère / Bryne -->
-      <section id="ch3" class="chapter clip" data-start="15.87" data-duration="12.0" data-track-index="1">
+      <section id="ch3" class="chapter clip" data-start="12.71" data-duration="9.05" data-track-index="1">
         <div class="photo" id="ch3-photo" data-layout-allow-overflow="true"></div>
         <div class="grade"></div><div class="scrim"></div>
         <div class="cap-zone">
@@ -151,7 +149,7 @@
       </section>
 
       <!-- CH4 — le record (pattern interrupt, fond encre) : sous-titres + compteur d'années + gros chiffres -->
-      <section id="ch4" class="chapter statcard clip" data-start="27.36" data-duration="10.45" data-track-index="2">
+      <section id="ch4" class="chapter statcard clip" data-start="21.26" data-duration="8.06" data-track-index="2">
         <div class="cap-zone">
           <div class="cap" id="c9"><span class="w">IL</span> <span class="w">DEVIENT</span> <span class="w">LE</span> <span class="w">MEILLEUR</span> <span class="w">BUTEUR</span></div>
           <div class="cap" id="c10"><span class="w">DE</span> <span class="w">L'HISTOIRE</span> <span class="w">DE</span> <span class="w">LA</span> <span class="w">NORVÈGE.</span></div>
@@ -169,7 +167,7 @@
       </section>
 
       <!-- CH5 — Mondial 2026 -->
-      <section id="ch5" class="chapter clip" data-start="37.31" data-duration="16.61" data-track-index="1">
+      <section id="ch5" class="chapter clip" data-start="28.82" data-duration="12.52" data-track-index="1">
         <div class="photo" id="ch5-photo" data-layout-allow-overflow="true"></div>
         <div class="grade"></div><div class="scrim"></div>
         <div class="cap-zone">
@@ -182,13 +180,12 @@
       </section>
 
       <!-- CH6 — la boucle se referme -->
-      <section id="ch6" class="chapter clip" data-start="53.42" data-duration="10.35" data-track-index="2">
+      <section id="ch6" class="chapter clip" data-start="40.84" data-duration="7.61" data-track-index="2">
         <div class="photo" id="ch6-photo" data-layout-allow-overflow="true"></div>
         <div class="grade"></div><div class="scrim"></div>
         <div class="stat-zone">
           <div class="stat-big" id="score">
             <div class="stat-num">2-1</div>
-            <div class="stat-label">APRÈS PROLONGATIONS</div>
           </div>
         </div>
         <div class="cap-zone">
@@ -199,7 +196,7 @@
       </section>
 
       <!-- CH7 — CTA -->
-      <section id="ch7" class="chapter cta clip" data-start="63.27" data-duration="4.8" data-track-index="1">
+      <section id="ch7" class="chapter cta clip" data-start="47.95" data-duration="4.8" data-track-index="1">
         <svg class="bookmark anim" id="ch7-bookmark" viewBox="0 0 120 156"><path d="M14 0h92a14 14 0 0 1 14 14v142L60 98 0 156V14A14 14 0 0 1 14 0Z"/></svg>
         <div class="chip anim" id="ch7-chip">FOLLOW</div>
         <div class="cta-title anim" id="ch7-title">CHAQUE JOUR,<br />UNE DATE.</div>
@@ -215,19 +212,19 @@
       window.__timelines = window.__timelines || {};
       const tl = gsap.timeline({ paused: true });
       const XFADE = 0.5, EASE = 'sine.inOut';
-      const WPS = 2.3;     // readable karaoke pace — words per second
-      const HOLD = 0.55;   // hold after the last word lights up
-      const GAP = 0.15;    // gap between consecutive caption cards
+      const WPS = 3.0;     // karaoke pace — words per second
+      const HOLD = 0.35;   // hold after the last word lights up
+      const GAP = 0.12;    // gap between consecutive caption cards
 
       // ---- chapter crossfades ----
       const chapters = [
         { id: 'ch1', start: 0, dur: 4.5, fadeOutOnly: true },
-        { id: 'ch2', start: 3.5, dur: 12.87 },
-        { id: 'ch3', start: 15.87, dur: 12.0 },
-        { id: 'ch4', start: 27.36, dur: 10.45 },
-        { id: 'ch5', start: 37.31, dur: 16.61 },
-        { id: 'ch6', start: 53.42, dur: 10.35 },
-        { id: 'ch7', start: 63.27, dur: 4.8, fadeInOnly: true },
+        { id: 'ch2', start: 3.5, dur: 9.71 },
+        { id: 'ch3', start: 12.71, dur: 9.05 },
+        { id: 'ch4', start: 21.26, dur: 8.06 },
+        { id: 'ch5', start: 28.82, dur: 12.52 },
+        { id: 'ch6', start: 40.84, dur: 7.61 },
+        { id: 'ch7', start: 47.95, dur: 4.8, fadeInOnly: true },
       ];
       chapters.forEach(({ id, start, dur, fadeOutOnly, fadeInOnly }) => {
         if (!fadeInOnly) tl.fromTo(`#${id}`, { opacity: 0 }, { opacity: 1, duration: XFADE, ease: EASE }, start);
@@ -240,6 +237,22 @@
 
       // ---- opening: date stamp + title, from frame 0, line by line ----
       tl.fromTo('#stamp', { opacity: 0, scale: 0.75 }, { opacity: 1, scale: 1, duration: 0.3, ease: 'back.out(2)' }, 0);
+
+      // Flip-clock: the day digits flip through a few values (split-flap board
+      // style) before settling on the real date — illustrates the "ce jour-là"
+      // theme (a date arriving) rather than just fading the number in.
+      (function flipToDate() {
+        const el = document.getElementById('stamp-day');
+        const sequence = ['07', '15', '29', '03', '21'];
+        let t = 0.08;
+        sequence.forEach((val, i) => {
+          const half = (0.1 + i * 0.025) / 2;
+          tl.to(el, { rotateX: -90, duration: half, ease: 'power1.in', transformOrigin: '50% 50%' }, t);
+          tl.call(() => { el.textContent = val; }, null, t + half);
+          tl.fromTo(el, { rotateX: 90 }, { rotateX: 0, duration: half, ease: 'power1.out' }, t + half);
+          t += half * 2;
+        });
+      })();
       const hlines = document.querySelectorAll('#ch1-hook .hline');
       hlines.forEach((el, i) => {
         tl.fromTo(el, { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.45, ease: 'power3.out' }, i * 0.28);
@@ -253,8 +266,8 @@
         tl.to(`#${id}`, { opacity: 1, duration: 0.15, ease: 'sine.out' }, start);
         words.forEach((w, i) => {
           const wStart = start + i / wps;
-          tl.to(w, { backgroundColor: '#C2A04E', color: '#2C2823', duration: 0.08, ease: 'none' }, wStart);
-          if (i > 0) tl.set(words[i - 1], { backgroundColor: 'rgba(0,0,0,0)', color: '#F7F1E2' }, wStart);
+          tl.to(w, { borderColor: '#C2A04E', duration: 0.08, ease: 'none' }, wStart);
+          if (i > 0) tl.set(words[i - 1], { borderColor: 'rgba(0,0,0,0)' }, wStart);
         });
         const end = start + words.length / wps + hold;
         tl.to(`#${id}`, { opacity: 0, duration: 0.2, ease: 'sine.in' }, end - 0.2);
@@ -288,36 +301,36 @@
       karaoke('c4', cur);
 
       // ---- CH3 ----
-      cur = karaoke('c5', 15.87);
+      cur = karaoke('c5', 12.71);
       cur = karaoke('c6', cur);
       cur = karaoke('c7', cur);
       karaoke('c8', cur);
 
       // ---- CH4 : sous-titres + compteur d'années (illustre "26 ans plus tard" /
       // le thème "ce jour-là" en visualisant le temps qui passe) + gros chiffres ----
-      cur = karaoke('c9', 27.36);
+      cur = karaoke('c9', 21.26);
       cur = karaoke('c10', cur);
-      cur = countUp('yc-num', 'yc', cur, 0, 26, 1.2);
-      statPunch('stat6254', cur, 1.4);
+      cur = countUp('yc-num', 'yc', cur, 0, 26, 1.0);
+      statPunch('stat6254', cur, 1.1);
 
       // ---- CH5 ----
-      cur = karaoke('c11', 37.31);
+      cur = karaoke('c11', 28.82);
       cur = karaoke('c12', cur);
       cur = karaoke('c13', cur);
       cur = karaoke('c14', cur);
       karaoke('c15', cur);
 
       // ---- CH6 : le score choc, puis la chute ----
-      cur = statPunch('score', 53.42, 1.3);
+      cur = statPunch('score', 40.84, 0.9);
       cur = karaoke('c16', cur);
       cur = karaoke('c17', cur);
       karaoke('c18', cur);
 
       // ---- CTA ----
-      const ctaStart = 63.27;
+      const ctaStart = 47.95;
       const INK = '#2C2823';
-      tl.to('.ring, .wordmark, .handle, .header-tag', { opacity: 0, duration: 0.25, ease: EASE }, ctaStart - 0.3);
-      tl.set('.ring, .wordmark, .handle, .header-tag', { opacity: 0 }, ctaStart);
+      tl.to('.ring, .wordmark, .handle', { opacity: 0, duration: 0.25, ease: EASE }, ctaStart - 0.3);
+      tl.set('.ring, .wordmark, .handle', { opacity: 0 }, ctaStart);
       tl.to('.hairline, .progress-track', { opacity: 0, duration: 0.25, ease: EASE }, ctaStart - 0.3);
       tl.set('.hairline, .progress-track', { opacity: 0 }, ctaStart);
       tl.set('.ring, .wordmark, .handle', { color: INK }, ctaStart);
