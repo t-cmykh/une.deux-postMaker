@@ -18,14 +18,15 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent  # hyperframes/cejourla-reel/
 PREVIEW = Path(__file__).resolve().parent  # hyperframes/cejourla-reel/preview/
 
-# Video clips used in the composition: id -> (source mp4, trim seconds).
-# Keep in sync with the <video> tags and their data-duration in ../index.html.
+# Video clips used in the composition: id -> source mp4 filename. Keep in
+# sync with the <video src="assets/..."> tags in ../index.html. Full length
+# is used (no trim) — "garder la totalité des vidéos" per the brief.
 CLIPS = {
-    "v1": ("haaland-01.mp4", 3.2),
-    "v2": ("haaland-02.mp4", 4.0),
-    "v3": ("haaland-03.mp4", 3.8),
-    "v4": ("haaland-04.mp4", 3.8),
-    "v5": ("haaland-05.mp4", 3.8),
+    "v1": "wc1-attack.mp4",
+    "v2": "wc2-bresil-a.mp4",
+    "v3": "wc3-bresil-b.mp4",
+    "v4": "wc4-bresil-c.mp4",
+    "v5": "wc5-angleterre.mp4",
 }
 
 GSAP_URL = "https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"
@@ -84,14 +85,14 @@ def ensure_proxies() -> dict[str, Path]:
     because vanilla/open-source Chromium builds (incl. headless test
     browsers) drop H.264 decode support; VP9 plays everywhere reliably."""
     out = {}
-    for vid, (src_name, trim) in CLIPS.items():
+    for vid, src_name in CLIPS.items():
         out_path = PREVIEW / f"proxy_{vid}.webm"
         out[vid] = out_path
         if out_path.exists():
             continue
         src = ROOT / "assets" / src_name
         subprocess.run(
-            ["ffmpeg", "-y", "-i", str(src), "-t", str(trim), "-vf", "scale=406:720",
+            ["ffmpeg", "-y", "-i", str(src), "-vf", "scale=406:720",
              "-c:v", "libvpx-vp9", "-crf", "34", "-b:v", "0", "-cpu-used", "4", "-an",
              str(out_path), "-loglevel", "error"],
             check=True,
@@ -246,9 +247,8 @@ def main():
         '<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>',
         f"<script>{gsap_js}</script>",
     )
-    for vid in CLIPS:
-        n = vid[1]
-        out = out.replace(f'src="assets/haaland-0{n}.mp4"', "")
+    for vid, src_name in CLIPS.items():
+        out = out.replace(f'src="assets/{src_name}"', "")
 
     out = out.replace(
         "html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }",
