@@ -46,7 +46,7 @@
       }
       .stamp-d { font-family: 'Anton', sans-serif; font-size: 56px; line-height: 0.9; }
       .stamp-m { font-family: 'Saira Condensed', sans-serif; font-weight: 700; font-size: 22px; line-height: 1.15; letter-spacing: 0.04em; text-align: left; }
-      .hook { font-family: 'Anton', sans-serif; font-size: 70px; line-height: 1.08; text-transform: uppercase; color: var(--cream); }
+      .hook { font-family: 'Anton', sans-serif; font-size: 140px; line-height: 1.02; text-transform: uppercase; color: var(--cream); }
       .hline { opacity: 0; }
       .hook .accent { color: var(--ocre); }
 
@@ -56,7 +56,7 @@
         position: absolute; left: 0; right: 0; bottom: 0; opacity: 0;
         font-family: 'Anton', sans-serif; font-size: 46px; line-height: 1.32; text-transform: uppercase;
       }
-      .w { display: inline-block; color: #F7F1E2; border: 3px solid rgba(0, 0, 0, 0); padding: 2px 8px; transition: none; }
+      .w { color: #F7F1E2; }
 
       /* Chiffres clés — gros, punchy, sur fond dédié */
       .stat-zone {
@@ -243,7 +243,7 @@
       // theme (a date arriving) rather than just fading the number in.
       (function flipToDate() {
         const el = document.getElementById('stamp-day');
-        const sequence = ['07', '15', '29', '03', '21'];
+        const sequence = ['04', '11', '19', '26', '02', '17', '09', '23', '14', '21'];
         let t = 0.08;
         sequence.forEach((val, i) => {
           const half = (0.1 + i * 0.025) / 2;
@@ -258,18 +258,15 @@
         tl.fromTo(el, { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.45, ease: 'power3.out' }, i * 0.28);
       });
 
-      // ---- karaoke subtitle helper: word-by-word ocre highlight, readable pace ----
+      // ---- subtitle helper: the phrase just fades in/out as a block, no box,
+      // no per-word highlight — duration still sized from word count so pacing
+      // stays readable. ----
       function karaoke(id, start, wps, hold) {
         wps = wps || WPS; hold = hold != null ? hold : HOLD;
         const el = document.getElementById(id);
-        const words = Array.from(el.querySelectorAll('.w'));
-        tl.to(`#${id}`, { opacity: 1, duration: 0.15, ease: 'sine.out' }, start);
-        words.forEach((w, i) => {
-          const wStart = start + i / wps;
-          tl.to(w, { borderColor: '#C2A04E', duration: 0.08, ease: 'none' }, wStart);
-          if (i > 0) tl.set(words[i - 1], { borderColor: 'rgba(0,0,0,0)' }, wStart);
-        });
-        const end = start + words.length / wps + hold;
+        const wordCount = el.querySelectorAll('.w').length;
+        tl.fromTo(`#${id}`, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.25, ease: 'sine.out' }, start);
+        const end = start + wordCount / wps + hold;
         tl.to(`#${id}`, { opacity: 0, duration: 0.2, ease: 'sine.in' }, end - 0.2);
         return end + GAP;
       }
