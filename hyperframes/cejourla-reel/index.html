@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=1080, height=1920" />
-    <title>une·deux — Ce jour-là · Reel prototype (Haaland, 21 juillet) — premium cut</title>
+    <title>une·deux — Ce jour-là · Reel prototype (Haaland, 21 juillet) — karaoke cut</title>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
     <link rel="stylesheet" href="tokens/fonts.css" />
     <link rel="stylesheet" href="tokens/colors.css" />
@@ -13,13 +13,9 @@
       body { font-family: 'Archivo', system-ui, sans-serif; }
       #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; }
 
-      /* ===== Instagram safe zone (identique aux éditeurs : T=150, B=H-200, L/R=96) =====
-         Tout élément de contenu (header, titre, sous-titres, CTA) reste dans
-         y:[150,1720] x:[96,984]. */
+      /* Instagram safe zone (identique aux éditeurs : T=150, B=H-200, L/R=96) */
 
-      /* Header — repris du template série Ce jour-là (anneau · wordmark · handle ·
-         filet), persistant sur tout le reel, dans la zone sûre. */
-      #hdr { position: absolute; inset: 0 0 auto 0; height: 260px; z-index: 20; }
+      #hdr { position: absolute; inset: 0 0 auto 0; height: 300px; z-index: 30; }
       .ring {
         position: absolute; left: 96px; top: 150px; width: 76px; height: 76px; border-radius: 50%;
         border: 3px solid var(--cream); display: flex; align-items: center; justify-content: center;
@@ -27,32 +23,51 @@
       }
       .wordmark { position: absolute; left: 188px; top: 162px; font-family: 'Anton', sans-serif; font-size: 46px; color: var(--cream); }
       .handle { position: absolute; right: 96px; top: 174px; font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 26px; color: var(--cream); }
-      .hairline { position: absolute; left: 96px; right: 96px; top: 236px; height: 3px; background: var(--cream); }
-      .progress-track { position: absolute; left: 96px; right: 96px; top: 246px; height: 4px; background: rgba(237, 220, 178, 0.25); }
+      .header-tag { position: absolute; right: 96px; top: 216px; font-family: 'Saira Condensed', sans-serif; font-weight: 700; font-size: 19px; letter-spacing: 0.06em; color: var(--ocre); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 252px; height: 3px; background: var(--cream); }
+      .progress-track { position: absolute; left: 96px; right: 96px; top: 262px; height: 4px; background: rgba(237, 220, 178, 0.25); }
       .progress-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0%; background: var(--ocre); }
 
-      /* ===== Chapters — crossfading photo backdrops, no hard cut ===== */
+      /* ===== Chapters — crossfading photo backdrops ===== */
       .chapter { position: absolute; inset: 0; }
       .photo { position: absolute; inset: -8%; background: linear-gradient(180deg, #6b6860, #26221d); }
       .grade { position: absolute; inset: 0; background: rgba(120, 90, 40, 0.16); }
       .scrim { position: absolute; inset: 0; background: rgba(44, 40, 35, 0.5); }
       .chapter.statcard { background: var(--ink); }
 
-      /* Opening hook — Anton, la typo titre de la DA, texte du TITRE quasi verbatim */
-      .hook-zone { position: absolute; left: 96px; right: 96px; top: 340px; text-align: center; z-index: 10; }
-      .hook { font-family: 'Anton', sans-serif; font-size: 48px; line-height: 1.12; text-transform: uppercase; color: var(--cream); }
+      /* Opening — date stamp (illustre le thème "ce jour-là") + titre, dès la 1re frame,
+         reveal ligne par ligne, gros dans le cadre. */
+      .hook-zone {
+        position: absolute; left: 96px; right: 96px; top: 300px; bottom: 200px; z-index: 10;
+        display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+      }
+      .stamp {
+        display: flex; align-items: center; gap: 16px; background: var(--ocre); color: var(--ink);
+        padding: 12px 22px; margin-bottom: 40px;
+      }
+      .stamp-d { font-family: 'Anton', sans-serif; font-size: 56px; line-height: 0.9; }
+      .stamp-m { font-family: 'Saira Condensed', sans-serif; font-weight: 700; font-size: 22px; line-height: 1.15; letter-spacing: 0.04em; text-align: left; }
+      .hook { font-family: 'Anton', sans-serif; font-size: 70px; line-height: 1.08; text-transform: uppercase; color: var(--cream); }
+      .hline { opacity: 0; }
       .hook .accent { color: var(--ocre); }
 
-      /* Sous-titres — typo Archivo (corps de texte de la DA une·deux), texte du
-         CORPS du post repris intégralement, style caption (fond plat, pas de pilule,
-         contour sombre pour la lisibilité — cohérent avec l'esthétique "papier" de la marque). */
-      .cap-zone { position: absolute; left: 96px; right: 96px; bottom: 300px; text-align: center; z-index: 10; }
+      /* Sous-titres karaoke — typo Anton (typo des titres), mot lu = encadré ocre. */
+      .cap-zone { position: absolute; left: 96px; right: 96px; bottom: 320px; text-align: center; z-index: 10; }
       .cap {
-        position: absolute; left: 0; right: 0; bottom: 0;
-        font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 42px; line-height: 1.3;
-        color: #F7F1E2; -webkit-text-stroke: 7px rgba(28, 25, 21, 0.85); paint-order: stroke fill;
+        position: absolute; left: 0; right: 0; bottom: 0; opacity: 0;
+        font-family: 'Anton', sans-serif; font-size: 46px; line-height: 1.32; text-transform: uppercase;
       }
-      .cap.stat { color: var(--ocre); font-size: 56px; -webkit-text-stroke-color: rgba(28, 25, 21, 0.9); }
+      .w { display: inline-block; color: #F7F1E2; background: rgba(0, 0, 0, 0); padding: 2px 8px; transition: none; }
+
+      /* Chiffres clés — gros, punchy, sur fond dédié */
+      .stat-zone {
+        position: absolute; left: 96px; right: 96px; top: 300px; bottom: 200px; z-index: 10;
+        display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+      }
+      .stat-big { position: absolute; opacity: 0; font-family: 'Anton', sans-serif; color: var(--ocre); line-height: 0.88; text-align: center; }
+      .stat-num { font-size: 220px; }
+      .stat-num.small { font-size: 150px; }
+      .stat-label { font-family: 'Saira Condensed', sans-serif; font-weight: 700; font-size: 34px; letter-spacing: 0.06em; color: var(--cream); margin-top: 10px; }
 
       /* ===== CTA (dernier chapitre, fond crème) ===== */
       .cta { background: var(--cream); background-image: repeating-linear-gradient(-45deg, rgba(44,40,35,.06) 0, rgba(44,40,35,.06) 2px, transparent 2px, transparent 46px); }
@@ -84,79 +99,107 @@
       data-start="0"
       data-width="1080"
       data-height="1920"
-      data-duration="39"
+      data-duration="68.6"
       data-fps="30"
     >
-      <!-- persistent header — not a clip -->
       <div id="hdr">
         <div class="ring">1·2</div>
         <div class="wordmark">une·deux</div>
         <div class="handle">@UNE.DEUX</div>
+        <div class="header-tag">N°1 · 21 JUILLET</div>
         <div class="hairline"></div>
         <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
       </div>
 
-      <!-- CH1 — HOOK (le TITRE du post, verbatim) -->
-      <section id="ch1" class="chapter clip" data-start="0" data-duration="3.7" data-track-index="1">
+      <!-- CH1 — HOOK : date stamp + titre, dès la 1re frame -->
+      <section id="ch1" class="chapter clip" data-start="0" data-duration="4.5" data-track-index="1">
         <div class="photo" id="ch1-photo" data-layout-allow-overflow="true"></div>
         <div class="grade"></div><div class="scrim"></div>
         <div class="hook-zone">
-          <div class="hook anim" id="ch1-hook">21 JUILLET 2000 :<br />L'HOMME QUI SORT LA NORVÈGE<br />DU PURGATOIRE DU MONDIAL<br />NAÎT À <span class="accent">LEEDS.</span></div>
+          <div class="stamp anim" id="stamp"><span class="stamp-d">21</span><span class="stamp-m">JUIL.<br />2000</span></div>
+          <div class="hook" id="ch1-hook">
+            <div class="hline">21 JUILLET 2000.</div>
+            <div class="hline">NÉ À <span class="accent">LEEDS,</span></div>
+            <div class="hline">IL SAUVE</div>
+            <div class="hline">LA <span class="accent">NORVÈGE.</span></div>
+          </div>
         </div>
       </section>
 
       <!-- CH2 — naissance / père -->
-      <section id="ch2" class="chapter clip" data-start="2.7" data-duration="6.5" data-track-index="2">
+      <section id="ch2" class="chapter clip" data-start="3.5" data-duration="12.87" data-track-index="2">
         <div class="photo" id="ch2-photo" data-layout-allow-overflow="true"></div>
         <div class="grade"></div><div class="scrim"></div>
         <div class="cap-zone">
-          <div class="cap anim" id="ch2-a">Erling Braut Haaland naît le 21 juillet 2000<br />à Leeds, en Angleterre,</div>
-          <div class="cap anim" id="ch2-b">pendant que son père Alf-Inge Haaland<br />joue pour Leeds United, en Premier League.</div>
+          <div class="cap" id="c1"><span class="w">ERLING</span> <span class="w">HAALAND</span> <span class="w">NAÎT</span> <span class="w">LE</span> <span class="w">21</span> <span class="w">JUILLET</span> <span class="w">2000</span></div>
+          <div class="cap" id="c2"><span class="w">À</span> <span class="w">LEEDS,</span> <span class="w">EN</span> <span class="w">ANGLETERRE.</span></div>
+          <div class="cap" id="c3"><span class="w">SON</span> <span class="w">PÈRE,</span> <span class="w">ALF-INGE,</span> <span class="w">JOUE</span> <span class="w">POUR</span> <span class="w">LEEDS</span> <span class="w">UNITED,</span></div>
+          <div class="cap" id="c4"><span class="w">EN</span> <span class="w">PREMIER</span> <span class="w">LEAGUE</span> <span class="w">ANGLAISE.</span></div>
         </div>
       </section>
 
       <!-- CH3 — mère / Bryne -->
-      <section id="ch3" class="chapter clip" data-start="8.2" data-duration="6.0" data-track-index="1">
+      <section id="ch3" class="chapter clip" data-start="15.87" data-duration="12.0" data-track-index="1">
         <div class="photo" id="ch3-photo" data-layout-allow-overflow="true"></div>
         <div class="grade"></div><div class="scrim"></div>
         <div class="cap-zone">
-          <div class="cap anim" id="ch3-a">Sa mère, Gry Marita Braut, est une ancienne<br />championne de Norvège d'heptathlon.</div>
-          <div class="cap anim" id="ch3-b">Elle ramène la famille à Bryne,<br />sur la côte ouest norvégienne, quand il a 3 ans.</div>
+          <div class="cap" id="c5"><span class="w">SA</span> <span class="w">MÈRE,</span> <span class="w">GRY</span> <span class="w">MARITA</span> <span class="w">BRAUT,</span></div>
+          <div class="cap" id="c6"><span class="w">EST</span> <span class="w">CHAMPIONNE</span> <span class="w">DE</span> <span class="w">NORVÈGE</span> <span class="w">D'HEPTATHLON.</span></div>
+          <div class="cap" id="c7"><span class="w">LA</span> <span class="w">FAMILLE</span> <span class="w">RENTRE</span> <span class="w">À</span> <span class="w">BRYNE,</span></div>
+          <div class="cap" id="c8"><span class="w">QUAND</span> <span class="w">IL</span> <span class="w">A</span> <span class="w">3</span> <span class="w">ANS.</span></div>
         </div>
       </section>
 
-      <!-- CH4 — le record (pattern interrupt, fond encre plein) -->
-      <section id="ch4" class="chapter statcard clip" data-start="13.2" data-duration="7.5" data-track-index="2">
+      <!-- CH4 — le record (pattern interrupt, fond encre) : sous-titres + compteur d'années + gros chiffres -->
+      <section id="ch4" class="chapter statcard clip" data-start="27.36" data-duration="10.45" data-track-index="2">
         <div class="cap-zone">
-          <div class="cap anim" id="ch4-a">Vingt-six ans plus tard, il est devenu<br />le meilleur buteur de l'histoire de la sélection norvégienne.</div>
-          <div class="cap stat anim" id="ch4-b">62 BUTS. 54 SÉLECTIONS.</div>
+          <div class="cap" id="c9"><span class="w">IL</span> <span class="w">DEVIENT</span> <span class="w">LE</span> <span class="w">MEILLEUR</span> <span class="w">BUTEUR</span></div>
+          <div class="cap" id="c10"><span class="w">DE</span> <span class="w">L'HISTOIRE</span> <span class="w">DE</span> <span class="w">LA</span> <span class="w">NORVÈGE.</span></div>
+        </div>
+        <div class="stat-zone">
+          <div class="stat-big" id="yc">
+            <div class="stat-num" id="yc-num">0</div>
+            <div class="stat-label">ANS PLUS TARD</div>
+          </div>
+          <div class="stat-big" id="stat6254">
+            <div class="stat-num small">62 <span style="color:var(--cream)">BUTS</span></div>
+            <div class="stat-num small" style="margin-top:20px;">54 <span style="color:var(--cream)">SÉLECTIONS</span></div>
+          </div>
         </div>
       </section>
 
       <!-- CH5 — Mondial 2026 -->
-      <section id="ch5" class="chapter clip" data-start="19.7" data-duration="9.0" data-track-index="1">
+      <section id="ch5" class="chapter clip" data-start="37.31" data-duration="16.61" data-track-index="1">
         <div class="photo" id="ch5-photo" data-layout-allow-overflow="true"></div>
         <div class="grade"></div><div class="scrim"></div>
         <div class="cap-zone">
-          <div class="cap anim" id="ch5-a">Il vient de porter la Norvège<br />en quarts de finale du Mondial 2026,</div>
-          <div class="cap anim" id="ch5-b">meilleur résultat de l'histoire du pays.</div>
-          <div class="cap anim" id="ch5-c">7 buts marqués contre l'Irak, le Sénégal,<br />la Côte d'Ivoire et le Brésil.</div>
+          <div class="cap" id="c11"><span class="w">IL</span> <span class="w">PORTE</span> <span class="w">LA</span> <span class="w">NORVÈGE</span></div>
+          <div class="cap" id="c12"><span class="w">EN</span> <span class="w">QUARTS</span> <span class="w">DE</span> <span class="w">FINALE</span> <span class="w">DU</span> <span class="w">MONDIAL</span> <span class="w">2026,</span></div>
+          <div class="cap" id="c13"><span class="w">MEILLEUR</span> <span class="w">RÉSULTAT</span> <span class="w">DE</span> <span class="w">L'HISTOIRE</span> <span class="w">DU</span> <span class="w">PAYS.</span></div>
+          <div class="cap" id="c14"><span class="w">7</span> <span class="w">BUTS</span> <span class="w">CONTRE</span> <span class="w">L'IRAK,</span> <span class="w">LE</span> <span class="w">SÉNÉGAL,</span></div>
+          <div class="cap" id="c15"><span class="w">LA</span> <span class="w">CÔTE</span> <span class="w">D'IVOIRE</span> <span class="w">ET</span> <span class="w">LE</span> <span class="w">BRÉSIL.</span></div>
         </div>
       </section>
 
       <!-- CH6 — la boucle se referme -->
-      <section id="ch6" class="chapter clip" data-start="27.7" data-duration="7.5" data-track-index="2">
+      <section id="ch6" class="chapter clip" data-start="53.42" data-duration="10.35" data-track-index="2">
         <div class="photo" id="ch6-photo" data-layout-allow-overflow="true"></div>
         <div class="grade"></div><div class="scrim"></div>
+        <div class="stat-zone">
+          <div class="stat-big" id="score">
+            <div class="stat-num">2-1</div>
+            <div class="stat-label">APRÈS PROLONGATIONS</div>
+          </div>
+        </div>
         <div class="cap-zone">
-          <div class="cap anim" id="ch6-a">En quarts, la Norvège tombe 2-1<br />après prolongations.</div>
-          <div class="cap anim" id="ch6-b">Face à l'Angleterre.</div>
-          <div class="cap anim" id="ch6-c">Le pays où tout a commencé pour lui.</div>
+          <div class="cap" id="c16"><span class="w">APRÈS</span> <span class="w">PROLONGATIONS,</span></div>
+          <div class="cap" id="c17"><span class="w">FACE</span> <span class="w">À</span> <span class="w">L'ANGLETERRE.</span></div>
+          <div class="cap" id="c18"><span class="w">LE</span> <span class="w">PAYS</span> <span class="w">OÙ</span> <span class="w">TOUT</span> <span class="w">A</span> <span class="w">COMMENCÉ</span> <span class="w">POUR</span> <span class="w">LUI.</span></div>
         </div>
       </section>
 
       <!-- CH7 — CTA -->
-      <section id="ch7" class="chapter cta clip" data-start="34.2" data-duration="4.8" data-track-index="1">
+      <section id="ch7" class="chapter cta clip" data-start="63.27" data-duration="4.8" data-track-index="1">
         <svg class="bookmark anim" id="ch7-bookmark" viewBox="0 0 120 156"><path d="M14 0h92a14 14 0 0 1 14 14v142L60 98 0 156V14A14 14 0 0 1 14 0Z"/></svg>
         <div class="chip anim" id="ch7-chip">FOLLOW</div>
         <div class="cta-title anim" id="ch7-title">CHAQUE JOUR,<br />UNE DATE.</div>
@@ -171,58 +214,110 @@
     <script>
       window.__timelines = window.__timelines || {};
       const tl = gsap.timeline({ paused: true });
-      const XFADE = 0.5;
-      const EASE = 'sine.inOut';
+      const XFADE = 0.5, EASE = 'sine.inOut';
+      const WPS = 2.3;     // readable karaoke pace — words per second
+      const HOLD = 0.55;   // hold after the last word lights up
+      const GAP = 0.15;    // gap between consecutive caption cards
 
-      // Chapters cross-dissolve into each other (overlapping tracks, 0.5s fade
-      // in/out on the whole section) — the one transition device, used uniformly.
+      // ---- chapter crossfades ----
       const chapters = [
-        { id: 'ch1', start: 0, dur: 3.7, fadeOutOnly: true },
-        { id: 'ch2', start: 2.7, dur: 6.5 },
-        { id: 'ch3', start: 8.2, dur: 6.0 },
-        { id: 'ch4', start: 13.2, dur: 7.5 },
-        { id: 'ch5', start: 19.7, dur: 9.0 },
-        { id: 'ch6', start: 27.7, dur: 7.5 },
-        { id: 'ch7', start: 34.2, dur: 4.8, fadeInOnly: true },
+        { id: 'ch1', start: 0, dur: 4.5, fadeOutOnly: true },
+        { id: 'ch2', start: 3.5, dur: 12.87 },
+        { id: 'ch3', start: 15.87, dur: 12.0 },
+        { id: 'ch4', start: 27.36, dur: 10.45 },
+        { id: 'ch5', start: 37.31, dur: 16.61 },
+        { id: 'ch6', start: 53.42, dur: 10.35 },
+        { id: 'ch7', start: 63.27, dur: 4.8, fadeInOnly: true },
       ];
       chapters.forEach(({ id, start, dur, fadeOutOnly, fadeInOnly }) => {
         if (!fadeInOnly) tl.fromTo(`#${id}`, { opacity: 0 }, { opacity: 1, duration: XFADE, ease: EASE }, start);
         if (!fadeOutOnly) tl.to(`#${id}`, { opacity: 0, duration: XFADE, ease: EASE }, start + dur - XFADE);
       });
-
-      // Slow, continuous Ken Burns — premium, not kinetic.
       ['ch1', 'ch2', 'ch3', 'ch5', 'ch6'].forEach((id) => {
         const c = chapters.find((x) => x.id === id);
         tl.fromTo(`#${id}-photo`, { scale: 1.0 }, { scale: 1.06, duration: c.dur, ease: 'none' }, c.start);
       });
 
-      // Opening hook — single clean reveal, premium easing (no bounce).
-      tl.fromTo('#ch1-hook', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out' }, 0.2);
+      // ---- opening: date stamp + title, from frame 0, line by line ----
+      tl.fromTo('#stamp', { opacity: 0, scale: 0.75 }, { opacity: 1, scale: 1, duration: 0.3, ease: 'back.out(2)' }, 0);
+      const hlines = document.querySelectorAll('#ch1-hook .hline');
+      hlines.forEach((el, i) => {
+        tl.fromTo(el, { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.45, ease: 'power3.out' }, i * 0.28);
+      });
 
-      // Subtitle cycling — one caption visible at a time, cross-dissolve between
-      // lines (same restrained language as the chapter transitions).
-      function caption(sel, inAt, outAt) {
-        tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 0.35, ease: EASE }, inAt);
-        tl.to(sel, { opacity: 0, duration: 0.35, ease: EASE }, outAt - 0.35);
+      // ---- karaoke subtitle helper: word-by-word ocre highlight, readable pace ----
+      function karaoke(id, start, wps, hold) {
+        wps = wps || WPS; hold = hold != null ? hold : HOLD;
+        const el = document.getElementById(id);
+        const words = Array.from(el.querySelectorAll('.w'));
+        tl.to(`#${id}`, { opacity: 1, duration: 0.15, ease: 'sine.out' }, start);
+        words.forEach((w, i) => {
+          const wStart = start + i / wps;
+          tl.to(w, { backgroundColor: '#C2A04E', color: '#2C2823', duration: 0.08, ease: 'none' }, wStart);
+          if (i > 0) tl.set(words[i - 1], { backgroundColor: 'rgba(0,0,0,0)', color: '#F7F1E2' }, wStart);
+        });
+        const end = start + words.length / wps + hold;
+        tl.to(`#${id}`, { opacity: 0, duration: 0.2, ease: 'sine.in' }, end - 0.2);
+        return end + GAP;
       }
-      caption('#ch2-a', 3.0, 5.7);
-      caption('#ch2-b', 5.9, 8.6);
-      caption('#ch3-a', 8.5, 11.0);
-      caption('#ch3-b', 11.2, 13.6);
-      caption('#ch4-a', 13.6, 17.0);
-      caption('#ch4-b', 17.3, 20.0);
-      caption('#ch5-a', 20.1, 22.5);
-      caption('#ch5-b', 22.7, 24.7);
-      caption('#ch5-c', 24.9, 28.4);
-      caption('#ch6-a', 28.2, 30.2);
-      caption('#ch6-b', 30.4, 31.6);
-      caption('#ch6-c', 31.8, 34.6);
 
-      // CTA reveal — same premium pop-free language.
-      const ctaStart = 34.2;
+      function statPunch(id, start, hold) {
+        tl.fromTo(`#${id}`, { opacity: 0, scale: 0.72 }, { opacity: 1, scale: 1, duration: 0.35, ease: 'back.out(2.3)' }, start);
+        const end = start + 0.35 + (hold || 1.3);
+        tl.to(`#${id}`, { opacity: 0, duration: 0.25, ease: 'sine.in' }, end - 0.25);
+        return end + GAP;
+      }
+
+      function countUp(numId, cardId, start, from, to, duration) {
+        tl.fromTo(`#${cardId}`, { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.3, ease: 'power2.out' }, start);
+        const obj = { v: from };
+        const el = document.getElementById(numId);
+        tl.to(obj, {
+          v: to, duration, ease: 'power1.inOut',
+          onUpdate: () => { el.textContent = Math.round(obj.v); },
+        }, start + 0.1);
+        const end = start + 0.1 + duration + 0.5;
+        tl.to(`#${cardId}`, { opacity: 0, duration: 0.25, ease: 'sine.in' }, end - 0.25);
+        return end + GAP;
+      }
+
+      // ---- CH2 ----
+      let cur = karaoke('c1', 4.0);
+      cur = karaoke('c2', cur);
+      cur = karaoke('c3', cur);
+      karaoke('c4', cur);
+
+      // ---- CH3 ----
+      cur = karaoke('c5', 15.87);
+      cur = karaoke('c6', cur);
+      cur = karaoke('c7', cur);
+      karaoke('c8', cur);
+
+      // ---- CH4 : sous-titres + compteur d'années (illustre "26 ans plus tard" /
+      // le thème "ce jour-là" en visualisant le temps qui passe) + gros chiffres ----
+      cur = karaoke('c9', 27.36);
+      cur = karaoke('c10', cur);
+      cur = countUp('yc-num', 'yc', cur, 0, 26, 1.2);
+      statPunch('stat6254', cur, 1.4);
+
+      // ---- CH5 ----
+      cur = karaoke('c11', 37.31);
+      cur = karaoke('c12', cur);
+      cur = karaoke('c13', cur);
+      cur = karaoke('c14', cur);
+      karaoke('c15', cur);
+
+      // ---- CH6 : le score choc, puis la chute ----
+      cur = statPunch('score', 53.42, 1.3);
+      cur = karaoke('c16', cur);
+      cur = karaoke('c17', cur);
+      karaoke('c18', cur);
+
+      // ---- CTA ----
+      const ctaStart = 63.27;
       const INK = '#2C2823';
-      tl.to('.ring, .wordmark, .handle', { opacity: 0, duration: 0.25, ease: EASE }, ctaStart - 0.3);
-      tl.set('.ring, .wordmark, .handle', { opacity: 0 }, ctaStart);
+      tl.to('.ring, .wordmark, .handle, .header-tag', { opacity: 0, duration: 0.25, ease: EASE }, ctaStart - 0.3);
+      tl.set('.ring, .wordmark, .handle, .header-tag', { opacity: 0 }, ctaStart);
       tl.to('.hairline, .progress-track', { opacity: 0, duration: 0.25, ease: EASE }, ctaStart - 0.3);
       tl.set('.hairline, .progress-track', { opacity: 0 }, ctaStart);
       tl.set('.ring, .wordmark, .handle', { color: INK }, ctaStart);
@@ -236,7 +331,7 @@
       tl.to('#ch7-body', { opacity: 1, duration: 0.4, ease: EASE }, ctaStart + 1.4);
       tl.to('#ch7-footer', { opacity: 1, duration: 0.35, ease: EASE }, ctaStart + 1.7);
 
-      // Progress bar — fills across the whole reel, fades out as the CTA lands.
+      // ---- progress bar ----
       tl.fromTo('#progress-fill', { width: '0%' }, { width: '100%', duration: ctaStart, ease: 'none' }, 0);
 
       window.__timelines['main'] = tl;
