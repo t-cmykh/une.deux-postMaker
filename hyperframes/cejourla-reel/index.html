@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=1080, height=1920" />
-    <title>une·deux — Ce jour-là · Reel prototype (Haaland, 21 juillet) — cuts + vraies images</title>
+    <title>une·deux — Ce jour-là · Reel prototype (Haaland, 21 juillet) — parcours Mondial 2026</title>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
     <link rel="stylesheet" href="tokens/fonts.css" />
     <link rel="stylesheet" href="tokens/colors.css" />
@@ -32,7 +32,6 @@
       .photo { position: absolute; inset: -8%; background: linear-gradient(180deg, #6b6860, #26221d); }
       .grade { position: absolute; inset: 0; background: rgba(120, 90, 40, 0.16); }
       .scrim { position: absolute; inset: 0; background: rgba(44, 40, 35, 0.5); }
-      .chapter.statcard { background: var(--ink); }
       .clip-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
 
       /* Opening — date stamp (illustre le thème "ce jour-là") + titre, dès la 1re frame,
@@ -51,23 +50,14 @@
       .hline { opacity: 0; }
       .hook .accent { color: var(--ocre); }
 
-      /* Sous-titres — typo Anton (typo des titres), simple apparition de phrase. */
+      /* Sous-titres — typo Anton (typo des titres) ; couleur crème de la DA
+         une·deux (pas de contour/encadré). */
       .cap-zone { position: absolute; left: 96px; right: 96px; bottom: 320px; text-align: center; z-index: 10; }
       .cap {
         position: absolute; left: 0; right: 0; bottom: 0; opacity: 0;
         font-family: 'Anton', sans-serif; font-size: 46px; line-height: 1.32; text-transform: uppercase;
       }
-      .w { color: #F7F1E2; }
-
-      /* Chiffres clés — gros, punchy, sur fond dédié */
-      .stat-zone {
-        position: absolute; left: 96px; right: 96px; top: 300px; bottom: 200px; z-index: 10;
-        display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
-      }
-      .stat-big { position: absolute; opacity: 0; font-family: 'Anton', sans-serif; color: var(--ocre); line-height: 0.88; text-align: center; }
-      .stat-num { font-size: 220px; }
-      .stat-num.small { font-size: 150px; }
-      .stat-label { font-family: 'Saira Condensed', sans-serif; font-weight: 700; font-size: 34px; letter-spacing: 0.06em; color: var(--cream); margin-top: 10px; }
+      .w { color: var(--cream); }
 
       /* ===== CTA (dernier chapitre, fond crème) ===== */
       .cta { background: var(--cream); background-image: repeating-linear-gradient(-45deg, rgba(44,40,35,.06) 0, rgba(44,40,35,.06) 2px, transparent 2px, transparent 46px); }
@@ -99,7 +89,7 @@
       data-start="0"
       data-width="1080"
       data-height="1920"
-      data-duration="59.43"
+      data-duration="48.11"
       data-fps="30"
     >
       <div id="hdr">
@@ -110,7 +100,7 @@
         <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
       </div>
 
-      <!-- CH1 — HOOK : date stamp + titre, dès la 1re frame -->
+      <!-- CH1 — HOOK : date stamp + titre, dès la 1re frame (inchangé) -->
       <section id="ch1" class="chapter clip" data-start="0" data-duration="4.0" data-track-index="1">
         <div class="photo" id="ch1-photo" data-layout-allow-overflow="true"></div>
         <div class="grade"></div><div class="scrim"></div>
@@ -125,84 +115,54 @@
         </div>
       </section>
 
-      <!-- CH2 — naissance / père -->
-      <section id="ch2" class="chapter clip" data-start="4.0" data-duration="9.21" data-track-index="1">
-        <div class="photo" id="ch2-photo" data-layout-allow-overflow="true"></div>
-        <div class="grade"></div><div class="scrim"></div>
+      <!-- Parcours Mondial 2026 — 5 rushs réels, durée intégrale, coupes franches -->
+      <video class="clip-video" id="v1" src="assets/wc1-attack.mp4" data-start="4.00" data-duration="8.08" data-track-index="5" muted playsinline></video>
+      <video class="clip-video" id="v2" src="assets/wc2-bresil-a.mp4" data-start="12.08" data-duration="4.23" data-track-index="5" muted playsinline></video>
+      <video class="clip-video" id="v3" src="assets/wc3-bresil-b.mp4" data-start="16.31" data-duration="9.65" data-track-index="5" muted playsinline></video>
+      <video class="clip-video" id="v4" src="assets/wc4-bresil-c.mp4" data-start="25.96" data-duration="9.45" data-track-index="5" muted playsinline></video>
+      <video class="clip-video" id="v5" src="assets/wc5-angleterre.mp4" data-start="35.41" data-duration="7.90" data-track-index="5" muted playsinline></video>
+
+      <section id="v1-ov" class="chapter clip" data-start="4.00" data-duration="8.08" data-track-index="1">
+        <div class="scrim" style="background: rgba(44, 40, 35, 0.5);"></div>
         <div class="cap-zone">
-          <div class="cap" id="c1"><span class="w">ERLING</span> <span class="w">HAALAND</span> <span class="w">NAÎT</span> <span class="w">LE</span> <span class="w">21</span> <span class="w">JUILLET</span> <span class="w">2000</span></div>
-          <div class="cap" id="c2"><span class="w">À</span> <span class="w">LEEDS,</span> <span class="w">EN</span> <span class="w">ANGLETERRE.</span></div>
-          <div class="cap" id="c3"><span class="w">SON</span> <span class="w">PÈRE,</span> <span class="w">ALF-INGE,</span> <span class="w">JOUE</span> <span class="w">POUR</span> <span class="w">LEEDS</span> <span class="w">UNITED,</span></div>
-          <div class="cap" id="c4"><span class="w">EN</span> <span class="w">PREMIER</span> <span class="w">LEAGUE</span> <span class="w">ANGLAISE.</span></div>
+          <div class="cap" id="c1"><span class="w">26</span> <span class="w">ANS</span> <span class="w">APRÈS</span> <span class="w">SA</span> <span class="w">NAISSANCE,</span> <span class="w">LE</span> <span class="w">21</span> <span class="w">JUILLET</span> <span class="w">2000,</span></div>
+          <div class="cap" id="c2"><span class="w">HAALAND</span> <span class="w">PORTE</span> <span class="w">LA</span> <span class="w">NORVÈGE</span> <span class="w">AU</span> <span class="w">MONDIAL</span> <span class="w">2026.</span></div>
         </div>
       </section>
 
-      <!-- CH3 — mère / Bryne -->
-      <section id="ch3" class="chapter clip" data-start="13.21" data-duration="8.55" data-track-index="1">
-        <div class="photo" id="ch3-photo" data-layout-allow-overflow="true"></div>
-        <div class="grade"></div><div class="scrim"></div>
+      <section id="v2-ov" class="chapter clip" data-start="12.08" data-duration="4.23" data-track-index="1">
+        <div class="scrim" style="background: rgba(44, 40, 35, 0.5);"></div>
         <div class="cap-zone">
-          <div class="cap" id="c5"><span class="w">SA</span> <span class="w">MÈRE,</span> <span class="w">GRY</span> <span class="w">MARITA</span> <span class="w">BRAUT,</span></div>
-          <div class="cap" id="c6"><span class="w">EST</span> <span class="w">CHAMPIONNE</span> <span class="w">DE</span> <span class="w">NORVÈGE</span> <span class="w">D'HEPTATHLON.</span></div>
-          <div class="cap" id="c7"><span class="w">LA</span> <span class="w">FAMILLE</span> <span class="w">RENTRE</span> <span class="w">À</span> <span class="w">BRYNE,</span></div>
-          <div class="cap" id="c8"><span class="w">QUAND</span> <span class="w">IL</span> <span class="w">A</span> <span class="w">3</span> <span class="w">ANS.</span></div>
+          <div class="cap" id="c3"><span class="w">FACE</span> <span class="w">AU</span> <span class="w">BRÉSIL,</span></div>
         </div>
       </section>
 
-      <!-- CH4 — le record (pattern interrupt, fond encre) : sous-titres + compteur d'années + gros chiffres -->
-      <section id="ch4" class="chapter statcard clip" data-start="21.76" data-duration="7.56" data-track-index="1">
+      <section id="v3-ov" class="chapter clip" data-start="16.31" data-duration="9.65" data-track-index="1">
+        <div class="scrim" style="background: rgba(44, 40, 35, 0.5);"></div>
         <div class="cap-zone">
-          <div class="cap" id="c9"><span class="w">IL</span> <span class="w">DEVIENT</span> <span class="w">LE</span> <span class="w">MEILLEUR</span> <span class="w">BUTEUR</span></div>
-          <div class="cap" id="c10"><span class="w">DE</span> <span class="w">L'HISTOIRE</span> <span class="w">DE</span> <span class="w">LA</span> <span class="w">NORVÈGE.</span></div>
-        </div>
-        <div class="stat-zone">
-          <div class="stat-big" id="yc">
-            <div class="stat-num" id="yc-num">0</div>
-            <div class="stat-label">ANS PLUS TARD</div>
-          </div>
-          <div class="stat-big" id="stat6254">
-            <div class="stat-num small">62 <span style="color:var(--cream)">BUTS</span></div>
-            <div class="stat-num small" style="margin-top:20px;">54 <span style="color:var(--cream)">SÉLECTIONS</span></div>
-          </div>
+          <div class="cap" id="c4"><span class="w">IL</span> <span class="w">INSCRIT</span> <span class="w">UN</span> <span class="w">DOUBLÉ.</span></div>
+          <div class="cap" id="c5"><span class="w">7</span> <span class="w">BUTS</span> <span class="w">AU</span> <span class="w">TOTAL</span> <span class="w">DANS</span> <span class="w">LE</span> <span class="w">TOURNOI.</span></div>
         </div>
       </section>
 
-      <!-- CH5 — Mondial 2026 : vrais rushs (5 plans, cadrage_auto.mp4), coupes franches -->
-      <video class="clip-video" id="v1" src="assets/haaland-01.mp4" data-start="29.32" data-duration="3.0" data-track-index="5" muted playsinline></video>
-      <video class="clip-video" id="v2" src="assets/haaland-02.mp4" data-start="32.44" data-duration="3.8" data-track-index="5" muted playsinline></video>
-      <video class="clip-video" id="v3" src="assets/haaland-03.mp4" data-start="36.36" data-duration="3.6" data-track-index="5" muted playsinline></video>
-      <video class="clip-video" id="v4" src="assets/haaland-04.mp4" data-start="40.08" data-duration="3.6" data-track-index="5" muted playsinline></video>
-      <video class="clip-video" id="v5" src="assets/haaland-05.mp4" data-start="43.80" data-duration="3.6" data-track-index="5" muted playsinline></video>
-
-      <section id="ch5" class="chapter clip" data-start="29.32" data-duration="18.2" data-track-index="1">
-        <div class="scrim" style="background: rgba(44, 40, 35, 0.32);"></div>
+      <section id="v4-ov" class="chapter clip" data-start="25.96" data-duration="9.45" data-track-index="1">
+        <div class="scrim" style="background: rgba(44, 40, 35, 0.5);"></div>
         <div class="cap-zone">
-          <div class="cap" id="c11"><span class="w">IL</span> <span class="w">PORTE</span> <span class="w">LA</span> <span class="w">NORVÈGE</span></div>
-          <div class="cap" id="c12"><span class="w">EN</span> <span class="w">QUARTS</span> <span class="w">DE</span> <span class="w">FINALE</span> <span class="w">DU</span> <span class="w">MONDIAL</span> <span class="w">2026,</span></div>
-          <div class="cap" id="c13"><span class="w">MEILLEUR</span> <span class="w">RÉSULTAT</span> <span class="w">DE</span> <span class="w">L'HISTOIRE</span> <span class="w">DU</span> <span class="w">PAYS.</span></div>
-          <div class="cap" id="c14"><span class="w">7</span> <span class="w">BUTS</span> <span class="w">CONTRE</span> <span class="w">L'IRAK,</span> <span class="w">LE</span> <span class="w">SÉNÉGAL,</span></div>
-          <div class="cap" id="c15"><span class="w">LA</span> <span class="w">CÔTE</span> <span class="w">D'IVOIRE</span> <span class="w">ET</span> <span class="w">LE</span> <span class="w">BRÉSIL.</span></div>
+          <div class="cap" id="c6"><span class="w">MEILLEUR</span> <span class="w">RÉSULTAT</span> <span class="w">DE</span> <span class="w">L'HISTOIRE</span> <span class="w">DE</span> <span class="w">LA</span> <span class="w">NORVÈGE</span> <span class="w">:</span></div>
+          <div class="cap" id="c7"><span class="w">LES</span> <span class="w">QUARTS</span> <span class="w">DE</span> <span class="w">FINALE.</span></div>
         </div>
       </section>
 
-      <!-- CH6 — la boucle se referme -->
-      <section id="ch6" class="chapter clip" data-start="47.52" data-duration="7.11" data-track-index="1">
-        <div class="photo" id="ch6-photo" data-layout-allow-overflow="true"></div>
-        <div class="grade"></div><div class="scrim"></div>
-        <div class="stat-zone">
-          <div class="stat-big" id="score">
-            <div class="stat-num">2-1</div>
-          </div>
-        </div>
+      <section id="v5-ov" class="chapter clip" data-start="35.41" data-duration="7.90" data-track-index="1">
+        <div class="scrim" style="background: rgba(44, 40, 35, 0.5);"></div>
         <div class="cap-zone">
-          <div class="cap" id="c16"><span class="w">APRÈS</span> <span class="w">PROLONGATIONS,</span></div>
-          <div class="cap" id="c17"><span class="w">FACE</span> <span class="w">À</span> <span class="w">L'ANGLETERRE.</span></div>
-          <div class="cap" id="c18"><span class="w">LE</span> <span class="w">PAYS</span> <span class="w">OÙ</span> <span class="w">TOUT</span> <span class="w">A</span> <span class="w">COMMENCÉ</span> <span class="w">POUR</span> <span class="w">LUI.</span></div>
+          <div class="cap" id="c8"><span class="w">FACE</span> <span class="w">À</span> <span class="w">L'ANGLETERRE,</span> <span class="w">LE</span> <span class="w">PAYS</span> <span class="w">OÙ</span> <span class="w">TOUT</span> <span class="w">A</span> <span class="w">COMMENCÉ,</span></div>
+          <div class="cap" id="c9"><span class="w">LA</span> <span class="w">NORVÈGE</span> <span class="w">TOMBE</span> <span class="w">2-1</span> <span class="w">APRÈS</span> <span class="w">PROLONGATIONS.</span></div>
         </div>
       </section>
 
-      <!-- CH7 — CTA -->
-      <section id="ch7" class="chapter cta clip" data-start="54.63" data-duration="4.8" data-track-index="1">
+      <!-- CH7 — CTA (inchangé) -->
+      <section id="ch7" class="chapter cta clip" data-start="43.31" data-duration="4.80" data-track-index="1">
         <svg class="bookmark anim" id="ch7-bookmark" viewBox="0 0 120 156"><path d="M14 0h92a14 14 0 0 1 14 14v142L60 98 0 156V14A14 14 0 0 1 14 0Z"/></svg>
         <div class="chip anim" id="ch7-chip">FOLLOW</div>
         <div class="cta-title anim" id="ch7-title">CHAQUE JOUR,<br />UNE DATE.</div>
@@ -218,25 +178,14 @@
       window.__timelines = window.__timelines || {};
       const tl = gsap.timeline({ paused: true });
       const EASE = 'sine.inOut';
-      const WPS = 3.0;     // caption pace — words per second
-      const HOLD = 0.35;   // hold after the phrase settles
-      const GAP = 0.12;    // gap between consecutive caption cards
 
       // Hard cuts only — no chapter-level opacity crossfade. HyperFrames' own
       // clip show/hide (driven by data-start/data-duration) already gives a
       // clean cut, so there is nothing to animate at the chapter boundary.
 
-      // Ken Burns — only on the still-photo chapters (video chapters already
-      // have real motion, no need to fake it).
-      const photoChapters = [
-        { id: 'ch1', start: 0, dur: 4.0 },
-        { id: 'ch2', start: 4.0, dur: 9.21 },
-        { id: 'ch3', start: 13.21, dur: 8.55 },
-        { id: 'ch6', start: 47.52, dur: 7.11 },
-      ];
-      photoChapters.forEach(({ id, start, dur }) => {
-        tl.fromTo(`#${id}-photo`, { scale: 1.0 }, { scale: 1.06, duration: dur, ease: 'none' }, start);
-      });
+      // Ken Burns — only on the still-photo hook (video chapters already have
+      // real motion, no need to fake it).
+      tl.fromTo('#ch1-photo', { scale: 1.0 }, { scale: 1.06, duration: 4.0, ease: 'none' }, 0);
 
       // ---- opening: date stamp + title, from frame 0, line by line ----
       tl.fromTo('#stamp', { opacity: 0, scale: 0.75 }, { opacity: 1, scale: 1, duration: 0.3, ease: 'back.out(2)' }, 0);
@@ -260,71 +209,33 @@
         tl.fromTo(el, { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.45, ease: 'power3.out' }, i * 0.28);
       });
 
-      // ---- subtitle helper: the phrase fades in/out as a block, no box ----
-      function karaoke(id, start, wps, hold) {
-        wps = wps || WPS; hold = hold != null ? hold : HOLD;
-        const el = document.getElementById(id);
-        const wordCount = el.querySelectorAll('.w').length;
-        tl.fromTo(`#${id}`, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.25, ease: 'sine.out' }, start);
-        const end = start + wordCount / wps + hold;
-        tl.to(`#${id}`, { opacity: 0, duration: 0.2, ease: 'sine.in' }, end - 0.2);
-        return end + GAP;
+      // ---- caption helper: fixed in/out window, phrase fades as a block ----
+      function caption(id, inAt, outAt) {
+        tl.fromTo(`#${id}`, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.3, ease: 'sine.out' }, inAt);
+        tl.to(`#${id}`, { opacity: 0, duration: 0.25, ease: 'sine.in' }, outAt - 0.25);
       }
 
-      function statPunch(id, start, hold) {
-        tl.fromTo(`#${id}`, { opacity: 0, scale: 0.72 }, { opacity: 1, scale: 1, duration: 0.35, ease: 'back.out(2.3)' }, start);
-        const end = start + 0.35 + (hold || 1.3);
-        tl.to(`#${id}`, { opacity: 0, duration: 0.25, ease: 'sine.in' }, end - 0.25);
-        return end + GAP;
-      }
+      // ---- V1 — 26 ans après sa naissance, il porte la Norvège au Mondial ----
+      caption('c1', 4.2, 7.9);
+      caption('c2', 8.1, 11.9);
 
-      function countUp(numId, cardId, start, from, to, duration) {
-        tl.fromTo(`#${cardId}`, { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.3, ease: 'power2.out' }, start);
-        const obj = { v: from };
-        const el = document.getElementById(numId);
-        tl.to(obj, {
-          v: to, duration, ease: 'power1.inOut',
-          onUpdate: () => { el.textContent = Math.round(obj.v); },
-        }, start + 0.1);
-        const end = start + 0.1 + duration + 0.5;
-        tl.to(`#${cardId}`, { opacity: 0, duration: 0.25, ease: 'sine.in' }, end - 0.25);
-        return end + GAP;
-      }
+      // ---- V2 — face au Brésil ----
+      caption('c3', 12.3, 16.1);
 
-      // ---- CH2 ----
-      let cur = karaoke('c1', 4.0);
-      cur = karaoke('c2', cur);
-      cur = karaoke('c3', cur);
-      karaoke('c4', cur);
+      // ---- V3 — le doublé, 7 buts au total ----
+      caption('c4', 16.5, 20.7);
+      caption('c5', 20.9, 25.7);
 
-      // ---- CH3 ----
-      cur = karaoke('c5', 13.21);
-      cur = karaoke('c6', cur);
-      cur = karaoke('c7', cur);
-      karaoke('c8', cur);
+      // ---- V4 — meilleur résultat de l'histoire, les quarts ----
+      caption('c6', 26.15, 30.4);
+      caption('c7', 30.6, 35.2);
 
-      // ---- CH4 : sous-titres + compteur d'années (illustre "26 ans plus tard" /
-      // le thème "ce jour-là" en visualisant le temps qui passe) + gros chiffres ----
-      cur = karaoke('c9', 21.76);
-      cur = karaoke('c10', cur);
-      cur = countUp('yc-num', 'yc', cur, 0, 26, 1.0);
-      statPunch('stat6254', cur, 1.1);
-
-      // ---- CH5 : 5 plans réels (cadrage_auto.mp4), un sous-titre par plan ----
-      cur = karaoke('c11', 29.32);
-      cur = karaoke('c12', cur);
-      cur = karaoke('c13', cur);
-      cur = karaoke('c14', cur);
-      karaoke('c15', cur);
-
-      // ---- CH6 : le score choc, puis la chute ----
-      cur = statPunch('score', 47.52, 0.9);
-      cur = karaoke('c16', cur);
-      cur = karaoke('c17', cur);
-      karaoke('c18', cur);
+      // ---- V5 — face à l'Angleterre, la chute ----
+      caption('c8', 35.6, 39.3);
+      caption('c9', 39.5, 43.1);
 
       // ---- CTA ----
-      const ctaStart = 54.63;
+      const ctaStart = 43.31;
       const INK = '#2C2823';
       tl.to('.ring, .wordmark, .handle', { opacity: 0, duration: 0.25, ease: EASE }, ctaStart - 0.3);
       tl.set('.ring, .wordmark, .handle', { opacity: 0 }, ctaStart);
