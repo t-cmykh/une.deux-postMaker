@@ -74,31 +74,37 @@
         mask-image: linear-gradient(180deg, transparent 0%, #000 55%, #000 100%);
       }
 
-      /* ---- CH3 feuille de match / ticker ---- */
-      .tick-zone { position: absolute; left: 96px; right: 96px; top: 320px; z-index: 10; }
-      .tick-eyebrow { font-family: 'Saira Condensed', sans-serif; font-weight: 700; font-size: 28px; letter-spacing: .06em; color: var(--ocre); }
-      .tick-title { font-family: 'Anton', sans-serif; font-size: 64px; text-transform: uppercase; color: var(--cream); margin-top: 6px; }
-      .live-score {
-        position: absolute; right: 96px; top: 320px; z-index: 10; text-align: right;
-        font-family: 'Anton', sans-serif; font-size: 72px; color: var(--ocre);
+      /* ---- CH3-CH7 : scènes d'action (diagramme tactique animé par but) ---- */
+      .goal-eyebrow {
+        position: absolute; left: 96px; top: 320px; z-index: 10; opacity: 0;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 700; font-size: 30px; letter-spacing: .06em; color: var(--ocre);
       }
-      .row {
-        position: absolute; left: 96px; right: 96px; height: 122px; z-index: 10; opacity: 0;
-        display: flex; align-items: center; gap: 26px; border-left: 6px solid var(--ocre); padding-left: 28px;
+      .pitch-svg { position: absolute; left: 96px; top: 380px; width: 888px; height: 620px; z-index: 10; overflow: visible; }
+      .pitch-box, .pitch-six, .pitch-goal, .pitch-arc {
+        fill: none; stroke: var(--cream); stroke-opacity: .35; stroke-width: 2.5px;
+        stroke-dasharray: 1; stroke-dashoffset: 1;
       }
-      .row .min { font-family: 'Anton', sans-serif; font-size: 46px; color: var(--ocre); min-width: 108px; }
-      .row .who { display: flex; flex-direction: column; gap: 4px; }
-      .row .name { font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 32px; color: var(--cream); }
-      .row .team { font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 20px; letter-spacing: .05em; color: var(--muted-cream); text-transform: uppercase; }
-      .row .badge {
-        background: var(--ocre); color: var(--ink); font-family: 'Saira Condensed', sans-serif; font-weight: 700;
-        font-size: 18px; letter-spacing: .03em; padding: 6px 12px; margin-left: 4px;
+      .goal-flash { fill: var(--ocre); opacity: 0; }
+      .def-dot { fill: var(--muted-cream); opacity: 0; }
+      .att-dot { fill: var(--cream); opacity: 0; }
+      .ball-dot { fill: var(--ocre); opacity: 0; }
+      .but-stamp { font-family: 'Anton', sans-serif; font-size: 56px; fill: var(--ocre); text-anchor: middle; text-transform: uppercase; opacity: 0; }
+      .goal-card { position: absolute; left: 96px; right: 96px; top: 1032px; z-index: 10; display: flex; align-items: baseline; justify-content: space-between; }
+      .goal-name { font-family: 'Anton', sans-serif; font-size: 56px; text-transform: uppercase; color: var(--cream); opacity: 0; }
+      .goal-name .goal-badge {
+        display: inline-block; vertical-align: middle; margin-left: 14px; background: var(--ocre); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 700; font-size: 20px; letter-spacing: .03em; padding: 7px 14px;
       }
-      .row .after { margin-left: auto; font-family: 'Anton', sans-serif; font-size: 44px; color: var(--cream); }
-      .row.muted { border-left-color: rgba(194,160,78,.45); }
-      .row.muted .min { color: rgba(194,160,78,.6); }
-      .row.muted .name { color: var(--muted-cream); }
-      .row.muted .after { color: var(--muted-cream); }
+      .goal-team {
+        display: block; font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 22px; letter-spacing: .05em;
+        color: var(--muted-cream); text-transform: uppercase; margin-top: 10px;
+      }
+      .goal-after { font-family: 'Anton', sans-serif; font-size: 84px; color: var(--ocre); opacity: 0; }
+
+      /* variante feutrée : but marocain (ch7) */
+      #ch7 .ball-dot, #ch7 .att-dot { fill: var(--muted-cream); }
+      #ch7 .but-stamp { fill: var(--muted-cream); font-size: 46px; }
+      #ch7 .goal-after { color: var(--muted-cream); }
 
       /* ---- CH4 trophée (nouveau) ---- */
       .tr-zone {
@@ -155,7 +161,7 @@
       data-start="0"
       data-width="1080"
       data-height="1920"
-      data-duration="45.30"
+      data-duration="55.50"
       data-fps="30"
     >
       <div id="hdr">
@@ -194,52 +200,118 @@
         </div>
       </section>
 
-      <!-- CH3 — FEUILLE DE MATCH (ticker de buts) -->
-      <section id="ch3" class="chapter clip" data-start="11.00" data-duration="15.00" data-track-index="1">
+      <!-- CH3 — BUT 1 : Lyndon Hooper, 15e minute -->
+      <section id="ch3" class="chapter clip" data-start="11.00" data-duration="5.20" data-track-index="1">
         <div class="stripes"></div>
-        <div class="tick-zone">
-          <div class="tick-eyebrow">LA FEUILLE DE MATCH</div>
-          <div class="tick-title">29 MINUTES.</div>
+        <div class="goal-eyebrow">15E MINUTE</div>
+        <svg class="pitch-svg" viewBox="0 0 888 620">
+          <rect class="pitch-box" x="144" y="0" width="600" height="200" pathLength="1"/>
+          <rect class="pitch-six" x="324" y="0" width="240" height="60" pathLength="1"/>
+          <line class="pitch-goal" x1="384" y1="0" x2="504" y2="0" pathLength="1"/>
+          <path class="pitch-arc" d="M 344 200 A 100 100 0 0 0 544 200" pathLength="1"/>
+          <rect class="goal-flash" x="384" y="-16" width="120" height="16"/>
+          <circle class="def-dot" cx="444" cy="140" r="9"/>
+          <circle class="att-dot" cx="610" cy="590" r="11"/>
+          <circle class="ball-dot" cx="660" cy="560" r="7"/>
+          <text class="but-stamp" x="444" y="110">BUT !</text>
+        </svg>
+        <div class="goal-card">
+          <div class="goal-name">LYNDON HOOPER<span class="goal-team">Canada</span></div>
+          <div class="goal-after">1-0</div>
         </div>
-        <div class="live-score" id="live-score">0-0</div>
-
-        <div class="row" id="row1" style="top: 470px;">
-          <div class="min">15′</div>
-          <div class="who"><div class="name">LYNDON HOOPER</div><div class="team">Canada</div></div>
-          <div class="after">1-0</div>
-        </div>
-        <div class="row" id="row2" style="top: 620px;">
-          <div class="min">34′</div>
-          <div class="who"><div class="name">RICK JASKEN</div><div class="team">Canada</div></div>
-          <div class="after">2-0</div>
-        </div>
-        <div class="row" id="row3" style="top: 770px;">
-          <div class="min">36′</div>
-          <div class="who"><div class="name">RICK JASKEN <span class="badge">DOUBLÉ EN 2 MIN</span></div><div class="team">Canada</div></div>
-          <div class="after">3-0</div>
-        </div>
-        <div class="row" id="row4" style="top: 920px;">
-          <div class="min">44′</div>
-          <div class="who"><div class="name">KEVIN HOLNESS</div><div class="team">Canada</div></div>
-          <div class="after">4-0</div>
-        </div>
-        <div class="row muted" id="row5" style="top: 1070px;">
-          <div class="min">45′+</div>
-          <div class="who"><div class="name">LE MAROC RÉDUIT</div><div class="team">Maroc</div></div>
-          <div class="after">4-1</div>
-        </div>
-
-        <div class="sub-zone">
-          <div class="sub" id="sub-r1">LYNDON HOOPER OUVRE LE SCORE À LA 15E MINUTE.</div>
-          <div class="sub" id="sub-r2">RICK JASKEN PLANTE UN DOUBLÉ EN DEUX MINUTES.</div>
-          <div class="sub" id="sub-r4">KEVIN HOLNESS ENFONCE LE CLOU JUSTE AVANT LA PAUSE.</div>
-          <div class="sub" id="sub-r5">LE MAROC SAUVE L'HONNEUR AVANT LA MI-TEMPS.</div>
-          <div class="sub" id="sub-r6">LE TABLEAU NE BOUGERA PLUS.</div>
-        </div>
+        <div class="sub-zone"><div class="sub" id="sub-g1">LYNDON HOOPER OUVRE LE SCORE À LA 15E MINUTE.</div></div>
       </section>
 
-      <!-- CH4 — PREMIER TROPHÉE (nouveau, motion design) -->
-      <section id="ch4" class="chapter clip" data-start="26.00" data-duration="6.00" data-track-index="1">
+      <!-- CH4 — BUT 2 : Rick Jasken, 34e minute -->
+      <section id="ch4" class="chapter clip" data-start="16.20" data-duration="5.20" data-track-index="1">
+        <div class="stripes"></div>
+        <div class="goal-eyebrow">34E MINUTE</div>
+        <svg class="pitch-svg" viewBox="0 0 888 620">
+          <rect class="pitch-box" x="144" y="0" width="600" height="200" pathLength="1"/>
+          <rect class="pitch-six" x="324" y="0" width="240" height="60" pathLength="1"/>
+          <line class="pitch-goal" x1="384" y1="0" x2="504" y2="0" pathLength="1"/>
+          <path class="pitch-arc" d="M 344 200 A 100 100 0 0 0 544 200" pathLength="1"/>
+          <rect class="goal-flash" x="384" y="-16" width="120" height="16"/>
+          <circle class="def-dot" cx="444" cy="160" r="9"/>
+          <circle class="att-dot" cx="80" cy="510" r="11"/>
+          <circle class="ball-dot" cx="120" cy="480" r="7"/>
+          <text class="but-stamp" x="444" y="110">BUT !</text>
+        </svg>
+        <div class="goal-card">
+          <div class="goal-name">RICK JASKEN<span class="goal-team">Canada</span></div>
+          <div class="goal-after">2-0</div>
+        </div>
+        <div class="sub-zone"><div class="sub" id="sub-g2">RICK JASKEN REPREND UN CENTRE ET DOUBLE LA MISE.</div></div>
+      </section>
+
+      <!-- CH5 — BUT 3 : Rick Jasken, 36e minute (doublé) -->
+      <section id="ch5" class="chapter clip" data-start="21.40" data-duration="4.60" data-track-index="1">
+        <div class="stripes"></div>
+        <div class="goal-eyebrow">36E MINUTE</div>
+        <svg class="pitch-svg" viewBox="0 0 888 620">
+          <rect class="pitch-box" x="144" y="0" width="600" height="200" pathLength="1"/>
+          <rect class="pitch-six" x="324" y="0" width="240" height="60" pathLength="1"/>
+          <line class="pitch-goal" x1="384" y1="0" x2="504" y2="0" pathLength="1"/>
+          <path class="pitch-arc" d="M 344 200 A 100 100 0 0 0 544 200" pathLength="1"/>
+          <rect class="goal-flash" x="384" y="-16" width="120" height="16"/>
+          <circle class="def-dot" cx="500" cy="180" r="9"/>
+          <circle class="att-dot" cx="404" cy="600" r="11"/>
+          <circle class="ball-dot" cx="444" cy="580" r="7"/>
+          <text class="but-stamp" x="444" y="110">BUT !</text>
+        </svg>
+        <div class="goal-card">
+          <div class="goal-name">RICK JASKEN<span class="goal-badge">DOUBLÉ</span><span class="goal-team">Canada</span></div>
+          <div class="goal-after">3-0</div>
+        </div>
+        <div class="sub-zone"><div class="sub" id="sub-g3">UN DOUBLÉ EN DEUX MINUTES SEULEMENT.</div></div>
+      </section>
+
+      <!-- CH6 — BUT 4 : Kevin Holness, 44e minute -->
+      <section id="ch6" class="chapter clip" data-start="26.00" data-duration="5.20" data-track-index="1">
+        <div class="stripes"></div>
+        <div class="goal-eyebrow">44E MINUTE</div>
+        <svg class="pitch-svg" viewBox="0 0 888 620">
+          <rect class="pitch-box" x="144" y="0" width="600" height="200" pathLength="1"/>
+          <rect class="pitch-six" x="324" y="0" width="240" height="60" pathLength="1"/>
+          <line class="pitch-goal" x1="384" y1="0" x2="504" y2="0" pathLength="1"/>
+          <path class="pitch-arc" d="M 344 200 A 100 100 0 0 0 544 200" pathLength="1"/>
+          <rect class="goal-flash" x="384" y="-16" width="120" height="16"/>
+          <circle class="def-dot" cx="400" cy="50" r="9"/>
+          <circle class="att-dot" cx="660" cy="150" r="11"/>
+          <circle class="ball-dot" cx="700" cy="120" r="7"/>
+          <text class="but-stamp" x="444" y="110">BUT !</text>
+        </svg>
+        <div class="goal-card">
+          <div class="goal-name">KEVIN HOLNESS<span class="goal-team">Canada</span></div>
+          <div class="goal-after">4-0</div>
+        </div>
+        <div class="sub-zone"><div class="sub" id="sub-g4">KEVIN HOLNESS ENFONCE LE CLOU JUSTE AVANT LA PAUSE.</div></div>
+      </section>
+
+      <!-- CH7 — BUT 5 : le Maroc réduit, 45e+1 (variante feutrée) -->
+      <section id="ch7" class="chapter clip" data-start="31.20" data-duration="5.00" data-track-index="1">
+        <div class="stripes"></div>
+        <div class="goal-eyebrow">45E+1 MINUTE</div>
+        <svg class="pitch-svg" viewBox="0 0 888 620">
+          <rect class="pitch-box" x="144" y="0" width="600" height="200" pathLength="1"/>
+          <rect class="pitch-six" x="324" y="0" width="240" height="60" pathLength="1"/>
+          <line class="pitch-goal" x1="384" y1="0" x2="504" y2="0" pathLength="1"/>
+          <path class="pitch-arc" d="M 344 200 A 100 100 0 0 0 544 200" pathLength="1"/>
+          <rect class="goal-flash" x="384" y="-16" width="120" height="16"/>
+          <circle class="def-dot" cx="444" cy="150" r="9"/>
+          <circle class="att-dot" cx="404" cy="610" r="11"/>
+          <circle class="ball-dot" cx="444" cy="600" r="7"/>
+          <text class="but-stamp" x="444" y="110">BUT !</text>
+        </svg>
+        <div class="goal-card">
+          <div class="goal-name">LE MAROC RÉDUIT<span class="goal-team">Maroc</span></div>
+          <div class="goal-after">4-1</div>
+        </div>
+        <div class="sub-zone"><div class="sub" id="sub-g5">LE MAROC SAUVE L'HONNEUR AVANT LA MI-TEMPS.</div></div>
+      </section>
+
+      <!-- CH8 — PREMIER TROPHÉE -->
+      <section id="ch8" class="chapter clip" data-start="36.20" data-duration="6.00" data-track-index="1">
         <div class="stripes"></div>
         <div class="tr-zone">
           <div class="kicker anim" id="tr-kicker">UNE PREMIÈRE HISTORIQUE</div>
@@ -254,8 +326,8 @@
         </div>
       </section>
 
-      <!-- CH5 — SCORE PUNCH -->
-      <section id="ch5" class="chapter clip" data-start="32.00" data-duration="4.50" data-track-index="1">
+      <!-- CH9 — SCORE PUNCH -->
+      <section id="ch9" class="chapter clip" data-start="42.20" data-duration="4.50" data-track-index="1">
         <div class="stripes"></div>
         <div class="punch-zone">
           <div class="punch-flags anim" id="punch-flags">
@@ -268,10 +340,11 @@
             <div class="stat-chip">70 000 SPECTATEURS</div>
           </div>
         </div>
+        <div class="sub-zone"><div class="sub" id="sub-punch">LE TABLEAU NE BOUGERA PLUS.</div></div>
       </section>
 
-      <!-- CH6 — PUNCHLINE -->
-      <section id="ch6" class="chapter clip" data-start="36.50" data-duration="4.00" data-track-index="1">
+      <!-- CH10 — PUNCHLINE -->
+      <section id="ch10" class="chapter clip" data-start="46.70" data-duration="4.00" data-track-index="1">
         <div class="stripes"></div>
         <div class="line-zone">
           <div class="line-a" id="line-a">LE MAROC A REMPLI<br />UN STADE POUR VOIR<br />SON ÉQUIPE GAGNER.</div>
@@ -279,13 +352,13 @@
         </div>
       </section>
 
-      <!-- CH7 — CTA (identique au reel principal) -->
-      <section id="ch7" class="chapter cta clip" data-start="40.50" data-duration="4.80" data-track-index="1">
-        <svg class="bookmark anim" id="ch7-bookmark" viewBox="0 0 120 156"><path d="M14 0h92a14 14 0 0 1 14 14v142L60 98 0 156V14A14 14 0 0 1 14 0Z"/></svg>
-        <div class="chip anim" id="ch7-chip">CE JOUR LÀ …</div>
-        <div class="cta-title anim" id="ch7-title">CHAQUE JOUR,<br />UNE DATE.</div>
-        <div class="cta-body anim" id="ch7-body">Reste pour ne pas rater la prochaine.</div>
-        <div class="cta-footer anim" id="ch7-footer">
+      <!-- CH11 — CTA (identique au reel principal) -->
+      <section id="ch11" class="chapter cta clip" data-start="50.70" data-duration="4.80" data-track-index="1">
+        <svg class="bookmark anim" id="ch11-bookmark" viewBox="0 0 120 156"><path d="M14 0h92a14 14 0 0 1 14 14v142L60 98 0 156V14A14 14 0 0 1 14 0Z"/></svg>
+        <div class="chip anim" id="ch11-chip">CE JOUR LÀ …</div>
+        <div class="cta-title anim" id="ch11-title">CHAQUE JOUR,<br />UNE DATE.</div>
+        <div class="cta-body anim" id="ch11-body">Reste pour ne pas rater la prochaine.</div>
+        <div class="cta-footer anim" id="ch11-footer">
           <div class="rule"></div>
           <div class="handle-b">@UNE.DEUX</div>
         </div>
@@ -328,47 +401,87 @@
       tl.fromTo('#ctx-title', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.45, ease: 'power3.out' }, ch2 + 0.35);
       caption('sub-ctx1', ch2 + 1.9, ch2 + 5.7);
 
-      // ================= CH3 — feuille de match (11.00 – 26.00) =================
-      const ch3 = 11.00;
-      const scoreEl = document.getElementById('live-score');
-      function goalRow(id, at, score) {
-        tl.fromTo(`#${id}`, { opacity: 0, x: -46 }, { opacity: 1, x: 0, duration: 0.42, ease: 'power3.out' }, at);
-        tl.call(() => { scoreEl.textContent = score; }, null, at + 0.05);
-        tl.fromTo(scoreEl, { scale: 1.25 }, { scale: 1, duration: 0.3, ease: 'back.out(3)' }, at + 0.05);
+      // ---- scène d'action helper : pitch qui se dessine, ball+coureur qui
+      // avancent par étapes vers le but, flash + "BUT !", carte joueur/score ----
+      function goalScene(chId, base, dur, cfg) {
+        const q = (sel) => `#${chId} ${sel}`;
+        tl.fromTo(q('.goal-eyebrow'), { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' }, base + 0.05);
+        tl.fromTo(q('.pitch-box, .pitch-six, .pitch-goal, .pitch-arc'), { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 0.5, ease: 'power2.out', stagger: 0.04 }, base + 0.1);
+        tl.fromTo(q('.def-dot, .att-dot, .ball-dot'), { opacity: 0 }, { opacity: 1, duration: 0.3 }, base + 0.6);
+
+        let t = base + 0.85;
+        for (let i = 0; i < cfg.ball.length - 1; i++) {
+          const isLast = i === cfg.ball.length - 2;
+          const d = isLast ? 0.5 : 0.6;
+          tl.to(q('.ball-dot'), { attr: { cx: cfg.ball[i + 1].x, cy: cfg.ball[i + 1].y }, duration: d, ease: 'power2.inOut' }, t);
+          tl.to(q('.att-dot'), { attr: { cx: cfg.att[i + 1].x, cy: cfg.att[i + 1].y }, duration: d, ease: 'power2.inOut' }, t);
+          t += d + 0.08;
+        }
+
+        tl.fromTo(q('.goal-flash'), { opacity: 0 }, { opacity: 1, duration: 0.12 }, t);
+        tl.to(q('.goal-flash'), { opacity: 0, duration: 0.35 }, t + 0.12);
+        tl.fromTo(q('.but-stamp'), { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.28, ease: 'back.out(2.5)' }, t);
+        tl.to(q('.but-stamp'), { opacity: 0, duration: 0.3 }, t + 1.0);
+        tl.fromTo(q('.goal-name'), { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out' }, t + 0.15);
+        tl.fromTo(q('.goal-after'), { opacity: 0, scale: 1.2 }, { opacity: 1, scale: 1, duration: 0.35, ease: 'back.out(2)' }, t + 0.2);
+
+        const subId = q('.sub');
+        tl.fromTo(subId, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.3, ease: 'sine.out' }, t + 0.55);
+        tl.to(subId, { opacity: 0, duration: 0.25, ease: 'sine.in' }, base + dur - 0.3);
       }
-      goalRow('row1', ch3 + 0.40, '1-0');
-      goalRow('row2', ch3 + 2.60, '2-0');
-      goalRow('row3', ch3 + 4.80, '3-0');
-      goalRow('row4', ch3 + 7.00, '4-0');
-      goalRow('row5', ch3 + 9.20, '4-1');
 
-      caption('sub-r1', ch3 + 0.70, ch3 + 2.50);
-      caption('sub-r2', ch3 + 5.10, ch3 + 6.90);
-      caption('sub-r4', ch3 + 7.30, ch3 + 9.10);
-      caption('sub-r5', ch3 + 9.50, ch3 + 11.30);
-      caption('sub-r6', ch3 + 11.60, ch3 + 14.70);
-
-      // ================= CH4 — premier trophée (26.00 – 32.00) =================
-      const ch4 = 26.00;
-      tl.fromTo('#tr-kicker', { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out' }, ch4 + 0.15);
-      document.querySelectorAll('#tr-title .hline').forEach((el, i) => {
-        tl.fromTo(el, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power3.out' }, ch4 + 0.45 + i * 0.22);
+      // ================= CH3 — but 1, Hooper 15' (11.00 – 16.20) =================
+      goalScene('ch3', 11.00, 5.20, {
+        ball: [{ x: 660, y: 560 }, { x: 560, y: 300 }, { x: 390, y: 40 }],
+        att: [{ x: 610, y: 590 }, { x: 520, y: 330 }, { x: 360, y: 70 }],
       });
-      caption('sub-tr1', ch4 + 2.30, ch4 + 5.85);
 
-      // ================= CH5 — score punch (32.00 – 36.50) =================
-      const ch5 = 32.00;
-      tl.fromTo('#punch-flags', { opacity: 0 }, { opacity: 1, duration: 0.35, ease: EASE }, ch5 + 0.1);
-      tl.fromTo('#punch-score', { opacity: 0, scale: 0.7 }, { opacity: 1, scale: 1, duration: 0.55, ease: 'back.out(1.8)' }, ch5 + 0.35);
-      tl.fromTo('#stat-row', { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }, ch5 + 0.95);
+      // ================= CH4 — but 2, Jasken 34' (16.20 – 21.40) =================
+      goalScene('ch4', 16.20, 5.20, {
+        ball: [{ x: 120, y: 480 }, { x: 360, y: 220 }, { x: 500, y: 50 }],
+        att: [{ x: 80, y: 510 }, { x: 330, y: 250 }, { x: 470, y: 80 }],
+      });
 
-      // ================= CH6 — punchline (36.50 – 40.50) =================
-      const ch6 = 36.50;
-      tl.fromTo('#line-a', { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' }, ch6 + 0.15);
-      tl.fromTo('#line-b', { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' }, ch6 + 0.75);
+      // ================= CH5 — but 3, Jasken 36' doublé (21.40 – 26.00) =================
+      goalScene('ch5', 21.40, 4.60, {
+        ball: [{ x: 444, y: 580 }, { x: 444, y: 320 }, { x: 410, y: 35 }],
+        att: [{ x: 404, y: 600 }, { x: 410, y: 350 }, { x: 370, y: 65 }],
+      });
 
-      // ================= CH7 — CTA (identique, 40.50 – 45.30) =================
-      const ctaStart = 40.50;
+      // ================= CH6 — but 4, Holness 44' (26.00 – 31.20) =================
+      goalScene('ch6', 26.00, 5.20, {
+        ball: [{ x: 700, y: 120 }, { x: 560, y: 55 }, { x: 470, y: 15 }],
+        att: [{ x: 660, y: 150 }, { x: 530, y: 80 }, { x: 440, y: 40 }],
+      });
+
+      // ================= CH7 — but 5, Maroc 45'+1 (31.20 – 36.20) =================
+      goalScene('ch7', 31.20, 5.00, {
+        ball: [{ x: 444, y: 600 }, { x: 444, y: 350 }, { x: 460, y: 30 }],
+        att: [{ x: 404, y: 610 }, { x: 410, y: 360 }, { x: 420, y: 60 }],
+      });
+
+      // ================= CH8 — premier trophée (36.20 – 42.20) =================
+      const ch8 = 36.20;
+      tl.fromTo('#tr-kicker', { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out' }, ch8 + 0.15);
+      document.querySelectorAll('#tr-title .hline').forEach((el, i) => {
+        tl.fromTo(el, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power3.out' }, ch8 + 0.45 + i * 0.22);
+      });
+      caption('sub-tr1', ch8 + 2.30, ch8 + 5.85);
+
+      // ================= CH9 — score punch (42.20 – 46.70) =================
+      const ch9 = 42.20;
+      tl.fromTo('#punch-flags', { opacity: 0 }, { opacity: 1, duration: 0.35, ease: EASE }, ch9 + 0.1);
+      tl.fromTo('#punch-score', { opacity: 0, scale: 0.7 }, { opacity: 1, scale: 1, duration: 0.55, ease: 'back.out(1.8)' }, ch9 + 0.35);
+      tl.fromTo('#stat-row', { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }, ch9 + 0.95);
+      caption('sub-punch', ch9 + 1.5, ch9 + 4.2);
+
+      // ================= CH10 — punchline (46.70 – 50.70) =================
+      const ch10 = 46.70;
+      tl.fromTo('#line-a', { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' }, ch10 + 0.15);
+      tl.fromTo('#line-b', { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' }, ch10 + 0.75);
+
+      // ================= CH11 — CTA (identique, 50.70 – 55.50) =================
+      const ctaStart = 50.70;
       const INK = '#2C2823';
       tl.to('.ring, .wordmark, .handle', { opacity: 0, duration: 0.25, ease: EASE }, ctaStart - 0.3);
       tl.set('.ring, .wordmark, .handle', { opacity: 0 }, ctaStart);
@@ -379,11 +492,11 @@
       tl.set('.hairline', { backgroundColor: INK }, ctaStart);
       tl.to('.ring, .wordmark, .handle, .hairline', { opacity: 1, duration: 0.35, ease: EASE }, ctaStart + 0.05);
 
-      tl.fromTo('#ch7-bookmark', { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }, ctaStart + 0.3);
-      tl.fromTo('#ch7-chip', { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }, ctaStart + 0.65);
-      tl.fromTo('#ch7-title', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.55, ease: 'power3.out' }, ctaStart + 0.9);
-      tl.to('#ch7-body', { opacity: 1, duration: 0.4, ease: EASE }, ctaStart + 1.4);
-      tl.to('#ch7-footer', { opacity: 1, duration: 0.35, ease: EASE }, ctaStart + 1.7);
+      tl.fromTo('#ch11-bookmark', { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }, ctaStart + 0.3);
+      tl.fromTo('#ch11-chip', { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }, ctaStart + 0.65);
+      tl.fromTo('#ch11-title', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.55, ease: 'power3.out' }, ctaStart + 0.9);
+      tl.to('#ch11-body', { opacity: 1, duration: 0.4, ease: EASE }, ctaStart + 1.4);
+      tl.to('#ch11-footer', { opacity: 1, duration: 0.35, ease: EASE }, ctaStart + 1.7);
 
       // ---- progress bar ----
       tl.fromTo('#progress-fill', { width: '0%' }, { width: '100%', duration: ctaStart, ease: 'none' }, 0);
