@@ -1,0 +1,63 @@
+[
+  {
+    "template": "A",
+    "tag": "LE REFUS",
+    "title": "LE RÉGIME FASCISTE A VOULU UN SEUL CLUB POUR ROME. UN CLUB A REFUSÉ.",
+    "greenWord": "A REFUSÉ",
+    "body": "Et ce refus a créé le derby le plus chaud d'Italie.",
+    "media": "romalazio_01.PNG"
+  },
+  {
+    "template": "A",
+    "tag": "22 JUILLET 1927",
+    "title": "CE JOUR-LÀ, L'AS ROMA DEVIENT OFFICIELLE. LE RÉGIME VOULAIT BIEN PLUS.",
+    "greenWord": "BIEN PLUS",
+    "body": "Trois clubs romains viennent de fusionner sous la pression du régime, pour créer une force capable de rivaliser avec la Juventus et l'Inter, au nord. Un quatrième devait les rejoindre. Il a filé entre les mailles.",
+    "media": "romalazio_02.PNG"
+  },
+  {
+    "template": "H",
+    "quote": "Un club a dit non.",
+    "quoteAccent": "dit non.",
+    "quoteAuthor": "",
+    "caption": ""
+  },
+  {
+    "template": "A",
+    "tag": "6 SEMAINES PLUS TÔT",
+    "title": "LA LAZIO SORT UNE LOI DE 1921 QUE PERSONNE N'ATTENDAIT.",
+    "greenWord": "UNE LOI DE 1921",
+    "body": "Un décret royal lui a donné le statut d'« ente morale », une entité juridique protégée. Légalement, impossible de la dissoudre. Foschi abandonne l'idée et fusionne les trois autres clubs sans elle.",
+    "media": "romalazio_04.PNG"
+  },
+  {
+    "template": "G",
+    "quote": "La demande de fusion de Foschi est restée sans suite. Pas par la volonté de la Lazio.",
+    "quoteAccent": "Pas par la volonté de la Lazio.",
+    "quoteAuthor": "Giorgio Vaccaro, dirigeant de la Lazio, dans Il Tevere, 15 juin 1927",
+    "caption": "LE DÉMENTI"
+  },
+  {
+    "template": "A",
+    "tag": "8 DÉCEMBRE 1929",
+    "title": "LE PREMIER DERBY DE L'HISTOIRE SE JOUE DEUX ANS PLUS TARD. À LA RONDINELLA.",
+    "greenWord": "À LA RONDINELLA",
+    "body": "Rodolfo Volk marque à la 73e minute. La Roma s'impose 1-0. Le Derby della Capitale vient de naître d'un simple refus juridique.",
+    "media": "romalazio_06.PNG"
+  },
+  {
+    "template": "A",
+    "tag": "2026",
+    "title": "PRÈS D'UN SIÈCLE PLUS TARD, LES DEUX CLUBS SE DÉTESTENT TOUJOURS AUTANT.",
+    "greenWord": "SE DÉTESTENT TOUJOURS",
+    "body": "Le Derby della Capitale reste l'un des plus chauds d'Europe. Et tout est parti d'un décret que personne n'a pensé à abroger. Parfois, une rivalité ne naît pas d'un match. Elle naît d'un papier signé des années avant.",
+    "media": "romalazio_07.PNG"
+  },
+  {
+    "template": "D",
+    "tag": "CE JOUR-LÀ",
+    "title": "CHAQUE JOUR, UNE DATE.",
+    "body": "Reste pour ne pas rater la prochaine.",
+    "btnlabel": "FOLLOW"
+  }
+]
