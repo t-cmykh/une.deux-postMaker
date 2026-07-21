@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>Rio Ferdinand — transfert record 2002 (sous-titres)</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: #000; }
+      body { font-family: 'Anton', sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: #000; }
+
+      .bg-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
+
+      /* léger dégradé bas pour garantir la lisibilité du texte sur les images claires */
+      .scrim { position: absolute; left: 0; right: 0; bottom: 0; height: 640px; z-index: 2; background: linear-gradient(to top, rgba(0,0,0,.62), rgba(0,0,0,0)); }
+
+      .sub-zone { position: absolute; left: 96px; right: 96px; bottom: 300px; text-align: center; z-index: 10; }
+      .sub-line {
+        position: absolute; left: 0; right: 0; bottom: 0; opacity: 0;
+        font-family: 'Anton', sans-serif; font-size: 54px; line-height: 1.22; text-transform: uppercase;
+        color: var(--cream);
+        text-shadow: 0 2px 14px rgba(0,0,0,.65), 0 1px 3px rgba(0,0,0,.8);
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="23.20"
+      data-fps="30"
+    >
+      <!-- vidéo = enfant direct de #root, mutée ; le son passe par l'élément <audio> séparé -->
+      <video class="bg-video" id="v-ferdinand" src="assets/ferdinand-highlights.mp4" data-start="0" data-duration="23.20" data-track-index="1" muted playsinline></video>
+      <audio id="a-ferdinand" src="assets/ferdinand-highlights.mp4" data-start="0" data-duration="23.20" data-track-index="20"></audio>
+
+      <div class="scrim"></div>
+
+      <div class="sub-zone">
+        <div class="sub-line" id="l1">LE 22 JUILLET 2002, MANCHESTER UNITED<br />BOUCLE LA SIGNATURE</div>
+        <div class="sub-line" id="l2">DE RIO FERDINAND EN PROVENANCE<br />DE LEEDS POUR 30 MILLIONS</div>
+        <div class="sub-line" id="l3">DE LIVRES, 29,1 M£ PRÉCISÉMENT.</div>
+        <div class="sub-line" id="l4">RECORD DE TRANSFERT BRITANNIQUE,<br />ET TRANSFERT LE PLUS CHER</div>
+        <div class="sub-line" id="l5">JAMAIS PAYÉ POUR UN DÉFENSEUR<br />DANS LE MONDE.</div>
+        <div class="sub-line" id="l6">FERDINAND A 23 ANS, SORT<br />D'UN MONDIAL 2002</div>
+        <div class="sub-line" id="l7">SOLIDE AVEC L'ANGLETERRE. LEEDS,<br />EXSANGUE FINANCIÈREMENT, DOIT</div>
+        <div class="sub-line" id="l8">VENDRE SON MEILLEUR JOUEUR<br />POUR ÉPONGER SES DETTES.</div>
+        <div class="sub-line" id="l9">FERDINAND, LUI, RESTE DOUZE ANS<br />À OLD TRAFFORD ET</div>
+        <div class="sub-line" id="l10">REMPORTE SIX TITRES DE CHAMPION<br />ET UNE LIGUE DES CHAMPIONS.</div>
+        <div class="sub-line" id="l11">LE PRIX D'UN DÉFENSEUR<br />A FINI PAR DICTER</div>
+        <div class="sub-line" id="l12">LE SORT D'UN CLUB ENTIER.</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // sous-titres ligne par ligne (~10 mots max), calés sur la durée du montage,
+      // fondu bloc — pas de tween width/height (interdit par le runtime)
+      const lines = [
+        { id: 'l1', start: 0.30, dur: 2.04 },
+        { id: 'l2', start: 2.34, dur: 2.23 },
+        { id: 'l3', start: 4.57, dur: 1.28 },
+        { id: 'l4', start: 5.85, dur: 2.04 },
+        { id: 'l5', start: 7.89, dur: 1.85 },
+        { id: 'l6', start: 9.74, dur: 1.85 },
+        { id: 'l7', start: 11.59, dur: 1.66 },
+        { id: 'l8', start: 13.25, dur: 1.85 },
+        { id: 'l9', start: 15.10, dur: 2.04 },
+        { id: 'l10', start: 17.14, dur: 2.23 },
+        { id: 'l11', start: 19.37, dur: 1.85 },
+        { id: 'l12', start: 21.22, dur: 1.28 },
+      ];
+
+      lines.forEach(({ id, start, dur }) => {
+        tl.fromTo(`#${id}`, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.18, ease: 'sine.out' }, start);
+        tl.to(`#${id}`, { opacity: 0, duration: 0.16, ease: 'sine.in' }, start + dur - 0.16);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
