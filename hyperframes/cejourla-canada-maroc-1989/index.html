@@ -38,6 +38,11 @@
         color: var(--cream); opacity: 0.055; line-height: 1; letter-spacing: -0.02em; z-index: 1;
       }
 
+      /* ---- fonds d'archives 1989 (Jeux de la Francophonie, cérémonie d'ouverture) ---- */
+      .archive-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
+      .archive-grade { position: absolute; inset: 0; z-index: 2; background: rgba(120, 90, 40, 0.14); }
+      .archive-scrim { position: absolute; inset: 0; z-index: 3; background: rgba(44, 40, 35, 0.58); }
+
       /* ---- sous-titres — narration, position constante en bas de la zone sûre ---- */
       .sub-zone { position: absolute; left: 96px; right: 96px; bottom: 230px; text-align: center; z-index: 20; }
       .sub {
@@ -67,13 +72,6 @@
       }
       .ctx-zone { position: absolute; left: 96px; right: 96px; top: 620px; z-index: 10; }
       .ctx-title { font-family: 'Anton', sans-serif; font-size: 96px; line-height: 1.03; text-transform: uppercase; color: var(--cream); margin-top: 28px; }
-      .crowd-grid {
-        position: absolute; left: 0; right: 0; bottom: 0; height: 620px; z-index: 1; opacity: 0;
-        background-image: radial-gradient(circle, rgba(237,220,178,.4) 1.6px, transparent 1.8px);
-        background-size: 15px 15px;
-        -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 55%, #000 100%);
-        mask-image: linear-gradient(180deg, transparent 0%, #000 55%, #000 100%);
-      }
 
       /* ---- CH3-CH7 : scènes d'action (diagramme tactique animé par but) ---- */
       .goal-eyebrow {
@@ -167,6 +165,13 @@
       data-duration="55.50"
       data-fps="30"
     >
+      <!-- Fonds d'archives — cérémonie d'ouverture, Jeux de la Francophonie 1989
+           (source réelle, brouillon Gmail). Vidéo = enfant direct de #root
+           (contrainte HyperFrames), synchronisée avec le chapitre correspondant. -->
+      <video class="archive-video" id="v-ceremony" src="assets/archive-ceremony-a.mp4" data-start="0" data-duration="5.00" data-track-index="5" muted playsinline></video>
+      <video class="archive-video" id="v-stadium" src="assets/archive-stadium.mp4" data-start="5.00" data-duration="6.00" data-track-index="5" muted playsinline></video>
+      <video class="archive-video" id="v-canada" src="assets/archive-canada.mp4" data-start="36.20" data-duration="6.00" data-track-index="5" muted playsinline></video>
+
       <!-- SFX — sifflet/impact abstraits (pas de crowd-noise réaliste dispo hors-ligne), volume feutré sur le but marocain -->
       <audio id="a-whoosh-3" src="assets/sfx/whoosh-short.mp3" data-start="12.53" data-duration="0.575" data-track-index="20" data-volume="0.5"></audio>
       <audio id="a-impact-3" src="assets/sfx/impact-bass-1.mp3" data-start="13.11" data-duration="2.116" data-track-index="21" data-volume="0.75"></audio>
@@ -189,7 +194,8 @@
 
       <!-- CH1 — HOOK -->
       <section id="ch1" class="chapter clip" data-start="0" data-duration="5.00" data-track-index="1">
-        <div class="stripes"></div>
+        <div class="archive-grade"></div>
+        <div class="archive-scrim"></div>
         <div class="ghost-year">89</div>
         <div class="hook-zone">
           <div class="stamp anim" id="stamp"><span class="stamp-d" id="stamp-day">07</span><span class="stamp-m">JUIL.<br />1989</span></div>
@@ -204,8 +210,8 @@
 
       <!-- CH2 — CONTEXTE -->
       <section id="ch2" class="chapter clip" data-start="5.00" data-duration="6.00" data-track-index="1">
-        <div class="stripes"></div>
-        <div class="crowd-grid anim" id="crowd"></div>
+        <div class="archive-grade"></div>
+        <div class="archive-scrim"></div>
         <div class="ctx-zone">
           <div class="kicker anim" id="ctx-kicker">FINALE · JEUX DE LA FRANCOPHONIE</div>
           <div class="ctx-title anim" id="ctx-title">STADE<br />MOHAMMED-V,<br />CASABLANCA.</div>
@@ -372,7 +378,8 @@
 
       <!-- CH8 — PREMIER TROPHÉE -->
       <section id="ch8" class="chapter clip" data-start="36.20" data-duration="6.00" data-track-index="1">
-        <div class="stripes"></div>
+        <div class="archive-grade"></div>
+        <div class="archive-scrim"></div>
         <div class="tr-zone">
           <div class="kicker anim" id="tr-kicker">UNE PREMIÈRE HISTORIQUE</div>
           <div class="tr-title" id="tr-title">
@@ -465,7 +472,6 @@
 
       // ================= CH2 — contexte (5.00 – 11.00) =================
       const ch2 = 5.00;
-      tl.fromTo('#crowd', { opacity: 0 }, { opacity: 1, duration: 1.0, ease: EASE }, ch2 + 0.1);
       tl.fromTo('#ctx-kicker', { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out' }, ch2 + 0.15);
       tl.fromTo('#ctx-title', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.45, ease: 'power3.out' }, ch2 + 0.35);
       caption('sub-ctx1', ch2 + 1.9, ch2 + 5.7);
