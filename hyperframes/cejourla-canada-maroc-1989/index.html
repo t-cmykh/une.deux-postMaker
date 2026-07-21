@@ -24,7 +24,8 @@
       .handle { position: absolute; right: 96px; top: 174px; font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 26px; color: var(--cream); }
       .hairline { position: absolute; left: 96px; right: 96px; top: 252px; height: 3px; background: var(--cream); }
       .progress-track { position: absolute; left: 96px; right: 96px; top: 262px; height: 4px; background: rgba(237, 220, 178, 0.25); }
-      .progress-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0%; background: var(--ocre); }
+      /* scaleX, not width — width/height tweens are forbidden by the runtime */
+      .progress-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 100%; background: var(--ocre); transform: scaleX(0); transform-origin: left center; }
 
       /* ===== Chapters — hard cuts ===== */
       .chapter { position: absolute; inset: 0; z-index: 10; }
@@ -79,12 +80,12 @@
         position: absolute; left: 96px; top: 320px; z-index: 10; opacity: 0;
         font-family: 'Saira Condensed', sans-serif; font-weight: 700; font-size: 30px; letter-spacing: .06em; color: var(--ocre);
       }
-      .pitch-svg { position: absolute; left: 96px; top: 380px; width: 888px; height: 620px; z-index: 10; overflow: visible; }
-      .pitch-box, .pitch-six, .pitch-goal, .pitch-arc {
-        fill: none; stroke: var(--cream); stroke-opacity: .35; stroke-width: 2.5px;
-        stroke-dasharray: 1; stroke-dashoffset: 1;
-      }
+      /* wrap clips the camera punch-in so the zoomed pitch never spills past its panel */
+      .pitch-wrap { position: absolute; left: 96px; top: 380px; width: 888px; height: 620px; z-index: 10; overflow: hidden; }
+      .pitch-svg { position: absolute; inset: 0; width: 100%; height: 100%; transform-origin: 50% 4%; will-change: transform; }
+      .pitch-box, .pitch-six, .pitch-goal, .pitch-arc { fill: none; stroke: var(--cream); stroke-opacity: .35; stroke-width: 2.5px; }
       .goal-flash { fill: var(--ocre); opacity: 0; }
+      .but-glow { transform-box: fill-box; transform-origin: 50% 50%; opacity: 0; }
       .def-dot { fill: var(--muted-cream); opacity: 0; }
       .att-dot { fill: var(--cream); opacity: 0; }
       .ball-dot { fill: var(--ocre); opacity: 0; }
@@ -106,7 +107,7 @@
       #ch7 .but-stamp { fill: var(--muted-cream); font-size: 46px; }
       #ch7 .goal-after { color: var(--muted-cream); }
 
-      /* ---- CH4 trophée (nouveau) ---- */
+      /* ---- CH8 trophée ---- */
       .tr-zone {
         position: absolute; left: 96px; right: 96px; top: 300px; bottom: 200px; z-index: 10;
         display: flex; flex-direction: column; align-items: flex-start; justify-content: center; text-align: left;
@@ -114,19 +115,21 @@
       .tr-title { font-family: 'Anton', sans-serif; font-size: 100px; line-height: 1.03; text-transform: uppercase; color: var(--cream); margin-top: 32px; }
       .tr-title .accent { color: var(--ocre); }
 
-      /* ---- CH5 score punch ---- */
+      /* ---- CH9 score punch ---- */
       .punch-zone { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; }
       .punch-flags { display: flex; align-items: center; gap: 40px; opacity: 0; }
       .punch-flags .flag-label { font-family: 'Saira Condensed', sans-serif; font-weight: 700; font-size: 30px; letter-spacing: .06em; color: var(--muted-cream); }
       .punch-score { font-family: 'Anton', sans-serif; font-size: 300px; line-height: 1; color: var(--cream); opacity: 0; margin: 10px 0; }
       .punch-score .dash { color: var(--ocre); }
-      .stat-row { display: flex; gap: 20px; margin-top: 30px; opacity: 0; }
-      .stat-chip {
-        background: var(--ocre); color: var(--ink); font-family: 'Saira Condensed', sans-serif; font-weight: 700;
-        font-size: 26px; padding: 14px 24px; white-space: nowrap;
+      /* stat = count-up number as its own headline, not a small caption chip */
+      .stat-block { text-align: center; opacity: 0; margin-top: 34px; }
+      .stat-value {
+        display: inline-block; font-family: 'Anton', sans-serif; font-size: 96px; color: var(--ocre);
+        font-variant-numeric: tabular-nums; letter-spacing: -1px; line-height: 1; transform-origin: center center;
       }
+      .stat-label { margin-top: 6px; font-family: 'Saira Condensed', sans-serif; font-weight: 700; font-size: 28px; letter-spacing: .08em; color: var(--muted-cream); text-transform: uppercase; }
 
-      /* ---- CH6 punchline ---- */
+      /* ---- CH10 punchline ---- */
       .line-zone { position: absolute; left: 96px; right: 96px; top: 780px; z-index: 10; }
       .line-a { font-family: 'Anton', sans-serif; font-size: 92px; line-height: 1.05; text-transform: uppercase; color: var(--cream); opacity: 0; }
       .line-b { font-family: 'Anton', sans-serif; font-size: 92px; line-height: 1.05; text-transform: uppercase; color: var(--ocre); opacity: 0; margin-top: 24px; }
@@ -164,6 +167,18 @@
       data-duration="55.50"
       data-fps="30"
     >
+      <!-- SFX — sifflet/impact abstraits (pas de crowd-noise réaliste dispo hors-ligne), volume feutré sur le but marocain -->
+      <audio id="a-whoosh-3" src="assets/sfx/whoosh-short.mp3" data-start="12.53" data-duration="0.575" data-track-index="20" data-volume="0.5"></audio>
+      <audio id="a-impact-3" src="assets/sfx/impact-bass-1.mp3" data-start="13.11" data-duration="2.116" data-track-index="21" data-volume="0.75"></audio>
+      <audio id="a-whoosh-4" src="assets/sfx/whoosh-short.mp3" data-start="17.73" data-duration="0.575" data-track-index="20" data-volume="0.5"></audio>
+      <audio id="a-impact-4" src="assets/sfx/impact-bass-1.mp3" data-start="18.31" data-duration="2.116" data-track-index="21" data-volume="0.75"></audio>
+      <audio id="a-whoosh-5" src="assets/sfx/whoosh-short.mp3" data-start="22.93" data-duration="0.575" data-track-index="20" data-volume="0.5"></audio>
+      <audio id="a-impact-5" src="assets/sfx/impact-bass-1.mp3" data-start="23.51" data-duration="2.116" data-track-index="21" data-volume="0.75"></audio>
+      <audio id="a-whoosh-6" src="assets/sfx/whoosh-short.mp3" data-start="27.53" data-duration="0.575" data-track-index="20" data-volume="0.5"></audio>
+      <audio id="a-impact-6" src="assets/sfx/impact-bass-1.mp3" data-start="28.11" data-duration="2.116" data-track-index="21" data-volume="0.75"></audio>
+      <audio id="a-whoosh-7" src="assets/sfx/whoosh-short.mp3" data-start="32.73" data-duration="0.575" data-track-index="20" data-volume="0.3"></audio>
+      <audio id="a-impact-7" src="assets/sfx/impact-bass-1.mp3" data-start="33.31" data-duration="2.116" data-track-index="21" data-volume="0.3"></audio>
+
       <div id="hdr">
         <div class="ring">1·2</div>
         <div class="wordmark">une·deux</div>
@@ -204,17 +219,26 @@
       <section id="ch3" class="chapter clip" data-start="11.00" data-duration="5.20" data-track-index="1">
         <div class="stripes"></div>
         <div class="goal-eyebrow">15E MINUTE</div>
-        <svg class="pitch-svg" viewBox="0 0 888 620">
-          <rect class="pitch-box" x="144" y="0" width="600" height="200" pathLength="1"/>
-          <rect class="pitch-six" x="324" y="0" width="240" height="60" pathLength="1"/>
-          <line class="pitch-goal" x1="384" y1="0" x2="504" y2="0" pathLength="1"/>
-          <path class="pitch-arc" d="M 344 200 A 100 100 0 0 0 544 200" pathLength="1"/>
-          <rect class="goal-flash" x="384" y="-16" width="120" height="16"/>
-          <circle class="def-dot" cx="444" cy="140" r="9"/>
-          <circle class="att-dot" cx="610" cy="590" r="11"/>
-          <circle class="ball-dot" cx="660" cy="560" r="7"/>
-          <text class="but-stamp" x="444" y="110">BUT !</text>
-        </svg>
+        <div class="pitch-wrap">
+          <svg class="pitch-svg" viewBox="0 0 888 620">
+            <defs>
+              <filter id="blur-ch3" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur id="fe-ch3" stdDeviation="0 0"/></filter>
+              <radialGradient id="glow-ch3" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#C2A04E" stop-opacity="0.5"/><stop offset="100%" stop-color="#C2A04E" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+            <rect class="pitch-box" x="144" y="0" width="600" height="200"/>
+            <rect class="pitch-six" x="324" y="0" width="240" height="60"/>
+            <line class="pitch-goal" x1="384" y1="0" x2="504" y2="0"/>
+            <path class="pitch-arc" d="M 344 200 A 100 100 0 0 0 544 200"/>
+            <rect class="goal-flash" x="384" y="0" width="120" height="16"/>
+            <circle class="but-glow" cx="444" cy="95" r="110" fill="url(#glow-ch3)"/>
+            <circle class="def-dot" cx="444" cy="140" r="9"/>
+            <circle class="att-dot" cx="610" cy="590" r="11"/>
+            <circle class="ball-dot" cx="660" cy="560" r="7" style="filter:url(#blur-ch3)"/>
+            <text class="but-stamp" x="444" y="110">BUT !</text>
+          </svg>
+        </div>
         <div class="goal-card">
           <div class="goal-name">LYNDON HOOPER<span class="goal-team">Canada</span></div>
           <div class="goal-after">1-0</div>
@@ -226,17 +250,26 @@
       <section id="ch4" class="chapter clip" data-start="16.20" data-duration="5.20" data-track-index="1">
         <div class="stripes"></div>
         <div class="goal-eyebrow">34E MINUTE</div>
-        <svg class="pitch-svg" viewBox="0 0 888 620">
-          <rect class="pitch-box" x="144" y="0" width="600" height="200" pathLength="1"/>
-          <rect class="pitch-six" x="324" y="0" width="240" height="60" pathLength="1"/>
-          <line class="pitch-goal" x1="384" y1="0" x2="504" y2="0" pathLength="1"/>
-          <path class="pitch-arc" d="M 344 200 A 100 100 0 0 0 544 200" pathLength="1"/>
-          <rect class="goal-flash" x="384" y="-16" width="120" height="16"/>
-          <circle class="def-dot" cx="444" cy="160" r="9"/>
-          <circle class="att-dot" cx="80" cy="510" r="11"/>
-          <circle class="ball-dot" cx="120" cy="480" r="7"/>
-          <text class="but-stamp" x="444" y="110">BUT !</text>
-        </svg>
+        <div class="pitch-wrap">
+          <svg class="pitch-svg" viewBox="0 0 888 620">
+            <defs>
+              <filter id="blur-ch4" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur id="fe-ch4" stdDeviation="0 0"/></filter>
+              <radialGradient id="glow-ch4" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#C2A04E" stop-opacity="0.5"/><stop offset="100%" stop-color="#C2A04E" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+            <rect class="pitch-box" x="144" y="0" width="600" height="200"/>
+            <rect class="pitch-six" x="324" y="0" width="240" height="60"/>
+            <line class="pitch-goal" x1="384" y1="0" x2="504" y2="0"/>
+            <path class="pitch-arc" d="M 344 200 A 100 100 0 0 0 544 200"/>
+            <rect class="goal-flash" x="384" y="0" width="120" height="16"/>
+            <circle class="but-glow" cx="444" cy="95" r="110" fill="url(#glow-ch4)"/>
+            <circle class="def-dot" cx="444" cy="160" r="9"/>
+            <circle class="att-dot" cx="80" cy="510" r="11"/>
+            <circle class="ball-dot" cx="120" cy="480" r="7" style="filter:url(#blur-ch4)"/>
+            <text class="but-stamp" x="444" y="110">BUT !</text>
+          </svg>
+        </div>
         <div class="goal-card">
           <div class="goal-name">RICK JASKEN<span class="goal-team">Canada</span></div>
           <div class="goal-after">2-0</div>
@@ -248,17 +281,26 @@
       <section id="ch5" class="chapter clip" data-start="21.40" data-duration="4.60" data-track-index="1">
         <div class="stripes"></div>
         <div class="goal-eyebrow">36E MINUTE</div>
-        <svg class="pitch-svg" viewBox="0 0 888 620">
-          <rect class="pitch-box" x="144" y="0" width="600" height="200" pathLength="1"/>
-          <rect class="pitch-six" x="324" y="0" width="240" height="60" pathLength="1"/>
-          <line class="pitch-goal" x1="384" y1="0" x2="504" y2="0" pathLength="1"/>
-          <path class="pitch-arc" d="M 344 200 A 100 100 0 0 0 544 200" pathLength="1"/>
-          <rect class="goal-flash" x="384" y="-16" width="120" height="16"/>
-          <circle class="def-dot" cx="500" cy="180" r="9"/>
-          <circle class="att-dot" cx="404" cy="600" r="11"/>
-          <circle class="ball-dot" cx="444" cy="580" r="7"/>
-          <text class="but-stamp" x="444" y="110">BUT !</text>
-        </svg>
+        <div class="pitch-wrap">
+          <svg class="pitch-svg" viewBox="0 0 888 620">
+            <defs>
+              <filter id="blur-ch5" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur id="fe-ch5" stdDeviation="0 0"/></filter>
+              <radialGradient id="glow-ch5" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#C2A04E" stop-opacity="0.5"/><stop offset="100%" stop-color="#C2A04E" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+            <rect class="pitch-box" x="144" y="0" width="600" height="200"/>
+            <rect class="pitch-six" x="324" y="0" width="240" height="60"/>
+            <line class="pitch-goal" x1="384" y1="0" x2="504" y2="0"/>
+            <path class="pitch-arc" d="M 344 200 A 100 100 0 0 0 544 200"/>
+            <rect class="goal-flash" x="384" y="0" width="120" height="16"/>
+            <circle class="but-glow" cx="444" cy="95" r="110" fill="url(#glow-ch5)"/>
+            <circle class="def-dot" cx="500" cy="180" r="9"/>
+            <circle class="att-dot" cx="404" cy="600" r="11"/>
+            <circle class="ball-dot" cx="444" cy="580" r="7" style="filter:url(#blur-ch5)"/>
+            <text class="but-stamp" x="444" y="110">BUT !</text>
+          </svg>
+        </div>
         <div class="goal-card">
           <div class="goal-name">RICK JASKEN<span class="goal-badge">DOUBLÉ</span><span class="goal-team">Canada</span></div>
           <div class="goal-after">3-0</div>
@@ -270,17 +312,26 @@
       <section id="ch6" class="chapter clip" data-start="26.00" data-duration="5.20" data-track-index="1">
         <div class="stripes"></div>
         <div class="goal-eyebrow">44E MINUTE</div>
-        <svg class="pitch-svg" viewBox="0 0 888 620">
-          <rect class="pitch-box" x="144" y="0" width="600" height="200" pathLength="1"/>
-          <rect class="pitch-six" x="324" y="0" width="240" height="60" pathLength="1"/>
-          <line class="pitch-goal" x1="384" y1="0" x2="504" y2="0" pathLength="1"/>
-          <path class="pitch-arc" d="M 344 200 A 100 100 0 0 0 544 200" pathLength="1"/>
-          <rect class="goal-flash" x="384" y="-16" width="120" height="16"/>
-          <circle class="def-dot" cx="400" cy="50" r="9"/>
-          <circle class="att-dot" cx="660" cy="150" r="11"/>
-          <circle class="ball-dot" cx="700" cy="120" r="7"/>
-          <text class="but-stamp" x="444" y="110">BUT !</text>
-        </svg>
+        <div class="pitch-wrap">
+          <svg class="pitch-svg" viewBox="0 0 888 620">
+            <defs>
+              <filter id="blur-ch6" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur id="fe-ch6" stdDeviation="0 0"/></filter>
+              <radialGradient id="glow-ch6" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#C2A04E" stop-opacity="0.5"/><stop offset="100%" stop-color="#C2A04E" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+            <rect class="pitch-box" x="144" y="0" width="600" height="200"/>
+            <rect class="pitch-six" x="324" y="0" width="240" height="60"/>
+            <line class="pitch-goal" x1="384" y1="0" x2="504" y2="0"/>
+            <path class="pitch-arc" d="M 344 200 A 100 100 0 0 0 544 200"/>
+            <rect class="goal-flash" x="384" y="0" width="120" height="16"/>
+            <circle class="but-glow" cx="444" cy="95" r="110" fill="url(#glow-ch6)"/>
+            <circle class="def-dot" cx="400" cy="50" r="9"/>
+            <circle class="att-dot" cx="660" cy="150" r="11"/>
+            <circle class="ball-dot" cx="700" cy="120" r="7" style="filter:url(#blur-ch6)"/>
+            <text class="but-stamp" x="444" y="110">BUT !</text>
+          </svg>
+        </div>
         <div class="goal-card">
           <div class="goal-name">KEVIN HOLNESS<span class="goal-team">Canada</span></div>
           <div class="goal-after">4-0</div>
@@ -292,17 +343,26 @@
       <section id="ch7" class="chapter clip" data-start="31.20" data-duration="5.00" data-track-index="1">
         <div class="stripes"></div>
         <div class="goal-eyebrow">45E+1 MINUTE</div>
-        <svg class="pitch-svg" viewBox="0 0 888 620">
-          <rect class="pitch-box" x="144" y="0" width="600" height="200" pathLength="1"/>
-          <rect class="pitch-six" x="324" y="0" width="240" height="60" pathLength="1"/>
-          <line class="pitch-goal" x1="384" y1="0" x2="504" y2="0" pathLength="1"/>
-          <path class="pitch-arc" d="M 344 200 A 100 100 0 0 0 544 200" pathLength="1"/>
-          <rect class="goal-flash" x="384" y="-16" width="120" height="16"/>
-          <circle class="def-dot" cx="444" cy="150" r="9"/>
-          <circle class="att-dot" cx="404" cy="610" r="11"/>
-          <circle class="ball-dot" cx="444" cy="600" r="7"/>
-          <text class="but-stamp" x="444" y="110">BUT !</text>
-        </svg>
+        <div class="pitch-wrap">
+          <svg class="pitch-svg" viewBox="0 0 888 620">
+            <defs>
+              <filter id="blur-ch7" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur id="fe-ch7" stdDeviation="0 0"/></filter>
+              <radialGradient id="glow-ch7" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#D1C1A3" stop-opacity="0.4"/><stop offset="100%" stop-color="#D1C1A3" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+            <rect class="pitch-box" x="144" y="0" width="600" height="200"/>
+            <rect class="pitch-six" x="324" y="0" width="240" height="60"/>
+            <line class="pitch-goal" x1="384" y1="0" x2="504" y2="0"/>
+            <path class="pitch-arc" d="M 344 200 A 100 100 0 0 0 544 200"/>
+            <rect class="goal-flash" x="384" y="0" width="120" height="16"/>
+            <circle class="but-glow" cx="444" cy="95" r="110" fill="url(#glow-ch7)"/>
+            <circle class="def-dot" cx="444" cy="150" r="9"/>
+            <circle class="att-dot" cx="404" cy="610" r="11"/>
+            <circle class="ball-dot" cx="444" cy="600" r="7" style="filter:url(#blur-ch7)"/>
+            <text class="but-stamp" x="444" y="110">BUT !</text>
+          </svg>
+        </div>
         <div class="goal-card">
           <div class="goal-name">LE MAROC RÉDUIT<span class="goal-team">Maroc</span></div>
           <div class="goal-after">4-1</div>
@@ -336,8 +396,9 @@
             <div class="flag-label">MAROC</div>
           </div>
           <div class="punch-score" id="punch-score">4<span class="dash">-</span>1</div>
-          <div class="stat-row anim" id="stat-row">
-            <div class="stat-chip">70 000 SPECTATEURS</div>
+          <div class="stat-block" id="stat-row">
+            <div class="stat-value" id="stat-value">0</div>
+            <div class="stat-label">Spectateurs</div>
           </div>
         </div>
         <div class="sub-zone"><div class="sub" id="sub-punch">LE TABLEAU NE BOUGERA PLUS.</div></div>
@@ -369,6 +430,14 @@
       window.__timelines = window.__timelines || {};
       const tl = gsap.timeline({ paused: true });
       const EASE = 'sine.inOut';
+
+      // ---- pitch lines: measure real geometry once, seed dasharray/dashoffset
+      // at setup (svg-path-draw) instead of the pathLength="1" shortcut ----
+      document.querySelectorAll('.pitch-box, .pitch-six, .pitch-goal, .pitch-arc').forEach((p) => {
+        const len = p.getTotalLength();
+        p.style.strokeDasharray = String(len);
+        p.style.strokeDashoffset = String(len);
+      });
 
       // ---- sous-titre helper : fenêtre in/out fixe, fondu bloc ----
       function caption(id, inAt, outAt) {
@@ -402,17 +471,38 @@
       caption('sub-ctx1', ch2 + 1.9, ch2 + 5.7);
 
       // ---- scène d'action helper : pitch qui se dessine, ball+coureur qui
-      // avancent par étapes vers le but, flash + "BUT !", carte joueur/score ----
+      // avancent par étapes vers le but (dernière étape = flou directionnel de
+      // vitesse sur le ballon), caméra qui pousse vers la cage au moment du tir,
+      // flash + glow + tampon "BUT !", défenseur battu, carte joueur/score ----
       function goalScene(chId, base, dur, cfg) {
         const q = (sel) => `#${chId} ${sel}`;
         tl.fromTo(q('.goal-eyebrow'), { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' }, base + 0.05);
-        tl.fromTo(q('.pitch-box, .pitch-six, .pitch-goal, .pitch-arc'), { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 0.5, ease: 'power2.out', stagger: 0.04 }, base + 0.1);
+        tl.to(q('.pitch-box, .pitch-six, .pitch-goal, .pitch-arc'), { strokeDashoffset: 0, duration: 0.5, ease: 'power2.out', stagger: 0.04 }, base + 0.1);
         tl.fromTo(q('.def-dot, .att-dot, .ball-dot'), { opacity: 0 }, { opacity: 1, duration: 0.3 }, base + 0.6);
 
+        // directional motion-blur proxy on the ball (feGaussianBlur can't be tweened directly)
+        const fe = document.getElementById(`fe-${chId}`);
+        const blurProxy = { v: 0 };
+        const writeBlur = () => fe.setAttribute('stdDeviation', `${blurProxy.v} ${blurProxy.v}`);
+        writeBlur();
+
         let t = base + 0.85;
+        let zoomStart = t;
         for (let i = 0; i < cfg.ball.length - 1; i++) {
           const isLast = i === cfg.ball.length - 2;
           const d = isLast ? 0.5 : 0.6;
+          if (isLast) {
+            zoomStart = t;
+            // blur peaks mid-tween (power2.inOut's peak-velocity point), not at the
+            // edges — two half-tweens couple the smear envelope to the real speed curve
+            const half = d / 2;
+            tl.fromTo(blurProxy, { v: 0 }, { v: 16, duration: half, ease: 'power1.in', onUpdate: writeBlur }, t);
+            tl.to(blurProxy, { v: 0, duration: half, ease: 'power1.out', onUpdate: writeBlur }, t + half);
+            // camera punch toward the goal mouth, landing as the shot arrives
+            tl.to(q('.pitch-svg'), { scale: 1.28, duration: d + 0.05, ease: 'power2.out' }, t);
+            // the beaten defender lunges and misses
+            tl.to(q('.def-dot'), { attr: { cx: cfg.def.x, cy: cfg.def.y }, duration: 0.3, ease: 'power2.out' }, t);
+          }
           tl.to(q('.ball-dot'), { attr: { cx: cfg.ball[i + 1].x, cy: cfg.ball[i + 1].y }, duration: d, ease: 'power2.inOut' }, t);
           tl.to(q('.att-dot'), { attr: { cx: cfg.att[i + 1].x, cy: cfg.att[i + 1].y }, duration: d, ease: 'power2.inOut' }, t);
           t += d + 0.08;
@@ -420,6 +510,9 @@
 
         tl.fromTo(q('.goal-flash'), { opacity: 0 }, { opacity: 1, duration: 0.12 }, t);
         tl.to(q('.goal-flash'), { opacity: 0, duration: 0.35 }, t + 0.12);
+        // glow blooms in behind the stamp, landing as ONE beat with its spring-pop
+        tl.fromTo(q('.but-glow'), { opacity: 0, scale: 0.82 }, { opacity: 1, scale: 1, duration: 0.3, ease: 'power2.out' }, t);
+        tl.to(q('.but-glow'), { opacity: 0, duration: 0.4, ease: 'power1.in' }, t + 1.0);
         tl.fromTo(q('.but-stamp'), { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.28, ease: 'back.out(2.5)' }, t);
         tl.to(q('.but-stamp'), { opacity: 0, duration: 0.3 }, t + 1.0);
         tl.fromTo(q('.goal-name'), { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out' }, t + 0.15);
@@ -434,30 +527,35 @@
       goalScene('ch3', 11.00, 5.20, {
         ball: [{ x: 660, y: 560 }, { x: 560, y: 300 }, { x: 390, y: 40 }],
         att: [{ x: 610, y: 590 }, { x: 520, y: 330 }, { x: 360, y: 70 }],
+        def: { x: 470, y: 155 },
       });
 
       // ================= CH4 — but 2, Jasken 34' (16.20 – 21.40) =================
       goalScene('ch4', 16.20, 5.20, {
         ball: [{ x: 120, y: 480 }, { x: 360, y: 220 }, { x: 500, y: 50 }],
         att: [{ x: 80, y: 510 }, { x: 330, y: 250 }, { x: 470, y: 80 }],
+        def: { x: 410, y: 175 },
       });
 
       // ================= CH5 — but 3, Jasken 36' doublé (21.40 – 26.00) =================
       goalScene('ch5', 21.40, 4.60, {
         ball: [{ x: 444, y: 580 }, { x: 444, y: 320 }, { x: 410, y: 35 }],
         att: [{ x: 404, y: 600 }, { x: 410, y: 350 }, { x: 370, y: 65 }],
+        def: { x: 460, y: 190 },
       });
 
       // ================= CH6 — but 4, Holness 44' (26.00 – 31.20) =================
       goalScene('ch6', 26.00, 5.20, {
         ball: [{ x: 700, y: 120 }, { x: 560, y: 55 }, { x: 470, y: 15 }],
         att: [{ x: 660, y: 150 }, { x: 530, y: 80 }, { x: 440, y: 40 }],
+        def: { x: 430, y: 60 },
       });
 
       // ================= CH7 — but 5, Maroc 45'+1 (31.20 – 36.20) =================
       goalScene('ch7', 31.20, 5.00, {
         ball: [{ x: 444, y: 600 }, { x: 444, y: 350 }, { x: 460, y: 30 }],
         att: [{ x: 404, y: 610 }, { x: 410, y: 360 }, { x: 420, y: 60 }],
+        def: { x: 444, y: 175 },
       });
 
       // ================= CH8 — premier trophée (36.20 – 42.20) =================
@@ -472,8 +570,17 @@
       const ch9 = 42.20;
       tl.fromTo('#punch-flags', { opacity: 0 }, { opacity: 1, duration: 0.35, ease: EASE }, ch9 + 0.1);
       tl.fromTo('#punch-score', { opacity: 0, scale: 0.7 }, { opacity: 1, scale: 1, duration: 0.55, ease: 'back.out(1.8)' }, ch9 + 0.35);
-      tl.fromTo('#stat-row', { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }, ch9 + 0.95);
-      caption('sub-punch', ch9 + 1.5, ch9 + 4.2);
+      tl.fromTo('#stat-row', { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' }, ch9 + 0.95);
+      (function statCountUp() {
+        const el = document.getElementById('stat-value');
+        const state = { v: 0 };
+        tl.fromTo(el, { scale: 0.55 }, { scale: 1, duration: 1.1, ease: 'power3.out' }, ch9 + 1.0);
+        tl.to(state, {
+          v: 70000, duration: 1.1, ease: 'power3.out',
+          onUpdate: () => { el.textContent = Math.round(state.v).toLocaleString('fr-FR'); },
+        }, ch9 + 1.0);
+      })();
+      caption('sub-punch', ch9 + 2.3, ch9 + 4.3);
 
       // ================= CH10 — punchline (46.70 – 50.70) =================
       const ch10 = 46.70;
@@ -498,8 +605,8 @@
       tl.to('#ch11-body', { opacity: 1, duration: 0.4, ease: EASE }, ctaStart + 1.4);
       tl.to('#ch11-footer', { opacity: 1, duration: 0.35, ease: EASE }, ctaStart + 1.7);
 
-      // ---- progress bar ----
-      tl.fromTo('#progress-fill', { width: '0%' }, { width: '100%', duration: ctaStart, ease: 'none' }, 0);
+      // ---- progress bar (scaleX, not width) ----
+      tl.fromTo('#progress-fill', { scaleX: 0 }, { scaleX: 1, duration: ctaStart, ease: 'none' }, 0);
 
       window.__timelines['main'] = tl;
     </script>
