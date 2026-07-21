@@ -34,12 +34,13 @@
       data-start="0"
       data-width="1080"
       data-height="1920"
-      data-duration="23.20"
+      data-duration="33.14"
       data-fps="30"
     >
+      <!-- vidéo ralentie à 0.7x (setpts/atempo) pour laisser plus de temps de lecture aux sous-titres -->
       <!-- vidéo = enfant direct de #root, mutée ; le son passe par l'élément <audio> séparé -->
-      <video class="bg-video" id="v-ferdinand" src="assets/ferdinand-highlights.mp4" data-start="0" data-duration="23.20" data-track-index="1" muted playsinline></video>
-      <audio id="a-ferdinand" src="assets/ferdinand-highlights.mp4" data-start="0" data-duration="23.20" data-track-index="20"></audio>
+      <video class="bg-video" id="v-ferdinand" src="assets/ferdinand-highlights.mp4" data-start="0" data-duration="33.14" data-track-index="1" muted playsinline></video>
+      <audio id="a-ferdinand" src="assets/ferdinand-highlights.mp4" data-start="0" data-duration="33.14" data-track-index="20"></audio>
 
       <div class="scrim"></div>
 
@@ -63,21 +64,22 @@
       window.__timelines = window.__timelines || {};
       const tl = gsap.timeline({ paused: true });
 
-      // sous-titres ligne par ligne (~10 mots max), calés sur la durée du montage,
+      // sous-titres ligne par ligne (~10 mots max), calés sur la durée du montage
+      // (vidéo ralentie à 0.7x pour ~3 mots/s — rythme de lecture confortable),
       // fondu bloc — pas de tween width/height (interdit par le runtime)
       const lines = [
-        { id: 'l1', start: 0.30, dur: 2.04 },
-        { id: 'l2', start: 2.34, dur: 2.23 },
-        { id: 'l3', start: 4.57, dur: 1.28 },
-        { id: 'l4', start: 5.85, dur: 2.04 },
-        { id: 'l5', start: 7.89, dur: 1.85 },
-        { id: 'l6', start: 9.74, dur: 1.85 },
-        { id: 'l7', start: 11.59, dur: 1.66 },
-        { id: 'l8', start: 13.25, dur: 1.85 },
-        { id: 'l9', start: 15.10, dur: 2.04 },
-        { id: 'l10', start: 17.14, dur: 2.23 },
-        { id: 'l11', start: 19.37, dur: 1.85 },
-        { id: 'l12', start: 21.22, dur: 1.28 },
+        { id: 'l1', start: 0.43, dur: 2.91 },
+        { id: 'l2', start: 3.34, dur: 3.19 },
+        { id: 'l3', start: 6.53, dur: 1.83 },
+        { id: 'l4', start: 8.36, dur: 2.91 },
+        { id: 'l5', start: 11.27, dur: 2.64 },
+        { id: 'l6', start: 13.91, dur: 2.64 },
+        { id: 'l7', start: 16.56, dur: 2.37 },
+        { id: 'l8', start: 18.93, dur: 2.64 },
+        { id: 'l9', start: 21.57, dur: 2.91 },
+        { id: 'l10', start: 24.49, dur: 3.19 },
+        { id: 'l11', start: 27.67, dur: 2.64 },
+        { id: 'l12', start: 30.31, dur: 1.83 },
       ];
 
       lines.forEach(({ id, start, dur }) => {
