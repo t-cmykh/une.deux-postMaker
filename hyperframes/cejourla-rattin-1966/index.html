@@ -66,12 +66,13 @@
 
       /* ===== sous-titres — corps du post, découpé en unités de sens (pas de
            coupe arbitraire), centrés verticalement sur une ancre plus haute
-           dans le cadre, couleur ocre, taille réduite ===== */
-      .sub-zone { position: absolute; left: 96px; right: 96px; top: 1480px; transform: translateY(-50%); z-index: 11; }
+           dans le cadre, couleur crème, toujours centrés horizontalement
+           même sur plusieurs lignes ===== */
+      .sub-zone { position: absolute; left: 96px; right: 96px; top: 1400px; transform: translateY(-50%); z-index: 11; text-align: center; }
       .sub-line {
         position: absolute; left: 0; right: 0; top: 0; transform: translateY(-50%); opacity: 0;
         font-family: 'Anton', sans-serif; font-size: 44px; line-height: 1.25; text-transform: uppercase;
-        color: var(--ocre); text-shadow: 0 2px 14px rgba(0,0,0,.55), 0 1px 3px rgba(0,0,0,.75);
+        color: var(--cream); text-shadow: 0 2px 14px rgba(0,0,0,.55), 0 1px 3px rgba(0,0,0,.75);
       }
     </style>
   </head>
@@ -82,25 +83,27 @@
       data-start="0"
       data-width="1080"
       data-height="1920"
-      data-duration="59.15"
+      data-duration="63.00"
       data-fps="30"
     >
       <!-- 3 clips dans l'ordre demandé — vidéo = enfant direct de #root
            (contrainte HyperFrames), mutée ; le son passe par l'élément
-           <audio> séparé. Ralentis à 0.7x à la source (setpts/atempo, comme
-           pour Ferdinand) pour laisser un rythme de lecture confortable aux
-           sous-titres sur un montage plus court. -->
-      <video class="video-bg clip" id="v1-bg" src="assets/clip1.mp4" data-start="0" data-duration="25.73" data-track-index="1" muted playsinline></video>
-      <video class="video-fg clip" id="v1-fg" src="assets/clip1.mp4" data-start="0" data-duration="25.73" data-track-index="2" muted playsinline></video>
-      <audio id="a1" src="assets/clip1.mp4" data-start="0" data-duration="25.68" data-track-index="20"></audio>
+           <audio> séparé. Ralenti différent par clip (setpts/atempo) pour
+           que chaque segment dure le temps qu'il faut à SON sous-titre
+           assigné (clip 1 : exclusion + incompréhension ; clip 2 : demande
+           d'interprète ; clip 3 : but + invention des cartons, donc plus
+           ralenti que les deux autres). -->
+      <video class="video-bg clip" id="v1-bg" src="assets/clip1.mp4" data-start="0" data-duration="23.95" data-track-index="1" muted playsinline></video>
+      <video class="video-fg clip" id="v1-fg" src="assets/clip1.mp4" data-start="0" data-duration="23.95" data-track-index="2" muted playsinline></video>
+      <audio id="a1" src="assets/clip1.mp4" data-start="0" data-duration="23.90" data-track-index="20"></audio>
 
-      <video class="video-bg clip" id="v2-bg" src="assets/clip2.mp4" data-start="25.73" data-duration="18.67" data-track-index="1" muted playsinline></video>
-      <video class="video-fg clip" id="v2-fg" src="assets/clip2.mp4" data-start="25.73" data-duration="18.67" data-track-index="2" muted playsinline></video>
-      <audio id="a2" src="assets/clip2.mp4" data-start="25.73" data-duration="18.62" data-track-index="20"></audio>
+      <video class="video-bg clip" id="v2-bg" src="assets/clip2.mp4" data-start="23.95" data-duration="14.44" data-track-index="1" muted playsinline></video>
+      <video class="video-fg clip" id="v2-fg" src="assets/clip2.mp4" data-start="23.95" data-duration="14.44" data-track-index="2" muted playsinline></video>
+      <audio id="a2" src="assets/clip2.mp4" data-start="23.95" data-duration="14.39" data-track-index="20"></audio>
 
-      <video class="video-bg clip" id="v3-bg" src="assets/clip3.mp4" data-start="44.40" data-duration="14.75" data-track-index="1" muted playsinline></video>
-      <video class="video-fg clip" id="v3-fg" src="assets/clip3.mp4" data-start="44.40" data-duration="14.75" data-track-index="2" muted playsinline></video>
-      <audio id="a3" src="assets/clip3.mp4" data-start="44.40" data-duration="14.70" data-track-index="20"></audio>
+      <video class="video-bg clip" id="v3-bg" src="assets/clip3.mp4" data-start="38.39" data-duration="24.61" data-track-index="1" muted playsinline></video>
+      <video class="video-fg clip" id="v3-fg" src="assets/clip3.mp4" data-start="38.39" data-duration="24.61" data-track-index="2" muted playsinline></video>
+      <audio id="a3" src="assets/clip3.mp4" data-start="38.39" data-duration="24.56" data-track-index="20"></audio>
 
       <div class="grade"></div>
       <div class="scrim"></div>
@@ -151,40 +154,52 @@
       window.__timelines = window.__timelines || {};
       const tl = gsap.timeline({ paused: true });
 
-      // ===== cover : tag persistant + titre-hook (mot-clé encadré) qui entre
-      // puis s'efface pour laisser place aux sous-titres (corps du post) =====
-      tl.fromTo('#tag', { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out' }, 0.25);
+      // ===== cover : tag persistant + titre-hook punchy (spring-pop serré,
+      // pas un fondu mou) + mot-clé encadré, puis s'efface pour laisser
+      // place aux sous-titres (corps du post) =====
+      tl.fromTo('#tag', { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' }, 0.2);
       document.querySelectorAll('#title .tline').forEach((el, i) => {
-        tl.fromTo(el, { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.45, ease: 'power3.out' }, 0.55 + i * 0.26);
+        tl.fromTo(
+          el,
+          { opacity: 0, scale: 0.62, y: 26 },
+          { opacity: 1, scale: 1, y: 0, duration: 0.38, ease: 'back.out(2.6)', transformOrigin: 'left center' },
+          0.45 + i * 0.2,
+        );
       });
-      tl.to('#title', { opacity: 0, duration: 0.35, ease: 'sine.in' }, 4.00);
+      tl.to('#title', { opacity: 0, duration: 0.3, ease: 'sine.in' }, 3.85);
 
       // sous-titres — découpés en unités de sens (groupe nominal, groupe
-      // verbal, proposition), pas en blocs de ~10 mots arbitraires ; fondu
-      // bloc — pas de tween width/height (interdit par le runtime)
+      // verbal, proposition), pas en blocs de mots arbitraires ; calés sur
+      // LEUR clip : clip 1 = exclusion + incompréhension linguistique,
+      // clip 2 = demande d'interprète, clip 3 = but + invention des
+      // cartons. Fondu bloc — pas de tween width/height (interdit par le
+      // runtime).
       const lines = [
-        { id: 'l1', start: 5.00, dur: 3.18 },
-        { id: 'l2', start: 8.18, dur: 1.49 },
-        { id: 'l3', start: 9.67, dur: 1.49 },
-        { id: 'l4', start: 11.16, dur: 2.33 },
-        { id: 'l5', start: 13.49, dur: 1.77 },
-        { id: 'l6', start: 15.26, dur: 2.33 },
-        { id: 'l7', start: 17.59, dur: 2.33 },
-        { id: 'l8', start: 19.92, dur: 2.33 },
-        { id: 'l9', start: 22.25, dur: 2.61 },
-        { id: 'l10', start: 24.86, dur: 2.33 },
-        { id: 'l11', start: 27.19, dur: 3.18 },
-        { id: 'l12', start: 30.37, dur: 2.33 },
-        { id: 'l13', start: 32.70, dur: 1.49 },
-        { id: 'l14', start: 34.19, dur: 2.33 },
-        { id: 'l15', start: 36.52, dur: 3.18 },
-        { id: 'l16', start: 39.70, dur: 2.33 },
-        { id: 'l17', start: 42.03, dur: 2.33 },
-        { id: 'l18', start: 44.36, dur: 2.90 },
-        { id: 'l19', start: 47.26, dur: 2.90 },
-        { id: 'l20', start: 50.16, dur: 2.33 },
-        { id: 'l21', start: 52.49, dur: 1.49 },
-        { id: 'l22', start: 53.98, dur: 2.33 },
+        // ---- clip 1 : 0 – 23.95s ----
+        { id: 'l1', start: 4.60, dur: 3.29 },
+        { id: 'l2', start: 7.89, dur: 1.54 },
+        { id: 'l3', start: 9.43, dur: 1.54 },
+        { id: 'l4', start: 10.97, dur: 2.42 },
+        { id: 'l5', start: 13.39, dur: 1.84 },
+        { id: 'l6', start: 15.23, dur: 2.42 },
+        { id: 'l7', start: 17.65, dur: 2.42 },
+        { id: 'l8', start: 20.07, dur: 2.42 },
+        // ---- clip 2 : 23.95 – 38.39s ----
+        { id: 'l9', start: 24.28, dur: 2.76 },
+        { id: 'l10', start: 27.04, dur: 2.47 },
+        { id: 'l11', start: 29.51, dur: 3.36 },
+        { id: 'l12', start: 32.87, dur: 2.47 },
+        { id: 'l13', start: 35.34, dur: 1.57 },
+        // ---- clip 3 : 38.39 – 63.00s ----
+        { id: 'l14', start: 38.75, dur: 2.48 },
+        { id: 'l15', start: 41.23, dur: 3.38 },
+        { id: 'l16', start: 44.61, dur: 2.48 },
+        { id: 'l17', start: 47.09, dur: 2.48 },
+        { id: 'l18', start: 49.57, dur: 3.08 },
+        { id: 'l19', start: 52.65, dur: 3.08 },
+        { id: 'l20', start: 55.73, dur: 2.48 },
+        { id: 'l21', start: 58.21, dur: 1.58 },
+        { id: 'l22', start: 59.79, dur: 2.48 },
       ];
 
       // opacity uniquement (pas de y) : le translateY(-50%) CSS statique qui
