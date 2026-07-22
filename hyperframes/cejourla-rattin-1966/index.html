@@ -113,13 +113,22 @@
       </div>
 
       <div class="sub-zone">
+        <!-- clip 1 (à partir de 4s, une fois le titre effacé) : exclusion + incompréhension -->
+        <div class="sub-line" id="l1">90 584 SPECTATEURS À WEMBLEY.</div>
+        <div class="sub-line" id="l2">L'ARBITRE ALLEMAND KREITLEIN EXCLUT RATTÍN</div>
+        <div class="sub-line" id="l3">POUR « VIOLENCE DE LA LANGUE ».</div>
+        <div class="sub-line" id="l4">LES CARTONS N'EXISTENT PAS ENCORE À L'ÉPOQUE.</div>
+        <div class="sub-line" id="l5">RATTÍN NE COMPREND PAS L'ANGLAIS DE L'ARBITRE,</div>
+        <div class="sub-line" id="l6">QUI NE PARLE PAS L'ESPAGNOL.</div>
         <!-- clip 2 : demande d'interprète -->
-        <div class="sub-line" id="l1">LE CAPITAINE RÉCLAME UN INTERPRÈTE,</div>
-        <div class="sub-line" id="l2">REFUSE DE SORTIR HUIT MINUTES,</div>
-        <div class="sub-line" id="l3">VA S'ASSEOIR SUR LE TAPIS ROUGE DE LA REINE.</div>
+        <div class="sub-line" id="l7">LE CAPITAINE RÉCLAME UN INTERPRÈTE, REFUSE DE SORTIR,</div>
+        <div class="sub-line" id="l8">MET HUIT MINUTES À QUITTER LE TERRAIN,</div>
+        <div class="sub-line" id="l9">CHIFFONNE LE FANION DE CORNER,</div>
+        <div class="sub-line" id="l10">ET VA S'ASSEOIR SUR LE TAPIS ROUGE</div>
+        <div class="sub-line" id="l11">RÉSERVÉ À LA REINE.</div>
         <!-- clip 3 : but + invention des cartons -->
-        <div class="sub-line" id="l4">GEOFF HURST INSCRIT L'UNIQUE BUT DU MATCH.</div>
-        <div class="sub-line" id="l5">CE SOIR-LÀ, KEN ASTON INVENTE LES CARTONS JAUNE ET ROUGE, À UN FEU TRICOLORE.</div>
+        <div class="sub-line" id="l12">GEOFF HURST INSCRIT L'UNIQUE BUT DU MATCH.</div>
+        <div class="sub-line" id="l13">CE SOIR-LÀ, KEN ASTON INVENTE LES CARTONS JAUNE ET ROUGE, À UN FEU TRICOLORE.</div>
       </div>
     </div>
 
@@ -129,8 +138,7 @@
 
       // ===== cover : tag persistant + titre-hook calé sur la référence
       // (fondu doux, pas de spring), mot-clé "CARTON ROUGE" encadré en un
-      // seul carré ; tient tout le clip 1 puis s'efface au cut vers le
-      // clip 2 =====
+      // seul carré ; dure exactement 4s puis passe aux sous-titres =====
       tl.fromTo('#tag', { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' }, 0.15);
       document.querySelectorAll('#title .tline').forEach((el, i) => {
         tl.fromTo(
@@ -140,21 +148,30 @@
           0.15 + i * 0.55,
         );
       });
-      tl.to('#title', { opacity: 0, duration: 0.25, ease: 'sine.in' }, 15.65);
-      tl.set('#title', { opacity: 0 }, 15.90);
+      tl.to('#title', { opacity: 0, duration: 0.3, ease: 'sine.in' }, 3.70);
+      tl.set('#title', { opacity: 0 }, 4.00);
 
-      // sous-titres — condensés pour tenir dans le timing d'origine des
-      // clips (pas de ralenti demandé) sans changer le rythme de lecture
-      // (même formule mots→durée que les versions précédentes) ; fondu
-      // bloc, opacity uniquement — pas de tween width/height (interdit)
+      // sous-titres — commencent à 4s (juste après le titre), racontent
+      // l'histoire dans le timing des 3 clips sans changer le rythme de
+      // lecture (même formule mots→durée) ; fondu bloc, opacity
+      // uniquement — pas de tween width/height (interdit par le runtime)
       const lines = [
+        // ---- clip 1 : 4.00 – 15.90s (exclusion + incompréhension) ----
+        { id: 'l1', start: 4.15, dur: 1.70 },
+        { id: 'l2', start: 5.85, dur: 1.70 },
+        { id: 'l3', start: 7.55, dur: 1.70 },
+        { id: 'l4', start: 9.25, dur: 2.24 },
+        { id: 'l5', start: 11.49, dur: 2.24 },
+        { id: 'l6', start: 13.73, dur: 1.70 },
         // ---- clip 2 : 15.90 – 27.48s (demande d'interprète) ----
-        { id: 'l1', start: 16.20, dur: 1.70 },
-        { id: 'l2', start: 19.60, dur: 1.70 },
-        { id: 'l3', start: 23.00, dur: 2.78 },
+        { id: 'l7', start: 16.20, dur: 2.51 },
+        { id: 'l8', start: 18.71, dur: 2.24 },
+        { id: 'l9', start: 20.95, dur: 1.70 },
+        { id: 'l10', start: 22.65, dur: 2.24 },
+        { id: 'l11', start: 24.89, dur: 1.43 },
         // ---- clip 3 : 27.48 – 36.63s (but + invention des cartons) ----
-        { id: 'l4', start: 27.78, dur: 2.24 },
-        { id: 'l5', start: 32.02, dur: 4.13 },
+        { id: 'l12', start: 27.78, dur: 2.24 },
+        { id: 'l13', start: 32.02, dur: 4.13 },
       ];
 
       lines.forEach(({ id, start, dur }) => {
