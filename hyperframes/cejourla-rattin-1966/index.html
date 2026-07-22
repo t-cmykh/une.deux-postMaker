@@ -13,18 +13,11 @@
       body { font-family: 'Archivo', system-ui, sans-serif; }
       #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
 
-      /* ===== 3 clips, même format d'origine (1280×990, paysage) — plan net,
-           flush, sans bordure/radius/ombre (DA "plate, imprimé") ===== */
-      .video-fg {
-        position: absolute; left: 0; top: 542.34px; width: 1080px; height: 835.31px;
-        object-fit: cover; z-index: 2;
-      }
-      /* fond plein cadre — même source par clip, flouté/assombri, comble les
-         bandes noires créées en haut/bas par le format d'origine */
-      .video-bg {
-        position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1;
-        transform: scale(1.15); filter: blur(40px) saturate(1.1) brightness(0.55);
-      }
+      /* ===== 3 clips — composite (fond flouté/assombri + plan net letterboxé)
+           déjà PRÉ-CALCULÉ par ffmpeg (gblur, pas de filter CSS live) : un seul
+           <video> par clip au lieu de deux, aucun filtre coûteux au rendu.
+           Vitesse d'origine, pas de ralenti. ===== */
+      .video-composite { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
 
       /* grade + scrim — tokens exacts de la série (design-system/tokens/effects.css) */
       .grade { position: absolute; inset: 0; z-index: 3; background: rgba(120, 90, 40, 0.14); }
@@ -52,22 +45,22 @@
         letter-spacing: .02em; text-transform: uppercase; padding: 12px 22px;
       }
 
-      /* ===== titre cover (hook, s'efface une fois les sous-titres lancés) =====
-           mot-clé "encadré" — reprend exactement le mécanisme drawWordLine()
-           de l'éditeur de série : carré plein couleur signature (ocre),
-           texte du mot-clé en crème dessus (pas juste une couleur de texte) */
-      .title-zone { position: absolute; left: 96px; right: 96px; bottom: 280px; z-index: 10; }
-      .title { font-family: 'Anton', sans-serif; font-size: 88px; line-height: 1.3; text-transform: uppercase; color: var(--cream); }
+      /* ===== titre cover — calé sur la référence unedeuxcejourla01.mp4 :
+           taille ~116px, reveal ligne par ligne toutes les ~0.55s, fondu
+           doux (pas de spring/scale), tient tout le clip 1. Mot-clé
+           "CARTON ROUGE" encadré ensemble (les deux mots dans le même
+           carré plein, comme drawWordLine() dans l'éditeur de série). ===== */
+      .title-zone { position: absolute; left: 96px; right: 96px; bottom: 260px; z-index: 10; }
+      .title { font-family: 'Anton', sans-serif; font-size: 116px; line-height: 1.16; text-transform: uppercase; color: var(--cream); }
       .tline { opacity: 0; }
       .title .kw {
         background: var(--ocre); color: var(--cream);
-        padding: 0.03em 0.16em; box-decoration-break: clone; -webkit-box-decoration-break: clone;
+        padding: 0.02em 0.14em; box-decoration-break: clone; -webkit-box-decoration-break: clone;
       }
 
-      /* ===== sous-titres — corps du post, découpé en unités de sens (pas de
-           coupe arbitraire), centrés verticalement sur une ancre plus haute
-           dans le cadre, couleur crème, toujours centrés horizontalement
-           même sur plusieurs lignes ===== */
+      /* ===== sous-titres — condensés pour tenir dans le timing d'origine
+           des clips (pas de ralenti), même rythme de lecture qu'avant,
+           centrés horizontalement, couleur crème ===== */
       .sub-zone { position: absolute; left: 96px; right: 96px; top: 1400px; transform: translateY(-50%); z-index: 11; text-align: center; }
       .sub-line {
         position: absolute; left: 0; right: 0; top: 0; transform: translateY(-50%); opacity: 0;
@@ -83,27 +76,21 @@
       data-start="0"
       data-width="1080"
       data-height="1920"
-      data-duration="63.00"
+      data-duration="36.70"
       data-fps="30"
     >
-      <!-- 3 clips dans l'ordre demandé — vidéo = enfant direct de #root
-           (contrainte HyperFrames), mutée ; le son passe par l'élément
-           <audio> séparé. Ralenti différent par clip (setpts/atempo) pour
-           que chaque segment dure le temps qu'il faut à SON sous-titre
-           assigné (clip 1 : exclusion + incompréhension ; clip 2 : demande
-           d'interprète ; clip 3 : but + invention des cartons, donc plus
-           ralenti que les deux autres). -->
-      <video class="video-bg clip" id="v1-bg" src="assets/clip1.mp4" data-start="0" data-duration="23.95" data-track-index="1" muted playsinline></video>
-      <video class="video-fg clip" id="v1-fg" src="assets/clip1.mp4" data-start="0" data-duration="23.95" data-track-index="2" muted playsinline></video>
-      <audio id="a1" src="assets/clip1.mp4" data-start="0" data-duration="23.90" data-track-index="20"></audio>
+      <!-- 3 clips dans l'ordre demandé, à leur vitesse d'origine (pas de
+           ralenti) — vidéo = enfant direct de #root (contrainte
+           HyperFrames), mutée ; le son passe par l'élément <audio> séparé.
+           Le composite flouté/net est déjà cuit dans le fichier vidéo. -->
+      <video class="video-composite clip" id="v1" src="assets/clip1.mp4" data-start="0" data-duration="15.90" data-track-index="1" muted playsinline></video>
+      <audio id="a1" src="assets/clip1-audio.m4a" data-start="0" data-duration="15.85" data-track-index="20"></audio>
 
-      <video class="video-bg clip" id="v2-bg" src="assets/clip2.mp4" data-start="23.95" data-duration="14.44" data-track-index="1" muted playsinline></video>
-      <video class="video-fg clip" id="v2-fg" src="assets/clip2.mp4" data-start="23.95" data-duration="14.44" data-track-index="2" muted playsinline></video>
-      <audio id="a2" src="assets/clip2.mp4" data-start="23.95" data-duration="14.39" data-track-index="20"></audio>
+      <video class="video-composite clip" id="v2" src="assets/clip2.mp4" data-start="15.90" data-duration="11.58" data-track-index="1" muted playsinline></video>
+      <audio id="a2" src="assets/clip2-audio.m4a" data-start="15.90" data-duration="11.53" data-track-index="20"></audio>
 
-      <video class="video-bg clip" id="v3-bg" src="assets/clip3.mp4" data-start="38.39" data-duration="24.61" data-track-index="1" muted playsinline></video>
-      <video class="video-fg clip" id="v3-fg" src="assets/clip3.mp4" data-start="38.39" data-duration="24.61" data-track-index="2" muted playsinline></video>
-      <audio id="a3" src="assets/clip3.mp4" data-start="38.39" data-duration="24.56" data-track-index="20"></audio>
+      <video class="video-composite clip" id="v3" src="assets/clip3.mp4" data-start="27.48" data-duration="9.15" data-track-index="1" muted playsinline></video>
+      <audio id="a3" src="assets/clip3-audio.m4a" data-start="27.48" data-duration="9.10" data-track-index="20"></audio>
 
       <div class="grade"></div>
       <div class="scrim"></div>
@@ -119,34 +106,20 @@
 
       <div class="title-zone">
         <div class="title" id="title">
-          <div class="tline">LE <span class="kw">CARTON</span> ROUGE</div>
+          <div class="tline">23 JUILLET 1966 :</div>
+          <div class="tline">LE <span class="kw">CARTON ROUGE</span></div>
           <div class="tline">NAÎT APRÈS CE MATCH.</div>
         </div>
       </div>
 
       <div class="sub-zone">
-        <div class="sub-line" id="l1">QUART DE FINALE DU MONDIAL 1966, WEMBLEY, 90 584 SPECTATEURS.</div>
-        <div class="sub-line" id="l2">À LA 35E MINUTE,</div>
-        <div class="sub-line" id="l3">L'ARBITRE ALLEMAND RUDOLF KREITLEIN</div>
-        <div class="sub-line" id="l4">EXCLUT ORALEMENT LE CAPITAINE ARGENTIN ANTONIO RATTÍN</div>
-        <div class="sub-line" id="l5">POUR « VIOLENCE DE LA LANGUE »,</div>
-        <div class="sub-line" id="l6">LES CARTONS N'EXISTENT PAS ENCORE À L'ÉPOQUE.</div>
-        <div class="sub-line" id="l7">RATTÍN NE COMPREND PAS L'ANGLAIS DE L'ARBITRE,</div>
-        <div class="sub-line" id="l8">L'ARBITRE NE PARLE PAS L'ESPAGNOL DE RATTÍN.</div>
-        <div class="sub-line" id="l9">LE CAPITAINE RÉCLAME UN INTERPRÈTE, REFUSE DE SORTIR,</div>
-        <div class="sub-line" id="l10">MET HUIT MINUTES À QUITTER LE TERRAIN,</div>
-        <div class="sub-line" id="l11">CHIFFONNE LE FANION DE CORNER À L'EFFIGIE DE L'UNION JACK</div>
-        <div class="sub-line" id="l12">ET VA S'ASSEOIR SUR LE TAPIS ROUGE</div>
-        <div class="sub-line" id="l13">RÉSERVÉ À LA REINE.</div>
-        <div class="sub-line" id="l14">GEOFF HURST INSCRIT L'UNIQUE BUT DU MATCH</div>
-        <div class="sub-line" id="l15">À LA 78E MINUTE, SUR UN CENTRE DE MARTIN PETERS.</div>
-        <div class="sub-line" id="l16">LE SOIR MÊME, EN RENTRANT CHEZ LUI,</div>
-        <div class="sub-line" id="l17">KEN ASTON, CHEF DES ARBITRES DU TOURNOI,</div>
-        <div class="sub-line" id="l18">S'ARRÊTE À UN FEU TRICOLORE SUR KENSINGTON HIGH STREET</div>
-        <div class="sub-line" id="l19">ET IMAGINE LE PRINCIPE DES CARTONS JAUNE ET ROUGE,</div>
-        <div class="sub-line" id="l20">INTRODUITS QUATRE ANS PLUS TARD AU MEXIQUE.</div>
-        <div class="sub-line" id="l21">UN PROBLÈME DE TRADUCTION</div>
-        <div class="sub-line" id="l22">A DONNÉ AU FOOT SON LANGAGE UNIVERSEL.</div>
+        <!-- clip 2 : demande d'interprète -->
+        <div class="sub-line" id="l1">LE CAPITAINE RÉCLAME UN INTERPRÈTE,</div>
+        <div class="sub-line" id="l2">REFUSE DE SORTIR HUIT MINUTES,</div>
+        <div class="sub-line" id="l3">VA S'ASSEOIR SUR LE TAPIS ROUGE DE LA REINE.</div>
+        <!-- clip 3 : but + invention des cartons -->
+        <div class="sub-line" id="l4">GEOFF HURST INSCRIT L'UNIQUE BUT DU MATCH.</div>
+        <div class="sub-line" id="l5">CE SOIR-LÀ, KEN ASTON INVENTE LES CARTONS JAUNE ET ROUGE, À UN FEU TRICOLORE.</div>
       </div>
     </div>
 
@@ -154,57 +127,36 @@
       window.__timelines = window.__timelines || {};
       const tl = gsap.timeline({ paused: true });
 
-      // ===== cover : tag persistant + titre-hook punchy (spring-pop serré,
-      // pas un fondu mou) + mot-clé encadré, puis s'efface pour laisser
-      // place aux sous-titres (corps du post) =====
-      tl.fromTo('#tag', { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' }, 0.2);
+      // ===== cover : tag persistant + titre-hook calé sur la référence
+      // (fondu doux, pas de spring), mot-clé "CARTON ROUGE" encadré en un
+      // seul carré ; tient tout le clip 1 puis s'efface au cut vers le
+      // clip 2 =====
+      tl.fromTo('#tag', { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' }, 0.15);
       document.querySelectorAll('#title .tline').forEach((el, i) => {
         tl.fromTo(
           el,
-          { opacity: 0, scale: 0.62, y: 26 },
-          { opacity: 1, scale: 1, y: 0, duration: 0.38, ease: 'back.out(2.6)', transformOrigin: 'left center' },
-          0.45 + i * 0.2,
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out' },
+          0.15 + i * 0.55,
         );
       });
-      tl.to('#title', { opacity: 0, duration: 0.3, ease: 'sine.in' }, 3.85);
+      tl.to('#title', { opacity: 0, duration: 0.25, ease: 'sine.in' }, 15.65);
+      tl.set('#title', { opacity: 0 }, 15.90);
 
-      // sous-titres — découpés en unités de sens (groupe nominal, groupe
-      // verbal, proposition), pas en blocs de mots arbitraires ; calés sur
-      // LEUR clip : clip 1 = exclusion + incompréhension linguistique,
-      // clip 2 = demande d'interprète, clip 3 = but + invention des
-      // cartons. Fondu bloc — pas de tween width/height (interdit par le
-      // runtime).
+      // sous-titres — condensés pour tenir dans le timing d'origine des
+      // clips (pas de ralenti demandé) sans changer le rythme de lecture
+      // (même formule mots→durée que les versions précédentes) ; fondu
+      // bloc, opacity uniquement — pas de tween width/height (interdit)
       const lines = [
-        // ---- clip 1 : 0 – 23.95s ----
-        { id: 'l1', start: 4.60, dur: 3.29 },
-        { id: 'l2', start: 7.89, dur: 1.54 },
-        { id: 'l3', start: 9.43, dur: 1.54 },
-        { id: 'l4', start: 10.97, dur: 2.42 },
-        { id: 'l5', start: 13.39, dur: 1.84 },
-        { id: 'l6', start: 15.23, dur: 2.42 },
-        { id: 'l7', start: 17.65, dur: 2.42 },
-        { id: 'l8', start: 20.07, dur: 2.42 },
-        // ---- clip 2 : 23.95 – 38.39s ----
-        { id: 'l9', start: 24.28, dur: 2.76 },
-        { id: 'l10', start: 27.04, dur: 2.47 },
-        { id: 'l11', start: 29.51, dur: 3.36 },
-        { id: 'l12', start: 32.87, dur: 2.47 },
-        { id: 'l13', start: 35.34, dur: 1.57 },
-        // ---- clip 3 : 38.39 – 63.00s ----
-        { id: 'l14', start: 38.75, dur: 2.48 },
-        { id: 'l15', start: 41.23, dur: 3.38 },
-        { id: 'l16', start: 44.61, dur: 2.48 },
-        { id: 'l17', start: 47.09, dur: 2.48 },
-        { id: 'l18', start: 49.57, dur: 3.08 },
-        { id: 'l19', start: 52.65, dur: 3.08 },
-        { id: 'l20', start: 55.73, dur: 2.48 },
-        { id: 'l21', start: 58.21, dur: 1.58 },
-        { id: 'l22', start: 59.79, dur: 2.48 },
+        // ---- clip 2 : 15.90 – 27.48s (demande d'interprète) ----
+        { id: 'l1', start: 16.20, dur: 1.70 },
+        { id: 'l2', start: 19.60, dur: 1.70 },
+        { id: 'l3', start: 23.00, dur: 2.78 },
+        // ---- clip 3 : 27.48 – 36.63s (but + invention des cartons) ----
+        { id: 'l4', start: 27.78, dur: 2.24 },
+        { id: 'l5', start: 32.02, dur: 4.13 },
       ];
 
-      // opacity uniquement (pas de y) : le translateY(-50%) CSS statique qui
-      // centre chaque ligne ne doit pas être repris/écrasé par la gestion de
-      // transform de GSAP
       lines.forEach(({ id, start, dur }) => {
         tl.fromTo(`#${id}`, { opacity: 0 }, { opacity: 1, duration: 0.16, ease: 'sine.out' }, start);
         tl.to(`#${id}`, { opacity: 0, duration: 0.14, ease: 'sine.in' }, start + dur - 0.14);
