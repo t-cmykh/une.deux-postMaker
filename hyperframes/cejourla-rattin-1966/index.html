@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 23 juillet 1966, Rattín à Wembley (cover + sous-titres)</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* ===== source vidéo au format d'origine (1280×990, paysage) — plan net,
+           flush, sans bordure/radius/ombre (DA "plate, imprimé") ===== */
+      .video-fg {
+        position: absolute; left: 0; top: 542.34px; width: 1080px; height: 835.31px;
+        object-fit: cover; z-index: 2;
+      }
+      /* fond plein cadre — même source, flouté/assombri, comble les bandes
+         noires créées en haut/bas par le format d'origine */
+      .video-bg {
+        position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1;
+        transform: scale(1.15); filter: blur(40px) saturate(1.1) brightness(0.55);
+      }
+
+      /* grade + scrim — tokens exacts de la série (design-system/tokens/effects.css) */
+      .grade { position: absolute; inset: 0; z-index: 3; background: rgba(120, 90, 40, 0.14); }
+      .scrim {
+        position: absolute; inset: 0; z-index: 4;
+        background: linear-gradient(to bottom, rgba(44,40,35,0) 0%, rgba(44,40,35,0) 42%, rgba(44,40,35,0.78) 80%, rgba(44,40,35,0.78) 100%);
+      }
+
+      /* ===== BrandHeader (design-system/components/slides/BrandHeader.jsx) ===== */
+      #hdr { position: absolute; inset: 0 0 auto 0; height: 300px; z-index: 30; }
+      .ring {
+        position: absolute; left: 96px; top: 150px; width: 76px; height: 76px; border-radius: 50%;
+        border: 3px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 700; font-size: 30px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 188px; top: 162px; font-family: 'Anton', sans-serif; font-size: 46px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 174px; font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 26px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 252px; height: 3px; background: var(--cream); }
+
+      /* ===== SeriesTag (design-system/components/slides/SeriesTag.jsx) — persistant ===== */
+      .tag {
+        position: absolute; left: 96px; top: 294px; z-index: 10; opacity: 0;
+        display: inline-block; background: var(--ocre); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 700; font-size: 26px;
+        letter-spacing: .02em; text-transform: uppercase; padding: 12px 22px;
+      }
+
+      /* ===== titre cover (hook, s'efface une fois les sous-titres lancés) ===== */
+      .title-zone { position: absolute; left: 96px; right: 96px; bottom: 280px; z-index: 10; }
+      .title { font-family: 'Anton', sans-serif; font-size: 88px; line-height: 1.05; text-transform: uppercase; color: var(--cream); }
+      .tline { opacity: 0; }
+      .title .accent { color: var(--ocre); }
+
+      /* ===== sous-titres — corps du post, ligne par ligne, même zone que le titre ===== */
+      .sub-zone { position: absolute; left: 96px; right: 96px; bottom: 280px; z-index: 11; }
+      .sub-line {
+        position: absolute; left: 0; right: 0; bottom: 0; opacity: 0;
+        font-family: 'Anton', sans-serif; font-size: 54px; line-height: 1.22; text-transform: uppercase;
+        color: var(--cream); text-shadow: 0 2px 14px rgba(0,0,0,.5), 0 1px 3px rgba(0,0,0,.7);
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="101.35"
+      data-fps="30"
+    >
+      <!-- vidéo = enfant direct de #root (contrainte HyperFrames), mutée ; le son
+           passe par l'élément <audio> séparé -->
+      <video class="video-bg" id="v-bg" src="assets/rattin-1966.mp4" data-start="0" data-duration="101.35" data-track-index="1" muted playsinline></video>
+      <video class="video-fg" id="v-fg" src="assets/rattin-1966.mp4" data-start="0" data-duration="101.35" data-track-index="2" muted playsinline></video>
+      <audio id="a-rattin" src="assets/rattin-1966.mp4" data-start="0" data-duration="101.35" data-track-index="20"></audio>
+
+      <div class="grade"></div>
+      <div class="scrim"></div>
+
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+
+      <div class="tag" id="tag">CE JOUR LÀ …</div>
+
+      <div class="title-zone">
+        <div class="title" id="title">
+          <div class="tline">23 JUILLET 1966 :</div>
+          <div class="tline">LE <span class="accent">CARTON ROUGE</span> EST NÉ.</div>
+        </div>
+      </div>
+
+      <div class="sub-zone">
+        <div class="sub-line" id="l1">QUART DE FINALE DU MONDIAL 1966, WEMBLEY,<br />90 584 SPECTATEURS.</div>
+        <div class="sub-line" id="l2">À LA 35E MINUTE, L'ARBITRE ALLEMAND<br />RUDOLF KREITLEIN</div>
+        <div class="sub-line" id="l3">EXCLUT ORALEMENT LE CAPITAINE ARGENTIN<br />ANTONIO RATTÍN</div>
+        <div class="sub-line" id="l4">POUR « VIOLENCE DE LA LANGUE »,<br />LES CARTONS</div>
+        <div class="sub-line" id="l5">N'EXISTENT PAS ENCORE À L'ÉPOQUE.</div>
+        <div class="sub-line" id="l6">RATTÍN NE COMPREND PAS L'ANGLAIS<br />DE L'ARBITRE,</div>
+        <div class="sub-line" id="l7">L'ARBITRE NE PARLE PAS L'ESPAGNOL<br />DE RATTÍN.</div>
+        <div class="sub-line" id="l8">LE CAPITAINE RÉCLAME UN INTERPRÈTE,<br />REFUSE DE SORTIR,</div>
+        <div class="sub-line" id="l9">MET HUIT MINUTES À QUITTER<br />LE TERRAIN,</div>
+        <div class="sub-line" id="l10">CHIFFONNE LE FANION DE CORNER<br />À L'EFFIGIE</div>
+        <div class="sub-line" id="l11">DE L'UNION JACK ET VA<br />S'ASSEOIR SUR LE TAPIS</div>
+        <div class="sub-line" id="l12">ROUGE RÉSERVÉ À LA REINE.</div>
+        <div class="sub-line" id="l13">GEOFF HURST INSCRIT L'UNIQUE BUT<br />DU MATCH</div>
+        <div class="sub-line" id="l14">À LA 78E MINUTE, SUR UN CENTRE<br />DE MARTIN PETERS.</div>
+        <div class="sub-line" id="l15">LE SOIR MÊME, EN RENTRANT<br />CHEZ LUI,</div>
+        <div class="sub-line" id="l16">KEN ASTON, CHEF DES ARBITRES<br />DU TOURNOI,</div>
+        <div class="sub-line" id="l17">S'ARRÊTE À UN FEU TRICOLORE<br />SUR KENSINGTON HIGH STREET</div>
+        <div class="sub-line" id="l18">ET IMAGINE LE PRINCIPE DES<br />CARTONS JAUNE ET ROUGE,</div>
+        <div class="sub-line" id="l19">INTRODUITS QUATRE ANS PLUS TARD<br />AU MEXIQUE.</div>
+        <div class="sub-line" id="l20">UN PROBLÈME DE TRADUCTION A<br />DONNÉ AU FOOT</div>
+        <div class="sub-line" id="l21">SON LANGAGE UNIVERSEL.</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // ===== cover : tag persistant + titre-hook qui entre puis s'efface pour
+      // laisser place aux sous-titres (corps du post), ~2.7 mots/s =====
+      tl.fromTo('#tag', { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out' }, 0.25);
+      document.querySelectorAll('#title .tline').forEach((el, i) => {
+        tl.fromTo(el, { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.45, ease: 'power3.out' }, 0.55 + i * 0.26);
+      });
+      tl.to('#title', { opacity: 0, duration: 0.35, ease: 'sine.in' }, 4.00);
+
+      // sous-titres ligne par ligne (~10 mots max), fondu bloc — pas de tween
+      // width/height (interdit par le runtime)
+      const lines = [
+        { id: 'l1', start: 5.00, dur: 3.56 },
+        { id: 'l2', start: 8.56, dur: 2.93 },
+        { id: 'l3', start: 11.49, dur: 2.61 },
+        { id: 'l4', start: 14.10, dur: 2.61 },
+        { id: 'l5', start: 16.71, dur: 1.98 },
+        { id: 'l6', start: 18.69, dur: 2.61 },
+        { id: 'l7', start: 21.30, dur: 2.61 },
+        { id: 'l8', start: 23.91, dur: 2.93 },
+        { id: 'l9', start: 26.84, dur: 2.61 },
+        { id: 'l10', start: 29.45, dur: 2.61 },
+        { id: 'l11', start: 32.06, dur: 3.24 },
+        { id: 'l12', start: 35.30, dur: 1.98 },
+        { id: 'l13', start: 37.28, dur: 2.61 },
+        { id: 'l14', start: 39.89, dur: 3.56 },
+        { id: 'l15', start: 43.45, dur: 2.61 },
+        { id: 'l16', start: 46.06, dur: 2.61 },
+        { id: 'l17', start: 48.67, dur: 3.24 },
+        { id: 'l18', start: 51.91, dur: 3.24 },
+        { id: 'l19', start: 55.15, dur: 2.61 },
+        { id: 'l20', start: 57.76, dur: 2.93 },
+        { id: 'l21', start: 60.69, dur: 1.35 },
+      ];
+
+      lines.forEach(({ id, start, dur }) => {
+        tl.fromTo(`#${id}`, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.18, ease: 'sine.out' }, start);
+        tl.to(`#${id}`, { opacity: 0, duration: 0.16, ease: 'sine.in' }, start + dur - 0.16);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
