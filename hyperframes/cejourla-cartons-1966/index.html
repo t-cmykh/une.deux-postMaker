@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 23 juillet 1966, la naissance des cartons (cover)</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* ===== source vidéo au format d'origine (1286×982, paysage) — plan net,
+           flush, sans bordure/radius/ombre (la DA une·deux reste "plate,
+           imprimé", jamais "glassy") ===== */
+      .video-fg {
+        position: absolute; left: 0; top: 547.65px; width: 1080px; height: 824.7px;
+        object-fit: cover; z-index: 2;
+      }
+      /* fond plein cadre — même source, flouté/assombri, pour combler les
+         bandes noires créées en haut/bas par le format d'origine */
+      .video-bg {
+        position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1;
+        transform: scale(1.15); filter: blur(40px) saturate(1.1) brightness(0.55);
+      }
+
+      /* grade + scrim — tokens exacts de la série (design-system/tokens/effects.css) */
+      .grade { position: absolute; inset: 0; z-index: 3; background: rgba(120, 90, 40, 0.14); }
+      .scrim {
+        position: absolute; inset: 0; z-index: 4;
+        background: linear-gradient(to bottom, rgba(44,40,35,0) 0%, rgba(44,40,35,0) 42%, rgba(44,40,35,0.78) 80%, rgba(44,40,35,0.78) 100%);
+      }
+
+      /* ===== BrandHeader (design-system/components/slides/BrandHeader.jsx) ===== */
+      #hdr { position: absolute; inset: 0 0 auto 0; height: 300px; z-index: 30; }
+      .ring {
+        position: absolute; left: 96px; top: 150px; width: 76px; height: 76px; border-radius: 50%;
+        border: 3px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 700; font-size: 30px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 188px; top: 162px; font-family: 'Anton', sans-serif; font-size: 46px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 174px; font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 26px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 252px; height: 3px; background: var(--cream); }
+
+      /* ===== SeriesTag (design-system/components/slides/SeriesTag.jsx) ===== */
+      .tag {
+        position: absolute; left: 96px; top: 294px; z-index: 10; opacity: 0;
+        display: inline-block; background: var(--ocre); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 700; font-size: 26px;
+        letter-spacing: .02em; text-transform: uppercase; padding: 12px 22px;
+      }
+
+      /* ===== titre cover (design-system/components/slides/CoverSlide.jsx, variant="cover") ===== */
+      .title-zone { position: absolute; left: 96px; right: 96px; bottom: 280px; z-index: 10; }
+      .title { font-family: 'Anton', sans-serif; font-size: 88px; line-height: 1.05; text-transform: uppercase; color: var(--cream); }
+      .tline { opacity: 0; }
+      .title .accent { color: var(--ocre); }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="11.98"
+      data-fps="30"
+    >
+      <!-- vidéo = enfant direct de #root (contrainte HyperFrames), mutée ; le son
+           passe par l'élément <audio> séparé -->
+      <video class="video-bg" id="v-bg" src="assets/cartons-1966.mp4" data-start="0" data-duration="11.98" data-track-index="1" muted playsinline></video>
+      <video class="video-fg" id="v-fg" src="assets/cartons-1966.mp4" data-start="0" data-duration="11.98" data-track-index="2" muted playsinline></video>
+      <audio id="a-cartons" src="assets/cartons-1966.mp4" data-start="0" data-duration="11.98" data-track-index="20"></audio>
+
+      <div class="grade"></div>
+      <div class="scrim"></div>
+
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+
+      <div class="tag" id="tag">CE JOUR LÀ …</div>
+
+      <div class="title-zone">
+        <div class="title" id="title">
+          <div class="tline">23 JUILLET 1966 :</div>
+          <div class="tline">LA NAISSANCE DES <span class="accent">CARTONS</span></div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // ===== cover : tag + titre qui entrent tôt et restent (pas de chapitres —
+      // habillage persistant sur toute la durée du clip, comme la S1 carousel) =====
+      tl.fromTo('#tag', { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out' }, 0.25);
+      document.querySelectorAll('#title .tline').forEach((el, i) => {
+        tl.fromTo(el, { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.45, ease: 'power3.out' }, 0.55 + i * 0.26);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
