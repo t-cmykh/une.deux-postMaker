@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=1080, height=1920" />
-    <title>une·deux — Ce jour-là · 24 juillet 2011, Uruguay bat le Paraguay (v3, sous-titres)</title>
+    <title>une·deux — Ce jour-là · 24 juillet 2011, Uruguay bat le Paraguay (v3, motion design)</title>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
     <link rel="stylesheet" href="tokens/fonts.css" />
     <link rel="stylesheet" href="tokens/colors.css" />
@@ -14,7 +14,9 @@
       #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
 
       /* vidéo fournie déjà en 9:16 (1440×2560, même ratio, aucun recadrage
-         nécessaire) — header/tag une·deux déjà incrustés dans la vidéo */
+         nécessaire) — header/tag une·deux déjà incrustés dans la vidéo.
+         Découpée en 5 segments (montage) entrecoupés de 3 cartons motion
+         design qui illustrent les faits que les images ne montrent pas. */
       .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
 
       /* léger dégradé bas pour garder les sous-titres lisibles, sans
@@ -24,7 +26,65 @@
         background: linear-gradient(to top, rgba(20,17,12,.6), rgba(20,17,12,0));
       }
 
-      /* sous-titres — même spec que la dernière version validée */
+      /* ===== cartons motion design — même fond que le placeholder établi,
+         header/tag redessinés en direct (absents de ces cartons, faute de
+         vidéo) pour garder la continuité de marque pendant les coupes ===== */
+      .gfx-card {
+        position: absolute; inset: 0; z-index: 1; overflow: hidden;
+        background: radial-gradient(ellipse at 50% 35%, #35291c 0%, #201a12 65%, #15110b 100%);
+      }
+      .gfx-ring {
+        position: absolute; left: 96px; top: 150px; width: 76px; height: 76px; border-radius: 50%;
+        border: 3px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 700; font-size: 30px; color: var(--cream);
+      }
+      .gfx-wordmark { position: absolute; left: 188px; top: 162px; font-family: 'Anton', sans-serif; font-size: 46px; color: var(--cream); }
+      .gfx-handle { position: absolute; right: 96px; top: 174px; font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 26px; color: var(--cream); }
+      .gfx-hairline { position: absolute; left: 96px; right: 96px; top: 252px; height: 3px; background: var(--cream); }
+      .gfx-tag {
+        position: absolute; left: 96px; top: 294px; display: inline-block; background: var(--ocre); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 700; font-size: 26px;
+        letter-spacing: .02em; text-transform: uppercase; padding: 12px 22px;
+      }
+      .gfx-label {
+        position: absolute; left: 96px; top: 400px; font-family: 'Saira Condensed', sans-serif; font-weight: 700;
+        font-size: 24px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted-cream);
+      }
+
+      /* réutilisable : pastille façon tag (ocre / encre) */
+      .pill {
+        display: inline-block; background: var(--ocre); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 700; text-transform: uppercase;
+        letter-spacing: .02em; padding: 14px 24px; opacity: 0;
+      }
+
+      /* score-chip / but-chip — petites pastilles posées sur les images de
+         match (pas de carton plein écran, juste un repère chiffré) */
+      .match-chip {
+        position: absolute; left: 96px; right: 96px; top: 520px; z-index: 5; text-align: center; opacity: 0;
+      }
+      .match-chip .pill { font-size: 30px; padding: 16px 30px; opacity: 1; }
+
+      /* grands noms / chiffres façon Anton, dans le vocabulaire de la série */
+      .gfx-name { font-family: 'Anton', sans-serif; font-size: 100px; line-height: .95; color: var(--cream); text-transform: uppercase; opacity: 0; }
+      .gfx-num { font-family: 'Anton', sans-serif; color: var(--ocre); line-height: .9; opacity: 0; }
+
+      .stat-row { position: absolute; left: 96px; right: 96px; display: flex; align-items: baseline; gap: 40px; opacity: 0; }
+      .stat-row .gfx-num { font-size: 92px; }
+      .stat-row .stat-label { font-family: 'Saira Condensed', sans-serif; font-weight: 700; font-size: 26px; text-transform: uppercase; color: var(--cream); letter-spacing: .02em; max-width: 260px; line-height: 1.15; }
+
+      .rank-row { position: absolute; left: 96px; right: 96px; display: flex; align-items: baseline; gap: 24px; padding: 14px 0; opacity: 0; }
+      .rank-row.on { background: rgba(194,160,78,.14); border-left: 4px solid var(--ocre); padding-left: 24px; left: 76px; }
+      .rank-row .rank-n { font-family: 'Saira Condensed', sans-serif; font-weight: 700; font-size: 24px; color: var(--muted-cream); width: 26px; }
+      .rank-row .rank-country { font-family: 'Anton', sans-serif; text-transform: uppercase; color: var(--cream); flex: 1; }
+      .rank-row .rank-count { font-family: 'Anton', sans-serif; color: var(--ocre); }
+      .rank-row.on .rank-country { font-size: 58px; }
+      .rank-row.on .rank-count { font-size: 76px; }
+      .rank-row:not(.on) .rank-country { font-size: 38px; color: var(--muted-cream); }
+      .rank-row:not(.on) .rank-count { font-size: 42px; color: var(--muted-cream); }
+
+      /* sous-titres — même spec que la dernière version validée, au-dessus
+         de tout (vidéo ou carton) */
       .sub-zone { position: absolute; left: 96px; right: 96px; top: 1400px; transform: translateY(-50%); z-index: 10; text-align: center; }
       .sub-line {
         position: absolute; left: 0; right: 0; top: 0; transform: translateY(-50%); opacity: 0;
@@ -40,14 +100,83 @@
       data-start="0"
       data-width="1080"
       data-height="1920"
-      data-duration="28.80"
+      data-duration="34.81"
       data-fps="30"
     >
-      <!-- vidéo = enfant direct de #root (contrainte HyperFrames), mutée ;
-           source sans piste audio, pas d'élément <audio> nécessaire -->
-      <video class="video-full" id="v1" src="assets/uruguay-2011-v3.mp4" data-start="0" data-duration="28.80" data-track-index="1" muted playsinline></video>
+      <!-- ===== montage vidéo — 5 segments découpés dans la vidéo fournie,
+           entrecoupés de 3 cartons motion design (mêmes contraintes que
+           toujours : enfants directs de #root, mutés, class="clip" pour la
+           coupe franche automatique) ===== -->
+      <video class="video-full clip" id="seg1" src="assets/seg1.mp4" data-start="0" data-duration="4.20" data-track-index="1" muted playsinline></video>
+      <video class="video-full clip" id="seg2" src="assets/seg2.mp4" data-start="4.20" data-duration="2.50" data-track-index="1" muted playsinline></video>
+
+      <!-- CARTON 1 — BUTEURS -->
+      <div class="gfx-card clip" data-start="6.70" data-duration="4.74" data-track-index="1">
+        <div class="gfx-ring">1·2</div>
+        <div class="gfx-wordmark">une·deux</div>
+        <div class="gfx-handle">@UNE.DEUX</div>
+        <div class="gfx-hairline"></div>
+        <div class="gfx-tag">CE JOUR LÀ …</div>
+        <div class="gfx-label" style="top:410px">BUTEURS</div>
+        <div class="pill" id="g1-recap" style="position:absolute; left:96px; top:470px; font-size:26px; padding:12px 22px;">SUÁREZ · 11'</div>
+        <div class="gfx-name" id="g1-name" style="position:absolute; left:96px; top:580px;">FORLÁN</div>
+        <div class="pill" id="g1-tag" style="position:absolute; left:96px; top:722px; font-size:28px;">DOUBLÉ · 41' · 89'</div>
+        <div class="pill" id="g1-mvp" style="position:absolute; left:96px; right:96px; top:900px; font-size:30px; text-align:center; white-space:normal; line-height:1.3;">MEILLEUR JOUEUR DU TOURNOI</div>
+      </div>
+
+      <video class="video-full clip" id="seg3" src="assets/seg3.mp4" data-start="11.44" data-duration="2.23" data-track-index="1" muted playsinline></video>
+
+      <!-- CARTON 2 — LE PARCOURS DU PARAGUAY -->
+      <div class="gfx-card clip" data-start="13.67" data-duration="8.69" data-track-index="1">
+        <div class="gfx-ring">1·2</div>
+        <div class="gfx-wordmark">une·deux</div>
+        <div class="gfx-handle">@UNE.DEUX</div>
+        <div class="gfx-hairline"></div>
+        <div class="gfx-tag">CE JOUR LÀ …</div>
+        <div class="gfx-label">LE PARCOURS DU PARAGUAY</div>
+        <div class="stat-row" id="g2-row1" style="top:500px;">
+          <span class="gfx-num">0</span><span class="stat-label">VICTOIRE<br>EN POULES</span>
+          <span class="gfx-num">3</span><span class="stat-label">NULS<br>D'AFFILÉE</span>
+        </div>
+        <div class="stat-row" id="g2-row2" style="top:700px;">
+          <span class="gfx-num">2</span><span class="stat-label">QUALIFICATIONS<br>AUX TIRS AU BUT</span>
+        </div>
+        <div class="gfx-label" id="g2-lbl3" style="top:900px; opacity:0;">ADVERSAIRES ÉLIMINÉS AUX PENALTYS</div>
+        <div class="pill" id="g2-chip1" style="position:absolute; left:96px; top:950px; font-size:26px;">▸ BRÉSIL, TENANT DU TITRE</div>
+        <div class="pill" id="g2-chip2" style="position:absolute; left:96px; top:1020px; font-size:26px;">▸ VENEZUELA</div>
+      </div>
+
+      <video class="video-full clip" id="seg4" src="assets/seg4.mp4" data-start="22.36" data-duration="1.80" data-track-index="1" muted playsinline></video>
+
+      <!-- CARTON 3 — PALMARÈS SUD-AMÉRICAIN -->
+      <div class="gfx-card clip" data-start="24.16" data-duration="5.82" data-track-index="1">
+        <div class="gfx-ring">1·2</div>
+        <div class="gfx-wordmark">une·deux</div>
+        <div class="gfx-handle">@UNE.DEUX</div>
+        <div class="gfx-hairline"></div>
+        <div class="gfx-tag">CE JOUR LÀ …</div>
+        <div class="gfx-label">PALMARÈS SUD-AMÉRICAIN</div>
+        <div class="rank-row on" id="g3-r1" style="top:490px;">
+          <span class="rank-n">1</span><span class="rank-country">Uruguay</span><span class="rank-count">15</span>
+        </div>
+        <div class="rank-row" id="g3-r2" style="top:640px;">
+          <span class="rank-n">2</span><span class="rank-country">Argentine</span><span class="rank-count">14</span>
+        </div>
+        <div class="rank-row" id="g3-r3" style="top:700px;">
+          <span class="rank-n">3</span><span class="rank-country">Brésil</span><span class="rank-count">8</span>
+        </div>
+        <div class="pill" id="g3-note" style="position:absolute; left:96px; top:840px; font-size:26px;">RECORD SOLO JUSQU'EN 2021</div>
+      </div>
+
+      <video class="video-full clip" id="seg5" src="assets/seg5.mp4" data-start="29.98" data-duration="4.83" data-track-index="1" muted playsinline></video>
 
       <div class="scrim-bottom"></div>
+
+      <!-- pastilles posées sur les images de match (pas de carton plein
+           écran ici : le repère chiffré vient renforcer l'image, pas la
+           remplacer) -->
+      <div class="match-chip" id="score-chip"><span class="pill">URUGUAY 3 – 0 PARAGUAY</span></div>
+      <div class="match-chip" id="goal-chip"><span class="pill">⚽ BUT SUÁREZ · 11'</span></div>
 
       <div class="sub-zone">
         <div class="sub-line" id="l1">À BUENOS AIRES, L'URUGUAY ÉCRASE LE PARAGUAY 3-0</div>
@@ -73,36 +202,64 @@
       window.__timelines = window.__timelines || {};
       const tl = gsap.timeline({ paused: true });
 
-      // sous-titres — démarrent tout de suite (0.3s). Cette vidéo est
-      // beaucoup plus courte (28,8s) que les précédentes : le texte du
-      // corps ne rentre même pas au rythme de lecture "naturel" établi
-      // (~2,85 mots/s ≈ 42s), donc rythme resserré au maximum
-      // raisonnable (× ~0,67 par rapport à la base, pauses réduites à
-      // 0.15s) pour occuper tout le montage sans couper de contenu ;
+      // sous-titres — recalés sur les 5 segments vidéo + 3 cartons motion
+      // design (durées calculées à partir du texte, rythme de lecture
+      // établi ~3,3 mots/s, compressé × 0,80 pour rester dynamique) ;
       // fondu bloc — pas de tween width/height (interdit par le runtime)
       const lines = [
-        { id: 'l1', start: 0.30, dur: 1.68 },
-        { id: 'l2', start: 2.13, dur: 1.32 },
-        { id: 'l3', start: 3.60, dur: 1.86 },
-        { id: 'l4', start: 5.61, dur: 1.50 },
-        { id: 'l5', start: 7.26, dur: 2.04 },
-        { id: 'l6', start: 9.45, dur: 1.68 },
-        { id: 'l7', start: 11.28, dur: 1.68 },
-        { id: 'l8', start: 13.11, dur: 1.32 },
-        { id: 'l9', start: 14.58, dur: 1.50 },
-        { id: 'l10', start: 16.23, dur: 1.86 },
-        { id: 'l11', start: 18.24, dur: 1.32 },
-        { id: 'l12', start: 19.71, dur: 1.68 },
-        { id: 'l13', start: 21.54, dur: 1.14 },
-        { id: 'l14', start: 22.83, dur: 1.50 },
-        { id: 'l15', start: 24.48, dur: 1.32 },
-        { id: 'l16', start: 25.95, dur: 1.86 },
+        { id: 'l1',  start: 0.30,  dur: 2.01 },
+        { id: 'l2',  start: 2.53,  dur: 1.58 },
+        { id: 'l3',  start: 4.33,  dur: 2.22 },
+        { id: 'l4',  start: 6.77,  dur: 1.79 },
+        { id: 'l5',  start: 8.78,  dur: 2.44 },
+        { id: 'l6',  start: 11.44, dur: 2.01 },
+        { id: 'l7',  start: 13.67, dur: 2.22 },
+        { id: 'l8',  start: 16.11, dur: 1.58 },
+        { id: 'l9',  start: 17.91, dur: 1.79 },
+        { id: 'l10', start: 19.92, dur: 2.22 },
+        { id: 'l11', start: 22.36, dur: 1.58 },
+        { id: 'l12', start: 24.16, dur: 2.01 },
+        { id: 'l13', start: 26.39, dur: 1.36 },
+        { id: 'l14', start: 27.97, dur: 1.79 },
+        { id: 'l15', start: 29.98, dur: 1.58 },
+        { id: 'l16', start: 31.78, dur: 2.22 },
       ];
 
       lines.forEach(({ id, start, dur }) => {
-        tl.fromTo(`#${id}`, { opacity: 0 }, { opacity: 1, duration: 0.12, ease: 'sine.out' }, start);
-        tl.to(`#${id}`, { opacity: 0, duration: 0.1, ease: 'sine.in' }, start + dur - 0.1);
+        tl.fromTo(`#${id}`, { opacity: 0 }, { opacity: 1, duration: 0.16, ease: 'sine.out' }, start);
+        tl.to(`#${id}`, { opacity: 0, duration: 0.14, ease: 'sine.in' }, start + dur - 0.14);
       });
+
+      // ===== pastilles sur les images de match =====
+      tl.fromTo('#score-chip', { opacity: 0 }, { opacity: 1, duration: 0.2, ease: 'sine.out' }, 0.55);
+      tl.to('#score-chip', { opacity: 0, duration: 0.2, ease: 'sine.in' }, 3.85);
+      tl.set('#score-chip', { opacity: 0 }, 4.05);
+
+      tl.fromTo('#goal-chip', { opacity: 0 }, { opacity: 1, duration: 0.15, ease: 'sine.out' }, 4.90);
+      tl.to('#goal-chip', { opacity: 0, duration: 0.15, ease: 'sine.in' }, 6.35);
+      tl.set('#goal-chip', { opacity: 0 }, 6.55);
+
+      // ===== CARTON 1 — BUTEURS (6.70 → 11.44) =====
+      tl.fromTo('#g1-recap', { opacity: 0 }, { opacity: 1, duration: 0.2, ease: 'sine.out' }, 6.85);
+      tl.fromTo('#g1-name', { opacity: 0, x: -16 }, { opacity: 1, x: 0, duration: 0.3, ease: 'power2.out' }, 6.90);
+      tl.fromTo('#g1-tag', { opacity: 0 }, { opacity: 1, duration: 0.22, ease: 'sine.out' }, 7.10);
+      tl.fromTo('#g1-mvp', { opacity: 0 }, { opacity: 1, duration: 0.25, ease: 'sine.out' }, 8.78);
+      tl.set(['#g1-recap', '#g1-name', '#g1-tag', '#g1-mvp'], { opacity: 0 }, 11.44);
+
+      // ===== CARTON 2 — LE PARCOURS DU PARAGUAY (13.67 → 22.36) =====
+      tl.fromTo('#g2-row1', { opacity: 0 }, { opacity: 1, duration: 0.25, ease: 'sine.out' }, 13.85);
+      tl.fromTo('#g2-row2', { opacity: 0 }, { opacity: 1, duration: 0.25, ease: 'sine.out' }, 17.95);
+      tl.fromTo('#g2-lbl3', { opacity: 0 }, { opacity: 1, duration: 0.2, ease: 'sine.out' }, 19.95);
+      tl.fromTo('#g2-chip1', { opacity: 0 }, { opacity: 1, duration: 0.2, ease: 'sine.out' }, 20.05);
+      tl.fromTo('#g2-chip2', { opacity: 0 }, { opacity: 1, duration: 0.2, ease: 'sine.out' }, 20.55);
+      tl.set(['#g2-row1', '#g2-row2', '#g2-lbl3', '#g2-chip1', '#g2-chip2'], { opacity: 0 }, 22.36);
+
+      // ===== CARTON 3 — PALMARÈS SUD-AMÉRICAIN (24.16 → 29.98) =====
+      tl.fromTo('#g3-r1', { opacity: 0 }, { opacity: 1, duration: 0.25, ease: 'sine.out' }, 24.31);
+      tl.fromTo('#g3-r2', { opacity: 0 }, { opacity: 1, duration: 0.2, ease: 'sine.out' }, 26.49);
+      tl.fromTo('#g3-r3', { opacity: 0 }, { opacity: 1, duration: 0.2, ease: 'sine.out' }, 26.69);
+      tl.fromTo('#g3-note', { opacity: 0 }, { opacity: 1, duration: 0.2, ease: 'sine.out' }, 28.07);
+      tl.set(['#g3-r1', '#g3-r2', '#g3-r3', '#g3-note'], { opacity: 0 }, 29.98);
 
       window.__timelines['main'] = tl;
     </script>
