@@ -7,6 +7,33 @@ Ce fichier couvre un format différent : le **reel montage vidéo "Ce jour-là"*
 `hyperframes/`. Déclencheur : Thomas envoie un lien Drive vers une vidéo de
 match et demande d'y ajouter le texte du post (sous-titres ou corps animé).
 
+## Recette figée — intro d'un reel une·deux (fond plein cadre, sans texte)
+
+Quand Thomas demande **"l'intro d'un reel une·deux"** (ou formulation
+équivalente : juste le traitement visuel de la vidéo, sans habillage), livrer
+**uniquement** le composite letterbox — pas de header, pas de tag, pas de
+texte, rien d'autre. C'est un sous-ensemble de la recette complète
+ci-dessous : seulement l'étape 2 (composite letterbox), sans les étapes
+3-4 (header, texte).
+
+```bash
+ffmpeg -y -i video_raw.mp4 -filter_complex \
+"[0:v]fps=30,scale=3400:1920,crop=1080:1920,gblur=sigma=36,eq=saturation=0.4[bg];[0:v]fps=30,scale=1080:-2[fg];[bg][fg]overlay=x=0:y=655:shortest=1[outv]" \
+-map "[outv]" -map 0:a? -c:v libx264 -crf 20 -preset fast -pix_fmt yuv420p -c:a aac -b:a 160k intro.mp4
+```
+
+- Mêmes réglages figés que la recette complète : `gblur=sigma=36`,
+  `eq=saturation=0.4`, source horizontale (~1.77) recentrée en 9:16.
+  Recalculer `scale=`/`y=` si le ratio source diffère (voir étape 2
+  ci-dessous pour la formule).
+- Simple opération ffmpeg, **pas besoin d'un projet HyperFrames** (pas
+  d'animation, pas de composition) — traiter directement dans un dossier de
+  travail, livrer le fichier obtenu.
+- Si Thomas demande seulement "le fond plein cadre" (sans "derrière" /
+  sans vidéo nette dessus), livrer juste la couche flou/désaturé plein cadre
+  (`[0:v]fps=30,scale=3400:1920,crop=1080:1920,gblur=sigma=36,eq=saturation=0.4`
+  seule, sans overlay du premier plan net).
+
 ## Recette figée — reel "Ce jour-là" à partir d'images de match
 
 Quand Thomas dit "fait la même chose avec cette vidéo" / "on va faire un
