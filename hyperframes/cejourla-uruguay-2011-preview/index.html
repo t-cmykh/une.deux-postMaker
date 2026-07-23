@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 24 juillet 2011, Uruguay (preview durée / placeholder)</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* ===== PLACEHOLDER — fond sombre temporaire, à remplacer par la
+           vraie vidéo une fois la durée validée. Juste un dégradé discret
+           pour ne pas avoir un aplat totalement plat à l'écran. ===== */
+      .placeholder {
+        position: absolute; inset: 0; z-index: 1;
+        background: radial-gradient(ellipse at 50% 40%, #33291c 0%, #201a12 60%, #15110b 100%);
+      }
+      .placeholder-label {
+        position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 24px;
+        letter-spacing: .08em; text-transform: uppercase; color: rgba(237,220,178,.18); z-index: 1;
+      }
+
+      /* ===== BrandHeader ===== */
+      #hdr { position: absolute; inset: 0 0 auto 0; height: 300px; z-index: 30; }
+      .ring {
+        position: absolute; left: 96px; top: 150px; width: 76px; height: 76px; border-radius: 50%;
+        border: 3px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 700; font-size: 30px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 188px; top: 162px; font-family: 'Anton', sans-serif; font-size: 46px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 174px; font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 26px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 252px; height: 3px; background: var(--cream); }
+
+      /* ===== SeriesTag — persistant ===== */
+      .tag {
+        position: absolute; left: 96px; top: 294px; z-index: 10; opacity: 0;
+        display: inline-block; background: var(--ocre); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 700; font-size: 26px;
+        letter-spacing: .02em; text-transform: uppercase; padding: 12px 22px;
+      }
+
+      /* ===== titre cover — même spec que la référence validée : 116px,
+           reveal ligne par ligne ~0.55s, fondu doux, dure 4s pile,
+           mot-clé encadré (carré plein ocre, texte crème) ===== */
+      .title-zone { position: absolute; left: 96px; right: 96px; bottom: 260px; z-index: 10; }
+      .title { font-family: 'Anton', sans-serif; font-size: 116px; line-height: 1.16; text-transform: uppercase; color: var(--cream); }
+      .tline { opacity: 0; }
+      .title .kw {
+        background: var(--ocre); color: var(--cream);
+        padding: 0.02em 0.14em; box-decoration-break: clone; -webkit-box-decoration-break: clone;
+      }
+
+      /* ===== sous-titres — même spec que la dernière version validée ===== */
+      .sub-zone { position: absolute; left: 96px; right: 96px; top: 1400px; transform: translateY(-50%); z-index: 11; text-align: center; }
+      .sub-line {
+        position: absolute; left: 0; right: 0; top: 0; transform: translateY(-50%); opacity: 0;
+        font-family: 'Anton', sans-serif; font-size: 44px; line-height: 1.25; text-transform: uppercase;
+        color: var(--cream); text-shadow: 0 2px 14px rgba(0,0,0,.55), 0 1px 3px rgba(0,0,0,.75);
+      }
+
+      /* durée totale affichée en filigrane, pour la lecture du test */
+      .duration-tag {
+        position: absolute; right: 96px; bottom: 96px; z-index: 40;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 700; font-size: 22px;
+        color: rgba(237,220,178,.35); letter-spacing: .04em;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="46.00"
+      data-fps="30"
+    >
+      <div class="placeholder"></div>
+      <div class="placeholder-label">PLACEHOLDER — VIDÉO À VENIR</div>
+
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+
+      <div class="tag" id="tag">CE JOUR LÀ …</div>
+
+      <div class="title-zone">
+        <div class="title" id="title">
+          <div class="tline">24 JUILLET 2011 :</div>
+          <div class="tline">L'URUGUAY EN TÊTE</div>
+          <div class="tline">AVEC <span class="kw">3,4 MILLIONS</span> D'HABITANTS.</div>
+        </div>
+      </div>
+
+      <div class="sub-zone">
+        <div class="sub-line" id="l1">À BUENOS AIRES, L'URUGUAY ÉCRASE LE PARAGUAY 3-0</div>
+        <div class="sub-line" id="l2">EN FINALE DE LA COPA AMÉRICA.</div>
+        <div class="sub-line" id="l3">LUIS SUÁREZ OUVRE LE SCORE À LA 11E MINUTE,</div>
+        <div class="sub-line" id="l4">DIEGO FORLÁN PLANTE UN DOUBLÉ (41E, 89E)</div>
+        <div class="sub-line" id="l5">ET REPART AVEC LE TITRE DE MEILLEUR JOUEUR DU TOURNOI.</div>
+        <div class="sub-line" id="l6">EN FACE, LE PARAGUAY A RALLIÉ CETTE FINALE</div>
+        <div class="sub-line" id="l7">SANS GAGNER UN SEUL MATCH DE LA COMPÉTITION :</div>
+        <div class="sub-line" id="l8">TROIS NULS EN PHASE DE POULES,</div>
+        <div class="sub-line" id="l9">PUIS DEUX QUALIFICATIONS AUX TIRS AU BUT,</div>
+        <div class="sub-line" id="l10">CONTRE LE BRÉSIL TENANT DU TITRE PUIS LE VENEZUELA.</div>
+        <div class="sub-line" id="l11">L'URUGUAY DÉCROCHE SON 15E TITRE CONTINENTAL</div>
+        <div class="sub-line" id="l12">ET PASSE SEUL EN TÊTE DU PALMARÈS SUD-AMÉRICAIN,</div>
+        <div class="sub-line" id="l13">DEVANT L'ARGENTINE ET LE BRÉSIL,</div>
+        <div class="sub-line" id="l14">UN RANG QU'IL GARDERA SEUL JUSQU'EN 2021.</div>
+        <div class="sub-line" id="l15">LE PLUS PETIT PAYS DU CONTINENT</div>
+        <div class="sub-line" id="l16">A FINI AVEC LA PLUS GRANDE ARMOIRE À TROPHÉES.</div>
+      </div>
+
+      <div class="duration-tag">DURÉE NÉCESSAIRE : 46S</div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // ===== titre : dure exactement 4s puis passe aux sous-titres =====
+      tl.fromTo('#tag', { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' }, 0.15);
+      document.querySelectorAll('#title .tline').forEach((el, i) => {
+        tl.fromTo(
+          el,
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out' },
+          0.15 + i * 0.55,
+        );
+      });
+      tl.to('#title', { opacity: 0, duration: 0.3, ease: 'sine.in' }, 3.70);
+      tl.set('#title', { opacity: 0 }, 4.00);
+
+      // sous-titres — corps du post du 24 juillet, découpé en unités de
+      // sens, même rythme de lecture établi (~2,85 mots/s + pauses
+      // naturelles entre lignes)
+      const lines = [
+        { id: 'l1', start: 4.30, dur: 2.51 },
+        { id: 'l2', start: 7.01, dur: 1.97 },
+        { id: 'l3', start: 9.18, dur: 2.78 },
+        { id: 'l4', start: 12.16, dur: 2.24 },
+        { id: 'l5', start: 14.60, dur: 3.05 },
+        { id: 'l6', start: 17.85, dur: 2.51 },
+        { id: 'l7', start: 20.56, dur: 2.51 },
+        { id: 'l8', start: 23.27, dur: 1.97 },
+        { id: 'l9', start: 25.44, dur: 2.24 },
+        { id: 'l10', start: 27.88, dur: 2.78 },
+        { id: 'l11', start: 30.86, dur: 1.97 },
+        { id: 'l12', start: 33.03, dur: 2.51 },
+        { id: 'l13', start: 35.74, dur: 1.70 },
+        { id: 'l14', start: 37.64, dur: 2.24 },
+        { id: 'l15', start: 40.08, dur: 1.97 },
+        { id: 'l16', start: 42.25, dur: 2.78 },
+      ];
+
+      lines.forEach(({ id, start, dur }) => {
+        tl.fromTo(`#${id}`, { opacity: 0 }, { opacity: 1, duration: 0.16, ease: 'sine.out' }, start);
+        tl.to(`#${id}`, { opacity: 0, duration: 0.14, ease: 'sine.in' }, start + dur - 0.14);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
