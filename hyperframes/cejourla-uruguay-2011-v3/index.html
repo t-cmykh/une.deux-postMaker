@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 24 juillet 2011, Uruguay bat le Paraguay (v3, sous-titres)</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* vidéo fournie déjà en 9:16 (1440×2560, même ratio, aucun recadrage
+         nécessaire) — header/tag une·deux déjà incrustés dans la vidéo */
+      .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+
+      /* léger dégradé bas pour garder les sous-titres lisibles, sans
+         dupliquer le header déjà présent dans la vidéo */
+      .scrim-bottom {
+        position: absolute; left: 0; right: 0; bottom: 0; height: 760px; z-index: 2;
+        background: linear-gradient(to top, rgba(20,17,12,.6), rgba(20,17,12,0));
+      }
+
+      /* sous-titres — même spec que la dernière version validée */
+      .sub-zone { position: absolute; left: 96px; right: 96px; top: 1400px; transform: translateY(-50%); z-index: 10; text-align: center; }
+      .sub-line {
+        position: absolute; left: 0; right: 0; top: 0; transform: translateY(-50%); opacity: 0;
+        font-family: 'Anton', sans-serif; font-size: 44px; line-height: 1.25; text-transform: uppercase;
+        color: var(--cream); text-shadow: 0 2px 14px rgba(0,0,0,.55), 0 1px 3px rgba(0,0,0,.75);
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="28.80"
+      data-fps="30"
+    >
+      <!-- vidéo = enfant direct de #root (contrainte HyperFrames), mutée ;
+           source sans piste audio, pas d'élément <audio> nécessaire -->
+      <video class="video-full" id="v1" src="assets/uruguay-2011-v3.mp4" data-start="0" data-duration="28.80" data-track-index="1" muted playsinline></video>
+
+      <div class="scrim-bottom"></div>
+
+      <div class="sub-zone">
+        <div class="sub-line" id="l1">À BUENOS AIRES, L'URUGUAY ÉCRASE LE PARAGUAY 3-0</div>
+        <div class="sub-line" id="l2">EN FINALE DE LA COPA AMÉRICA.</div>
+        <div class="sub-line" id="l3">LUIS SUÁREZ OUVRE LE SCORE À LA 11E MINUTE,</div>
+        <div class="sub-line" id="l4">DIEGO FORLÁN PLANTE UN DOUBLÉ (41E, 89E)</div>
+        <div class="sub-line" id="l5">ET REPART AVEC LE TITRE DE MEILLEUR JOUEUR DU TOURNOI.</div>
+        <div class="sub-line" id="l6">EN FACE, LE PARAGUAY A RALLIÉ CETTE FINALE</div>
+        <div class="sub-line" id="l7">SANS GAGNER UN SEUL MATCH DE LA COMPÉTITION :</div>
+        <div class="sub-line" id="l8">TROIS NULS EN PHASE DE POULES,</div>
+        <div class="sub-line" id="l9">PUIS DEUX QUALIFICATIONS AUX TIRS AU BUT,</div>
+        <div class="sub-line" id="l10">CONTRE LE BRÉSIL TENANT DU TITRE PUIS LE VENEZUELA.</div>
+        <div class="sub-line" id="l11">L'URUGUAY DÉCROCHE SON 15E TITRE CONTINENTAL</div>
+        <div class="sub-line" id="l12">ET PASSE SEUL EN TÊTE DU PALMARÈS SUD-AMÉRICAIN,</div>
+        <div class="sub-line" id="l13">DEVANT L'ARGENTINE ET LE BRÉSIL,</div>
+        <div class="sub-line" id="l14">UN RANG QU'IL GARDERA SEUL JUSQU'EN 2021.</div>
+        <div class="sub-line" id="l15">LE PLUS PETIT PAYS DU CONTINENT</div>
+        <div class="sub-line" id="l16">A FINI AVEC LA PLUS GRANDE ARMOIRE À TROPHÉES.</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // sous-titres — démarrent tout de suite (0.3s). Cette vidéo est
+      // beaucoup plus courte (28,8s) que les précédentes : le texte du
+      // corps ne rentre même pas au rythme de lecture "naturel" établi
+      // (~2,85 mots/s ≈ 42s), donc rythme resserré au maximum
+      // raisonnable (× ~0,67 par rapport à la base, pauses réduites à
+      // 0.15s) pour occuper tout le montage sans couper de contenu ;
+      // fondu bloc — pas de tween width/height (interdit par le runtime)
+      const lines = [
+        { id: 'l1', start: 0.30, dur: 1.68 },
+        { id: 'l2', start: 2.13, dur: 1.32 },
+        { id: 'l3', start: 3.60, dur: 1.86 },
+        { id: 'l4', start: 5.61, dur: 1.50 },
+        { id: 'l5', start: 7.26, dur: 2.04 },
+        { id: 'l6', start: 9.45, dur: 1.68 },
+        { id: 'l7', start: 11.28, dur: 1.68 },
+        { id: 'l8', start: 13.11, dur: 1.32 },
+        { id: 'l9', start: 14.58, dur: 1.50 },
+        { id: 'l10', start: 16.23, dur: 1.86 },
+        { id: 'l11', start: 18.24, dur: 1.32 },
+        { id: 'l12', start: 19.71, dur: 1.68 },
+        { id: 'l13', start: 21.54, dur: 1.14 },
+        { id: 'l14', start: 22.83, dur: 1.50 },
+        { id: 'l15', start: 24.48, dur: 1.32 },
+        { id: 'l16', start: 25.95, dur: 1.86 },
+      ];
+
+      lines.forEach(({ id, start, dur }) => {
+        tl.fromTo(`#${id}`, { opacity: 0 }, { opacity: 1, duration: 0.12, ease: 'sine.out' }, start);
+        tl.to(`#${id}`, { opacity: 0, duration: 0.1, ease: 'sine.in' }, start + dur - 0.1);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
