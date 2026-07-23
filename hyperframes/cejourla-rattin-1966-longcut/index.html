@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 23 juillet 1966, Rattín (montage long, sous-titres)</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* vidéo fournie déjà en 9:16 (1440×2560, même ratio que la composition,
+         aucun recadrage nécessaire) — header/tag une·deux déjà incrustés
+         dans la vidéo elle-même, pas besoin de les redessiner ici */
+      .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+
+      /* léger dégradé bas pour garder les sous-titres lisibles, sans
+         dupliquer le header déjà présent dans la vidéo */
+      .scrim-bottom {
+        position: absolute; left: 0; right: 0; bottom: 0; height: 760px; z-index: 2;
+        background: linear-gradient(to top, rgba(20,17,12,.6), rgba(20,17,12,0));
+      }
+
+      /* sous-titres — même spec que la dernière version validée (crème,
+         centrés horizontalement, ancre haute) */
+      .sub-zone { position: absolute; left: 96px; right: 96px; top: 1400px; transform: translateY(-50%); z-index: 10; text-align: center; }
+      .sub-line {
+        position: absolute; left: 0; right: 0; top: 0; transform: translateY(-50%); opacity: 0;
+        font-family: 'Anton', sans-serif; font-size: 44px; line-height: 1.25; text-transform: uppercase;
+        color: var(--cream); text-shadow: 0 2px 14px rgba(0,0,0,.55), 0 1px 3px rgba(0,0,0,.75);
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="31.40"
+      data-fps="30"
+    >
+      <!-- vidéo = enfant direct de #root (contrainte HyperFrames), mutée ;
+           source sans piste audio, pas d'élément <audio> nécessaire -->
+      <video class="video-full" id="v1" src="assets/rattin-longcut.mp4" data-start="0" data-duration="31.40" data-track-index="1" muted playsinline></video>
+
+      <div class="scrim-bottom"></div>
+
+      <div class="sub-zone">
+        <div class="sub-line" id="l1">90 584 SPECTATEURS À WEMBLEY.</div>
+        <div class="sub-line" id="l2">L'ARBITRE ALLEMAND KREITLEIN EXCLUT RATTÍN</div>
+        <div class="sub-line" id="l3">POUR « VIOLENCE DE LA LANGUE ».</div>
+        <div class="sub-line" id="l4">LES CARTONS N'EXISTENT PAS ENCORE À L'ÉPOQUE.</div>
+        <div class="sub-line" id="l5">RATTÍN NE COMPREND PAS L'ANGLAIS DE L'ARBITRE,</div>
+        <div class="sub-line" id="l6">QUI NE PARLE PAS L'ESPAGNOL.</div>
+        <div class="sub-line" id="l7">LE CAPITAINE RÉCLAME UN INTERPRÈTE, REFUSE DE SORTIR,</div>
+        <div class="sub-line" id="l8">MET HUIT MINUTES À QUITTER LE TERRAIN,</div>
+        <div class="sub-line" id="l9">CHIFFONNE LE FANION DE CORNER,</div>
+        <div class="sub-line" id="l10">ET VA S'ASSEOIR SUR LE TAPIS ROUGE</div>
+        <div class="sub-line" id="l11">RÉSERVÉ À LA REINE.</div>
+        <div class="sub-line" id="l12">GEOFF HURST INSCRIT L'UNIQUE BUT DU MATCH.</div>
+        <div class="sub-line" id="l13">CE SOIR-LÀ, KEN ASTON INVENTE LES CARTONS JAUNE ET ROUGE, À UN FEU TRICOLORE.</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // sous-titres — corps du post, même rythme de lecture établi
+      // (~2.85 mots/s), fondu bloc — pas de tween width/height (interdit)
+      const lines = [
+        { id: 'l1', start: 0.30, dur: 1.70 },
+        { id: 'l2', start: 2.20, dur: 1.70 },
+        { id: 'l3', start: 4.10, dur: 1.70 },
+        { id: 'l4', start: 6.00, dur: 2.24 },
+        { id: 'l5', start: 8.44, dur: 2.24 },
+        { id: 'l6', start: 10.88, dur: 1.70 },
+        { id: 'l7', start: 12.78, dur: 2.51 },
+        { id: 'l8', start: 15.49, dur: 2.24 },
+        { id: 'l9', start: 17.93, dur: 1.70 },
+        { id: 'l10', start: 19.83, dur: 2.24 },
+        { id: 'l11', start: 22.27, dur: 1.43 },
+        { id: 'l12', start: 23.90, dur: 2.24 },
+        { id: 'l13', start: 26.34, dur: 4.13 },
+      ];
+
+      lines.forEach(({ id, start, dur }) => {
+        tl.fromTo(`#${id}`, { opacity: 0 }, { opacity: 1, duration: 0.16, ease: 'sine.out' }, start);
+        tl.to(`#${id}`, { opacity: 0, duration: 0.14, ease: 'sine.in' }, start + dur - 0.14);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
