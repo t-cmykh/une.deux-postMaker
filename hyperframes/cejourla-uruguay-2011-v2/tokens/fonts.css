@@ -1,0 +1,4 @@
+/* Hints the HyperFrames compiler which Google Fonts families to resolve and
+   embed deterministically at compile time (see `hyperframes check` log) —
+   the render itself does not depend on a live fetch of this URL. */
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Archivo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Saira+Condensed:wght@400;500;600;700&display=swap');
