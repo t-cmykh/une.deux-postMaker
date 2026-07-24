@@ -13,13 +13,15 @@
       body { font-family: 'Archivo', system-ui, sans-serif; }
       #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
 
-      /* montage — 8 segments (1 par phrase) découpés dans le documentaire
-         fourni, chacun déjà composité (fond plein cadre flouté+désaturé,
-         sigma 36 / saturation 0.4, + plan net letterboxé par dessus) via
-         ffmpeg en amont. Vidéo source zoomée ×1.25 avant montage pour
-         exclure les éléments de design de la vidéo d'origine (logo BBC
-         Sport, bouton Subscribe) ; mutés, son porté par des <audio>
-         séparés */
+      /* montage — 8 segments (1 par phrase), uniquement des plans filmés
+         réels (aucun carton graphique/statistique) découpés dans le
+         documentaire fourni, chacun déjà composité (fond plein cadre
+         flouté+désaturé, sigma 36 / saturation 0.4, + plan net CARRÉ
+         888×888 par dessus, position fixe) via ffmpeg en amont. Vidéo
+         source zoomée ×1.25 avant montage pour exclure les éléments de
+         design de la vidéo d'origine (logo BBC Sport, bouton Subscribe) ;
+         chaque plan dure ≥3.5s (aucun plan de 1-2s) ; mutés, son porté par
+         des <audio> séparés */
       .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
 
       /* header — mêmes constantes que le reste de la série (M=MR=96,
@@ -58,26 +60,26 @@
       data-start="0"
       data-width="1080"
       data-height="1920"
-      data-duration="36.16"
+      data-duration="31.61"
       data-fps="30"
     >
-      <video class="video-full" id="seg1" src="assets/seg1.mp4" data-start="0.0000"  data-duration="4.4367" data-track-index="1" muted playsinline></video>
-      <video class="video-full" id="seg2" src="assets/seg2.mp4" data-start="4.4367"  data-duration="4.6367" data-track-index="1" muted playsinline></video>
-      <video class="video-full" id="seg3" src="assets/seg3.mp4" data-start="9.0734"  data-duration="4.8700" data-track-index="1" muted playsinline></video>
-      <video class="video-full" id="seg4" src="assets/seg4.mp4" data-start="13.9434" data-duration="4.8700" data-track-index="1" muted playsinline></video>
-      <video class="video-full" id="seg5" src="assets/seg5.mp4" data-start="18.8134" data-duration="5.8033" data-track-index="1" muted playsinline></video>
-      <video class="video-full" id="seg6" src="assets/seg6.mp4" data-start="24.6167" data-duration="2.6033" data-track-index="1" muted playsinline></video>
-      <video class="video-full" id="seg7" src="assets/seg7.mp4" data-start="27.2200" data-duration="4.6700" data-track-index="1" muted playsinline></video>
-      <video class="video-full" id="seg8" src="assets/seg8.mp4" data-start="31.8900" data-duration="4.2700" data-track-index="1" muted playsinline></video>
+      <video class="video-full" id="seg1" src="assets/seg1.mp4" data-start="0.0000"  data-duration="3.5800" data-track-index="1" muted playsinline></video>
+      <video class="video-full" id="seg2" src="assets/seg2.mp4" data-start="3.5800"  data-duration="4.3800" data-track-index="1" muted playsinline></video>
+      <video class="video-full" id="seg3" src="assets/seg3.mp4" data-start="7.9600"  data-duration="3.6800" data-track-index="1" muted playsinline></video>
+      <video class="video-full" id="seg4" src="assets/seg4.mp4" data-start="11.6400" data-duration="4.1800" data-track-index="1" muted playsinline></video>
+      <video class="video-full" id="seg5" src="assets/seg5.mp4" data-start="15.8200" data-duration="3.9800" data-track-index="1" muted playsinline></video>
+      <video class="video-full" id="seg6" src="assets/seg6.mp4" data-start="19.8000" data-duration="3.5133" data-track-index="1" muted playsinline></video>
+      <video class="video-full" id="seg7" src="assets/seg7.mp4" data-start="23.3133" data-duration="4.0133" data-track-index="1" muted playsinline></video>
+      <video class="video-full" id="seg8" src="assets/seg8.mp4" data-start="27.3266" data-duration="4.2800" data-track-index="1" muted playsinline></video>
 
-      <audio id="a1" src="assets/seg1-audio.m4a" data-start="0.0000"  data-duration="4.00" data-track-index="20"></audio>
-      <audio id="a2" src="assets/seg2-audio.m4a" data-start="4.4367"  data-duration="4.40" data-track-index="20"></audio>
-      <audio id="a3" src="assets/seg3-audio.m4a" data-start="9.0734"  data-duration="2.00" data-track-index="20"></audio>
-      <audio id="a4" src="assets/seg4-audio.m4a" data-start="13.9434" data-duration="4.20" data-track-index="20"></audio>
-      <audio id="a5" src="assets/seg5-audio.m4a" data-start="18.8134" data-duration="2.50" data-track-index="20"></audio>
-      <audio id="a6" src="assets/seg6-audio.m4a" data-start="24.6167" data-duration="2.50" data-track-index="20"></audio>
-      <audio id="a7" src="assets/seg7-audio.m4a" data-start="27.2200" data-duration="3.20" data-track-index="20"></audio>
-      <audio id="a8" src="assets/seg8-audio.m4a" data-start="31.8900" data-duration="4.27" data-track-index="20"></audio>
+      <audio id="a1" src="assets/seg1-audio.m4a" data-start="0.0000"  data-duration="3.55" data-track-index="20"></audio>
+      <audio id="a2" src="assets/seg2-audio.m4a" data-start="3.5800"  data-duration="4.35" data-track-index="20"></audio>
+      <audio id="a3" src="assets/seg3-audio.m4a" data-start="7.9600"  data-duration="3.65" data-track-index="20"></audio>
+      <audio id="a4" src="assets/seg4-audio.m4a" data-start="11.6400" data-duration="4.15" data-track-index="20"></audio>
+      <audio id="a5" src="assets/seg5-audio.m4a" data-start="15.8200" data-duration="3.95" data-track-index="20"></audio>
+      <audio id="a6" src="assets/seg6-audio.m4a" data-start="19.8000" data-duration="3.45" data-track-index="20"></audio>
+      <audio id="a7" src="assets/seg7-audio.m4a" data-start="23.3133" data-duration="3.95" data-track-index="20"></audio>
+      <audio id="a8" src="assets/seg8-audio.m4a" data-start="27.3266" data-duration="4.24" data-track-index="20"></audio>
 
       <div id="hdr">
         <div class="ring">1·2</div>
@@ -111,14 +113,14 @@
       // chaque côté) ; fondu bloc — pas de tween width/height (interdit
       // par le runtime)
       const lines = [
-        { id: 'l1', start: 0.15,   dur: 4.1367 },
-        { id: 'l2', start: 4.5867, dur: 4.3367 },
-        { id: 'l3', start: 9.2234, dur: 4.5700 },
-        { id: 'l4', start: 14.0934, dur: 4.5700 },
-        { id: 'l5', start: 18.9634, dur: 5.5033 },
-        { id: 'l6', start: 24.7667, dur: 2.3033 },
-        { id: 'l7', start: 27.3700, dur: 4.3700 },
-        { id: 'l8', start: 32.0400, dur: 3.9700 },
+        { id: 'l1', start: 0.15,   dur: 3.28 },
+        { id: 'l2', start: 3.73,   dur: 4.08 },
+        { id: 'l3', start: 8.11,   dur: 3.38 },
+        { id: 'l4', start: 11.79,  dur: 3.88 },
+        { id: 'l5', start: 15.97,  dur: 3.68 },
+        { id: 'l6', start: 19.95,  dur: 3.21 },
+        { id: 'l7', start: 23.4633, dur: 3.71 },
+        { id: 'l8', start: 27.4766, dur: 3.98 },
       ];
 
       lines.forEach(({ id, start, dur }) => {
