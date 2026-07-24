@@ -98,6 +98,39 @@ Réglages figés (dernière validation Thomas — "Super !") :
   réutiliser les chiffres bruts tels quels.
 - `fps=30` partout (aligne sur `data-fps="30"` de la composition)
 
+### 2bis. Variante montage multi-plans (plusieurs segments, header + texte présents)
+
+Quand le reel est un montage découpé en plusieurs plans (1 segment ≈ 1 phrase,
+cf. §8 scaffolding), le plan net ne doit pas recentrer sur tout le canvas
+1920 comme en §2 (qui suppose un habillage sans header/texte) : il doit
+occuper exactement l'espace entre le bas du tag (§3, tag bottom ≈408) et le
+haut de la zone de texte (§4), plein cadre horizontalement. Réglages figés
+(validés par Thomas via capture d'écran de rendu) :
+
+- `overlay=x=0:y=420` — plan net plein cadre horizontal (`x=0`, pas de marge
+  96px type header/texte), hauteur **888px fixe**, donc du haut à
+  `y=420` jusqu'à `y=1308`.
+- Fond (flouté/désaturé, mêmes réglages `gblur=sigma=36`/`eq=saturation=0.4`)
+  toujours plein canvas 1080×1920 derrière.
+- Si la source a son propre habillage à exclure (logo de la chaîne d'origine,
+  bouton d'interface, etc.), zoomer la source ~25% (`scale=W*1.25:H*1.25` puis
+  `crop=W:H` centré) **avant** ce calcul de cover-crop, sur le fond ET le
+  premier plan — recadre juste assez pour sortir les éléments de bord sans
+  perdre le sujet ; ajuster le facteur au cas par cas si un élément déborde
+  encore (ex. logo en coin déjà recadré à ×1.25 mais toujours visible → passer
+  à ×1.35 et vérifier par extraction de frame).
+- Exemple filter-graph complet (source zoomée ×1.25, cover-crop bg vers
+  1080×1920, plan net cover-crop vers 1080×888) :
+  ```
+  [0:v]scale=W*1.25:H*1.25,crop=W:H:offX:offY,fps=30,split=2[z1][z2];
+  [z1]scale=<cover_w>:1920,crop=1080:1920[bg-crop],gblur=sigma=36,eq=saturation=0.4[bg];
+  [z2]scale=<cover_w2>:888,crop=1080:888:<centerX>:0[fg];
+  [bg][fg]overlay=x=0:y=420:shortest=1[outv]
+  ```
+  (recalculer `cover_w`/`cover_w2`/`centerX` selon le ratio réel de la
+  source zoomée, cover-crop classique : facteur = max(target_w/src_w,
+  target_h/src_h))
+
 ### 3. Header — repris à l'identique de `editeurs/editeur-series.html`
 
 Valeurs pixel exactes (ratio 9:16, série `cejourla`), à ne jamais
