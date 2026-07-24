@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 25 juillet 2006, Calciopoli et la chute de la Juventus</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* montage — 11 segments découpés dans le documentaire BBC fourni,
+         chacun déjà composité (fond plein cadre flouté+désaturé, sigma 36 /
+         saturation 0.4, + plan net letterboxé par dessus) via ffmpeg en
+         amont ; mutés, son porté par des <audio> séparés */
+      .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+
+      /* header — mêmes constantes que le reste de la série (M=MR=96,
+         ringD=92, ringY=216, hairline y=318) */
+      #hdr { position: absolute; inset: 0 0 auto 0; z-index: 20; }
+      .ring {
+        position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
+        border: 4px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
+      .tag {
+        position: absolute; left: 96px; top: 350px; height: 58px; z-index: 20;
+        display: flex; align-items: center; background: var(--ocre); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; padding: 0 15px;
+      }
+
+      /* corps de texte animé — centré même sur plusieurs lignes, pas de
+         scrim sombre (lisibilité via l'ombre portée du texte uniquement) */
+      .text-zone { position: absolute; left: 96px; right: 96px; top: 1560px; transform: translateY(-50%); z-index: 10; text-align: center; }
+      .text-chunk {
+        position: absolute; left: 0; right: 0; top: 0; transform: translateY(-50%); opacity: 0;
+        font-family: 'Archivo', sans-serif; font-weight: 500; font-size: 36px; line-height: 1.35;
+        color: var(--cream); text-shadow: 0 2px 16px rgba(0,0,0,.65), 0 1px 4px rgba(0,0,0,.8);
+      }
+      .text-chunk b { font-weight: 800; color: var(--cream); }
+      .text-chunk b.ocre { color: var(--ocre); }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="48.53"
+      data-fps="30"
+    >
+      <video class="video-full" id="seg0"  src="assets/seg0.mp4"  data-start="0.00"  data-duration="3.30" data-track-index="1" muted playsinline></video>
+      <video class="video-full" id="seg1"  src="assets/seg1.mp4"  data-start="3.30"  data-duration="5.36" data-track-index="1" muted playsinline></video>
+      <video class="video-full" id="seg2a" src="assets/seg2a.mp4" data-start="8.66"  data-duration="3.00" data-track-index="1" muted playsinline></video>
+      <video class="video-full" id="seg2b" src="assets/seg2b.mp4" data-start="11.66" data-duration="2.51" data-track-index="1" muted playsinline></video>
+      <video class="video-full" id="seg3a" src="assets/seg3a.mp4" data-start="14.17" data-duration="3.00" data-track-index="1" muted playsinline></video>
+      <video class="video-full" id="seg3b" src="assets/seg3b.mp4" data-start="17.17" data-duration="2.78" data-track-index="1" muted playsinline></video>
+      <video class="video-full" id="seg4"  src="assets/seg4.mp4"  data-start="19.95" data-duration="5.78" data-track-index="1" muted playsinline></video>
+      <video class="video-full" id="seg5"  src="assets/seg5.mp4"  data-start="25.73" data-duration="6.59" data-track-index="1" muted playsinline></video>
+      <video class="video-full" id="seg6"  src="assets/seg6.mp4"  data-start="32.32" data-duration="3.08" data-track-index="1" muted playsinline></video>
+      <video class="video-full" id="seg7"  src="assets/seg7.mp4"  data-start="35.40" data-duration="5.24" data-track-index="1" muted playsinline></video>
+      <video class="video-full" id="seg8"  src="assets/seg8.mp4"  data-start="40.64" data-duration="7.89" data-track-index="1" muted playsinline></video>
+
+      <audio id="a0"  src="assets/seg0-audio.m4a"  data-start="0.00"  data-duration="3.28" data-track-index="20"></audio>
+      <audio id="a1"  src="assets/seg1-audio.m4a"  data-start="3.30"  data-duration="5.34" data-track-index="20"></audio>
+      <audio id="a2a" src="assets/seg2a-audio.m4a" data-start="8.66"  data-duration="2.98" data-track-index="20"></audio>
+      <audio id="a2b" src="assets/seg2b-audio.m4a" data-start="11.66" data-duration="2.49" data-track-index="20"></audio>
+      <audio id="a3a" src="assets/seg3a-audio.m4a" data-start="14.17" data-duration="2.98" data-track-index="20"></audio>
+      <audio id="a3b" src="assets/seg3b-audio.m4a" data-start="17.17" data-duration="2.76" data-track-index="20"></audio>
+      <audio id="a4"  src="assets/seg4-audio.m4a"  data-start="19.95" data-duration="5.76" data-track-index="20"></audio>
+      <audio id="a5"  src="assets/seg5-audio.m4a"  data-start="25.73" data-duration="6.57" data-track-index="20"></audio>
+      <audio id="a6"  src="assets/seg6-audio.m4a"  data-start="32.32" data-duration="3.06" data-track-index="20"></audio>
+      <audio id="a7"  src="assets/seg7-audio.m4a"  data-start="35.40" data-duration="5.22" data-track-index="20"></audio>
+      <audio id="a8"  src="assets/seg8-audio.m4a"  data-start="40.64" data-duration="7.87" data-track-index="20"></audio>
+
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+      <div class="tag">CE JOUR LÀ …</div>
+
+      <!-- corps du post du 25 juillet (brouillon Calciopoli), texte
+           intégral repris tel quel, mots-clés en gras/ocre -->
+      <div class="text-zone">
+        <div class="text-chunk" id="l1">Le 14 juillet 2006, la commission d'appel de la fédération italienne rend son verdict dans l'affaire <b class="ocre">Calciopoli</b> :</div>
+        <div class="text-chunk" id="l2">la Juventus, empêtrée dans les manœuvres de son directeur sportif <b class="ocre">Luciano Moggi</b> pour influencer la désignation des arbitres,</div>
+        <div class="text-chunk" id="l3">est <b class="ocre">reléguée en Serie B</b>, exclue de la Ligue des champions et privée de ses <b>Scudetti 2005 et 2006</b>.</div>
+        <div class="text-chunk" id="l4">Le 25 juillet, la cour d'appel confirme la sanction pour la Juve, <b class="ocre">seule vraiment punie</b> dans le dossier :</div>
+        <div class="text-chunk" id="l5"><b class="ocre">Fiorentina</b> et <b class="ocre">Lazio</b>, condamnées à la même relégation onze jours plus tôt, sont repêchées en Serie A avec une pénalité de points,</div>
+        <div class="text-chunk" id="l6">et <b class="ocre">Milan</b> reste aussi, moyennant <b>huit points</b> de retrait.</div>
+        <div class="text-chunk" id="l7">Le titre 2005 ne sera jamais attribué, celui de 2006 revient à l'<b class="ocre">Inter</b>, alors troisième du championnat.</div>
+        <div class="text-chunk" id="l8">Double championne d'Italie en titre, la Juventus entame la saison suivante en <b class="ocre">deuxième division</b>, une première dans son histoire.</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // corps du post animé, calé sur les 11 segments du montage — texte
+      // intégral du brouillon, rythme naturel (formule mots × 0.27 + 0.35,
+      // sans compression : le montage a été taillé sur mesure autour du
+      // texte plutôt que l'inverse) ; fondu bloc — pas de tween
+      // width/height (interdit par le runtime)
+      const lines = [
+        { id: 'l1', start: 3.45,  dur: 5.21 },
+        { id: 'l2', start: 8.81,  dur: 5.21 },
+        { id: 'l3', start: 14.32, dur: 5.48 },
+        { id: 'l4', start: 20.10, dur: 5.48 },
+        { id: 'l5', start: 25.88, dur: 6.29 },
+        { id: 'l6', start: 32.47, dur: 2.78 },
+        { id: 'l7', start: 35.55, dur: 4.94 },
+        { id: 'l8', start: 40.79, dur: 5.48 },
+      ];
+
+      lines.forEach(({ id, start, dur }) => {
+        tl.fromTo(`#${id}`, { opacity: 0 }, { opacity: 1, duration: 0.3, ease: 'power2.out' }, start);
+        tl.to(`#${id}`, { opacity: 0, duration: 0.26, ease: 'sine.in' }, start + dur - 0.26);
+        tl.set(`#${id}`, { opacity: 0 }, start + dur);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
