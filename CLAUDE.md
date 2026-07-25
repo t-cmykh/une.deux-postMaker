@@ -69,6 +69,28 @@ Les vidéos fournies jusqu'ici sont horizontales (~16:9, ratio ≈1.77), avec ou
 sans métadonnée de rotation trompeuse — se fier à l'image extraite, pas
 seulement aux nombres.
 
+### 1bis. Sélection des plans (montage multi-plans)
+
+Règles figées, validées par Thomas sur `cejourla-25juillet-reel` — à
+appliquer par défaut dès que le reel est un montage découpé (plusieurs
+segments coupés dans une vidéo source, cf. §2bis/§8), sauf demande contraire :
+
+- **Aucun plan de moins de 3.5s.** Repérer des fenêtres source d'au moins
+  ~3.5-4s par segment ; ne jamais garder un plan de 1-2s même si le contenu
+  est pertinent — l'étendre ou le remplacer par un autre passage.
+- **Uniquement des images filmées réelles** (plan de caméra, photo
+  d'époque) — aucun carton graphique/infographie généré (habillage
+  chaîne : stats, cartes de score animées, etc.), même si la source en
+  contient et que ça illustrerait bien le texte. Scanner la vidéo source
+  dans son ensemble (contact-sheets ffmpeg à différentes fenêtres/grilles)
+  pour repérer les passages réellement filmés avant de choisir les plans.
+- **Vérifier la cohérence factuelle plan/texte** : un même passage source
+  peut illustrer deux événements différents (ex. verdict initial vs verdict
+  en appel, deux dates distinctes) — ne jamais réutiliser un plan/carton
+  dont le contenu contredirait la phrase du corps qu'il est censé
+  illustrer ; en cas de doute, préférer un plan neutre (lieu, ambiance,
+  personne concernée) à un plan trop spécifique mais potentiellement faux.
+
 ### 2. Composite letterbox 9:16 (fond flouté + désaturé, pré-calculé ffmpeg)
 
 **Ne jamais faire le flou en live via CSS au rendu** (coût énorme en Chrome
@@ -174,9 +196,13 @@ Ne PAS ajouter de dégradé d'assombrissement en bas du cadre (`scrim-bottom`)
   crème, `text-shadow: 0 2px 16px rgba(0,0,0,.65), 0 1px 4px rgba(0,0,0,.8)`
   pour la lisibilité (remplace tout scrim, puisque le bas ne doit pas être
   assombri).
-- Position : `top:1560px` avec `transform:translateY(-50%)`, zone
-  `left:96px; right:96px`, dans la bande floutée basse (sous la vidéo nette
-  letterboxée).
+- Position : `top:1420px` avec `transform:translateY(-50%)`, zone
+  `left:96px; right:96px`, dans la bande floutée basse (sous le plan net —
+  valeur calibrée pour la variante §2bis, où le plan net s'arrête à
+  `y=1308` ; remonté depuis `top:1560px` à la demande de Thomas pour
+  rapprocher le texte du plan net). Si le plan net occupe un espace
+  différent (variante §2 plein-centrage), ajuster en conséquence — garder
+  une marge d'environ 100-115px entre le bas du plan net et `top`.
 
 ### 5. Calcul du rythme (formule établie, réutiliser systématiquement)
 
