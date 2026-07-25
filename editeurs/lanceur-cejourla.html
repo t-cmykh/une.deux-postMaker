@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>une·deux — lanceur reels Ce jour-là</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600&family=Saira+Condensed:wght@600;700&display=swap');
+
+:root{
+  --newsprint:#F1ECE1; --encre:#2C2823; --vert:#27543C; --vert-d:#1F4430;
+  --ocre:#C2A04E; --creme:#EDDCB2; --soustitre:#D1C1A3; --line:#4a463e;
+  --panel:#26221d; --sig:#C2A04E;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--encre);color:var(--newsprint);
+  font-family:'Archivo',system-ui,sans-serif;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
+.wrap{display:flex;min-height:100vh}
+@media(max-width:900px){.wrap{flex-direction:column}}
+
+.panel{width:420px;flex:0 0 420px;padding:22px 22px 60px;border-right:1px solid var(--line);
+  overflow-y:auto;max-height:100vh}
+@media(max-width:900px){.panel{width:100%;flex:none;max-height:none;border-right:none;border-bottom:1px solid var(--line)}}
+
+.topbar{display:flex;align-items:center;gap:11px;padding-bottom:16px;margin-bottom:18px;border-bottom:1px solid var(--line)}
+.mono{width:30px;height:30px;border:2px solid var(--creme);border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-family:'Saira Condensed';font-weight:700;font-size:14px;color:var(--creme);flex:0 0 auto}
+.brand{font-family:'Anton';font-size:22px;letter-spacing:.5px;color:var(--creme)}
+.brand .dot{color:var(--vert)}
+.subbrand{margin-left:auto;font-family:'Saira Condensed';font-weight:700;font-size:11px;
+  letter-spacing:2px;color:var(--sig)}
+
+.section-h{font-family:'Saira Condensed';font-weight:700;font-size:12px;letter-spacing:2px;
+  color:var(--sig);margin:22px 0 12px;text-transform:uppercase}
+
+.field{margin-bottom:13px}
+.field label{display:block;font-family:'Saira Condensed';font-weight:700;font-size:12px;letter-spacing:1.5px;
+  color:#9a968c;margin-bottom:6px;text-transform:uppercase}
+.field input,.field textarea{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:8px;
+  color:var(--newsprint);font-family:'Archivo';font-size:15px;padding:11px 13px;outline:none;transition:border-color .15s}
+.field textarea{resize:vertical;min-height:60px;line-height:1.4;font-family:'Archivo'}
+.field input:focus,.field textarea:focus{border-color:var(--sig)}
+.field .hint{font-size:11px;color:#776f60;margin-top:5px;line-height:1.45}
+.field .err{font-size:11.5px;color:#c9705a;margin-top:5px;display:none}
+.field.invalid input{border-color:#c9705a}
+.field.invalid .err{display:block}
+
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{font-family:'Saira Condensed';font-weight:700;font-size:12.5px;letter-spacing:1px;padding:7px 13px;
+  border-radius:20px;border:1px solid var(--line);background:var(--panel);color:var(--newsprint);
+  cursor:pointer;text-transform:uppercase;transition:all .15s}
+.chip:hover{border-color:#6a635a}
+.chip.on{background:var(--sig);border-color:var(--sig);color:var(--encre)}
+
+.btns{display:flex;gap:10px;margin-top:22px}
+.btn{flex:1;font-family:'Saira Condensed';font-weight:700;font-size:14px;letter-spacing:1.5px;padding:13px;
+  border-radius:9px;border:none;cursor:pointer;text-transform:uppercase;transition:filter .15s}
+.btn:hover{filter:brightness(1.08)}
+.btn-sig{background:var(--sig);color:var(--encre)}
+.btn-ghost{background:transparent;color:#9a9588;border:1px solid var(--line)}
+.btn:disabled{opacity:.4;cursor:not-allowed;filter:none}
+
+.toast{margin-top:12px;font-family:'Saira Condensed';font-weight:700;font-size:12px;letter-spacing:1px;
+  color:var(--sig);text-align:center;opacity:0;transition:opacity .2s;text-transform:uppercase}
+.toast.show{opacity:1}
+
+.stage{flex:1;display:flex;flex-direction:column;align-items:center;padding:28px 22px;gap:16px}
+.stage-head{width:100%;max-width:560px;display:flex;align-items:center;justify-content:space-between}
+.stage-title{font-family:'Saira Condensed';font-weight:700;font-size:13px;letter-spacing:2px;color:#8b8678}
+.status-pill{font-family:'Saira Condensed';font-weight:700;font-size:11px;letter-spacing:1.5px;
+  padding:5px 12px;border-radius:20px;text-transform:uppercase}
+.status-pill.ready{background:rgba(194,160,78,.16);color:var(--sig);border:1px solid var(--sig)}
+.status-pill.wait{background:rgba(255,255,255,.06);color:#776f60;border:1px solid var(--line)}
+
+.mail-shell{border-radius:10px;overflow:hidden;box-shadow:0 14px 50px rgba(0,0,0,.45);
+  background:#1a1714;max-width:560px;width:100%;border:1px solid var(--line)}
+.mail-head{padding:16px 20px;border-bottom:1px solid var(--line);background:var(--panel)}
+.mail-head .to{font-size:12px;color:#776f60;margin-bottom:4px}
+.mail-head .to b{color:#9a968c}
+.mail-head .subject{font-family:'Saira Condensed';font-weight:700;font-size:17px;color:var(--newsprint)}
+.mail-body{padding:20px;font-size:14px;line-height:1.7;white-space:pre-wrap;color:var(--soustitre);
+  min-height:180px}
+.mail-body b{color:var(--newsprint)}
+.mail-body .k{color:var(--sig);font-weight:600}
+
+.pipeline{width:100%;max-width:560px}
+.pipeline ol{margin:0;padding-left:20px;font-size:13px;line-height:1.9;color:var(--soustitre)}
+.pipeline li b{color:var(--newsprint)}
+.pipeline .cadence{margin-top:10px;font-size:12px;color:#776f60;padding:11px 14px;background:var(--panel);
+  border-radius:8px;border:1px solid var(--line)}
+.pipeline .cadence b{color:var(--sig)}
+
+.legend{width:100%;max-width:560px;font-size:11.5px;color:#776f60;line-height:1.55;text-align:left}
+.legend b{color:var(--sig)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="panel">
+    <div class="topbar">
+      <div class="mono">1·2</div>
+      <div class="brand">une<span class="dot">·</span>deux</div>
+      <div class="subbrand">CE JOUR LÀ</div>
+    </div>
+
+    <div class="section-h">Source</div>
+
+    <div class="field" id="field_link">
+      <label>Lien Drive de la vidéo</label>
+      <input id="f_link" type="url" placeholder="https://drive.google.com/file/d/…">
+      <div class="err">Colle un lien Google Drive valide.</div>
+    </div>
+
+    <div class="field">
+      <label>Date du post à utiliser</label>
+      <input id="f_date" type="date">
+      <div class="hint">Le brouillon Gmail « POST DU JOUR — cette date » sera utilisé tel quel pour le corps du texte.</div>
+    </div>
+
+    <div class="field">
+      <label>Variante</label>
+      <div class="chips" id="variante_chips">
+        <div class="chip on" data-v="complet">REEL COMPLET</div>
+        <div class="chip" data-v="intro">INTRO SEULE</div>
+      </div>
+      <div class="hint" id="variante_hint">Montage multi-plans + header + corps de texte animé (recette §1-§8 du CLAUDE.md).</div>
+    </div>
+
+    <div class="section-h">Notes (optionnel)</div>
+    <div class="field">
+      <label>Instructions spécifiques pour ce reel</label>
+      <textarea id="f_notes" placeholder="Ex : zoomer 25% la source pour exclure un logo, plan X à éviter…"></textarea>
+      <div class="hint">Laisse vide pour appliquer la recette par défaut sans déviation.</div>
+    </div>
+
+    <div class="btns">
+      <button class="btn btn-sig" id="b_launch">Lancer le montage</button>
+      <button class="btn btn-ghost" id="b_copy">Copier</button>
+    </div>
+    <div class="toast" id="toast"></div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-head">
+      <div class="stage-title">APERÇU DU DÉCLENCHEUR</div>
+      <div class="status-pill wait" id="status_pill">EN ATTENTE DE LIEN</div>
+    </div>
+
+    <div class="mail-shell">
+      <div class="mail-head">
+        <div class="to">À : <b>toi-même</b> (t.louisor@gmail.com)</div>
+        <div class="subject" id="prev_subject">LANCER REEL — …</div>
+      </div>
+      <div class="mail-body" id="prev_body">Colle un lien Drive à gauche pour générer le déclencheur.</div>
+    </div>
+
+    <div class="pipeline">
+      <div class="section-h" style="margin-top:0">Ce qui se passe ensuite</div>
+      <ol>
+        <li><b>Lancer le montage</b> ouvre un brouillon email pré-rempli dans ta messagerie — vérifie et envoie-le (ou laisse-le en brouillon, les deux fonctionnent).</li>
+        <li>Une <b>Routine</b> horaire côté Claude Code cherche un email/brouillon « LANCER REEL » non traité.</li>
+        <li>Si elle en trouve un : téléchargement de la vidéo, sélection des plans, montage complet selon la recette figée du <b>CLAUDE.md</b>, rendu, vérification par extraction de frames.</li>
+        <li>Livraison du fichier + commit/push sur la branche de travail — tu reçois une notification.</li>
+        <li>L'email déclencheur est marqué traité pour ne pas être relancé deux fois.</li>
+      </ol>
+      <div class="cadence">⏱ La vérification se fait <b>une fois par heure</b> (limite technique des Routines programmées) — pas de lancement instantané. Pour un montage immédiat, demande-le directement dans le chat Claude Code comme d'habitude.</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const linkInput = $('f_link'), dateInput = $('f_date'), notesInput = $('f_notes');
+const fieldLink = $('field_link');
+const prevSubject = $('prev_subject'), prevBody = $('prev_body'), statusPill = $('status_pill');
+const toast = $('toast');
+
+let variante = 'complet';
+const variantLabels = { complet: 'reel complet', intro: 'intro seule' };
+const variantHints = {
+  complet: 'Montage multi-plans + header + corps de texte animé (recette §1-§8 du CLAUDE.md).',
+  intro: 'Composite letterbox seul (fond flouté/désaturé + plan net) — pas de header, pas de texte.'
+};
+
+// date par défaut = demain
+(function initDate(){
+  const d = new Date(); d.setDate(d.getDate() + 1);
+  dateInput.value = d.toISOString().slice(0, 10);
+})();
+
+document.querySelectorAll('#variante_chips .chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('#variante_chips .chip').forEach(c => c.classList.remove('on'));
+    chip.classList.add('on');
+    variante = chip.dataset.v;
+    $('variante_hint').textContent = variantHints[variante];
+    render();
+  });
+});
+
+function frDate(iso){
+  if(!iso) return '…';
+  const [y,m,d] = iso.split('-');
+  const mois = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+  return `${parseInt(d,10)} ${mois[parseInt(m,10)-1]} ${y}`;
+}
+
+function isValidDriveLink(v){
+  return /drive\.google\.com\/(file\/d\/|open\?id=|uc\?)/i.test(v.trim());
+}
+
+function buildSubject(){
+  const iso = dateInput.value || '';
+  return `LANCER REEL — ${iso || '(date à définir)'}`;
+}
+
+function buildBody(){
+  const link = linkInput.value.trim() || '(lien à coller)';
+  const iso = dateInput.value || '(date à définir)';
+  const notes = notesInput.value.trim();
+  return [
+    `LIEN DRIVE: ${link}`,
+    `DATE DU POST: ${iso}`,
+    `VARIANTE: ${variantLabels[variante]}`,
+    `NOTES: ${notes || '(aucune)'}`,
+    '',
+    `— généré depuis le lanceur reels Ce jour-là`
+  ].join('\n');
+}
+
+function render(){
+  const link = linkInput.value.trim();
+  const valid = isValidDriveLink(link);
+
+  fieldLink.classList.toggle('invalid', link.length > 0 && !valid);
+
+  prevSubject.textContent = buildSubject();
+  prevBody.innerHTML = buildBody()
+    .replace(/^(LIEN DRIVE:|DATE DU POST:|VARIANTE:|NOTES:)/gm, '<span class="k">$1</span>')
+    .replace(/\n/g, '<br>');
+
+  const ready = valid && !!dateInput.value;
+  statusPill.textContent = ready ? 'PRÊT À LANCER' : (link ? 'LIEN INVALIDE' : 'EN ATTENTE DE LIEN');
+  statusPill.className = 'status-pill ' + (ready ? 'ready' : 'wait');
+  $('b_launch').disabled = !ready;
+}
+
+[linkInput, dateInput, notesInput].forEach(el => el.addEventListener('input', render));
+
+function showToast(msg){
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2600);
+}
+
+$('b_copy').addEventListener('click', () => {
+  const text = `À: t.louisor@gmail.com\nObjet: ${buildSubject()}\n\n${buildBody()}`;
+  navigator.clipboard.writeText(text).then(() => showToast('Consigne copiée'));
+});
+
+$('b_launch').addEventListener('click', () => {
+  if($('b_launch').disabled) return;
+  const subject = encodeURIComponent(buildSubject());
+  const body = encodeURIComponent(buildBody());
+  window.location.href = `mailto:t.louisor@gmail.com?subject=${subject}&body=${body}`;
+  showToast('Brouillon email ouvert — vérifie et envoie');
+});
+
+render();
+</script>
+</body>
+</html>

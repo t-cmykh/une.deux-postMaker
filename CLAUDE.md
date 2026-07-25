@@ -5,7 +5,33 @@ Voir `SKILL.md` pour la production de **posts carrousel** (skill `une-deux-post`
 Ce fichier couvre un format différent : le **reel montage vidéo "Ce jour-là"**
 (images de match réelles + texte animé), construit avec HyperFrames dans
 `hyperframes/`. Déclencheur : Thomas envoie un lien Drive vers une vidéo de
-match et demande d'y ajouter le texte du post (sous-titres ou corps animé).
+match et demande d'y ajouter le texte du post (sous-titres ou corps animé) —
+**ou** dépose une demande via le lanceur `editeurs/lanceur-cejourla.html`
+(voir ci-dessous), traitée automatiquement par une Routine.
+
+## Lanceur automatique (`editeurs/lanceur-cejourla.html`)
+
+Outil statique (même DA que `editeur-series.html` : panel sombre, ocre,
+Saira Condensed/Anton/Archivo) où Thomas colle le lien Drive + la date du
+post + la variante (reel complet / intro seule) + des notes optionnelles.
+Le bouton « Lancer le montage » ouvre un brouillon email pré-rempli
+(`mailto:` vers t.louisor@gmail.com, objet `LANCER REEL — <date>`, corps au
+format `LIEN DRIVE: … / DATE DU POST: … / VARIANTE: … / NOTES: …`) — une
+page statique ne peut pas appeler Claude Code directement, l'email est le
+pont.
+
+Une **Routine** ("Lanceur reels Ce jour-là", trig_01GLuTTF7yfddRXnLRzvkm1U)
+tourne toutes les heures (limite technique — pas de déclenchement
+instantané), liée à cette session (pas de session fraîche : les connecteurs
+Gmail ne sont pas transmissibles aux sessions fraîches sur cette org). Elle
+cherche un brouillon/thread Gmail `subject:LANCER REEL` non marqué
+`[TRAITÉ]`/label `reel-traite`, construit le reel selon la recette figée de
+ce fichier, livre, committe/pousse, puis marque la demande traitée. Si rien
+n'est en attente, elle ne fait rien.
+
+Pour un montage immédiat, demander directement dans le chat reste plus
+rapide (pas d'attente horaire) — le lanceur sert pour poser une demande à
+traiter en tâche de fond.
 
 ## Recette figée — intro d'un reel une·deux (fond plein cadre, sans texte)
 
