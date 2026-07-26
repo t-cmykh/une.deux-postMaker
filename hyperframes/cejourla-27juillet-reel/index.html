@@ -74,9 +74,12 @@
 
       <!-- corps du post du 27 juillet, version concise — 7 blocs courts
            (≤2 lignes chacun) couvrant toute la durée de la vidéo sans
-           trou : score final, buteurs, arbitre, gardien, effectif français,
-           entrée de Wiltord/expulsion de Bonnissel, lien avec les champions
-           du monde 98 -->
+           trou : score final, buteurs, arbitre, effectif français, entrée
+           de Wiltord/expulsion de Bonnissel, gardien, lien avec les
+           champions du monde 98. Seul Robert Pirès a réellement été
+           champion du monde 98 parmi les joueurs cités ici (Makélélé et
+           Dacourt n'étaient pas dans les 22 sélectionnés) — la ligne de
+           clôture ne cite donc que lui, pour rester exacte -->
       <div class="text-zone">
         <div class="text-chunk" id="t1">Ce jour-là, le Portugal élimine la France en quart de finale olympique, <b class="ocre">2-1 après prolongation</b>.</div>
         <div class="text-chunk" id="t2"><b class="ocre">Capucho</b> ouvre le score, <b>Maurice</b> égalise sur penalty, puis <b class="ocre">Calado</b> inscrit le but en or.</div>
@@ -84,7 +87,7 @@
         <div class="text-chunk" id="t4">Dans les buts portugais : le jeune <b class="ocre">Nuno Espírito Santo</b>, futur coach de <b>Wolverhampton</b>.</div>
         <div class="text-chunk" id="t5"><b>Domenech</b> dirige une équipe avec <b class="ocre">Makélélé, Pirès</b> et Dacourt.</div>
         <div class="text-chunk" id="t6"><b>Wiltord</b> entre en jeu à la 91e ; <b class="ocre">Bonnissel</b> est expulsé après le but en or.</div>
-        <div class="text-chunk" id="t7">Deux ans plus tard, <b>Makélélé, Pirès</b> et <b>Dacourt</b> seront <b class="ocre">champions du monde</b> avec la France.</div>
+        <div class="text-chunk" id="t7">Deux ans plus tard, <b class="ocre">Robert Pirès</b> sera <b>champion du monde</b> avec la France.</div>
       </div>
     </div>
 
@@ -93,16 +96,22 @@
       const tl = gsap.timeline({ paused: true });
 
       // corps du post animé — 7 blocs courts (≤2 lignes), enchaînés sans
-      // trou sur toute la durée de la vidéo source (48.7s, non retouchée) ;
-      // pas de tween width/height (interdit par le runtime)
+      // trou sur toute la durée de la vidéo source (48.7s, non retouchée).
+      // Timing recalé sur le contenu réel du plan continu : t2 (buts) sur
+      // la célébration (~14.5-20.5s), t5 (effectif français) sur le
+      // gros plan d'un joueur français (~27-30.5s), t4 (gardien) sur le
+      // gros plan du gardien portugais (~41-44.5s) — t4 est donc affiché
+      // après t5/t6 dans le temps bien qu'il précède dans le récit, pour
+      // coller à l'image ; pas de tween width/height (interdit par le
+      // runtime)
       const lines = [
-        { id: 't1', start: 0.30,  dur: 8.00 },
-        { id: 't2', start: 8.50,  dur: 8.00 },
-        { id: 't3', start: 16.70, dur: 2.80 },
-        { id: 't4', start: 19.70, dur: 7.00 },
-        { id: 't5', start: 26.90, dur: 5.00 },
-        { id: 't6', start: 32.10, dur: 8.00 },
-        { id: 't7', start: 40.30, dur: 8.00 },
+        { id: 't1', start: 0.30,  dur: 13.70 },
+        { id: 't2', start: 14.20, dur: 6.30 },
+        { id: 't3', start: 20.70, dur: 6.30 },
+        { id: 't5', start: 27.20, dur: 3.80 },
+        { id: 't6', start: 31.20, dur: 9.80 },
+        { id: 't4', start: 41.20, dur: 3.30 },
+        { id: 't7', start: 44.70, dur: 4.00 },
       ];
 
       lines.forEach(({ id, start, dur }) => {
