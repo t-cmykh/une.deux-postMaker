@@ -5,6 +5,8 @@ import {
   HighlightReelProps,
   totalDurationInFrames,
 } from './HighlightReel';
+import {InstagramReel} from './InstagramReel';
+import {REEL_FPS, reelTotalDurationInFrames} from './reel/slides';
 import segmentsData from './segments.json';
 import trackData from './track.json';
 
@@ -21,17 +23,27 @@ const defaultProps: HighlightReelProps = {
 
 export const RemotionRoot: React.FC = () => {
   return (
-    <Composition
-      id="HighlightReel"
-      component={HighlightReel}
-      fps={FPS}
-      width={1080}
-      height={1920}
-      durationInFrames={totalDurationInFrames(defaultProps.segments, FPS)}
-      defaultProps={defaultProps}
-      calculateMetadata={async ({props}) => ({
-        durationInFrames: totalDurationInFrames(props.segments, props.fps),
-      })}
-    />
+    <>
+      <Composition
+        id="HighlightReel"
+        component={HighlightReel}
+        fps={FPS}
+        width={1080}
+        height={1920}
+        durationInFrames={totalDurationInFrames(defaultProps.segments, FPS)}
+        defaultProps={defaultProps}
+        calculateMetadata={async ({props}) => ({
+          durationInFrames: totalDurationInFrames(props.segments, props.fps),
+        })}
+      />
+      <Composition
+        id="InstagramReel"
+        component={InstagramReel}
+        fps={REEL_FPS}
+        width={1080}
+        height={1920}
+        durationInFrames={reelTotalDurationInFrames()}
+      />
+    </>
   );
 };
