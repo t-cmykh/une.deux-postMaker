@@ -13,13 +13,14 @@
       body { font-family: 'Archivo', system-ui, sans-serif; }
       #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
 
-      /* montage — 10 segments (uniquement des plans filmés réels, archive
-         du quart de finale olympique Portugal-France 1996), déjà
-         composités (fond plein cadre flouté+désaturé, sigma 36 /
-         saturation 0.4, zoom ×1.4 pour exclure le watermark "M" du
-         diffuseur, + plan net plein cadre horizontal 1080×888 par dessus,
-         y=420) via ffmpeg en amont ; chaque plan dure ≥3.5s ; mutés, son
-         porté par des <audio> séparés */
+      /* montage — 7 segments (uniquement des plans filmés réels, archive
+         du quart de finale olympique Portugal-France 1996, capture verticale
+         pillarboxed recadrée), déjà composités (fond plein cadre
+         flouté+désaturé, sigma 36 / saturation 0.4, zoom ×1.4 pour exclure
+         le watermark "M" du diffuseur, + plan net plein cadre horizontal
+         1080×888 par dessus, y=420) via ffmpeg en amont ; chaque plan dure
+         ≥3.5s ; mutés, son porté par des <audio> séparés. Durée de la
+         source non rallongée (48.7s réels, pas d'extension artificielle) */
       .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
 
       /* header — mêmes constantes que le reste de la série */
@@ -57,30 +58,24 @@
       data-start="0"
       data-width="1080"
       data-height="1920"
-      data-duration="58.3020"
+      data-duration="35.2020"
       data-fps="30"
     >
-      <video class="video-full" id="seg1"  src="assets/seg1.mp4"  data-start="0.0000"  data-duration="9.5985" data-track-index="1" muted playsinline></video>
-      <video class="video-full" id="seg2a" src="assets/seg2a.mp4" data-start="9.6017"  data-duration="3.9985" data-track-index="1" muted playsinline></video>
-      <video class="video-full" id="seg2b" src="assets/seg2b.mp4" data-start="13.6017" data-duration="4.5985" data-track-index="1" muted playsinline></video>
-      <video class="video-full" id="seg2c" src="assets/seg2c.mp4" data-start="18.2017" data-duration="3.8985" data-track-index="1" muted playsinline></video>
-      <video class="video-full" id="seg3"  src="assets/seg3.mp4"  data-start="22.1017" data-duration="3.5985" data-track-index="1" muted playsinline></video>
-      <video class="video-full" id="seg4"  src="assets/seg4.mp4"  data-start="25.7017" data-duration="7.5985" data-track-index="1" muted playsinline></video>
-      <video class="video-full" id="seg5a" src="assets/seg5a.mp4" data-start="33.3017" data-duration="6.5985" data-track-index="1" muted playsinline></video>
-      <video class="video-full" id="seg5b" src="assets/seg5b.mp4" data-start="39.9017" data-duration="6.5985" data-track-index="1" muted playsinline></video>
-      <video class="video-full" id="seg6"  src="assets/seg6.mp4"  data-start="46.5017" data-duration="6.7985" data-track-index="1" muted playsinline></video>
-      <video class="video-full" id="seg7"  src="assets/seg7.mp4"  data-start="53.3017" data-duration="4.9985" data-track-index="1" muted playsinline></video>
+      <video class="video-full" id="seg1" src="assets/seg1.mp4" data-start="0.0000"  data-duration="7.9985" data-track-index="1" muted playsinline></video>
+      <video class="video-full" id="seg2" src="assets/seg2.mp4" data-start="8.0017"  data-duration="5.9985" data-track-index="1" muted playsinline></video>
+      <video class="video-full" id="seg3" src="assets/seg3.mp4" data-start="14.0017" data-duration="3.4985" data-track-index="1" muted playsinline></video>
+      <video class="video-full" id="seg4" src="assets/seg4.mp4" data-start="17.5017" data-duration="3.4985" data-track-index="1" muted playsinline></video>
+      <video class="video-full" id="seg5" src="assets/seg5.mp4" data-start="21.0017" data-duration="5.9985" data-track-index="1" muted playsinline></video>
+      <video class="video-full" id="seg6" src="assets/seg6.mp4" data-start="27.0017" data-duration="3.9985" data-track-index="1" muted playsinline></video>
+      <video class="video-full" id="seg7" src="assets/seg7.mp4" data-start="31.0017" data-duration="4.1985" data-track-index="1" muted playsinline></video>
 
-      <audio id="a1"  src="assets/seg1-audio.m4a"  data-start="0.0000"  data-duration="9.5485" data-track-index="20"></audio>
-      <audio id="a2a" src="assets/seg2a-audio.m4a" data-start="9.6017"  data-duration="3.9485" data-track-index="20"></audio>
-      <audio id="a2b" src="assets/seg2b-audio.m4a" data-start="13.6017" data-duration="4.5485" data-track-index="20"></audio>
-      <audio id="a2c" src="assets/seg2c-audio.m4a" data-start="18.2017" data-duration="3.8485" data-track-index="20"></audio>
-      <audio id="a3"  src="assets/seg3-audio.m4a"  data-start="22.1017" data-duration="3.5485" data-track-index="20"></audio>
-      <audio id="a4"  src="assets/seg4-audio.m4a"  data-start="25.7017" data-duration="7.5485" data-track-index="20"></audio>
-      <audio id="a5a" src="assets/seg5a-audio.m4a" data-start="33.3017" data-duration="6.5485" data-track-index="20"></audio>
-      <audio id="a5b" src="assets/seg5b-audio.m4a" data-start="39.9017" data-duration="6.5485" data-track-index="20"></audio>
-      <audio id="a6"  src="assets/seg6-audio.m4a"  data-start="46.5017" data-duration="6.7485" data-track-index="20"></audio>
-      <audio id="a7"  src="assets/seg7-audio.m4a"  data-start="53.3017" data-duration="4.9485" data-track-index="20"></audio>
+      <audio id="a1" src="assets/seg1-audio.m4a" data-start="0.0000"  data-duration="7.9485" data-track-index="20"></audio>
+      <audio id="a2" src="assets/seg2-audio.m4a" data-start="8.0017"  data-duration="5.9485" data-track-index="20"></audio>
+      <audio id="a3" src="assets/seg3-audio.m4a" data-start="14.0017" data-duration="3.4485" data-track-index="20"></audio>
+      <audio id="a4" src="assets/seg4-audio.m4a" data-start="17.5017" data-duration="3.4485" data-track-index="20"></audio>
+      <audio id="a5" src="assets/seg5-audio.m4a" data-start="21.0017" data-duration="5.9485" data-track-index="20"></audio>
+      <audio id="a6" src="assets/seg6-audio.m4a" data-start="27.0017" data-duration="3.9485" data-track-index="20"></audio>
+      <audio id="a7" src="assets/seg7-audio.m4a" data-start="31.0017" data-duration="4.1485" data-track-index="20"></audio>
 
       <div id="hdr">
         <div class="ring">1·2</div>
@@ -108,16 +103,18 @@
       const tl = gsap.timeline({ paused: true });
 
       // corps du post animé — texte intégral du brouillon, calé sur les
-      // 10 segments du montage ; durée de chaque bloc dérivée du montage
-      // (pas de tween width/height, interdit par le runtime)
+      // 7 segments du montage (source plus courte, 48.7s, non rallongée
+      // à la demande de Thomas — facteur < 1, texte compressé plutôt que
+      // coupé, cf. CLAUDE.md §5) ; pas de tween width/height (interdit
+      // par le runtime)
       const lines = [
-        { id: 't1', start: 0.30,  dur: 9.30 },
-        { id: 't2', start: 9.80,  dur: 12.30 },
-        { id: 't3', start: 22.30, dur: 3.40 },
-        { id: 't4', start: 25.90, dur: 7.40 },
-        { id: 't5', start: 33.50, dur: 12.80 },
-        { id: 't6', start: 46.50, dur: 6.60 },
-        { id: 't7', start: 53.30, dur: 4.80 },
+        { id: 't1', start: 0.30,  dur: 5.50 },
+        { id: 't2', start: 6.00,  dur: 7.10 },
+        { id: 't3', start: 13.30, dur: 2.00 },
+        { id: 't4', start: 15.50, dur: 4.30 },
+        { id: 't5', start: 20.00, dur: 7.70 },
+        { id: 't6', start: 27.90, dur: 3.90 },
+        { id: 't7', start: 32.00, dur: 2.90 },
       ];
 
       lines.forEach(({ id, start, dur }) => {
