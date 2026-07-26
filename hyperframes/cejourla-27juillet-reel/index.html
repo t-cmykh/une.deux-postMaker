@@ -72,16 +72,14 @@
       </div>
       <div class="tag">CE JOUR LÀ …</div>
 
-      <!-- corps du post du 27 juillet (brouillon Portugal-France JO 1996),
-           texte intégral repris tel quel, mots-clés en gras/ocre -->
+      <!-- corps du post du 27 juillet, version concise (3 blocs, ≤2 lignes
+           chacun) : score final, buteurs, lien avec les champions du monde
+           98 — la ligne sur l'arbitre et les détails secondaires (gardien/
+           Wolverhampton, remplacement, carton rouge) sont retirés -->
       <div class="text-zone">
-        <div class="text-chunk" id="t1">Ce jour-là, à l'Orange Bowl de Miami, devant <b>22 339 spectateurs</b>, le Portugal élimine la France en quart de finale du tournoi olympique, <b class="ocre">2-1 après prolongation</b>.</div>
-        <div class="text-chunk" id="t2"><b class="ocre">Capucho</b> ouvre le score à la 7e minute, <b>Florian Maurice</b> égalise sur penalty à la 49e, et <b class="ocre">José Calado</b> inscrit le tout premier <b>but en or</b> de l'histoire olympique à la 105e, sur penalty.</div>
-        <div class="text-chunk" id="t3">L'arbitre italien <b class="ocre">Pierluigi Collina</b> siffle la rencontre.</div>
-        <div class="text-chunk" id="t4">Dans les buts portugais, un jeune gardien nommé <b class="ocre">Nuno Herlander Espírito Santo</b>, qui entraînera plus tard <b>Wolverhampton</b> en Premier League.</div>
-        <div class="text-chunk" id="t5">Côté français, <b>Raymond Domenech</b> dirige une équipe où titularisent Claude Makélélé, Robert Pirès et Olivier Dacourt ; <b>Sylvain Wiltord</b> entre en jeu à la 91e minute, et le capitaine <b class="ocre">Jérôme Bonnissel</b> est expulsé après le but en or.</div>
-        <div class="text-chunk" id="t6">Deux ans plus tard, une partie de ce groupe soulève la <b class="ocre">Coupe du Monde</b> au Stade de France.</div>
-        <div class="text-chunk" id="t7">Le sacre de 98 a commencé par une <b class="ocre">défaite</b> qu'on ne raconte jamais.</div>
+        <div class="text-chunk" id="t1">Ce jour-là, le Portugal élimine la France en quart de finale olympique, <b class="ocre">2-1 après prolongation</b>.</div>
+        <div class="text-chunk" id="t2"><b class="ocre">Capucho</b> ouvre le score, <b>Maurice</b> égalise sur penalty, puis <b class="ocre">Calado</b> inscrit le but en or.</div>
+        <div class="text-chunk" id="t3">Deux ans plus tard, <b>Makélélé, Pirès</b> et <b>Dacourt</b> seront <b class="ocre">champions du monde</b> avec la France.</div>
       </div>
     </div>
 
@@ -89,20 +87,14 @@
       window.__timelines = window.__timelines || {};
       const tl = gsap.timeline({ paused: true });
 
-      // corps du post animé — texte intégral du brouillon, réparti sur la
-      // durée complète et non retouchée de la vidéo source (48.7s) au
-      // rythme naturel (facteur ≈1.065, formule §5) ; le montage d'entrée
-      // n'étant pas recoupé/réordonné, le texte suit l'ordre du récit
-      // sans être calé plan par plan ; pas de tween width/height (interdit
-      // par le runtime)
+      // corps du post animé, version concise — 3 blocs courts (≤2 lignes)
+      // espacés sur la durée complète et non retouchée de la vidéo source
+      // (48.7s), plutôt que du texte continu ; pas de tween width/height
+      // (interdit par le runtime)
       const lines = [
-        { id: 't1', start: 0.30,  dur: 7.85 },
-        { id: 't2', start: 8.35,  dur: 10.15 },
-        { id: 't3', start: 18.70, dur: 2.40 },
-        { id: 't4', start: 21.30, dur: 6.10 },
-        { id: 't5', start: 27.60, dur: 11.00 },
-        { id: 't6', start: 38.80, dur: 5.55 },
-        { id: 't7', start: 44.55, dur: 4.10 },
+        { id: 't1', start: 0.50,  dur: 5.00 },
+        { id: 't2', start: 15.00, dur: 5.20 },
+        { id: 't3', start: 42.00, dur: 5.60 },
       ];
 
       lines.forEach(({ id, start, dur }) => {
