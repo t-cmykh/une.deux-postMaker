@@ -7,6 +7,11 @@ import {
 } from './HighlightReel';
 import segmentsData from './segments.json';
 import trackData from './track.json';
+import {
+  StoryboardArretDeJeu,
+  FPS as STORYBOARD_FPS,
+  totalDurationInFrames as storyboardDurationInFrames,
+} from './StoryboardArretDeJeu';
 
 const FPS = 30;
 
@@ -21,6 +26,7 @@ const defaultProps: HighlightReelProps = {
 
 export const RemotionRoot: React.FC = () => {
   return (
+    <>
     <Composition
       id="HighlightReel"
       component={HighlightReel}
@@ -33,5 +39,14 @@ export const RemotionRoot: React.FC = () => {
         durationInFrames: totalDurationInFrames(props.segments, props.fps),
       })}
     />
+    <Composition
+      id="StoryboardArretDeJeu"
+      component={StoryboardArretDeJeu}
+      fps={STORYBOARD_FPS}
+      width={1080}
+      height={1440}
+      durationInFrames={storyboardDurationInFrames()}
+    />
+    </>
   );
 };
