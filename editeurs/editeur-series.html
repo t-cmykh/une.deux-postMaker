@@ -211,7 +211,8 @@ Et à la fin du match…</textarea>
       <div class="field"><label>Total</label><input id="f_tot" type="text" value="09"></div>
     </div>
 
-    <div id="field_pagination" style="display:none">
+    <div id="field_footer_toggles" style="display:none">
+      <div class="toggle-row on" id="t_swipe"><div class="tg"></div><span>Swipe</span></div>
       <div class="toggle-row on" id="t_pagination"><div class="tg"></div><span>Pagination</span></div>
     </div>
 
@@ -329,6 +330,11 @@ function safeBottom(){ return state.ratio==='9:16'?120:0; }
 
 function defaultTag(key){ return SERIES[key].label; }
 
+/* pagination visible partout, sauf Les oubliés / L'arrêt de jeu quand leur toggle est désactivé */
+function paginationShown(){
+  return !(state.serie==='arretdejeu'||state.serie==='oublies') || state.paginationOn;
+}
+
 /* ===== UI séries ===== */
 const grid=document.getElementById('series_grid');
 Object.keys(SERIES).forEach(key=>{
@@ -354,8 +360,8 @@ function selectSerie(key){
   document.getElementById('f_tag').value=defaultTag(key);
   /* champ fond corps : uniquement Portraits */
   document.getElementById('field_bodybox').style.display = (key==='portraits')?'block':'none';
-  /* toggle pagination : uniquement L'arrêt de jeu */
-  document.getElementById('field_pagination').style.display = (key==='arretdejeu')?'block':'none';
+  /* toggles swipe + pagination : Les oubliés et L'arrêt de jeu */
+  document.getElementById('field_footer_toggles').style.display = (key==='arretdejeu'||key==='oublies')?'block':'none';
   /* toggle filtre rouille (photo) : uniquement L'arrêt de jeu */
   document.getElementById('field_enquetefilter').style.display = (key==='arretdejeu')?'block':'none';
   /* template "citation · interview" (duo photo/texte) : réservé à L'arrêt de jeu */
@@ -423,6 +429,7 @@ const ry=document.getElementById('r_py');ry.oninput=()=>{state.posy=+ry.value/10
 const rd=document.getElementById('r_dark');rd.oninput=()=>{state.dark=+rd.value/100;document.getElementById('v_dark').textContent=rd.value;draw();};
 const tsafe=document.getElementById('t_safe');tsafe.onclick=()=>{state.safeOn=!state.safeOn;tsafe.classList.toggle('on',state.safeOn);draw();};
 const tpagination=document.getElementById('t_pagination');tpagination.onclick=()=>{state.paginationOn=!state.paginationOn;tpagination.classList.toggle('on',state.paginationOn);draw();};
+const tswipe=document.getElementById('t_swipe');tswipe.onclick=()=>{state.showSwipe=!state.showSwipe;tswipe.classList.toggle('on',state.showSwipe);draw();};
 const tenquete=document.getElementById('t_enquetefilter');tenquete.onclick=()=>{state.enqueteFilterOn=!state.enqueteFilterOn;tenquete.classList.toggle('on',state.enqueteFilterOn);draw();};
 
 /* sélecteur de template (cover / citation / cta) */
@@ -985,7 +992,7 @@ function draw(){
   }
 
   /* 9. pagination — cur en signature, /tot en crème */
-  if(!isVert && (state.serie!=='arretdejeu' || state.paginationOn)){
+  if(!isVert && paginationShown()){
     g.textAlign='right'; g.textBaseline='middle'; g.font="68px 'Anton'";
     const totTxt='/'+state.tot;
     g.fillStyle = C.creme;
@@ -1222,7 +1229,7 @@ function drawCitation(W,H,s){
   }
 
   /* filet bas + pagination (masqués en vertical 9:16) */
-  if(!isVert && (state.serie!=='arretdejeu' || state.paginationOn)){
+  if(!isVert && paginationShown()){
     const footY=H-70-safeBottom();
     g.fillStyle=C.encre; g.fillRect(M, footY-46, W-M-MR, 3);
     g.textAlign='right'; g.textBaseline='middle'; g.font="60px 'Anton'";
@@ -1299,7 +1306,7 @@ function drawVerbatim(W,H,s){
 
   /* --- citation : Archivo casse naturelle, **gras** + segment coloré (signature) --- */
   const footY=H-70-safeBottom();
-  const showFooter = !isVert && (state.serie!=='arretdejeu' || state.paginationOn);
+  const showFooter = !isVert && paginationShown();
   const quoteTop=tagY+tagH+36;
   const quoteBottom=(showFooter?footY-46:H-70-safeBottom())-34;
   const maxH=Math.max(60,quoteBottom-quoteTop);
