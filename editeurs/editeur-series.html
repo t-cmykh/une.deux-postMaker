@@ -139,7 +139,7 @@ input[type=range]{flex:1;accent-color:var(--sig)}
 
     <div class="field">
       <label>Titre</label>
-      <textarea id="f_title">28 JUIN 1958 IMAGINE TU AS 17 ANS</textarea>
+      <textarea id="f_title" placeholder="TITRE DE LA COVER"></textarea>
     </div>
 
     <div class="field">
@@ -149,8 +149,7 @@ input[type=range]{flex:1;accent-color:var(--sig)}
 
     <div class="field" id="field_body">
       <label>Sous-titre (corps)</label>
-      <textarea id="f_body">Tu t'apprêtes à jouer une demi-finale de Coupe du monde.
-Et à la fin du match…</textarea>
+      <textarea id="f_body" placeholder="Sous-titre / corps de texte…"></textarea>
       <div class="hint">Entrée = nouvelle ligne · **gras** supporté</div>
     </div>
 
@@ -279,8 +278,8 @@ const SERIES = {
 /* ===== State (calé sur post.html) ===== */
 const state = {
   serie:'cejourla',
-  tag:'', title:'28 JUIN 1958 IMAGINE TU AS 17 ANS', greenWords:new Set(['IMAGINE']),
-  body:"Tu t'apprêtes à jouer une demi-finale de Coupe du monde.\nEt à la fin du match…",
+  tag:'', title:'', greenWords:new Set(),
+  body:'',
   cur:'01', tot:'09',
   img:null, vid:null, isVideo:false, zoom:1, posx:0.5, posy:0.5, dark:0.78,
   ratio:'9:16', safeOn:true, showSwipe:true, paginationOn:true,
