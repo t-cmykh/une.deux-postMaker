@@ -56,12 +56,12 @@
       data-start="0"
       data-width="1080"
       data-height="1920"
-      data-duration="29.2020"
+      data-duration="39.5020"
       data-fps="30"
     >
-      <video class="video-full" id="full" src="assets/full.mp4" data-start="0.0000" data-duration="29.1985" data-track-index="1" muted playsinline></video>
+      <video class="video-full" id="full" src="assets/full.mp4" data-start="0.0000" data-duration="39.4985" data-track-index="1" muted playsinline></video>
 
-      <audio id="afull" src="assets/full-audio.m4a" data-start="0.0000" data-duration="29.1485" data-track-index="20"></audio>
+      <audio id="afull" src="assets/full-audio.m4a" data-start="0.0000" data-duration="39.4485" data-track-index="20"></audio>
 
       <div id="hdr">
         <div class="ring">1·2</div>
@@ -90,18 +90,17 @@
       const tl = gsap.timeline({ paused: true });
 
       // corps du post animé — réparti sur la durée complète et non
-      // retouchée de la vidéo source (29.2s), rythme calculé via
-      // scripts/pacing.py (facteur ≈0.795, vidéo plus courte que le texte
-      // au rythme naturel — compressé plutôt que coupé) ; pas de tween
-      // width/height/top/left/x/y (interdit par le runtime)
+      // retouchée de la vidéo source (39.5s, nouvelle vidéo remplaçant la
+      // précédente), rythme calculé via scripts/pacing.py (facteur ≈1.073) ;
+      // pas de tween width/height/top/left/x/y (interdit par le runtime)
       const lines = [
-        { id: 't1', start: 0.30, dur: 5.43 },
-        { id: 't2', start: 5.93, dur: 3.07 },
-        { id: 't3', start: 9.20, dur: 5.00 },
-        { id: 't4', start: 14.40, dur: 3.93 },
-        { id: 't5', start: 18.53, dur: 3.93 },
-        { id: 't6', start: 22.66, dur: 2.21 },
-        { id: 't7', start: 25.07, dur: 4.14 },
+        { id: 't1', start: 0.30, dur: 7.33 },
+        { id: 't2', start: 7.93, dur: 4.14 },
+        { id: 't3', start: 12.37, dur: 6.75 },
+        { id: 't4', start: 19.42, dur: 5.30 },
+        { id: 't5', start: 25.02, dur: 5.30 },
+        { id: 't6', start: 30.62, dur: 2.98 },
+        { id: 't7', start: 33.90, dur: 5.59 },
       ];
 
       lines.forEach(({ id, start, dur }) => {
