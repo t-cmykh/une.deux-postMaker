@@ -76,12 +76,11 @@
            gras/ocre -->
       <div class="text-zone">
         <div class="text-chunk" id="t1">Le 29 juillet 2017, le PSG et l'AS Monaco s'affrontent au stade Ibn-Batouta de Tanger, devant 43 761 spectateurs, pour le <b class="ocre">Trophée des Champions</b>.</div>
-        <div class="text-chunk" id="t2"><b>Monaco</b>, champion de France en titre, ouvre le score par <b class="ocre">Djibril Sidibé</b> (30e).</div>
-        <div class="text-chunk" id="t3">Le PSG vient tout juste d'enrôler <b class="ocre">Dani Alves</b>, arrivé libre après Juventus : c'est son <b>grand premier match</b> sous le maillot parisien.</div>
-        <div class="text-chunk" id="t4">À la 51e minute, il égalise d'un <b class="ocre">coup franc enroulé de 25 mètres</b> qui trompe Danijel Subašić.</div>
-        <div class="text-chunk" id="t5">Douze minutes plus tard, il centre pour <b>Adrien Rabiot</b>, qui inscrit le <b class="ocre">but de la victoire</b> (2-1).</div>
-        <div class="text-chunk" id="t6">Le PSG décroche son <b class="ocre">cinquième Trophée des Champions</b> consécutif.</div>
-        <div class="text-chunk" id="t7">Alves n'a pas encore appris les couloirs du Parc des Princes qu'il repart déjà élu <b class="ocre">homme du match</b>.</div>
+        <div class="text-chunk" id="t2">Le PSG vient tout juste d'enrôler <b class="ocre">Dani Alves</b>, arrivé libre après Juventus : c'est son <b>grand premier match</b> sous le maillot parisien.</div>
+        <div class="text-chunk" id="t3">À la 51e minute, il égalise d'un <b class="ocre">coup franc enroulé de 25 mètres</b> qui trompe Danijel Subašić.</div>
+        <div class="text-chunk" id="t4">Douze minutes plus tard, il centre pour <b>Adrien Rabiot</b>, qui inscrit le <b class="ocre">but de la victoire</b> (2-1).</div>
+        <div class="text-chunk" id="t5">Le PSG décroche son <b class="ocre">cinquième Trophée des Champions</b> consécutif.</div>
+        <div class="text-chunk" id="t6">Alves n'a pas encore appris les couloirs du Parc des Princes qu'il repart déjà élu <b class="ocre">homme du match</b>.</div>
       </div>
     </div>
 
@@ -90,17 +89,17 @@
       const tl = gsap.timeline({ paused: true });
 
       // corps du post animé — réparti sur la durée complète et non
-      // retouchée de la vidéo source (39.5s, nouvelle vidéo remplaçant la
-      // précédente), rythme calculé via scripts/pacing.py (facteur ≈1.073) ;
+      // retouchée de la vidéo source (39.5s) ; ligne sur l'ouverture du
+      // score par Sidibé retirée à la demande de Thomas, rythme recalculé
+      // sur les 6 blocs restants via scripts/pacing.py (facteur ≈1.217) ;
       // pas de tween width/height/top/left/x/y (interdit par le runtime)
       const lines = [
-        { id: 't1', start: 0.30, dur: 7.33 },
-        { id: 't2', start: 7.93, dur: 4.14 },
-        { id: 't3', start: 12.37, dur: 6.75 },
-        { id: 't4', start: 19.42, dur: 5.30 },
-        { id: 't5', start: 25.02, dur: 5.30 },
-        { id: 't6', start: 30.62, dur: 2.98 },
-        { id: 't7', start: 33.90, dur: 5.59 },
+        { id: 't1', start: 0.30, dur: 8.31 },
+        { id: 't2', start: 8.91, dur: 7.65 },
+        { id: 't3', start: 16.86, dur: 6.01 },
+        { id: 't4', start: 23.17, dur: 6.01 },
+        { id: 't5', start: 29.48, dur: 3.38 },
+        { id: 't6', start: 33.16, dur: 6.34 },
       ];
 
       lines.forEach(({ id, start, dur }) => {
