@@ -1,0 +1,10 @@
+[
+  {"template":"A","tag":"L'ANOMALIE","title":"AUCUN AGENT NE PEUT ÊTRE PAYÉ POUR REPRÉSENTER UN MINEUR.","greenWord":"AUCUN AGENT","body":"Les parents, eux, n'ont jamais eu ce problème.","media":"mineurs_01.PNG"},
+  {"template":"A","tag":"LE RÈGLEMENT FIFA","title":"SUR LE PAPIER, REPRÉSENTER UN MINEUR EST QUASI IMPOSSIBLE.","greenWord":"QUASI IMPOSSIBLE","body":"Autorisation spécifique en plus de la licence. Consentement écrit du représentant légal. Interdit d'approcher le joueur plus de six mois avant l'âge de signer pro.","media":"mineurs_02.PNG"},
+  {"template":"H","quote":"Sauf sur un point.","quoteAccent":"un point.","quoteAuthor":"","caption":""},
+  {"template":"A","tag":"L'ARTICLE QUI CHANGE TOUT","title":"UN AGENT NE TOUCHE RIEN TANT QUE LE JOUEUR EST MINEUR.","greenWord":"RIEN","body":"Aucune commission possible avant la signature d'un premier contrat professionnel. Le règlement le dit noir sur blanc.","media":"mineurs_04.PNG"},
+  {"template":"G","quote":"Un agent ne perçoit aucune rémunération pour représenter un mineur, sauf s'il signe un premier contrat professionnel.","quoteAccent":"aucune rémunération","quoteAuthor":"Règlement FIFA sur les agents, 2023","caption":"LE VERROU"},
+  {"template":"A","tag":"12-18 ANS","title":"LES ANNÉES OÙ TOUT SE JOUE, PERSONNE N'A INTÉRÊT À S'EN OCCUPER.","greenWord":"PERSONNE","body":"De douze à dix-huit ans, un talent se forme ou disparaît. Aucun professionnel n'a de raison financière de s'y investir sérieusement.","media":"mineurs_06.PNG"},
+  {"template":"A","tag":"LA PISTE","title":"LA FIFA A FINI PAR PUBLIER UN GUIDE. PAS POUR LES AGENTS. POUR LES PARENTS.","greenWord":"POUR LES PARENTS","body":"Une manière de reconnaître, sans le dire, qui gère vraiment les jeunes talents entre douze et dix-huit ans.","media":"mineurs_07.PNG"},
+  {"template":"D","tag":"L'ARRÊT DE JEU","title":"RESTE DANS LE JEU","body":"Une question foot, chaque semaine.","btnlabel":"FOLLOW"}
+]
