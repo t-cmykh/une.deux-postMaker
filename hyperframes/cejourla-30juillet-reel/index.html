@@ -73,17 +73,26 @@
       <div class="tag">CE JOUR LÀ …</div>
 
       <!-- corps du post du 30 juillet (brouillon "L'Angleterre 1966, le
-           but de Wembley"), texte intégral repris tel quel, mots-clés en
+           but de Wembley"), texte intégral repris tel quel, découpé en
+           blocs courts (≤2 lignes) à la demande de Thomas — chaque bloc
+           reste une sous-chaîne verbatim du texte original, mots-clés en
            gras/ocre -->
       <div class="text-zone">
-        <div class="text-chunk" id="t1"><b>L'Angleterre</b> affronte la RFA en finale de la <b class="ocre">Coupe du Monde</b>, le 30 juillet 1966 à Wembley, devant 96 924 spectateurs.</div>
-        <div class="text-chunk" id="t2"><b class="ocre">Helmut Haller</b> ouvre le score à la 12e minute, <b>Geoff Hurst</b> égalise à la 18e.</div>
-        <div class="text-chunk" id="t3"><b>Martin Peters</b> donne l'avantage aux Anglais à la 78e, mais <b class="ocre">Wolfgang Weber</b> égalise à la 89e et envoie tout le monde en prolongation.</div>
-        <div class="text-chunk" id="t4">À la 101e minute, Hurst reprend un centre : le ballon percute la barre transversale et retombe sur la ligne. <b class="ocre">But litigieux</b>, aussitôt contesté par les Allemands.</div>
-        <div class="text-chunk" id="t5">L'arbitre suisse Gottfried Dienst ne tranche pas seul, il va voir son juge de touche, <b class="ocre">Tofik Bahramov</b> — soviétique, originaire de Bakou, en Azerbaïdjan, que les Anglais ont longtemps appelé « <b>le Russe</b> ».</div>
-        <div class="text-chunk" id="t6">Bahramov valide. Hurst enfonce le clou à la 120e avec un <b class="ocre">troisième but personnel</b>, premier triplé de l'histoire en finale de Coupe du Monde. Score final : <b>4-2</b>.</div>
-        <div class="text-chunk" id="t7">Une étude d'Oxford calculera bien plus tard que le ballon était retombé <b class="ocre">7,6 centimètres</b> avant la ligne.</div>
-        <div class="text-chunk" id="t8">Le seul sacre mondial de l'Angleterre repose sur la parole d'un homme dont personne, à Wembley, ne savait vraiment dire le <b class="ocre">nom</b>.</div>
+        <div class="text-chunk" id="t1">Le 30 juillet 1966, à Wembley, devant 96 924 spectateurs,</div>
+        <div class="text-chunk" id="t2"><b>l'Angleterre</b> affronte la RFA en finale de la <b class="ocre">Coupe du Monde</b>.</div>
+        <div class="text-chunk" id="t3"><b class="ocre">Helmut Haller</b> ouvre le score à la 12e minute, <b>Geoff Hurst</b> égalise à la 18e.</div>
+        <div class="text-chunk" id="t4"><b>Martin Peters</b> donne l'avantage aux Anglais à la 78e,</div>
+        <div class="text-chunk" id="t5">mais <b class="ocre">Wolfgang Weber</b> égalise à la 89e et envoie tout le monde en prolongation.</div>
+        <div class="text-chunk" id="t6">À la 101e minute, Hurst reprend un centre :</div>
+        <div class="text-chunk" id="t7">le ballon percute la barre transversale et retombe sur la ligne.</div>
+        <div class="text-chunk" id="t8"><b class="ocre">But litigieux</b>, aussitôt contesté par les Allemands.</div>
+        <div class="text-chunk" id="t9">L'arbitre suisse Gottfried Dienst ne tranche pas seul, il va voir son juge de touche, <b class="ocre">Tofik Bahramov</b> —</div>
+        <div class="text-chunk" id="t10">soviétique, originaire de Bakou, en Azerbaïdjan, que les Anglais ont longtemps appelé « <b>le Russe</b> ».</div>
+        <div class="text-chunk" id="t11">Bahramov valide. Hurst enfonce le clou à la 120e avec un <b class="ocre">troisième but personnel</b>,</div>
+        <div class="text-chunk" id="t12">premier triplé de l'histoire en finale de Coupe du Monde. Score final : <b>4-2</b>.</div>
+        <div class="text-chunk" id="t13">Une étude d'Oxford calculera bien plus tard que le ballon était retombé <b class="ocre">7,6 centimètres</b> avant la ligne.</div>
+        <div class="text-chunk" id="t14">Le seul sacre mondial de l'Angleterre repose sur la parole d'un homme dont personne,</div>
+        <div class="text-chunk" id="t15">à Wembley, ne savait vraiment dire le <b class="ocre">nom</b>.</div>
       </div>
     </div>
 
@@ -92,18 +101,26 @@
       const tl = gsap.timeline({ paused: true });
 
       // corps du post animé — réparti sur la durée complète et non
-      // retouchée de la vidéo source (52.15s), rythme calculé via
-      // scripts/pacing.py (facteur ≈0.948, quasi rythme naturel) ; pas de
+      // retouchée de la vidéo source (52.15s) ; texte découpé en 15 blocs
+      // courts (≤2 lignes chacun, demande de Thomas) plutôt que 8 longs,
+      // rythme recalculé via scripts/pacing.py (facteur ≈0.875) ; pas de
       // tween width/height/top/left/x/y (interdit par le runtime)
       const lines = [
-        { id: 't1', start: 0.30, dur: 5.71 },
-        { id: 't2', start: 6.31, dur: 4.17 },
-        { id: 't3', start: 10.78, dur: 6.22 },
-        { id: 't4', start: 17.30, dur: 7.24 },
-        { id: 't5', start: 24.84, dur: 8.27 },
-        { id: 't6', start: 33.41, dur: 7.50 },
-        { id: 't7', start: 41.21, dur: 4.68 },
-        { id: 't8', start: 46.19, dur: 5.96 },
+        { id: 't1', start: 0.30, dur: 2.67 },
+        { id: 't2', start: 3.19, dur: 2.90 },
+        { id: 't3', start: 6.31, dur: 3.85 },
+        { id: 't4', start: 10.38, dur: 2.43 },
+        { id: 't5', start: 13.03, dur: 3.61 },
+        { id: 't6', start: 16.86, dur: 2.43 },
+        { id: 't7', start: 19.51, dur: 2.90 },
+        { id: 't8', start: 22.63, dur: 1.96 },
+        { id: 't9', start: 24.81, dur: 4.56 },
+        { id: 't10', start: 29.59, dur: 4.09 },
+        { id: 't11', start: 33.90, dur: 3.61 },
+        { id: 't12', start: 37.73, dur: 3.61 },
+        { id: 't13', start: 41.56, dur: 4.32 },
+        { id: 't14', start: 46.10, dur: 3.61 },
+        { id: 't15', start: 49.93, dur: 2.20 },
       ];
 
       lines.forEach(({ id, start, dur }) => {
