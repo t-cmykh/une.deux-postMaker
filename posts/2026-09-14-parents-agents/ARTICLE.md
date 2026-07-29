@@ -57,7 +57,7 @@ La réforme FIFA de 2023 sur les agents, censée plafonner les commissions et en
 ### SLIDE 10 — La réponse, et le débat
 **CE N'EST PAS UNE DÉRIVE. C'EST LA CONSÉQUENCE DIRECTE D'UNE RÈGLE QUI NE DIT RIEN APRÈS 18 ANS**
 
-Un règlement qui interdit de payer un agent pour un mineur, mais qui ne prévoit rien pour le jour où ce mineur devient une valeur marchande de plusieurs dizaines de millions d'euros : c'est exactement l'angle mort dans lequel se sont installés Véronique Rabiot, Fayza Lamari, et maintenant la famille d'Ibrahim Mbaye. Le problème n'est pas qu'un parent protège son enfant. C'est que personne n'a jamais fixé le moment où cette protection doit redevenir un choix, et non un contrat.
+Un règlement qui interdit de payer un agent pour un mineur, mais qui ne prévoit rien pour le jour où ce mineur devient une valeur marchande de plusieurs dizaines de millions d'euros : c'est ce vide que les cas Rabiot, Mbappé et Mbaye éclairent chacun à leur manière, sans que cela signifie que chaque famille en a fait le même usage. Le problème n'est pas qu'un parent protège son enfant : c'est même, pour un mineur, l'option la plus naturelle. C'est que personne n'a jamais fixé le moment où cette protection doit redevenir un choix, et non un contrat qui se prolonge par habitude.
 
 **Débat :** un joueur devrait-il être obligé de changer d'agent en devenant majeur, ou chacun garde-t-il le droit de faire confiance à sa famille ?
 
