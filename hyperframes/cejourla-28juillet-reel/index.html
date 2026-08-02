@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 28 juillet 1993, Harry Kane</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* montage d'entrée non retouché — plan unique, continu, ordre et
+         longueur de la vidéo source intacts (compilation des buts de
+         Harry Kane, Coupe du monde 2026), composité (fond plein cadre
+         flouté+désaturé, sigma 36 / saturation 0.4, + plan net plein
+         cadre horizontal 1080×888 par dessus, y=420) via ffmpeg en amont ;
+         muté, son porté par un <audio> séparé */
+      .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+
+      /* header — mêmes constantes que le reste de la série */
+      #hdr { position: absolute; inset: 0 0 auto 0; z-index: 20; }
+      .ring {
+        position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
+        border: 4px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
+      .tag {
+        position: absolute; left: 96px; top: 350px; height: 58px; z-index: 20;
+        display: flex; align-items: center; background: var(--ocre); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; padding: 0 15px;
+      }
+
+      /* corps de texte animé — centré même sur plusieurs lignes, pas de
+         scrim sombre (lisibilité via l'ombre portée du texte uniquement) */
+      .text-zone { position: absolute; left: 96px; right: 96px; top: 1420px; transform: translateY(-50%); z-index: 10; text-align: center; }
+      .text-chunk {
+        position: absolute; left: 0; right: 0; top: 0; transform: translateY(-50%); opacity: 0;
+        font-family: 'Archivo', sans-serif; font-weight: 500; font-size: 36px; line-height: 1.35;
+        color: var(--cream); text-shadow: 0 2px 16px rgba(0,0,0,.65), 0 1px 4px rgba(0,0,0,.8);
+      }
+      .text-chunk b { font-weight: 800; color: var(--cream); }
+      .text-chunk b.ocre { color: var(--ocre); }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="53.3020"
+      data-fps="30"
+    >
+      <video class="video-full" id="full" src="assets/full.mp4" data-start="0.0000" data-duration="53.2985" data-track-index="1" muted playsinline></video>
+
+      <audio id="afull" src="assets/full-audio.m4a" data-start="0.0000" data-duration="53.2485" data-track-index="20"></audio>
+
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+      <div class="tag">CE JOUR LÀ …</div>
+
+      <!-- corps du post du 28 juillet (brouillon Harry Kane), texte
+           intégral repris tel quel, mots-clés en gras/ocre -->
+      <div class="text-zone">
+        <div class="text-chunk" id="t1"><b>Harry Kane</b> naît le <b class="ocre">28 juillet 1993</b> à Walthamstow, dans l'est de Londres.</div>
+        <div class="text-chunk" id="t2">À 8 ans, l'<b>Arsenal</b> le libère de son centre de formation : <b class="ocre">trop lent, pas assez costaud</b> pour le haut niveau.</div>
+        <div class="text-chunk" id="t3">Il rejoint <b>Tottenham</b> à 11 ans et attend ses <b class="ocre">31 ans</b> pour soulever le moindre trophée majeur.</div>
+        <div class="text-chunk" id="t4">Il devient <b>capitaine de l'Angleterre</b> en 2018, puis dépasse Wayne Rooney en 2023 pour devenir le <b class="ocre">meilleur buteur de l'histoire</b> des Three Lions.</div>
+        <div class="text-chunk" id="t5">En 2025, le <b>Bayern Munich</b> lui offre enfin ce premier titre : la <b class="ocre">Bundesliga</b>.</div>
+        <div class="text-chunk" id="t6">Un an plus tard, à la <b>Coupe du monde 2026</b>, sa tête contre le Panama efface un record vieux de 36 ans, les <b class="ocre">10 buts de Gary Lineker</b> en phase finale.</div>
+        <div class="text-chunk" id="t7"><b>Arsenal</b> l'a laissé partir à 8 ans. Il ne s'est plus jamais arrêté de <b class="ocre">marquer pour l'Angleterre</b>.</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // corps du post animé — texte intégral du brouillon, réparti sur la
+      // durée complète et non retouchée de la vidéo source (53.3s) au
+      // rythme naturel (facteur ≈1.325, formule §5) ; le montage d'entrée
+      // n'étant pas recoupé/réordonné, le texte suit l'ordre du récit
+      // sans être calé plan par plan ; pas de tween width/height (interdit
+      // par le runtime)
+      const lines = [
+        { id: 't1', start: 0.30,  dur: 5.11 },
+        { id: 't2', start: 5.71,  dur: 7.62 },
+        { id: 't3', start: 13.63, dur: 6.55 },
+        { id: 't4', start: 20.48, dur: 8.69 },
+        { id: 't5', start: 29.47, dur: 5.11 },
+        { id: 't6', start: 34.88, dur: 11.55 },
+        { id: 't7', start: 46.73, dur: 6.55 },
+      ];
+
+      lines.forEach(({ id, start, dur }) => {
+        tl.fromTo(`#${id}`, { opacity: 0 }, { opacity: 1, duration: 0.3, ease: 'power2.out' }, start);
+        tl.to(`#${id}`, { opacity: 0, duration: 0.26, ease: 'sine.in' }, start + dur - 0.26);
+        tl.set(`#${id}`, { opacity: 0 }, start + dur);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>

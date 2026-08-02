@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · test mise en page vidéo horizontale</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; }
+
+      /* ===== Header — identique au reel "Ce jour-là" existant, inchangé ===== */
+      #hdr { position: absolute; inset: 0 0 auto 0; height: 300px; z-index: 30; }
+      .ring {
+        position: absolute; left: 96px; top: 150px; width: 76px; height: 76px; border-radius: 50%;
+        border: 3px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 700; font-size: 30px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 188px; top: 162px; font-family: 'Anton', sans-serif; font-size: 46px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 174px; font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 26px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 252px; height: 3px; background: var(--cream); }
+      .progress-track { position: absolute; left: 96px; right: 96px; top: 262px; height: 4px; background: rgba(237, 220, 178, 0.25); }
+      .progress-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0%; background: var(--ocre); }
+
+      /* ===== Fond ambiant : même rush, flouté/assombri, plein cadre ===== */
+      .bg-video {
+        position: absolute; inset: -6%; width: 112%; height: 112%; object-fit: cover;
+        filter: blur(34px) saturate(1.15) brightness(0.6); z-index: 1;
+      }
+      .bg-scrim {
+        position: absolute; inset: 0; z-index: 2;
+        background: linear-gradient(180deg,
+          rgba(44,40,35,.30) 0%, rgba(44,40,35,.12) 30%,
+          rgba(44,40,35,.55) 72%, rgba(44,40,35,.88) 100%);
+      }
+      .grain {
+        position: absolute; inset: 0; z-index: 3; opacity: .05; pointer-events: none;
+        background-image: repeating-linear-gradient(-45deg, #fff 0, #fff 1px, transparent 1px, transparent 3px);
+      }
+
+      /* ===== Carte vidéo — la vraie image nette, cadrée en 16:9 dans un
+         encadré ocre, posée sur le fond flouté ===== */
+      .card-video {
+        position: absolute; left: 96px; top: 320px; width: 888px; height: 499.5px;
+        object-fit: cover; z-index: 5; border-radius: 18px; border: 2px solid var(--ocre);
+        box-shadow: 0 24px 70px rgba(0,0,0,.5);
+      }
+
+      .kicker {
+        position: absolute; left: 96px; top: 844px; z-index: 10; opacity: 0;
+        background: var(--ocre); color: var(--ink); font-family: 'Saira Condensed', sans-serif;
+        font-weight: 700; font-size: 26px; letter-spacing: .02em; padding: 13px 22px; white-space: nowrap;
+      }
+
+      .hook-zone { position: absolute; left: 96px; right: 96px; top: 950px; z-index: 10; text-align: left; }
+      .hook { font-family: 'Anton', sans-serif; font-size: 130px; line-height: 1.02; text-transform: uppercase; color: var(--cream); }
+      .hline { opacity: 0; }
+      .hook .accent { color: var(--ocre); }
+
+      .anim { opacity: 0; }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="5.217"
+      data-fps="30"
+    >
+      <video class="bg-video" id="bg-video" src="assets/nor-ang-35.mp4" data-start="0" data-duration="5.217" data-track-index="6" muted playsinline></video>
+      <div class="bg-scrim"></div>
+      <div class="grain"></div>
+
+      <video class="card-video" id="card-video" src="assets/nor-ang-35.mp4" data-start="0" data-duration="5.217" data-track-index="5" muted playsinline></video>
+
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+        <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+      </div>
+
+      <div class="kicker anim" id="kicker">MONDIAL 2026 — QUART</div>
+
+      <div class="hook-zone">
+        <div class="hook" id="hook">
+          <div class="hline">35ᵉ MINUTE.</div>
+          <div class="hline">TOUJOURS 0-0.</div>
+          <div class="hline">LA NORVÈGE</div>
+          <div class="hline">TIENT <span class="accent">BON.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // Fond flouté : lent Ken Burns pour ne pas rester figé derrière la carte.
+      tl.fromTo('#bg-video', { scale: 1.0 }, { scale: 1.08, duration: 5.217, ease: 'none' }, 0);
+
+      // Carte nette : entrée en douceur (scale + fade), pas d'agitation.
+      tl.fromTo('#card-video', { opacity: 0, scale: 0.94, y: 14 },
+        { opacity: 1, scale: 1, y: 0, duration: 0.55, ease: 'power3.out' }, 0.05);
+
+      // Kicker ocre : petit rebond, juste après la carte.
+      tl.fromTo('#kicker', { opacity: 0, y: 10, scale: 0.9 },
+        { opacity: 1, y: 0, scale: 1, duration: 0.4, ease: 'back.out(2)' }, 0.45);
+
+      // Titre : reveal ligne par ligne, même grammaire que le hook du reel principal.
+      const hlines = document.querySelectorAll('#hook .hline');
+      hlines.forEach((el, i) => {
+        tl.fromTo(el, { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.42, ease: 'power3.out' }, 0.75 + i * 0.22);
+      });
+
+      // Barre de progression.
+      tl.fromTo('#progress-fill', { width: '0%' }, { width: '100%', duration: 5.217, ease: 'none' }, 0);
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>

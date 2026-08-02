@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · animation "RDV DEMAIN"</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root {
+        position: relative; width: 1080px; height: 1920px; overflow: hidden;
+        background: var(--cream);
+        background-image: repeating-linear-gradient(-20deg, rgba(255,255,255,.35) 0px, rgba(255,255,255,.35) 1px, transparent 1px, transparent 40px);
+      }
+
+      /* ===== header — mêmes constantes que le reel (M=MR=96, ringD=92,
+         ringY=216, hairline y=318), en encre car fond clair ===== */
+      #hdr { position: absolute; inset: 0 0 auto 0; z-index: 20; opacity: 0; }
+      .ring {
+        position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
+        border: 4px solid var(--ink); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--ink);
+      }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--ink); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--ink); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--ink); }
+
+      /* ===== ruban / bookmark — wrapper statique (centrage translateX)
+         + élément animé séparé, pour ne jamais mélanger un transform
+         statique en % avec un tween GSAP sur le même élément ===== */
+      .ribbon-wrap { position: absolute; left: 50%; top: 560px; transform: translateX(-50%); }
+      #ribbon {
+        position: relative; width: 150px; height: 170px; transform-origin: top center; opacity: 0;
+        background: var(--ocre);
+        clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 76%, 0 100%);
+      }
+
+      /* ===== tag — même principe wrapper/élément séparés ===== */
+      .tag-wrap { position: absolute; left: 50%; top: 780px; transform: translateX(-50%); }
+      #tag {
+        position: relative; opacity: 0;
+        height: 58px; display: flex; align-items: center; background: var(--ocre); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; padding: 0 22px;
+      }
+
+      /* ===== titre ===== */
+      .title-zone { position: absolute; left: 96px; right: 96px; top: 845px; text-align: center; }
+      .title-line {
+        font-family: 'Anton', sans-serif; font-size: 118px; line-height: 1.0; color: var(--ink);
+        text-transform: uppercase; opacity: 0; transform: translateY(14px);
+      }
+
+      /* ===== corps ===== */
+      #body-text {
+        position: absolute; left: 96px; right: 96px; top: 1120px; text-align: center;
+        font-family: 'Archivo', sans-serif; font-weight: 500; font-size: 36px; line-height: 1.35;
+        color: var(--ink); opacity: 0; transform: translateY(10px);
+      }
+
+      /* ===== pied de page ===== */
+      #ftr { position: absolute; left: 0; right: 0; bottom: 90px; z-index: 20; opacity: 0; }
+      .ftr-hairline { position: absolute; left: 96px; right: 96px; top: 0; height: 4px; background: var(--ink); }
+      .ftr-handle { position: absolute; left: 96px; top: 40px; font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--ink); }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="3.00"
+      data-fps="30"
+    >
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+
+      <div class="ribbon-wrap"><div id="ribbon"></div></div>
+      <div class="tag-wrap"><div id="tag">CE JOUR LÀ …</div></div>
+
+      <div class="title-zone">
+        <div class="title-line" id="t1">RDV</div>
+        <div class="title-line" id="t2">DEMAIN</div>
+      </div>
+
+      <div id="body-text">Tous les jours, on revient sur les moments marquants du foot qui se sont passés ce jour-là…</div>
+
+      <div id="ftr">
+        <div class="ftr-hairline"></div>
+        <div class="ftr-handle">@UNE.DEUX</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // animation de la cover statique "RDV DEMAIN" — révélation en
+      // cascade sur 3s, même vocabulaire que les autres animations une·deux
+      // (fondu + léger déplacement, power2.out) ; pas de tween width/height
+      // (interdit par le runtime) ; le ruban utilise scaleY (transform
+      // alias autorisé), pas height
+
+      tl.fromTo('#hdr', { opacity: 0, y: -8 }, { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out' }, 0.05);
+
+      tl.fromTo('#ribbon', { opacity: 0, scaleY: 0 }, { opacity: 1, scaleY: 1, duration: 0.45, ease: 'back.out(1.6)' }, 0.25);
+
+      tl.fromTo('#tag', { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' }, 0.55);
+
+      tl.fromTo('#t1', { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.32, ease: 'power2.out' }, 0.75);
+      tl.fromTo('#t2', { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.32, ease: 'power2.out' }, 0.95);
+
+      tl.fromTo('#body-text', { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out' }, 1.25);
+
+      tl.fromTo('#ftr', { opacity: 0 }, { opacity: 1, duration: 0.3, ease: 'power2.out' }, 1.65);
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
