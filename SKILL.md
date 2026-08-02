@@ -37,6 +37,34 @@ Britannica), pas trois reprises du même article ni trois miroirs de Wikipédia.
   fort mais douteux. La fiabilité prime sur le punch.
 - Conserver les **liens des 3 sources** pour chaque entrée livrée (traçabilité).
 
+### Méthode de vérification (pipeline claim par claim)
+
+La règle des 3 sources précise le *nombre* de sources ; ceci précise la
+*méthode* — pour éviter les faux ou les points qui auraient dû être nuancés.
+À appliquer avant toute rédaction finale, sur le brouillon de faits collectés :
+
+1. **Isoler chaque claim.** Lister à part chaque chiffre, date, citation,
+   palmarès ou fait précis que le post s'apprête à utiliser — un par un, pas
+   en bloc. Un post = plusieurs claims à vérifier séparément, pas un seul
+   "sujet" vérifié globalement.
+2. **Reformuler la recherche à chaque source.** Ne pas relancer la même
+   requête et lire 3 résultats différents de la même recherche — reformuler
+   (angle, langue, terme) pour éviter de ne trouver que des pages qui se
+   recopient entre elles.
+3. **Vérifier l'indépendance réelle des sources.** Deux articles qui se
+   citent l'un l'autre, ou reprennent la même dépêche (AFP, Reuters) sans
+   apport propre, comptent pour **une seule** source, pas deux — remonter à
+   l'origine commune si besoin pour trouver une vraie 3e source distincte.
+4. **En cas de désaccord entre sources** (chiffre différent, date différente,
+   version différente des faits) : ne jamais trancher arbitrairement au
+   profit du chiffre le plus spectaculaire. Chercher une source faisant
+   autorité pour arbitrer (fédération, base stats de référence) ; à défaut,
+   **nuancer explicitement** dans le texte livré ("selon les sources, entre
+   X et Y" / "autour de…") plutôt que d'asséner un chiffre non tranché comme
+   un fait certain.
+5. **Un claim non confirmé est écarté**, pas arrondi ni approximé pour passer
+   quand même (cf. règle des 3 sources ci-dessus).
+
 ## Éditeur principal : `editeurs/editeur-series.html`
 
 L'**éditeur de référence** est `editeurs/editeur-series.html` : éditeur
