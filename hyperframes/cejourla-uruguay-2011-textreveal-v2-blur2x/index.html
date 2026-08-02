@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 24 juillet 2011, Uruguay bat le Paraguay (v2, flou x2, texte animé)</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* vidéo source horizontale : composite pré-calculé (ffmpeg) — fond
+         plein cadre flouté ET désaturé (rempli/rogné) + vidéo nette
+         letterboxée par dessus, déjà fusionnées dans un seul fichier pour
+         ne pas payer un flou CSS coûteux au rendu ; mutée, son séparé
+         via <audio> */
+      .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+
+      /* ===== HEADER — repris à l'identique des valeurs pixel de
+         editeurs/editeur-series.html (ratio 9:16, série "Ce jour-là") :
+         M=MR=96, ringD=92, ringY=66+safeTop(150)=216, hairline y=318,
+         tag y=350 h=58. Pas de dégradé d'assombrissement en bas ===== */
+      #hdr { position: absolute; inset: 0 0 auto 0; z-index: 20; }
+      .ring {
+        position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
+        border: 4px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
+      .tag {
+        position: absolute; left: 96px; top: 350px; height: 58px; z-index: 20;
+        display: flex; align-items: center; background: var(--ocre); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px;
+        padding: 0 15px;
+      }
+
+      /* ===== corps de texte animé — centré même sur plusieurs lignes,
+         zone basse, sur le flou (pas de scrim sombre : lisibilité assurée
+         par l'ombre portée du texte uniquement) ===== */
+      .text-zone { position: absolute; left: 96px; right: 96px; top: 1560px; transform: translateY(-50%); z-index: 10; text-align: center; }
+      .text-chunk {
+        position: absolute; left: 0; right: 0; top: 0; transform: translateY(-50%); opacity: 0;
+        font-family: 'Archivo', sans-serif; font-weight: 500; font-size: 38px; line-height: 1.38;
+        color: var(--cream); text-shadow: 0 2px 16px rgba(0,0,0,.65), 0 1px 4px rgba(0,0,0,.8);
+      }
+      .text-chunk b { font-weight: 800; color: var(--cream); }
+      .text-chunk b.ocre { color: var(--ocre); }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="25.65"
+      data-fps="30"
+    >
+      <!-- vidéo = enfant direct de #root (contrainte HyperFrames), mutée ;
+           son porté par l'élément <audio> séparé -->
+      <video class="video-full" id="v1" src="assets/composite.mp4" data-start="0" data-duration="25.65" data-track-index="1" muted playsinline></video>
+      <audio id="a1" src="assets/audio.m4a" data-start="0" data-duration="25.60" data-track-index="20"></audio>
+
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+        <div class="tag">CE JOUR LÀ …</div>
+      </div>
+
+      <!-- corps du post du 24 juillet (brouillon), texte intégral repris
+           tel quel, découpé en unités de sens pour l'animation, mots-clés
+           en gras/ocre -->
+      <div class="text-zone">
+        <div class="text-chunk" id="c1">À Buenos Aires, l'Uruguay écrase le Paraguay <b class="ocre">3-0</b> en finale de la <b>Copa América</b>.</div>
+        <div class="text-chunk" id="c2"><b class="ocre">Luis Suárez</b> ouvre le score à la 11e minute,</div>
+        <div class="text-chunk" id="c3"><b class="ocre">Diego Forlán</b> plante un doublé (41e, 89e) et repart avec le titre de <b>meilleur joueur du tournoi</b>.</div>
+        <div class="text-chunk" id="c4">En face, le Paraguay a rallié cette finale sans gagner un seul match de la compétition :</div>
+        <div class="text-chunk" id="c5">trois nuls en phase de poules, puis deux qualifications aux tirs au but,</div>
+        <div class="text-chunk" id="c6">contre le Brésil tenant du titre puis le Venezuela.</div>
+        <div class="text-chunk" id="c7">L'Uruguay décroche son <b class="ocre">15e titre continental</b> et passe seul en tête du palmarès sud-américain,</div>
+        <div class="text-chunk" id="c8">devant l'Argentine et le Brésil, un rang qu'il gardera seul jusqu'en 2021.</div>
+        <div class="text-chunk" id="c9"><b class="ocre">Le plus petit pays du continent</b> a fini avec <b class="ocre">la plus grande armoire à trophées</b>.</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // corps de texte animé, apparaît au fur et à mesure de la vidéo —
+      // texte intégral du brouillon, découpé en 9 unités de sens. Vidéo
+      // bien plus courte que la v1 (25,65s) : même le rythme "naturel"
+      // dépasse déjà cette durée, donc pacing resserré (formule mots ×
+      // 0.27 + 0.35, × 0.67) pour tenir sans couper le texte, pauses
+      // réduites à 0.15s ; fondu bloc — pas de tween width/height
+      // (interdit par le runtime)
+      const chunks = [
+        { id: 'c1', start: 0.30,  dur: 2.77 },
+        { id: 'c2', start: 3.22,  dur: 1.86 },
+        { id: 'c3', start: 5.23,  dur: 3.31 },
+        { id: 'c4', start: 8.69,  dur: 3.31 },
+        { id: 'c5', start: 12.15, dur: 2.59 },
+        { id: 'c6', start: 14.89, dur: 1.86 },
+        { id: 'c7', start: 16.90, dur: 2.77 },
+        { id: 'c8', start: 19.82, dur: 2.41 },
+        { id: 'c9', start: 22.38, dur: 2.95 },
+      ];
+
+      chunks.forEach(({ id, start, dur }) => {
+        tl.fromTo(`#${id}`, { opacity: 0 }, { opacity: 1, duration: 0.2, ease: 'power2.out' }, start);
+        tl.to(`#${id}`, { opacity: 0, duration: 0.18, ease: 'sine.in' }, start + dur - 0.18);
+        tl.set(`#${id}`, { opacity: 0 }, start + dur);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>

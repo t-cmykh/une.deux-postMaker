@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 31 juillet 2020, le dernier sacre de la Coupe de la Ligue</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* montage d'entrée non retouché — plan unique, continu, ordre et
+         longueur de la vidéo source intacts, composité (fond plein cadre
+         flouté+désaturé, sigma 36 / saturation 0.4, + plan net plein cadre
+         horizontal 1080×888 par dessus, y=420) via ffmpeg en amont (voir
+         scripts/crop_math.py) ; muté, son porté par un <audio> séparé */
+      .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+
+      /* header — constantes fixes de la série, ne jamais improviser */
+      #hdr { position: absolute; inset: 0 0 auto 0; z-index: 20; }
+      .ring {
+        position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
+        border: 4px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
+      .tag {
+        position: absolute; left: 96px; top: 350px; height: 58px; z-index: 20;
+        display: flex; align-items: center; background: var(--ocre); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; padding: 0 15px;
+      }
+
+      /* corps de texte animé — centré même sur plusieurs lignes, pas de
+         scrim sombre (lisibilité via l'ombre portée du texte uniquement) */
+      .text-zone { position: absolute; left: 96px; right: 96px; top: 1420px; transform: translateY(-50%); z-index: 10; text-align: center; }
+      .text-chunk {
+        position: absolute; left: 0; right: 0; top: 0; transform: translateY(-50%); opacity: 0;
+        font-family: 'Archivo', sans-serif; font-weight: 500; font-size: 36px; line-height: 1.35;
+        color: var(--cream); text-shadow: 0 2px 16px rgba(0,0,0,.65), 0 1px 4px rgba(0,0,0,.8);
+      }
+      .text-chunk b { font-weight: 800; color: var(--cream); }
+      .text-chunk b.ocre { color: var(--ocre); }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="36.1670"
+      data-fps="30"
+    >
+      <video class="video-full" id="full" src="assets/full.mp4" data-start="0.0000" data-duration="36.1650" data-track-index="1" muted playsinline></video>
+
+      <audio id="afull" src="assets/full-audio.m4a" data-start="0.0000" data-duration="36.1020" data-track-index="20"></audio>
+
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+      <div class="tag">CE JOUR LÀ …</div>
+
+      <!-- corps du post du 31 juillet (brouillon "Le dernier sacre de la
+           Coupe de la Ligue, PSG-Lyon 2020"), texte intégral repris tel
+           quel, mots-clés en gras/ocre -->
+      <div class="text-zone">
+        <div class="text-chunk" id="t1"><b>Stade de France</b>, <b class="ocre">31 juillet 2020</b>.</div>
+        <div class="text-chunk" id="t2">Prolongations, <b class="ocre">0-0</b>, seulement <b>3 500 spectateurs</b> autorisés dans une enceinte qui en accueille 80 000, jauge Covid oblige.</div>
+        <div class="text-chunk" id="t3">Aux tirs au but, <b class="ocre">Keylor Navas</b> repousse la tentative de Bertrand Traoré, <b>Pablo Sarabia</b> transforme la sienne : 6-5.</div>
+        <div class="text-chunk" id="t4">Paris décroche son <b class="ocre">9e titre</b> dans cette compétition, un record.</div>
+        <div class="text-chunk" id="t5">Sauf qu'un an plus tôt, en septembre 2019, la Ligue de football professionnel avait déjà voté la <b class="ocre">suppression de la Coupe de la Ligue</b>.</div>
+        <div class="text-chunk" id="t6">Ce soir-là, le PSG ne fête pas un sacre.</div>
+        <div class="text-chunk" id="t7">Il célèbre le <b class="ocre">dernier titre</b> qui portera jamais ce nom.</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // corps du post animé — réparti sur la durée complète et non
+      // retouchée de la vidéo source, rythme calculé via scripts/pacing.py ;
+      // pas de tween width/height/top/left/x/y (interdit par le runtime,
+      // et y en particulier entrerait en conflit avec le translateY(-50%)
+      // statique du CSS sur .text-chunk)
+      const lines = [
+        { id: 't1', start: 0.30, dur: 2.36 },
+        { id: 't2', start: 2.96, dur: 6.25 },
+        { id: 't3', start: 9.51, dur: 6.58 },
+        { id: 't4', start: 16.39, dur: 3.66 },
+        { id: 't5', start: 20.35, dur: 8.20 },
+        { id: 't6', start: 28.85, dur: 3.34 },
+        { id: 't7', start: 32.49, dur: 3.66 },
+      ];
+
+      lines.forEach(({ id, start, dur }) => {
+        tl.fromTo(`#${id}`, { opacity: 0 }, { opacity: 1, duration: 0.3, ease: 'power2.out' }, start);
+        tl.to(`#${id}`, { opacity: 0, duration: 0.26, ease: 'sine.in' }, start + dur - 0.26);
+        tl.set(`#${id}`, { opacity: 0 }, start + dur);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>

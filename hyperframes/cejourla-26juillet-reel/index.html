@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 26 juillet 2009, l'adieu à Bobby Robson</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* montage — 7 segments (1 par unité de sens), uniquement des plans
+         filmés réels (cérémonie St James' Park 2009 + archives Mondial 90),
+         déjà composités (fond plein cadre flouté+désaturé, sigma 36 /
+         saturation 0.4, + plan net plein cadre horizontal 1080×888 par
+         dessus, y=420) via ffmpeg en amont ; chaque plan dure ≥3.5s ;
+         mutés, son porté par des <audio> séparés */
+      .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+
+      /* header — mêmes constantes que le reste de la série */
+      #hdr { position: absolute; inset: 0 0 auto 0; z-index: 20; }
+      .ring {
+        position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
+        border: 4px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
+      .tag {
+        position: absolute; left: 96px; top: 350px; height: 58px; z-index: 20;
+        display: flex; align-items: center; background: var(--ocre); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; padding: 0 15px;
+      }
+
+      /* corps de texte animé — centré même sur plusieurs lignes, pas de
+         scrim sombre (lisibilité via l'ombre portée du texte uniquement) */
+      .text-zone { position: absolute; left: 96px; right: 96px; top: 1420px; transform: translateY(-50%); z-index: 10; text-align: center; }
+      .text-chunk {
+        position: absolute; left: 0; right: 0; top: 0; transform: translateY(-50%); opacity: 0;
+        font-family: 'Archivo', sans-serif; font-weight: 500; font-size: 36px; line-height: 1.35;
+        color: var(--cream); text-shadow: 0 2px 16px rgba(0,0,0,.65), 0 1px 4px rgba(0,0,0,.8);
+      }
+      .text-chunk b { font-weight: 800; color: var(--cream); }
+      .text-chunk b.ocre { color: var(--ocre); }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="40.0333"
+      data-fps="30"
+    >
+      <video class="video-full" id="seg1" src="assets/seg1.mp4" data-start="0.0000"  data-duration="4.3650" data-track-index="1" muted playsinline></video>
+      <video class="video-full" id="seg2" src="assets/seg2.mp4" data-start="4.3667"  data-duration="9.1650" data-track-index="1" muted playsinline></video>
+      <video class="video-full" id="seg3" src="assets/seg3.mp4" data-start="13.5333" data-duration="5.9980" data-track-index="1" muted playsinline></video>
+      <video class="video-full" id="seg4" src="assets/seg4.mp4" data-start="19.5333" data-duration="4.9980" data-track-index="1" muted playsinline></video>
+      <video class="video-full" id="seg5" src="assets/seg5.mp4" data-start="24.5333" data-duration="5.4980" data-track-index="1" muted playsinline></video>
+      <video class="video-full" id="seg6" src="assets/seg6.mp4" data-start="30.0333" data-duration="4.9980" data-track-index="1" muted playsinline></video>
+      <video class="video-full" id="seg7" src="assets/seg7.mp4" data-start="35.0333" data-duration="4.9980" data-track-index="1" muted playsinline></video>
+
+      <audio id="a1" src="assets/seg1-audio.m4a" data-start="0.0000"  data-duration="4.3167" data-track-index="20"></audio>
+      <audio id="a2" src="assets/seg2-audio.m4a" data-start="4.3667"  data-duration="9.1167" data-track-index="20"></audio>
+      <audio id="a3" src="assets/seg3-audio.m4a" data-start="13.5333" data-duration="5.9500" data-track-index="20"></audio>
+      <audio id="a4" src="assets/seg4-audio.m4a" data-start="19.5333" data-duration="4.9500" data-track-index="20"></audio>
+      <audio id="a5" src="assets/seg5-audio.m4a" data-start="24.5333" data-duration="5.4500" data-track-index="20"></audio>
+      <audio id="a6" src="assets/seg6-audio.m4a" data-start="30.0333" data-duration="4.9500" data-track-index="20"></audio>
+      <audio id="a7" src="assets/seg7-audio.m4a" data-start="35.0333" data-duration="4.9500" data-track-index="20"></audio>
+
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+      <div class="tag">CE JOUR LÀ …</div>
+
+      <!-- corps du post du 26 juillet (brouillon Bobby Robson), texte
+           intégral repris tel quel, mots-clés en gras/ocre -->
+      <div class="text-zone">
+        <div class="text-chunk" id="l1">St James' Park rejoue la <b class="ocre">demi-finale du Mondial 90</b>, perdue aux <b>tirs au but</b> face à l'Allemagne.</div>
+        <div class="text-chunk" id="l2">Cette fois, c'est un hommage : <b class="ocre">Sir Bobby Robson</b>, rongé par un <b>cancer en phase terminale</b>, assiste au match qu'il a autrefois dirigé.</div>
+        <div class="text-chunk" id="l3"><b>Les Ferdinand</b> ouvre le score à la 28e, <b>Alan Thompson</b> double sur coup franc à la 32e, <b class="ocre">Alan Shearer</b> conclut sur penalty à la 79e.</div>
+        <div class="text-chunk" id="l4">L'Angleterre l'emporte <b class="ocre">3-2</b> devant <b>33 000 spectateurs</b>.</div>
+        <div class="text-chunk" id="l5">Robson entre en <b>fauteuil roulant</b>, haie d'honneur des joueurs, trophée <b class="ocre">UEFA Lifetime Achievement</b> en main, et salue une dernière fois son public.</div>
+        <div class="text-chunk" id="l6">Cinq jours plus tard, le <b class="ocre">31 juillet 2009</b>, il meurt à <b>76 ans</b>.</div>
+        <div class="text-chunk" id="l7">Ce stade a applaudi un <b class="ocre">adieu</b> sans savoir que c'en était un.</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // corps du post animé, calé sur les 7 segments du montage — texte
+      // intégral du brouillon, durée de chaque ligne calculée par la
+      // formule établie (mots×0.27+0.35, facteur d'ajustement) ; fondu
+      // bloc — pas de tween width/height (interdit par le runtime)
+      const lines = [
+        { id: 'l1', start: 0.30,  dur: 5.59 },
+        { id: 'l2', start: 6.04,  dur: 7.12 },
+        { id: 'l3', start: 13.31, dur: 8.04 },
+        { id: 'l4', start: 21.50, dur: 2.54 },
+        { id: 'l5', start: 24.19, dur: 7.12 },
+        { id: 'l6', start: 31.46, dur: 4.37 },
+        { id: 'l7', start: 35.98, dur: 4.06 },
+      ];
+
+      lines.forEach(({ id, start, dur }) => {
+        tl.fromTo(`#${id}`, { opacity: 0 }, { opacity: 1, duration: 0.3, ease: 'power2.out' }, start);
+        tl.to(`#${id}`, { opacity: 0, duration: 0.26, ease: 'sine.in' }, start + dur - 0.26);
+        tl.set(`#${id}`, { opacity: 0 }, start + dur);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>

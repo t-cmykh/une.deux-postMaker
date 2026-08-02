@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 24 juillet 2011, Uruguay bat le Paraguay (v3, sous-titres calés)</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* vidéo fournie déjà en 9:16 (1440×2560, même ratio, aucun recadrage
+         nécessaire) — header/tag une·deux déjà incrustés dans la vidéo */
+      .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+
+      /* léger dégradé bas pour garder les sous-titres lisibles, sans
+         dupliquer le header déjà présent dans la vidéo */
+      .scrim-bottom {
+        position: absolute; left: 0; right: 0; bottom: 0; height: 760px; z-index: 2;
+        background: linear-gradient(to top, rgba(20,17,12,.6), rgba(20,17,12,0));
+      }
+
+      /* sous-titres — même spec que la dernière version validée */
+      .sub-zone { position: absolute; left: 96px; right: 96px; top: 1400px; transform: translateY(-50%); z-index: 10; text-align: center; }
+      .sub-line {
+        position: absolute; left: 0; right: 0; top: 0; transform: translateY(-50%); opacity: 0;
+        font-family: 'Anton', sans-serif; font-size: 44px; line-height: 1.25; text-transform: uppercase;
+        color: var(--cream); text-shadow: 0 2px 14px rgba(0,0,0,.55), 0 1px 3px rgba(0,0,0,.75);
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="28.83"
+      data-fps="30"
+    >
+      <!-- vidéo = enfant direct de #root (contrainte HyperFrames), mutée ;
+           source sans piste audio, pas d'élément <audio> nécessaire -->
+      <video class="video-full" id="v1" src="assets/uruguay-2011-v3.mp4" data-start="0" data-duration="28.83" data-track-index="1" muted playsinline></video>
+
+      <div class="scrim-bottom"></div>
+
+      <!-- sous-titres découpés en phrases courtes, chacune calée sur le
+           plan qui l'illustre (voir timings dans le script) plutôt qu'un
+           long texte continu indifférent au montage -->
+      <div class="sub-zone">
+        <div class="sub-line" id="l1">24 JUILLET 2011</div>
+        <div class="sub-line" id="l2">FINALE DE LA COPA AMÉRICA</div>
+        <div class="sub-line" id="l3">L'URUGUAY MET LA PRESSION</div>
+        <div class="sub-line" id="l4">11E MINUTE :</div>
+        <div class="sub-line" id="l5">SUÁREZ OUVRE LE SCORE.</div>
+        <div class="sub-line" id="l6">LE PARAGUAY RÉPOND,</div>
+        <div class="sub-line" id="l7">MAIS BUTE SUR LE GARDIEN.</div>
+        <div class="sub-line" id="l8">LE 10 URUGUAYEN S'ENFLAMME.</div>
+        <div class="sub-line" id="l9">FORLÁN DOUBLE LA MISE, 41E.</div>
+        <div class="sub-line" id="l10">LE PUBLIC S'EMBALLE.</div>
+        <div class="sub-line" id="l11">LE PARCOURS DU PARAGUAY IMPRESSIONNE.</div>
+        <div class="sub-line" id="l12">0 VICTOIRE, 3 NULS EN POULES,</div>
+        <div class="sub-line" id="l13">2 SÉANCES DE TIRS AU BUT,</div>
+        <div class="sub-line" id="l14">CONTRE LE BRÉSIL PUIS LE VENEZUELA.</div>
+        <div class="sub-line" id="l15">L'URUGUAY DÉCROCHE SON 15E TITRE,</div>
+        <div class="sub-line" id="l16">LE PLUS PETIT PAYS, LA PLUS GRANDE ARMOIRE.</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // sous-titres calés plan par plan sur la vidéo (repérage fait en
+      // extrayant les images du montage toutes les 0,5s) : entrée du
+      // ballon officiel affichant "24 JULIO 2011 BUENOS AIRES" (0.5-2s),
+      // but de Suárez / gros plan "9" (6.3-9s), gros plan sur le "10"
+      // uruguayen (13-15.5s), enchaînement d'arrêts (18-26s), liesse au
+      // trophée (26.5-28.83s) — phrases courtes plutôt qu'un long texte
+      // continu, pour rester lisible et illustrer chaque plan ; fondu
+      // bloc — pas de tween width/height (interdit par le runtime)
+      const lines = [
+        { id: 'l1',  start: 0.00,  dur: 1.10 },
+        { id: 'l2',  start: 1.25,  dur: 1.60 },
+        { id: 'l3',  start: 3.00,  dur: 1.60 },
+        { id: 'l4',  start: 6.30,  dur: 1.10 },
+        { id: 'l5',  start: 7.55,  dur: 1.35 },
+        { id: 'l6',  start: 9.80,  dur: 1.60 },
+        { id: 'l7',  start: 11.55, dur: 1.60 },
+        { id: 'l8',  start: 13.30, dur: 1.35 },
+        { id: 'l9',  start: 14.80, dur: 1.60 },
+        { id: 'l10', start: 16.55, dur: 1.35 },
+        { id: 'l11', start: 18.05, dur: 1.60 },
+        { id: 'l12', start: 19.90, dur: 1.60 },
+        { id: 'l13', start: 21.65, dur: 1.60 },
+        { id: 'l14', start: 23.40, dur: 1.60 },
+        { id: 'l15', start: 25.15, dur: 1.60 },
+        { id: 'l16', start: 26.90, dur: 1.90 },
+      ];
+
+      lines.forEach(({ id, start, dur }) => {
+        tl.fromTo(`#${id}`, { opacity: 0 }, { opacity: 1, duration: 0.16, ease: 'sine.out' }, start);
+        tl.to(`#${id}`, { opacity: 0, duration: 0.14, ease: 'sine.in' }, start + dur - 0.14);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
