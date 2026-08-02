@@ -1,0 +1,620 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 22 juillet 1989, Canada bat Maroc (motion design)</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* ===== Header — identique au reel "Ce jour-là" existant ===== */
+      #hdr { position: absolute; inset: 0 0 auto 0; height: 300px; z-index: 30; }
+      .ring {
+        position: absolute; left: 96px; top: 150px; width: 76px; height: 76px; border-radius: 50%;
+        border: 3px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 700; font-size: 30px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 188px; top: 162px; font-family: 'Anton', sans-serif; font-size: 46px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 174px; font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 26px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 252px; height: 3px; background: var(--cream); }
+      .progress-track { position: absolute; left: 96px; right: 96px; top: 262px; height: 4px; background: rgba(237, 220, 178, 0.25); }
+      /* scaleX, not width — width/height tweens are forbidden by the runtime */
+      .progress-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 100%; background: var(--ocre); transform: scaleX(0); transform-origin: left center; }
+
+      /* ===== Chapters — hard cuts ===== */
+      .chapter { position: absolute; inset: 0; z-index: 10; }
+      .stripes {
+        position: absolute; inset: 0;
+        background-image: repeating-linear-gradient(-45deg, rgba(237,220,178,.05) 0, rgba(237,220,178,.05) 2px, transparent 2px, transparent 46px);
+      }
+      .ghost-year {
+        position: absolute; right: -90px; top: 260px; font-family: 'Anton', sans-serif; font-size: 620px;
+        color: var(--cream); opacity: 0.055; line-height: 1; letter-spacing: -0.02em; z-index: 1;
+      }
+
+      /* ---- fonds d'archives 1989 (Jeux de la Francophonie, cérémonie d'ouverture) ---- */
+      .archive-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
+      .archive-grade { position: absolute; inset: 0; z-index: 2; background: rgba(120, 90, 40, 0.14); }
+      .archive-scrim { position: absolute; inset: 0; z-index: 3; background: rgba(44, 40, 35, 0.58); }
+
+      /* ---- sous-titres — narration, position constante en bas de la zone sûre ---- */
+      .sub-zone { position: absolute; left: 96px; right: 96px; bottom: 230px; text-align: center; z-index: 20; }
+      .sub {
+        position: absolute; left: 0; right: 0; bottom: 0; opacity: 0;
+        font-family: 'Anton', sans-serif; font-size: 40px; line-height: 1.28; text-transform: uppercase; color: var(--cream);
+      }
+
+      /* ---- CH1 hook (repris du reel principal) ---- */
+      .hook-zone {
+        position: absolute; left: 96px; right: 96px; top: 300px; bottom: 200px; z-index: 10;
+        display: flex; flex-direction: column; align-items: flex-start; justify-content: center; text-align: left;
+      }
+      .stamp {
+        display: flex; align-items: center; gap: 16px; background: var(--ocre); color: var(--ink);
+        padding: 12px 22px; margin-bottom: 40px; perspective: 400px;
+      }
+      .stamp-d { font-family: 'Anton', sans-serif; font-size: 56px; line-height: 0.9; }
+      .stamp-m { font-family: 'Saira Condensed', sans-serif; font-weight: 700; font-size: 22px; line-height: 1.15; letter-spacing: 0.04em; text-align: left; }
+      .hook { font-family: 'Anton', sans-serif; font-size: 128px; line-height: 1.02; text-transform: uppercase; color: var(--cream); }
+      .hline { opacity: 0; }
+      .hook .accent { color: var(--ocre); }
+
+      /* ---- CH2 contexte ---- */
+      .kicker {
+        display: inline-block; background: var(--ocre); color: var(--ink); font-family: 'Saira Condensed', sans-serif;
+        font-weight: 700; font-size: 26px; letter-spacing: .02em; padding: 12px 20px;
+      }
+      .ctx-zone { position: absolute; left: 96px; right: 96px; top: 620px; z-index: 10; }
+      .ctx-title { font-family: 'Anton', sans-serif; font-size: 96px; line-height: 1.03; text-transform: uppercase; color: var(--cream); margin-top: 28px; }
+
+      /* ---- CH3-CH7 : scènes d'action (diagramme tactique animé par but) ---- */
+      .goal-eyebrow {
+        position: absolute; left: 96px; top: 320px; z-index: 10; opacity: 0;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 700; font-size: 30px; letter-spacing: .06em; color: var(--ocre);
+      }
+      /* wrap clips the camera punch-in so the zoomed pitch never spills past its panel */
+      .pitch-wrap { position: absolute; left: 96px; top: 380px; width: 888px; height: 620px; z-index: 10; overflow: hidden; }
+      .pitch-svg { position: absolute; inset: 0; width: 100%; height: 100%; transform-origin: 50% 4%; will-change: transform; }
+      .pitch-box, .pitch-six, .pitch-goal, .pitch-arc { fill: none; stroke: var(--cream); stroke-opacity: .35; stroke-width: 2.5px; }
+      .goal-flash { fill: var(--ocre); opacity: 0; }
+      .but-glow { transform-box: fill-box; transform-origin: 50% 50%; opacity: 0; }
+      .def-dot { fill: var(--muted-cream); opacity: 0; }
+      .att-dot { fill: var(--cream); opacity: 0; }
+      .ball-dot { fill: var(--ocre); opacity: 0; }
+      .but-stamp { font-family: 'Anton', sans-serif; font-size: 56px; fill: var(--ocre); text-anchor: middle; text-transform: uppercase; opacity: 0; }
+      .goal-card { position: absolute; left: 96px; right: 96px; top: 1032px; z-index: 10; display: flex; align-items: baseline; justify-content: space-between; }
+      .goal-name { font-family: 'Anton', sans-serif; font-size: 56px; text-transform: uppercase; color: var(--cream); opacity: 0; }
+      .goal-name .goal-badge {
+        display: inline-block; vertical-align: middle; margin-left: 14px; background: var(--ocre); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 700; font-size: 20px; letter-spacing: .03em; padding: 7px 14px;
+      }
+      .goal-team {
+        display: block; font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 22px; letter-spacing: .05em;
+        color: var(--muted-cream); text-transform: uppercase; margin-top: 10px;
+      }
+      .goal-after { font-family: 'Anton', sans-serif; font-size: 84px; color: var(--ocre); opacity: 0; }
+
+      /* variante feutrée : but marocain (ch7) */
+      #ch7 .ball-dot, #ch7 .att-dot { fill: var(--muted-cream); }
+      #ch7 .but-stamp { fill: var(--muted-cream); font-size: 46px; }
+      #ch7 .goal-after { color: var(--muted-cream); }
+
+      /* ---- CH8 trophée ---- */
+      .tr-zone {
+        position: absolute; left: 96px; right: 96px; top: 300px; bottom: 200px; z-index: 10;
+        display: flex; flex-direction: column; align-items: flex-start; justify-content: center; text-align: left;
+      }
+      .tr-title { font-family: 'Anton', sans-serif; font-size: 100px; line-height: 1.03; text-transform: uppercase; color: var(--cream); margin-top: 32px; }
+      .tr-title .accent { color: var(--ocre); }
+
+      /* ---- CH9 score punch ---- */
+      .punch-zone { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+      .punch-flags { display: flex; align-items: center; gap: 40px; opacity: 0; }
+      .punch-flags .flag-label { font-family: 'Saira Condensed', sans-serif; font-weight: 700; font-size: 30px; letter-spacing: .06em; color: var(--muted-cream); }
+      .punch-score { font-family: 'Anton', sans-serif; font-size: 300px; line-height: 1; color: var(--cream); opacity: 0; margin: 10px 0; }
+      .punch-score .dash { color: var(--ocre); }
+      /* stat = count-up number as its own headline, not a small caption chip */
+      .stat-block { text-align: center; opacity: 0; margin-top: 34px; }
+      .stat-value {
+        display: inline-block; font-family: 'Anton', sans-serif; font-size: 96px; color: var(--ocre);
+        font-variant-numeric: tabular-nums; letter-spacing: -1px; line-height: 1; transform-origin: center center;
+      }
+      .stat-label { margin-top: 6px; font-family: 'Saira Condensed', sans-serif; font-weight: 700; font-size: 28px; letter-spacing: .08em; color: var(--muted-cream); text-transform: uppercase; }
+
+      /* ---- CH10 punchline ---- */
+      .line-zone { position: absolute; left: 96px; right: 96px; top: 780px; z-index: 10; }
+      .line-a { font-family: 'Anton', sans-serif; font-size: 92px; line-height: 1.05; text-transform: uppercase; color: var(--cream); opacity: 0; }
+      .line-b { font-family: 'Anton', sans-serif; font-size: 92px; line-height: 1.05; text-transform: uppercase; color: var(--ocre); opacity: 0; margin-top: 24px; }
+
+      /* ===== CTA (repris à l'identique du reel principal) ===== */
+      .cta { background: var(--cream); background-image: repeating-linear-gradient(-45deg, rgba(44,40,35,.06) 0, rgba(44,40,35,.06) 2px, transparent 2px, transparent 46px); }
+      .bookmark { position: absolute; left: 50%; top: 575px; width: 120px; height: 156px; transform: translateX(-50%); fill: var(--ocre); z-index: 10; }
+      .chip {
+        position: absolute; left: 50%; top: 771px; transform: translateX(-50%); z-index: 10;
+        background: var(--ocre); color: var(--ink); font-family: 'Saira Condensed', sans-serif; font-weight: 700;
+        font-size: 34px; padding: 15px 26px; white-space: nowrap;
+      }
+      .cta-title {
+        position: absolute; left: 96px; right: 96px; top: 896px; text-align: center; z-index: 10;
+        font-family: 'Anton', sans-serif; font-size: 108px; line-height: 0.94; text-transform: uppercase; color: var(--ink);
+      }
+      .cta-body {
+        position: absolute; left: 96px; right: 96px; top: 1100px; text-align: center; z-index: 10;
+        font-family: 'Archivo', sans-serif; font-size: 38px; color: var(--ink);
+      }
+      .cta-footer { position: absolute; left: 96px; right: 96px; bottom: 200px; z-index: 10; }
+      .cta-footer .rule { height: 3px; background: var(--ink); }
+      .cta-footer .handle-b { margin-top: 24px; font-family: 'Saira Condensed', sans-serif; font-weight: 700; font-size: 28px; color: var(--ink); }
+
+      .anim { opacity: 0; }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="55.50"
+      data-fps="30"
+    >
+      <!-- Fonds d'archives — cérémonie d'ouverture, Jeux de la Francophonie 1989
+           (source réelle, brouillon Gmail). Vidéo = enfant direct de #root
+           (contrainte HyperFrames), synchronisée avec le chapitre correspondant. -->
+      <video class="archive-video" id="v-ceremony" src="assets/archive-ceremony-a.mp4" data-start="0" data-duration="5.00" data-track-index="5" muted playsinline></video>
+      <video class="archive-video" id="v-stadium" src="assets/archive-stadium.mp4" data-start="5.00" data-duration="6.00" data-track-index="5" muted playsinline></video>
+      <video class="archive-video" id="v-canada" src="assets/archive-canada.mp4" data-start="36.20" data-duration="6.00" data-track-index="5" muted playsinline></video>
+
+      <!-- SFX — sifflet/impact abstraits (pas de crowd-noise réaliste dispo hors-ligne), volume feutré sur le but marocain -->
+      <audio id="a-whoosh-3" src="assets/sfx/whoosh-short.mp3" data-start="12.53" data-duration="0.575" data-track-index="20" data-volume="0.5"></audio>
+      <audio id="a-impact-3" src="assets/sfx/impact-bass-1.mp3" data-start="13.11" data-duration="2.116" data-track-index="21" data-volume="0.75"></audio>
+      <audio id="a-whoosh-4" src="assets/sfx/whoosh-short.mp3" data-start="17.73" data-duration="0.575" data-track-index="20" data-volume="0.5"></audio>
+      <audio id="a-impact-4" src="assets/sfx/impact-bass-1.mp3" data-start="18.31" data-duration="2.116" data-track-index="21" data-volume="0.75"></audio>
+      <audio id="a-whoosh-5" src="assets/sfx/whoosh-short.mp3" data-start="22.93" data-duration="0.575" data-track-index="20" data-volume="0.5"></audio>
+      <audio id="a-impact-5" src="assets/sfx/impact-bass-1.mp3" data-start="23.51" data-duration="2.116" data-track-index="21" data-volume="0.75"></audio>
+      <audio id="a-whoosh-6" src="assets/sfx/whoosh-short.mp3" data-start="27.53" data-duration="0.575" data-track-index="20" data-volume="0.5"></audio>
+      <audio id="a-impact-6" src="assets/sfx/impact-bass-1.mp3" data-start="28.11" data-duration="2.116" data-track-index="21" data-volume="0.75"></audio>
+      <audio id="a-whoosh-7" src="assets/sfx/whoosh-short.mp3" data-start="32.73" data-duration="0.575" data-track-index="20" data-volume="0.3"></audio>
+      <audio id="a-impact-7" src="assets/sfx/impact-bass-1.mp3" data-start="33.31" data-duration="2.116" data-track-index="21" data-volume="0.3"></audio>
+
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+        <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+      </div>
+
+      <!-- CH1 — HOOK -->
+      <section id="ch1" class="chapter clip" data-start="0" data-duration="5.00" data-track-index="1">
+        <div class="archive-grade"></div>
+        <div class="archive-scrim"></div>
+        <div class="ghost-year">89</div>
+        <div class="hook-zone">
+          <div class="stamp anim" id="stamp"><span class="stamp-d" id="stamp-day">07</span><span class="stamp-m">JUIL.<br />1989</span></div>
+          <div class="hook" id="ch1-hook">
+            <div class="hline">22 JUILLET 1989.</div>
+            <div class="hline">LE CANADA A</div>
+            <div class="hline">HUMILIÉ LE</div>
+            <div class="hline"><span class="accent">MAROC.</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CH2 — CONTEXTE -->
+      <section id="ch2" class="chapter clip" data-start="5.00" data-duration="6.00" data-track-index="1">
+        <div class="archive-grade"></div>
+        <div class="archive-scrim"></div>
+        <div class="ctx-zone">
+          <div class="kicker anim" id="ctx-kicker">FINALE · JEUX DE LA FRANCOPHONIE</div>
+          <div class="ctx-title anim" id="ctx-title">STADE<br />MOHAMMED-V,<br />CASABLANCA.</div>
+        </div>
+        <div class="sub-zone">
+          <div class="sub" id="sub-ctx1">LE MAROC JOUE À DOMICILE, DEVANT SON PUBLIC.</div>
+        </div>
+      </section>
+
+      <!-- CH3 — BUT 1 : Lyndon Hooper, 15e minute -->
+      <section id="ch3" class="chapter clip" data-start="11.00" data-duration="5.20" data-track-index="1">
+        <div class="stripes"></div>
+        <div class="goal-eyebrow">15E MINUTE</div>
+        <div class="pitch-wrap">
+          <svg class="pitch-svg" viewBox="0 0 888 620">
+            <defs>
+              <filter id="blur-ch3" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur id="fe-ch3" stdDeviation="0 0"/></filter>
+              <radialGradient id="glow-ch3" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#C2A04E" stop-opacity="0.5"/><stop offset="100%" stop-color="#C2A04E" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+            <rect class="pitch-box" x="144" y="0" width="600" height="200"/>
+            <rect class="pitch-six" x="324" y="0" width="240" height="60"/>
+            <line class="pitch-goal" x1="384" y1="0" x2="504" y2="0"/>
+            <path class="pitch-arc" d="M 344 200 A 100 100 0 0 0 544 200"/>
+            <rect class="goal-flash" x="384" y="0" width="120" height="16"/>
+            <circle class="but-glow" cx="444" cy="95" r="110" fill="url(#glow-ch3)"/>
+            <circle class="def-dot" cx="444" cy="140" r="9"/>
+            <circle class="att-dot" cx="610" cy="590" r="11"/>
+            <circle class="ball-dot" cx="660" cy="560" r="7" style="filter:url(#blur-ch3)"/>
+            <text class="but-stamp" x="444" y="110">BUT !</text>
+          </svg>
+        </div>
+        <div class="goal-card">
+          <div class="goal-name">LYNDON HOOPER<span class="goal-team">Canada</span></div>
+          <div class="goal-after">1-0</div>
+        </div>
+        <div class="sub-zone"><div class="sub" id="sub-g1">LYNDON HOOPER OUVRE LE SCORE À LA 15E MINUTE.</div></div>
+      </section>
+
+      <!-- CH4 — BUT 2 : Rick Jasken, 34e minute -->
+      <section id="ch4" class="chapter clip" data-start="16.20" data-duration="5.20" data-track-index="1">
+        <div class="stripes"></div>
+        <div class="goal-eyebrow">34E MINUTE</div>
+        <div class="pitch-wrap">
+          <svg class="pitch-svg" viewBox="0 0 888 620">
+            <defs>
+              <filter id="blur-ch4" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur id="fe-ch4" stdDeviation="0 0"/></filter>
+              <radialGradient id="glow-ch4" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#C2A04E" stop-opacity="0.5"/><stop offset="100%" stop-color="#C2A04E" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+            <rect class="pitch-box" x="144" y="0" width="600" height="200"/>
+            <rect class="pitch-six" x="324" y="0" width="240" height="60"/>
+            <line class="pitch-goal" x1="384" y1="0" x2="504" y2="0"/>
+            <path class="pitch-arc" d="M 344 200 A 100 100 0 0 0 544 200"/>
+            <rect class="goal-flash" x="384" y="0" width="120" height="16"/>
+            <circle class="but-glow" cx="444" cy="95" r="110" fill="url(#glow-ch4)"/>
+            <circle class="def-dot" cx="444" cy="160" r="9"/>
+            <circle class="att-dot" cx="80" cy="510" r="11"/>
+            <circle class="ball-dot" cx="120" cy="480" r="7" style="filter:url(#blur-ch4)"/>
+            <text class="but-stamp" x="444" y="110">BUT !</text>
+          </svg>
+        </div>
+        <div class="goal-card">
+          <div class="goal-name">RICK JASKEN<span class="goal-team">Canada</span></div>
+          <div class="goal-after">2-0</div>
+        </div>
+        <div class="sub-zone"><div class="sub" id="sub-g2">RICK JASKEN REPREND UN CENTRE ET DOUBLE LA MISE.</div></div>
+      </section>
+
+      <!-- CH5 — BUT 3 : Rick Jasken, 36e minute (doublé) -->
+      <section id="ch5" class="chapter clip" data-start="21.40" data-duration="4.60" data-track-index="1">
+        <div class="stripes"></div>
+        <div class="goal-eyebrow">36E MINUTE</div>
+        <div class="pitch-wrap">
+          <svg class="pitch-svg" viewBox="0 0 888 620">
+            <defs>
+              <filter id="blur-ch5" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur id="fe-ch5" stdDeviation="0 0"/></filter>
+              <radialGradient id="glow-ch5" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#C2A04E" stop-opacity="0.5"/><stop offset="100%" stop-color="#C2A04E" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+            <rect class="pitch-box" x="144" y="0" width="600" height="200"/>
+            <rect class="pitch-six" x="324" y="0" width="240" height="60"/>
+            <line class="pitch-goal" x1="384" y1="0" x2="504" y2="0"/>
+            <path class="pitch-arc" d="M 344 200 A 100 100 0 0 0 544 200"/>
+            <rect class="goal-flash" x="384" y="0" width="120" height="16"/>
+            <circle class="but-glow" cx="444" cy="95" r="110" fill="url(#glow-ch5)"/>
+            <circle class="def-dot" cx="500" cy="180" r="9"/>
+            <circle class="att-dot" cx="404" cy="600" r="11"/>
+            <circle class="ball-dot" cx="444" cy="580" r="7" style="filter:url(#blur-ch5)"/>
+            <text class="but-stamp" x="444" y="110">BUT !</text>
+          </svg>
+        </div>
+        <div class="goal-card">
+          <div class="goal-name">RICK JASKEN<span class="goal-badge">DOUBLÉ</span><span class="goal-team">Canada</span></div>
+          <div class="goal-after">3-0</div>
+        </div>
+        <div class="sub-zone"><div class="sub" id="sub-g3">UN DOUBLÉ EN DEUX MINUTES SEULEMENT.</div></div>
+      </section>
+
+      <!-- CH6 — BUT 4 : Kevin Holness, 44e minute -->
+      <section id="ch6" class="chapter clip" data-start="26.00" data-duration="5.20" data-track-index="1">
+        <div class="stripes"></div>
+        <div class="goal-eyebrow">44E MINUTE</div>
+        <div class="pitch-wrap">
+          <svg class="pitch-svg" viewBox="0 0 888 620">
+            <defs>
+              <filter id="blur-ch6" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur id="fe-ch6" stdDeviation="0 0"/></filter>
+              <radialGradient id="glow-ch6" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#C2A04E" stop-opacity="0.5"/><stop offset="100%" stop-color="#C2A04E" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+            <rect class="pitch-box" x="144" y="0" width="600" height="200"/>
+            <rect class="pitch-six" x="324" y="0" width="240" height="60"/>
+            <line class="pitch-goal" x1="384" y1="0" x2="504" y2="0"/>
+            <path class="pitch-arc" d="M 344 200 A 100 100 0 0 0 544 200"/>
+            <rect class="goal-flash" x="384" y="0" width="120" height="16"/>
+            <circle class="but-glow" cx="444" cy="95" r="110" fill="url(#glow-ch6)"/>
+            <circle class="def-dot" cx="400" cy="50" r="9"/>
+            <circle class="att-dot" cx="660" cy="150" r="11"/>
+            <circle class="ball-dot" cx="700" cy="120" r="7" style="filter:url(#blur-ch6)"/>
+            <text class="but-stamp" x="444" y="110">BUT !</text>
+          </svg>
+        </div>
+        <div class="goal-card">
+          <div class="goal-name">KEVIN HOLNESS<span class="goal-team">Canada</span></div>
+          <div class="goal-after">4-0</div>
+        </div>
+        <div class="sub-zone"><div class="sub" id="sub-g4">KEVIN HOLNESS ENFONCE LE CLOU JUSTE AVANT LA PAUSE.</div></div>
+      </section>
+
+      <!-- CH7 — BUT 5 : le Maroc réduit, 45e+1 (variante feutrée) -->
+      <section id="ch7" class="chapter clip" data-start="31.20" data-duration="5.00" data-track-index="1">
+        <div class="stripes"></div>
+        <div class="goal-eyebrow">45E+1 MINUTE</div>
+        <div class="pitch-wrap">
+          <svg class="pitch-svg" viewBox="0 0 888 620">
+            <defs>
+              <filter id="blur-ch7" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur id="fe-ch7" stdDeviation="0 0"/></filter>
+              <radialGradient id="glow-ch7" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#D1C1A3" stop-opacity="0.4"/><stop offset="100%" stop-color="#D1C1A3" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+            <rect class="pitch-box" x="144" y="0" width="600" height="200"/>
+            <rect class="pitch-six" x="324" y="0" width="240" height="60"/>
+            <line class="pitch-goal" x1="384" y1="0" x2="504" y2="0"/>
+            <path class="pitch-arc" d="M 344 200 A 100 100 0 0 0 544 200"/>
+            <rect class="goal-flash" x="384" y="0" width="120" height="16"/>
+            <circle class="but-glow" cx="444" cy="95" r="110" fill="url(#glow-ch7)"/>
+            <circle class="def-dot" cx="444" cy="150" r="9"/>
+            <circle class="att-dot" cx="404" cy="610" r="11"/>
+            <circle class="ball-dot" cx="444" cy="600" r="7" style="filter:url(#blur-ch7)"/>
+            <text class="but-stamp" x="444" y="110">BUT !</text>
+          </svg>
+        </div>
+        <div class="goal-card">
+          <div class="goal-name">LE MAROC RÉDUIT<span class="goal-team">Maroc</span></div>
+          <div class="goal-after">4-1</div>
+        </div>
+        <div class="sub-zone"><div class="sub" id="sub-g5">LE MAROC SAUVE L'HONNEUR AVANT LA MI-TEMPS.</div></div>
+      </section>
+
+      <!-- CH8 — PREMIER TROPHÉE -->
+      <section id="ch8" class="chapter clip" data-start="36.20" data-duration="6.00" data-track-index="1">
+        <div class="archive-grade"></div>
+        <div class="archive-scrim"></div>
+        <div class="tr-zone">
+          <div class="kicker anim" id="tr-kicker">UNE PREMIÈRE HISTORIQUE</div>
+          <div class="tr-title" id="tr-title">
+            <div class="hline">PREMIER TROPHÉE</div>
+            <div class="hline">INTERNATIONAL DE</div>
+            <div class="hline">L'HISTOIRE DU <span class="accent">CANADA.</span></div>
+          </div>
+        </div>
+        <div class="sub-zone">
+          <div class="sub" id="sub-tr1">DÉCROCHÉ À L'EXTÉRIEUR, DEVANT L'UN DES PLUS GRANDS PUBLICS JAMAIS RÉUNIS POUR CETTE SÉLECTION.</div>
+        </div>
+      </section>
+
+      <!-- CH9 — SCORE PUNCH -->
+      <section id="ch9" class="chapter clip" data-start="42.20" data-duration="4.50" data-track-index="1">
+        <div class="stripes"></div>
+        <div class="punch-zone">
+          <div class="punch-flags anim" id="punch-flags">
+            <div class="flag-label">CANADA</div>
+            <div class="flag-label" style="color: var(--ocre);">—</div>
+            <div class="flag-label">MAROC</div>
+          </div>
+          <div class="punch-score" id="punch-score">4<span class="dash">-</span>1</div>
+          <div class="stat-block" id="stat-row">
+            <div class="stat-value" id="stat-value">0</div>
+            <div class="stat-label">Spectateurs</div>
+          </div>
+        </div>
+        <div class="sub-zone"><div class="sub" id="sub-punch">LE TABLEAU NE BOUGERA PLUS.</div></div>
+      </section>
+
+      <!-- CH10 — PUNCHLINE -->
+      <section id="ch10" class="chapter clip" data-start="46.70" data-duration="4.00" data-track-index="1">
+        <div class="stripes"></div>
+        <div class="line-zone">
+          <div class="line-a" id="line-a">LE MAROC A REMPLI<br />UN STADE POUR VOIR<br />SON ÉQUIPE GAGNER.</div>
+          <div class="line-b" id="line-b">LE CANADA EST<br />REPARTI AVEC<br />LE TROPHÉE.</div>
+        </div>
+      </section>
+
+      <!-- CH11 — CTA (identique au reel principal) -->
+      <section id="ch11" class="chapter cta clip" data-start="50.70" data-duration="4.80" data-track-index="1">
+        <svg class="bookmark anim" id="ch11-bookmark" viewBox="0 0 120 156"><path d="M14 0h92a14 14 0 0 1 14 14v142L60 98 0 156V14A14 14 0 0 1 14 0Z"/></svg>
+        <div class="chip anim" id="ch11-chip">CE JOUR LÀ …</div>
+        <div class="cta-title anim" id="ch11-title">CHAQUE JOUR,<br />UNE DATE.</div>
+        <div class="cta-body anim" id="ch11-body">Reste pour ne pas rater la prochaine.</div>
+        <div class="cta-footer anim" id="ch11-footer">
+          <div class="rule"></div>
+          <div class="handle-b">@UNE.DEUX</div>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      const EASE = 'sine.inOut';
+
+      // ---- pitch lines: measure real geometry once, seed dasharray/dashoffset
+      // at setup (svg-path-draw) instead of the pathLength="1" shortcut ----
+      document.querySelectorAll('.pitch-box, .pitch-six, .pitch-goal, .pitch-arc').forEach((p) => {
+        const len = p.getTotalLength();
+        p.style.strokeDasharray = String(len);
+        p.style.strokeDashoffset = String(len);
+      });
+
+      // ---- sous-titre helper : fenêtre in/out fixe, fondu bloc ----
+      function caption(id, inAt, outAt) {
+        tl.fromTo(`#${id}`, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.3, ease: 'sine.out' }, inAt);
+        tl.to(`#${id}`, { opacity: 0, duration: 0.25, ease: 'sine.in' }, outAt - 0.25);
+      }
+
+      // ================= CH1 — hook (0.00 – 5.00) =================
+      tl.fromTo('#stamp', { opacity: 0, scale: 0.75 }, { opacity: 1, scale: 1, duration: 0.3, ease: 'back.out(2)' }, 0);
+      (function flipToDate() {
+        const el = document.getElementById('stamp-day');
+        const sequence = ['04', '11', '19', '26', '02', '17', '09', '15', '08', '22'];
+        let t = 0.08;
+        sequence.forEach((val, i) => {
+          const half = (0.1 + i * 0.025) / 2;
+          tl.to(el, { rotateX: -90, duration: half, ease: 'power1.in', transformOrigin: '50% 50%' }, t);
+          tl.call(() => { el.textContent = val; }, null, t + half);
+          tl.fromTo(el, { rotateX: 90 }, { rotateX: 0, duration: half, ease: 'power1.out' }, t + half);
+          t += half * 2;
+        });
+      })();
+      document.querySelectorAll('#ch1-hook .hline').forEach((el, i) => {
+        tl.fromTo(el, { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.45, ease: 'power3.out' }, i * 0.26);
+      });
+
+      // ================= CH2 — contexte (5.00 – 11.00) =================
+      const ch2 = 5.00;
+      tl.fromTo('#ctx-kicker', { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out' }, ch2 + 0.15);
+      tl.fromTo('#ctx-title', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.45, ease: 'power3.out' }, ch2 + 0.35);
+      caption('sub-ctx1', ch2 + 1.9, ch2 + 5.7);
+
+      // ---- scène d'action helper : pitch qui se dessine, ball+coureur qui
+      // avancent par étapes vers le but (dernière étape = flou directionnel de
+      // vitesse sur le ballon), caméra qui pousse vers la cage au moment du tir,
+      // flash + glow + tampon "BUT !", défenseur battu, carte joueur/score ----
+      function goalScene(chId, base, dur, cfg) {
+        const q = (sel) => `#${chId} ${sel}`;
+        tl.fromTo(q('.goal-eyebrow'), { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' }, base + 0.05);
+        tl.to(q('.pitch-box, .pitch-six, .pitch-goal, .pitch-arc'), { strokeDashoffset: 0, duration: 0.5, ease: 'power2.out', stagger: 0.04 }, base + 0.1);
+        tl.fromTo(q('.def-dot, .att-dot, .ball-dot'), { opacity: 0 }, { opacity: 1, duration: 0.3 }, base + 0.6);
+
+        // directional motion-blur proxy on the ball (feGaussianBlur can't be tweened directly)
+        const fe = document.getElementById(`fe-${chId}`);
+        const blurProxy = { v: 0 };
+        const writeBlur = () => fe.setAttribute('stdDeviation', `${blurProxy.v} ${blurProxy.v}`);
+        writeBlur();
+
+        let t = base + 0.85;
+        let zoomStart = t;
+        for (let i = 0; i < cfg.ball.length - 1; i++) {
+          const isLast = i === cfg.ball.length - 2;
+          const d = isLast ? 0.5 : 0.6;
+          if (isLast) {
+            zoomStart = t;
+            // blur peaks mid-tween (power2.inOut's peak-velocity point), not at the
+            // edges — two half-tweens couple the smear envelope to the real speed curve
+            const half = d / 2;
+            tl.fromTo(blurProxy, { v: 0 }, { v: 16, duration: half, ease: 'power1.in', onUpdate: writeBlur }, t);
+            tl.to(blurProxy, { v: 0, duration: half, ease: 'power1.out', onUpdate: writeBlur }, t + half);
+            // camera punch toward the goal mouth, landing as the shot arrives
+            tl.to(q('.pitch-svg'), { scale: 1.28, duration: d + 0.05, ease: 'power2.out' }, t);
+            // the beaten defender lunges and misses
+            tl.to(q('.def-dot'), { attr: { cx: cfg.def.x, cy: cfg.def.y }, duration: 0.3, ease: 'power2.out' }, t);
+          }
+          tl.to(q('.ball-dot'), { attr: { cx: cfg.ball[i + 1].x, cy: cfg.ball[i + 1].y }, duration: d, ease: 'power2.inOut' }, t);
+          tl.to(q('.att-dot'), { attr: { cx: cfg.att[i + 1].x, cy: cfg.att[i + 1].y }, duration: d, ease: 'power2.inOut' }, t);
+          t += d + 0.08;
+        }
+
+        tl.fromTo(q('.goal-flash'), { opacity: 0 }, { opacity: 1, duration: 0.12 }, t);
+        tl.to(q('.goal-flash'), { opacity: 0, duration: 0.35 }, t + 0.12);
+        // glow blooms in behind the stamp, landing as ONE beat with its spring-pop
+        tl.fromTo(q('.but-glow'), { opacity: 0, scale: 0.82 }, { opacity: 1, scale: 1, duration: 0.3, ease: 'power2.out' }, t);
+        tl.to(q('.but-glow'), { opacity: 0, duration: 0.4, ease: 'power1.in' }, t + 1.0);
+        tl.fromTo(q('.but-stamp'), { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.28, ease: 'back.out(2.5)' }, t);
+        tl.to(q('.but-stamp'), { opacity: 0, duration: 0.3 }, t + 1.0);
+        tl.fromTo(q('.goal-name'), { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out' }, t + 0.15);
+        tl.fromTo(q('.goal-after'), { opacity: 0, scale: 1.2 }, { opacity: 1, scale: 1, duration: 0.35, ease: 'back.out(2)' }, t + 0.2);
+
+        const subId = q('.sub');
+        tl.fromTo(subId, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.3, ease: 'sine.out' }, t + 0.55);
+        tl.to(subId, { opacity: 0, duration: 0.25, ease: 'sine.in' }, base + dur - 0.3);
+      }
+
+      // ================= CH3 — but 1, Hooper 15' (11.00 – 16.20) =================
+      goalScene('ch3', 11.00, 5.20, {
+        ball: [{ x: 660, y: 560 }, { x: 560, y: 300 }, { x: 390, y: 40 }],
+        att: [{ x: 610, y: 590 }, { x: 520, y: 330 }, { x: 360, y: 70 }],
+        def: { x: 470, y: 155 },
+      });
+
+      // ================= CH4 — but 2, Jasken 34' (16.20 – 21.40) =================
+      goalScene('ch4', 16.20, 5.20, {
+        ball: [{ x: 120, y: 480 }, { x: 360, y: 220 }, { x: 500, y: 50 }],
+        att: [{ x: 80, y: 510 }, { x: 330, y: 250 }, { x: 470, y: 80 }],
+        def: { x: 410, y: 175 },
+      });
+
+      // ================= CH5 — but 3, Jasken 36' doublé (21.40 – 26.00) =================
+      goalScene('ch5', 21.40, 4.60, {
+        ball: [{ x: 444, y: 580 }, { x: 444, y: 320 }, { x: 410, y: 35 }],
+        att: [{ x: 404, y: 600 }, { x: 410, y: 350 }, { x: 370, y: 65 }],
+        def: { x: 460, y: 190 },
+      });
+
+      // ================= CH6 — but 4, Holness 44' (26.00 – 31.20) =================
+      goalScene('ch6', 26.00, 5.20, {
+        ball: [{ x: 700, y: 120 }, { x: 560, y: 55 }, { x: 470, y: 15 }],
+        att: [{ x: 660, y: 150 }, { x: 530, y: 80 }, { x: 440, y: 40 }],
+        def: { x: 430, y: 60 },
+      });
+
+      // ================= CH7 — but 5, Maroc 45'+1 (31.20 – 36.20) =================
+      goalScene('ch7', 31.20, 5.00, {
+        ball: [{ x: 444, y: 600 }, { x: 444, y: 350 }, { x: 460, y: 30 }],
+        att: [{ x: 404, y: 610 }, { x: 410, y: 360 }, { x: 420, y: 60 }],
+        def: { x: 444, y: 175 },
+      });
+
+      // ================= CH8 — premier trophée (36.20 – 42.20) =================
+      const ch8 = 36.20;
+      tl.fromTo('#tr-kicker', { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out' }, ch8 + 0.15);
+      document.querySelectorAll('#tr-title .hline').forEach((el, i) => {
+        tl.fromTo(el, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power3.out' }, ch8 + 0.45 + i * 0.22);
+      });
+      caption('sub-tr1', ch8 + 2.30, ch8 + 5.85);
+
+      // ================= CH9 — score punch (42.20 – 46.70) =================
+      const ch9 = 42.20;
+      tl.fromTo('#punch-flags', { opacity: 0 }, { opacity: 1, duration: 0.35, ease: EASE }, ch9 + 0.1);
+      tl.fromTo('#punch-score', { opacity: 0, scale: 0.7 }, { opacity: 1, scale: 1, duration: 0.55, ease: 'back.out(1.8)' }, ch9 + 0.35);
+      tl.fromTo('#stat-row', { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' }, ch9 + 0.95);
+      (function statCountUp() {
+        const el = document.getElementById('stat-value');
+        const state = { v: 0 };
+        tl.fromTo(el, { scale: 0.55 }, { scale: 1, duration: 1.1, ease: 'power3.out' }, ch9 + 1.0);
+        tl.to(state, {
+          v: 70000, duration: 1.1, ease: 'power3.out',
+          onUpdate: () => { el.textContent = Math.round(state.v).toLocaleString('fr-FR'); },
+        }, ch9 + 1.0);
+      })();
+      caption('sub-punch', ch9 + 2.3, ch9 + 4.3);
+
+      // ================= CH10 — punchline (46.70 – 50.70) =================
+      const ch10 = 46.70;
+      tl.fromTo('#line-a', { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' }, ch10 + 0.15);
+      tl.fromTo('#line-b', { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' }, ch10 + 0.75);
+
+      // ================= CH11 — CTA (identique, 50.70 – 55.50) =================
+      const ctaStart = 50.70;
+      const INK = '#2C2823';
+      tl.to('.ring, .wordmark, .handle', { opacity: 0, duration: 0.25, ease: EASE }, ctaStart - 0.3);
+      tl.set('.ring, .wordmark, .handle', { opacity: 0 }, ctaStart);
+      tl.to('.hairline, .progress-track', { opacity: 0, duration: 0.25, ease: EASE }, ctaStart - 0.3);
+      tl.set('.hairline, .progress-track', { opacity: 0 }, ctaStart);
+      tl.set('.ring, .wordmark, .handle', { color: INK }, ctaStart);
+      tl.set('.ring', { borderColor: INK }, ctaStart);
+      tl.set('.hairline', { backgroundColor: INK }, ctaStart);
+      tl.to('.ring, .wordmark, .handle, .hairline', { opacity: 1, duration: 0.35, ease: EASE }, ctaStart + 0.05);
+
+      tl.fromTo('#ch11-bookmark', { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }, ctaStart + 0.3);
+      tl.fromTo('#ch11-chip', { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }, ctaStart + 0.65);
+      tl.fromTo('#ch11-title', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.55, ease: 'power3.out' }, ctaStart + 0.9);
+      tl.to('#ch11-body', { opacity: 1, duration: 0.4, ease: EASE }, ctaStart + 1.4);
+      tl.to('#ch11-footer', { opacity: 1, duration: 0.35, ease: EASE }, ctaStart + 1.7);
+
+      // ---- progress bar (scaleX, not width) ----
+      tl.fromTo('#progress-fill', { scaleX: 0 }, { scaleX: 1, duration: ctaStart, ease: 'none' }, 0);
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>

@@ -1,0 +1,677 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 22 juillet 1989 (affiche déchirée / mur taggé)</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      :root {
+        --void: #0f0c07;
+        --wall-a: #2b2013;
+        --wall-b: #17110a;
+        --gold: #d9a548;
+        --gold-dim: #96762f;
+        --chalk: #e7dcc1;
+        --chalk-dim: rgba(231, 220, 193, 0.55);
+      }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--void); }
+      body { font-family: 'Archivo', 'Helvetica Neue', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--void); }
+
+      /* ===== texture globale : mur taggé + grain + vignette (une seule fois, sous tout) ===== */
+      .wall {
+        position: absolute; inset: 0; z-index: 1;
+        background:
+          radial-gradient(ellipse at 50% 28%, rgba(217, 165, 72, 0.12), transparent 62%),
+          repeating-linear-gradient(0deg, rgba(0,0,0,.32) 0 2px, transparent 2px 64px),
+          repeating-linear-gradient(90deg, rgba(0,0,0,.20) 0 2px, transparent 2px 132px),
+          linear-gradient(160deg, var(--wall-a), var(--wall-b));
+      }
+      #grain {
+        position: absolute; inset: -2%; width: 104%; height: 104%; z-index: 90;
+        opacity: 0.16; mix-blend-mode: overlay; pointer-events: none;
+      }
+      #vignette {
+        position: absolute; inset: 0; z-index: 91; pointer-events: none;
+        background: radial-gradient(ellipse at 50% 48%, transparent 52%, rgba(0,0,0,.62) 100%);
+      }
+
+      /* ===== header persistant — recoloré or/craie sur le mur ===== */
+      #hdr { position: absolute; inset: 0 0 auto 0; height: 300px; z-index: 30; }
+      .ring {
+        position: absolute; left: 96px; top: 150px; width: 76px; height: 76px; border-radius: 50%;
+        border: 3px solid var(--gold); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', 'Archivo', sans-serif; font-weight: 700; font-size: 30px; color: var(--gold);
+      }
+      .wordmark { position: absolute; left: 188px; top: 162px; font-family: 'Anton', sans-serif; font-size: 46px; color: var(--chalk); }
+      .handle { position: absolute; right: 96px; top: 174px; font-family: 'Saira Condensed', 'Archivo', sans-serif; font-weight: 600; font-size: 26px; color: var(--chalk-dim); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 252px; height: 3px; background: rgba(231,220,193,.25); }
+      .progress-track { position: absolute; left: 96px; right: 96px; top: 262px; height: 4px; background: rgba(231, 220, 193, 0.15); }
+      .progress-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 100%; background: var(--gold); transform: scaleX(0); transform-origin: left center; }
+
+      /* ===== chapitres — coupes franches ===== */
+      .chapter { position: absolute; inset: 0; z-index: 10; }
+
+      /* ---- fonds d'archives 1989 ---- */
+      .archive-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; transform-origin: 50% 50%; }
+      .archive-grade { position: absolute; inset: 0; z-index: 2; background: rgba(160, 118, 40, 0.16); mix-blend-mode: multiply; }
+      .archive-scrim { position: absolute; inset: 0; z-index: 3; background: rgba(15, 12, 7, 0.62); }
+
+      /* ---- tag de rue : kicker en pochoir, légèrement de travers ---- */
+      .kicker {
+        display: inline-block; background: var(--void); color: var(--gold); border: 2px solid var(--gold);
+        font-family: 'Saira Condensed', 'Archivo', sans-serif; font-weight: 700; font-size: 25px; letter-spacing: .05em;
+        padding: 11px 20px; transform: rotate(-1.6deg);
+      }
+
+      /* ---- sous-titres ---- */
+      .sub-zone { position: absolute; left: 96px; right: 96px; bottom: 230px; text-align: center; z-index: 20; }
+      .sub {
+        position: absolute; left: 0; right: 0; bottom: 0; opacity: 0;
+        font-family: 'Anton', sans-serif; font-size: 40px; line-height: 1.28; text-transform: uppercase; color: var(--chalk);
+      }
+
+      /* ---- affiche déchirée : composant réutilisé (CH1 / CH10 / CH11) ---- */
+      .torn-shape {
+        clip-path: polygon(
+          2% 6%, 8% 2%, 15% 5%, 22% 1%, 30% 4%, 40% 0%, 50% 3%, 60% 0%, 70% 4%, 80% 1%, 90% 5%, 97% 2%, 100% 8%,
+          98% 20%, 100% 35%, 97% 50%, 100% 65%, 98% 80%, 100% 92%, 95% 96%, 88% 99%, 80% 96%, 70% 99%, 60% 97%,
+          50% 100%, 40% 97%, 30% 99%, 20% 96%, 10% 99%, 3% 96%, 0% 90%, 2% 75%, 0% 60%, 3% 45%, 0% 30%, 2% 15%
+        );
+      }
+      .torn-card {
+        position: relative;
+        background:
+          radial-gradient(ellipse at 50% 28%, rgba(217, 165, 72, 0.12), transparent 62%),
+          repeating-linear-gradient(0deg, rgba(0,0,0,.32) 0 2px, transparent 2px 64px),
+          repeating-linear-gradient(90deg, rgba(0,0,0,.20) 0 2px, transparent 2px 132px),
+          linear-gradient(160deg, var(--wall-a), var(--wall-b));
+        box-shadow: 0 40px 90px rgba(0,0,0,.55);
+      }
+
+      /* ---- CH1 hook : affiche qui se déchire pour révéler l'archive ---- */
+      .poster-wrap { position: absolute; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; }
+      .poster-card {
+        width: 820px; height: 1120px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+        text-align: center; padding: 0 60px;
+      }
+      .poster-eyebrow { font-family: 'Saira Condensed', 'Archivo', sans-serif; font-weight: 700; font-size: 30px; letter-spacing: .1em; color: var(--gold-dim); margin-bottom: 18px; }
+      .poster-date { font-family: 'Anton', sans-serif; font-size: 118px; line-height: 1.0; color: var(--chalk); text-transform: uppercase; }
+      .poster-year-wrap { position: relative; margin-top: 22px; }
+      .poster-year { font-family: 'Anton', sans-serif; font-size: 168px; line-height: 1; color: var(--gold); }
+      .circle-draw { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 420px; height: 220px; overflow: visible; }
+
+      .hook-zone {
+        position: absolute; left: 96px; right: 96px; top: 620px; bottom: 200px; z-index: 10;
+        display: flex; flex-direction: column; align-items: flex-start; justify-content: center; text-align: left;
+      }
+      .hook { font-family: 'Anton', sans-serif; font-size: 118px; line-height: 1.03; text-transform: uppercase; color: var(--chalk); }
+      .hline { opacity: 0; }
+      .hook .accent { color: var(--gold); }
+
+      /* ---- CH2 contexte ---- */
+      .ctx-zone { position: absolute; left: 96px; right: 96px; top: 620px; z-index: 10; }
+      .ctx-title { font-family: 'Anton', sans-serif; font-size: 92px; line-height: 1.05; text-transform: uppercase; color: var(--chalk); margin-top: 26px; }
+
+      /* ---- CH3-CH7 : scènes d'action, tracé craie/or sur le mur ---- */
+      .goal-eyebrow {
+        position: absolute; left: 96px; top: 320px; z-index: 10; opacity: 0;
+        font-family: 'Saira Condensed', 'Archivo', sans-serif; font-weight: 700; font-size: 30px; letter-spacing: .06em; color: var(--gold);
+      }
+      .pitch-wrap { position: absolute; left: 96px; top: 380px; width: 888px; height: 620px; z-index: 10; overflow: hidden; }
+      .pitch-svg { position: absolute; inset: 0; width: 100%; height: 100%; transform-origin: 50% 4%; will-change: transform; }
+      .pitch-box, .pitch-six, .pitch-goal, .pitch-arc { fill: none; stroke: var(--gold); stroke-opacity: .55; stroke-width: 3px; stroke-linecap: round; }
+      .goal-flash { fill: var(--gold); opacity: 0; }
+      .but-glow { transform-box: fill-box; transform-origin: 50% 50%; opacity: 0; }
+      .def-dot { fill: var(--chalk-dim); opacity: 0; }
+      .att-dot { fill: var(--chalk); opacity: 0; }
+      .ball-dot { fill: var(--gold); opacity: 0; }
+      .but-stamp {
+        font-family: 'Anton', sans-serif; font-size: 62px; fill: var(--gold); text-anchor: middle; text-transform: uppercase;
+        opacity: 0; paint-order: stroke; stroke: var(--void); stroke-width: 7px;
+      }
+      .goal-card { position: absolute; left: 96px; right: 96px; top: 1032px; z-index: 10; display: flex; align-items: baseline; justify-content: space-between; }
+      .goal-name { font-family: 'Anton', sans-serif; font-size: 56px; text-transform: uppercase; color: var(--chalk); opacity: 0; }
+      .goal-name .goal-badge {
+        display: inline-block; vertical-align: middle; margin-left: 14px; background: var(--void); color: var(--gold);
+        border: 2px solid var(--gold); font-family: 'Saira Condensed', 'Archivo', sans-serif; font-weight: 700; font-size: 20px;
+        letter-spacing: .03em; padding: 6px 13px;
+      }
+      .goal-team {
+        display: block; font-family: 'Saira Condensed', 'Archivo', sans-serif; font-weight: 600; font-size: 22px; letter-spacing: .05em;
+        color: var(--chalk-dim); text-transform: uppercase; margin-top: 10px;
+      }
+      .goal-after { font-family: 'Anton', sans-serif; font-size: 84px; color: var(--gold); opacity: 0; }
+
+      /* variante feutrée : but marocain (ch7) */
+      #ch7 .ball-dot, #ch7 .att-dot { fill: var(--chalk-dim); }
+      #ch7 .but-stamp { fill: var(--chalk-dim); font-size: 50px; }
+      #ch7 .goal-after { color: var(--chalk-dim); }
+
+      /* ---- CH8 trophée ---- */
+      .tr-zone {
+        position: absolute; left: 96px; right: 96px; top: 300px; bottom: 200px; z-index: 10;
+        display: flex; flex-direction: column; align-items: flex-start; justify-content: center; text-align: left;
+      }
+      .tr-title { font-family: 'Anton', sans-serif; font-size: 96px; line-height: 1.05; text-transform: uppercase; color: var(--chalk); margin-top: 30px; }
+      .tr-title .accent { color: var(--gold); }
+
+      /* ---- CH9 score punch ---- */
+      .punch-zone { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+      .punch-flags { display: flex; align-items: center; gap: 40px; opacity: 0; }
+      .punch-flags .flag-label { font-family: 'Saira Condensed', 'Archivo', sans-serif; font-weight: 700; font-size: 30px; letter-spacing: .06em; color: var(--chalk-dim); }
+      .punch-score-wrap { position: relative; margin: 26px 0; }
+      .punch-score { font-family: 'Anton', sans-serif; font-size: 280px; line-height: 1; color: var(--chalk); opacity: 0; }
+      .punch-score .dash { color: var(--gold); }
+      .punch-circle { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 640px; height: 340px; overflow: visible; }
+      .stat-block { text-align: center; opacity: 0; margin-top: 30px; }
+      .stat-value {
+        display: inline-block; font-family: 'Anton', sans-serif; font-size: 92px; color: var(--gold);
+        font-variant-numeric: tabular-nums; letter-spacing: -1px; line-height: 1; transform-origin: center center;
+      }
+      .stat-label { margin-top: 6px; font-family: 'Saira Condensed', 'Archivo', sans-serif; font-weight: 700; font-size: 28px; letter-spacing: .08em; color: var(--chalk-dim); text-transform: uppercase; }
+
+      /* ---- CH10 punchline (affiche déchirée) ---- */
+      .line-poster-wrap { position: absolute; inset: 0; z-index: 10; display: flex; align-items: center; justify-content: center; }
+      .line-card { width: 900px; padding: 90px 70px; text-align: left; }
+      .line-a { font-family: 'Anton', sans-serif; font-size: 84px; line-height: 1.08; text-transform: uppercase; color: var(--chalk); opacity: 0; }
+      .line-b { font-family: 'Anton', sans-serif; font-size: 84px; line-height: 1.08; text-transform: uppercase; color: var(--gold); opacity: 0; margin-top: 22px; }
+
+      /* ===== CH11 CTA — affiche déchirée finale ===== */
+      .cta-wrap { position: absolute; inset: 0; z-index: 10; display: flex; align-items: center; justify-content: center; }
+      .cta-card { width: 860px; padding: 100px 70px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+      .bookmark { width: 110px; height: 143px; fill: var(--gold); z-index: 10; }
+      .chip {
+        margin-top: 30px; background: var(--void); color: var(--gold); border: 2px solid var(--gold);
+        font-family: 'Saira Condensed', 'Archivo', sans-serif; font-weight: 700; font-size: 32px; padding: 14px 24px;
+        white-space: nowrap; transform: rotate(-1.4deg);
+      }
+      .cta-title {
+        margin-top: 40px; font-family: 'Anton', sans-serif; font-size: 100px; line-height: 0.98; text-transform: uppercase; color: var(--chalk);
+      }
+      .cta-body { margin-top: 30px; font-family: 'Archivo', sans-serif; font-size: 36px; color: var(--chalk-dim); }
+      .cta-footer { margin-top: 70px; width: 100%; }
+      .cta-footer .rule { height: 3px; background: var(--gold-dim); }
+      .cta-footer .handle-b { margin-top: 22px; font-family: 'Saira Condensed', 'Archivo', sans-serif; font-weight: 700; font-size: 28px; color: var(--chalk); }
+
+      .anim { opacity: 0; }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="55.50"
+      data-fps="30"
+    >
+      <!-- Fonds d'archives 1989 (cérémonie d'ouverture, Jeux de la Francophonie) — enfants directs de #root -->
+      <video class="archive-video" id="v-ceremony" src="assets/archive-ceremony-a.mp4" data-start="0" data-duration="5.00" data-track-index="5" muted playsinline></video>
+      <video class="archive-video" id="v-stadium" src="assets/archive-stadium.mp4" data-start="5.00" data-duration="6.00" data-track-index="5" muted playsinline></video>
+      <video class="archive-video" id="v-canada" src="assets/archive-canada.mp4" data-start="36.20" data-duration="6.00" data-track-index="5" muted playsinline></video>
+
+      <!-- SFX -->
+      <audio id="a-whoosh-3" src="assets/sfx/whoosh-short.mp3" data-start="12.53" data-duration="0.575" data-track-index="20" data-volume="0.5"></audio>
+      <audio id="a-impact-3" src="assets/sfx/impact-bass-1.mp3" data-start="13.11" data-duration="2.116" data-track-index="21" data-volume="0.75"></audio>
+      <audio id="a-whoosh-4" src="assets/sfx/whoosh-short.mp3" data-start="17.73" data-duration="0.575" data-track-index="20" data-volume="0.5"></audio>
+      <audio id="a-impact-4" src="assets/sfx/impact-bass-1.mp3" data-start="18.31" data-duration="2.116" data-track-index="21" data-volume="0.75"></audio>
+      <audio id="a-whoosh-5" src="assets/sfx/whoosh-short.mp3" data-start="22.93" data-duration="0.575" data-track-index="20" data-volume="0.5"></audio>
+      <audio id="a-impact-5" src="assets/sfx/impact-bass-1.mp3" data-start="23.51" data-duration="2.116" data-track-index="21" data-volume="0.75"></audio>
+      <audio id="a-whoosh-6" src="assets/sfx/whoosh-short.mp3" data-start="27.53" data-duration="0.575" data-track-index="20" data-volume="0.5"></audio>
+      <audio id="a-impact-6" src="assets/sfx/impact-bass-1.mp3" data-start="28.11" data-duration="2.116" data-track-index="21" data-volume="0.75"></audio>
+      <audio id="a-whoosh-7" src="assets/sfx/whoosh-short.mp3" data-start="32.73" data-duration="0.575" data-track-index="20" data-volume="0.3"></audio>
+      <audio id="a-impact-7" src="assets/sfx/impact-bass-1.mp3" data-start="33.31" data-duration="2.116" data-track-index="21" data-volume="0.3"></audio>
+
+      <!-- grain + vignette globaux (au-dessus de tout, sous le header/texte via z-index géré séparément) -->
+      <svg id="grain" viewBox="0 0 1080 1920" preserveAspectRatio="none">
+        <filter id="grainFilter">
+          <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="11" stitchTiles="stitch" />
+          <feColorMatrix type="matrix" values="0 0 0 0 0.85  0 0 0 0 0.65  0 0 0 0 0.28  0 0 0 0.5 0" />
+        </filter>
+        <rect width="100%" height="100%" filter="url(#grainFilter)" />
+      </svg>
+      <div id="vignette"></div>
+
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+        <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+      </div>
+
+      <!-- CH1 — HOOK : affiche qui se déchire pour révéler l'archive -->
+      <section id="ch1" class="chapter clip" data-start="0" data-duration="5.00" data-track-index="1">
+        <div class="archive-grade"></div>
+        <div class="archive-scrim"></div>
+        <div class="hook-zone">
+          <div class="hook" id="ch1-hook">
+            <div class="hline">LE CANADA A</div>
+            <div class="hline">HUMILIÉ LE</div>
+            <div class="hline"><span class="accent">MAROC.</span></div>
+          </div>
+        </div>
+        <div class="poster-wrap" id="poster-wrap">
+          <div class="torn-shape torn-card poster-card" id="poster-card">
+            <div class="poster-eyebrow">CE JOUR-LÀ</div>
+            <div class="poster-date">22 JUILLET</div>
+            <div class="poster-year-wrap">
+              <div class="poster-year">1989</div>
+              <svg class="circle-draw" viewBox="0 0 420 220">
+                <ellipse id="poster-ellipse" cx="210" cy="110" rx="200" ry="98" fill="none" stroke="var(--gold)" stroke-width="6" stroke-linecap="round" />
+              </svg>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CH2 — CONTEXTE -->
+      <section id="ch2" class="chapter clip" data-start="5.00" data-duration="6.00" data-track-index="1">
+        <div class="archive-grade"></div>
+        <div class="archive-scrim"></div>
+        <div class="ctx-zone">
+          <div class="kicker anim" id="ctx-kicker">FINALE · JEUX DE LA FRANCOPHONIE</div>
+          <div class="ctx-title anim" id="ctx-title">STADE<br />MOHAMMED-V,<br />CASABLANCA.</div>
+        </div>
+        <div class="sub-zone">
+          <div class="sub" id="sub-ctx1">LE MAROC JOUE À DOMICILE, DEVANT SON PUBLIC.</div>
+        </div>
+      </section>
+
+      <!-- CH3 — BUT 1 : Lyndon Hooper, 15e minute -->
+      <section id="ch3" class="chapter clip" data-start="11.00" data-duration="5.20" data-track-index="1">
+        <div class="wall"></div>
+        <div class="goal-eyebrow">15E MINUTE</div>
+        <div class="pitch-wrap">
+          <svg class="pitch-svg" viewBox="0 0 888 620">
+            <defs>
+              <filter id="blur-ch3" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur id="fe-ch3" stdDeviation="0 0"/></filter>
+              <radialGradient id="glow-ch3" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#D9A548" stop-opacity="0.55"/><stop offset="100%" stop-color="#D9A548" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+            <rect class="pitch-box" x="144" y="0" width="600" height="200"/>
+            <rect class="pitch-six" x="324" y="0" width="240" height="60"/>
+            <line class="pitch-goal" x1="384" y1="0" x2="504" y2="0"/>
+            <path class="pitch-arc" d="M 344 200 A 100 100 0 0 0 544 200"/>
+            <rect class="goal-flash" x="384" y="0" width="120" height="16"/>
+            <circle class="but-glow" cx="444" cy="95" r="110" fill="url(#glow-ch3)"/>
+            <circle class="def-dot" cx="444" cy="140" r="9"/>
+            <circle class="att-dot" cx="610" cy="590" r="11"/>
+            <circle class="ball-dot" cx="660" cy="560" r="7" style="filter:url(#blur-ch3)"/>
+            <text class="but-stamp" x="444" y="110">BUT !</text>
+          </svg>
+        </div>
+        <div class="goal-card">
+          <div class="goal-name">LYNDON HOOPER<span class="goal-team">Canada</span></div>
+          <div class="goal-after">1-0</div>
+        </div>
+        <div class="sub-zone"><div class="sub" id="sub-g1">LYNDON HOOPER OUVRE LE SCORE À LA 15E MINUTE.</div></div>
+      </section>
+
+      <!-- CH4 — BUT 2 : Rick Jasken, 34e minute -->
+      <section id="ch4" class="chapter clip" data-start="16.20" data-duration="5.20" data-track-index="1">
+        <div class="wall"></div>
+        <div class="goal-eyebrow">34E MINUTE</div>
+        <div class="pitch-wrap">
+          <svg class="pitch-svg" viewBox="0 0 888 620">
+            <defs>
+              <filter id="blur-ch4" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur id="fe-ch4" stdDeviation="0 0"/></filter>
+              <radialGradient id="glow-ch4" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#D9A548" stop-opacity="0.55"/><stop offset="100%" stop-color="#D9A548" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+            <rect class="pitch-box" x="144" y="0" width="600" height="200"/>
+            <rect class="pitch-six" x="324" y="0" width="240" height="60"/>
+            <line class="pitch-goal" x1="384" y1="0" x2="504" y2="0"/>
+            <path class="pitch-arc" d="M 344 200 A 100 100 0 0 0 544 200"/>
+            <rect class="goal-flash" x="384" y="0" width="120" height="16"/>
+            <circle class="but-glow" cx="444" cy="95" r="110" fill="url(#glow-ch4)"/>
+            <circle class="def-dot" cx="444" cy="160" r="9"/>
+            <circle class="att-dot" cx="80" cy="510" r="11"/>
+            <circle class="ball-dot" cx="120" cy="480" r="7" style="filter:url(#blur-ch4)"/>
+            <text class="but-stamp" x="444" y="110">BUT !</text>
+          </svg>
+        </div>
+        <div class="goal-card">
+          <div class="goal-name">RICK JASKEN<span class="goal-team">Canada</span></div>
+          <div class="goal-after">2-0</div>
+        </div>
+        <div class="sub-zone"><div class="sub" id="sub-g2">RICK JASKEN REPREND UN CENTRE ET DOUBLE LA MISE.</div></div>
+      </section>
+
+      <!-- CH5 — BUT 3 : Rick Jasken, 36e minute (doublé) -->
+      <section id="ch5" class="chapter clip" data-start="21.40" data-duration="4.60" data-track-index="1">
+        <div class="wall"></div>
+        <div class="goal-eyebrow">36E MINUTE</div>
+        <div class="pitch-wrap">
+          <svg class="pitch-svg" viewBox="0 0 888 620">
+            <defs>
+              <filter id="blur-ch5" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur id="fe-ch5" stdDeviation="0 0"/></filter>
+              <radialGradient id="glow-ch5" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#D9A548" stop-opacity="0.55"/><stop offset="100%" stop-color="#D9A548" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+            <rect class="pitch-box" x="144" y="0" width="600" height="200"/>
+            <rect class="pitch-six" x="324" y="0" width="240" height="60"/>
+            <line class="pitch-goal" x1="384" y1="0" x2="504" y2="0"/>
+            <path class="pitch-arc" d="M 344 200 A 100 100 0 0 0 544 200"/>
+            <rect class="goal-flash" x="384" y="0" width="120" height="16"/>
+            <circle class="but-glow" cx="444" cy="95" r="110" fill="url(#glow-ch5)"/>
+            <circle class="def-dot" cx="500" cy="180" r="9"/>
+            <circle class="att-dot" cx="404" cy="600" r="11"/>
+            <circle class="ball-dot" cx="444" cy="580" r="7" style="filter:url(#blur-ch5)"/>
+            <text class="but-stamp" x="444" y="110">BUT !</text>
+          </svg>
+        </div>
+        <div class="goal-card">
+          <div class="goal-name">RICK JASKEN<span class="goal-badge">DOUBLÉ</span><span class="goal-team">Canada</span></div>
+          <div class="goal-after">3-0</div>
+        </div>
+        <div class="sub-zone"><div class="sub" id="sub-g3">UN DOUBLÉ EN DEUX MINUTES SEULEMENT.</div></div>
+      </section>
+
+      <!-- CH6 — BUT 4 : Kevin Holness, 44e minute -->
+      <section id="ch6" class="chapter clip" data-start="26.00" data-duration="5.20" data-track-index="1">
+        <div class="wall"></div>
+        <div class="goal-eyebrow">44E MINUTE</div>
+        <div class="pitch-wrap">
+          <svg class="pitch-svg" viewBox="0 0 888 620">
+            <defs>
+              <filter id="blur-ch6" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur id="fe-ch6" stdDeviation="0 0"/></filter>
+              <radialGradient id="glow-ch6" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#D9A548" stop-opacity="0.55"/><stop offset="100%" stop-color="#D9A548" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+            <rect class="pitch-box" x="144" y="0" width="600" height="200"/>
+            <rect class="pitch-six" x="324" y="0" width="240" height="60"/>
+            <line class="pitch-goal" x1="384" y1="0" x2="504" y2="0"/>
+            <path class="pitch-arc" d="M 344 200 A 100 100 0 0 0 544 200"/>
+            <rect class="goal-flash" x="384" y="0" width="120" height="16"/>
+            <circle class="but-glow" cx="444" cy="95" r="110" fill="url(#glow-ch6)"/>
+            <circle class="def-dot" cx="400" cy="50" r="9"/>
+            <circle class="att-dot" cx="660" cy="150" r="11"/>
+            <circle class="ball-dot" cx="700" cy="120" r="7" style="filter:url(#blur-ch6)"/>
+            <text class="but-stamp" x="444" y="110">BUT !</text>
+          </svg>
+        </div>
+        <div class="goal-card">
+          <div class="goal-name">KEVIN HOLNESS<span class="goal-team">Canada</span></div>
+          <div class="goal-after">4-0</div>
+        </div>
+        <div class="sub-zone"><div class="sub" id="sub-g4">KEVIN HOLNESS ENFONCE LE CLOU JUSTE AVANT LA PAUSE.</div></div>
+      </section>
+
+      <!-- CH7 — BUT 5 : le Maroc réduit, 45e+1 (variante feutrée) -->
+      <section id="ch7" class="chapter clip" data-start="31.20" data-duration="5.00" data-track-index="1">
+        <div class="wall"></div>
+        <div class="goal-eyebrow">45E+1 MINUTE</div>
+        <div class="pitch-wrap">
+          <svg class="pitch-svg" viewBox="0 0 888 620">
+            <defs>
+              <filter id="blur-ch7" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur id="fe-ch7" stdDeviation="0 0"/></filter>
+              <radialGradient id="glow-ch7" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#D1C1A3" stop-opacity="0.4"/><stop offset="100%" stop-color="#D1C1A3" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+            <rect class="pitch-box" x="144" y="0" width="600" height="200"/>
+            <rect class="pitch-six" x="324" y="0" width="240" height="60"/>
+            <line class="pitch-goal" x1="384" y1="0" x2="504" y2="0"/>
+            <path class="pitch-arc" d="M 344 200 A 100 100 0 0 0 544 200"/>
+            <rect class="goal-flash" x="384" y="0" width="120" height="16"/>
+            <circle class="but-glow" cx="444" cy="95" r="110" fill="url(#glow-ch7)"/>
+            <circle class="def-dot" cx="444" cy="150" r="9"/>
+            <circle class="att-dot" cx="404" cy="610" r="11"/>
+            <circle class="ball-dot" cx="444" cy="600" r="7" style="filter:url(#blur-ch7)"/>
+            <text class="but-stamp" x="444" y="110">BUT !</text>
+          </svg>
+        </div>
+        <div class="goal-card">
+          <div class="goal-name">LE MAROC RÉDUIT<span class="goal-team">Maroc</span></div>
+          <div class="goal-after">4-1</div>
+        </div>
+        <div class="sub-zone"><div class="sub" id="sub-g5">LE MAROC SAUVE L'HONNEUR AVANT LA MI-TEMPS.</div></div>
+      </section>
+
+      <!-- CH8 — PREMIER TROPHÉE -->
+      <section id="ch8" class="chapter clip" data-start="36.20" data-duration="6.00" data-track-index="1">
+        <div class="archive-grade"></div>
+        <div class="archive-scrim"></div>
+        <div class="tr-zone">
+          <div class="kicker anim" id="tr-kicker">UNE PREMIÈRE HISTORIQUE</div>
+          <div class="tr-title" id="tr-title">
+            <div class="hline">PREMIER TROPHÉE</div>
+            <div class="hline">INTERNATIONAL DE</div>
+            <div class="hline">L'HISTOIRE DU <span class="accent">CANADA.</span></div>
+          </div>
+        </div>
+        <div class="sub-zone">
+          <div class="sub" id="sub-tr1">DÉCROCHÉ À L'EXTÉRIEUR, DEVANT L'UN DES PLUS GRANDS PUBLICS JAMAIS RÉUNIS POUR CETTE SÉLECTION.</div>
+        </div>
+      </section>
+
+      <!-- CH9 — SCORE PUNCH -->
+      <section id="ch9" class="chapter clip" data-start="42.20" data-duration="4.50" data-track-index="1">
+        <div class="wall"></div>
+        <div class="punch-zone">
+          <div class="punch-flags anim" id="punch-flags">
+            <div class="flag-label">CANADA</div>
+            <div class="flag-label" style="color: var(--gold);">—</div>
+            <div class="flag-label">MAROC</div>
+          </div>
+          <div class="punch-score-wrap">
+            <div class="punch-score" id="punch-score">4<span class="dash">-</span>1</div>
+            <svg class="punch-circle" viewBox="0 0 640 340">
+              <ellipse id="punch-ellipse" cx="320" cy="170" rx="300" ry="150" fill="none" stroke="var(--gold)" stroke-width="6" stroke-linecap="round" />
+            </svg>
+          </div>
+          <div class="stat-block" id="stat-row">
+            <div class="stat-value" id="stat-value">0</div>
+            <div class="stat-label">Spectateurs</div>
+          </div>
+        </div>
+        <div class="sub-zone"><div class="sub" id="sub-punch">LE TABLEAU NE BOUGERA PLUS.</div></div>
+      </section>
+
+      <!-- CH10 — PUNCHLINE (affiche déchirée) -->
+      <section id="ch10" class="chapter clip" data-start="46.70" data-duration="4.00" data-track-index="1">
+        <div class="wall"></div>
+        <div class="line-poster-wrap">
+          <div class="torn-shape torn-card line-card">
+            <div class="line-a" id="line-a">LE MAROC A REMPLI<br />UN STADE POUR VOIR<br />SON ÉQUIPE GAGNER.</div>
+            <div class="line-b" id="line-b">LE CANADA EST<br />REPARTI AVEC<br />LE TROPHÉE.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CH11 — CTA (affiche déchirée finale) -->
+      <section id="ch11" class="chapter clip" data-start="50.70" data-duration="4.80" data-track-index="1">
+        <div class="wall"></div>
+        <div class="cta-wrap">
+          <div class="torn-shape torn-card cta-card">
+            <svg class="bookmark anim" id="ch11-bookmark" viewBox="0 0 120 156"><path d="M14 0h92a14 14 0 0 1 14 14v142L60 98 0 156V14A14 14 0 0 1 14 0Z"/></svg>
+            <div class="chip anim" id="ch11-chip">CE JOUR LÀ …</div>
+            <div class="cta-title anim" id="ch11-title">CHAQUE JOUR,<br />UNE DATE.</div>
+            <div class="cta-body anim" id="ch11-body">Reste pour ne pas rater la prochaine.</div>
+            <div class="cta-footer anim" id="ch11-footer">
+              <div class="rule"></div>
+              <div class="handle-b">@UNE.DEUX</div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      const EASE = 'sine.inOut';
+
+      // ---- pitch lines: measure real geometry once, seed dasharray/dashoffset (svg-path-draw) ----
+      document.querySelectorAll('.pitch-box, .pitch-six, .pitch-goal, .pitch-arc').forEach((p) => {
+        const len = p.getTotalLength();
+        p.style.strokeDasharray = String(len);
+        p.style.strokeDashoffset = String(len);
+      });
+      // ---- hand-drawn circles: same technique, measured at setup ----
+      ['poster-ellipse', 'punch-ellipse'].forEach((id) => {
+        const el = document.getElementById(id);
+        const len = el.getTotalLength();
+        el.style.strokeDasharray = String(len);
+        el.style.strokeDashoffset = String(len);
+      });
+
+      function caption(id, inAt, outAt) {
+        tl.fromTo(`#${id}`, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.3, ease: 'sine.out' }, inAt);
+        tl.to(`#${id}`, { opacity: 0, duration: 0.25, ease: 'sine.in' }, outAt - 0.25);
+      }
+
+      // ================= CH1 — hook (0.00 – 5.00) =================
+      // affiche déchirée tenue, puis "déchirée"/poussée vers la caméra pour révéler l'archive
+      tl.fromTo('#poster-wrap', { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.35, ease: 'power2.out' }, 0);
+      tl.to('#poster-ellipse', { strokeDashoffset: 0, duration: 0.6, ease: 'power2.out' }, 0.35);
+      tl.to('#poster-wrap', { scale: 2.4, opacity: 0, duration: 0.55, ease: 'power2.in' }, 1.35);
+      document.querySelectorAll('#ch1-hook .hline').forEach((el, i) => {
+        tl.fromTo(el, { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.45, ease: 'power3.out' }, 1.55 + i * 0.26);
+      });
+      tl.fromTo('#v-ceremony', { scale: 1.14 }, { scale: 1, duration: 1.6, ease: 'power2.out' }, 0.9);
+
+      // ================= CH2 — contexte (5.00 – 11.00) =================
+      const ch2 = 5.00;
+      tl.fromTo('#v-stadium', { scale: 1.12 }, { scale: 1, duration: 1.1, ease: 'power2.out' }, ch2);
+      tl.fromTo('#ctx-kicker', { opacity: 0, y: 12, rotate: -6 }, { opacity: 1, y: 0, rotate: -1.6, duration: 0.35, ease: 'power2.out' }, ch2 + 0.15);
+      tl.fromTo('#ctx-title', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.45, ease: 'power3.out' }, ch2 + 0.35);
+      caption('sub-ctx1', ch2 + 1.9, ch2 + 5.7);
+
+      // ---- scène d'action : identique à la version DA (chef d'œuvre), recolorée or/mur ----
+      function goalScene(chId, base, dur, cfg) {
+        const q = (sel) => `#${chId} ${sel}`;
+        tl.fromTo(q('.goal-eyebrow'), { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' }, base + 0.05);
+        tl.to(q('.pitch-box, .pitch-six, .pitch-goal, .pitch-arc'), { strokeDashoffset: 0, duration: 0.5, ease: 'power2.out', stagger: 0.04 }, base + 0.1);
+        tl.fromTo(q('.def-dot, .att-dot, .ball-dot'), { opacity: 0 }, { opacity: 1, duration: 0.3 }, base + 0.6);
+
+        const fe = document.getElementById(`fe-${chId}`);
+        const blurProxy = { v: 0 };
+        const writeBlur = () => fe.setAttribute('stdDeviation', `${blurProxy.v} ${blurProxy.v}`);
+        writeBlur();
+
+        let t = base + 0.85;
+        for (let i = 0; i < cfg.ball.length - 1; i++) {
+          const isLast = i === cfg.ball.length - 2;
+          const d = isLast ? 0.5 : 0.6;
+          if (isLast) {
+            const half = d / 2;
+            tl.fromTo(blurProxy, { v: 0 }, { v: 16, duration: half, ease: 'power1.in', onUpdate: writeBlur }, t);
+            tl.to(blurProxy, { v: 0, duration: half, ease: 'power1.out', onUpdate: writeBlur }, t + half);
+            tl.to(q('.pitch-svg'), { scale: 1.28, duration: d + 0.05, ease: 'power2.out' }, t);
+            tl.to(q('.def-dot'), { attr: { cx: cfg.def.x, cy: cfg.def.y }, duration: 0.3, ease: 'power2.out' }, t);
+          }
+          tl.to(q('.ball-dot'), { attr: { cx: cfg.ball[i + 1].x, cy: cfg.ball[i + 1].y }, duration: d, ease: 'power2.inOut' }, t);
+          tl.to(q('.att-dot'), { attr: { cx: cfg.att[i + 1].x, cy: cfg.att[i + 1].y }, duration: d, ease: 'power2.inOut' }, t);
+          t += d + 0.08;
+        }
+
+        tl.fromTo(q('.goal-flash'), { opacity: 0 }, { opacity: 1, duration: 0.12 }, t);
+        tl.to(q('.goal-flash'), { opacity: 0, duration: 0.35 }, t + 0.12);
+        tl.fromTo(q('.but-glow'), { opacity: 0, scale: 0.82 }, { opacity: 1, scale: 1, duration: 0.3, ease: 'power2.out' }, t);
+        tl.to(q('.but-glow'), { opacity: 0, duration: 0.4, ease: 'power1.in' }, t + 1.0);
+        // tampon "BUT !" — pochoir légèrement de travers (contour bicolore fixé en CSS)
+        tl.fromTo(q('.but-stamp'), { opacity: 0, scale: 0.6, rotate: -9 }, { opacity: 1, scale: 1, rotate: -4, duration: 0.28, ease: 'back.out(2.5)', transformOrigin: '50% 50%' }, t);
+        tl.to(q('.but-stamp'), { opacity: 0, duration: 0.3 }, t + 1.0);
+        tl.fromTo(q('.goal-name'), { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out' }, t + 0.15);
+        tl.fromTo(q('.goal-after'), { opacity: 0, scale: 1.2 }, { opacity: 1, scale: 1, duration: 0.35, ease: 'back.out(2)' }, t + 0.2);
+
+        const subId = q('.sub');
+        tl.fromTo(subId, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.3, ease: 'sine.out' }, t + 0.55);
+        tl.to(subId, { opacity: 0, duration: 0.25, ease: 'sine.in' }, base + dur - 0.3);
+      }
+
+      // ================= CH3 — but 1, Hooper 15' (11.00 – 16.20) =================
+      goalScene('ch3', 11.00, 5.20, {
+        ball: [{ x: 660, y: 560 }, { x: 560, y: 300 }, { x: 390, y: 40 }],
+        att: [{ x: 610, y: 590 }, { x: 520, y: 330 }, { x: 360, y: 70 }],
+        def: { x: 470, y: 155 },
+      });
+
+      // ================= CH4 — but 2, Jasken 34' (16.20 – 21.40) =================
+      goalScene('ch4', 16.20, 5.20, {
+        ball: [{ x: 120, y: 480 }, { x: 360, y: 220 }, { x: 500, y: 50 }],
+        att: [{ x: 80, y: 510 }, { x: 330, y: 250 }, { x: 470, y: 80 }],
+        def: { x: 410, y: 175 },
+      });
+
+      // ================= CH5 — but 3, Jasken 36' doublé (21.40 – 26.00) =================
+      goalScene('ch5', 21.40, 4.60, {
+        ball: [{ x: 444, y: 580 }, { x: 444, y: 320 }, { x: 410, y: 35 }],
+        att: [{ x: 404, y: 600 }, { x: 410, y: 350 }, { x: 370, y: 65 }],
+        def: { x: 460, y: 190 },
+      });
+
+      // ================= CH6 — but 4, Holness 44' (26.00 – 31.20) =================
+      goalScene('ch6', 26.00, 5.20, {
+        ball: [{ x: 700, y: 120 }, { x: 560, y: 55 }, { x: 470, y: 15 }],
+        att: [{ x: 660, y: 150 }, { x: 530, y: 80 }, { x: 440, y: 40 }],
+        def: { x: 430, y: 60 },
+      });
+
+      // ================= CH7 — but 5, Maroc 45'+1 (31.20 – 36.20) =================
+      goalScene('ch7', 31.20, 5.00, {
+        ball: [{ x: 444, y: 600 }, { x: 444, y: 350 }, { x: 460, y: 30 }],
+        att: [{ x: 404, y: 610 }, { x: 410, y: 360 }, { x: 420, y: 60 }],
+        def: { x: 444, y: 175 },
+      });
+
+      // ================= CH8 — premier trophée (36.20 – 42.20) =================
+      const ch8 = 36.20;
+      tl.fromTo('#v-canada', { scale: 1.12 }, { scale: 1, duration: 1.1, ease: 'power2.out' }, ch8);
+      tl.fromTo('#tr-kicker', { opacity: 0, y: 12, rotate: -6 }, { opacity: 1, y: 0, rotate: -1.6, duration: 0.35, ease: 'power2.out' }, ch8 + 0.15);
+      document.querySelectorAll('#tr-title .hline').forEach((el, i) => {
+        tl.fromTo(el, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power3.out' }, ch8 + 0.45 + i * 0.22);
+      });
+      caption('sub-tr1', ch8 + 2.30, ch8 + 5.85);
+
+      // ================= CH9 — score punch (42.20 – 46.70) =================
+      const ch9 = 42.20;
+      tl.fromTo('#punch-flags', { opacity: 0 }, { opacity: 1, duration: 0.35, ease: EASE }, ch9 + 0.1);
+      tl.fromTo('#punch-score', { opacity: 0, scale: 0.7 }, { opacity: 1, scale: 1, duration: 0.55, ease: 'back.out(1.8)' }, ch9 + 0.35);
+      tl.to('#punch-ellipse', { strokeDashoffset: 0, duration: 0.5, ease: 'power2.out' }, ch9 + 0.65);
+      tl.fromTo('#stat-row', { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' }, ch9 + 0.95);
+      (function statCountUp() {
+        const el = document.getElementById('stat-value');
+        const state = { v: 0 };
+        tl.fromTo(el, { scale: 0.55 }, { scale: 1, duration: 1.1, ease: 'power3.out' }, ch9 + 1.0);
+        tl.to(state, {
+          v: 70000, duration: 1.1, ease: 'power3.out',
+          onUpdate: () => { el.textContent = Math.round(state.v).toLocaleString('fr-FR'); },
+        }, ch9 + 1.0);
+      })();
+      caption('sub-punch', ch9 + 2.3, ch9 + 4.3);
+
+      // ================= CH10 — punchline (46.70 – 50.70) =================
+      const ch10 = 46.70;
+      tl.fromTo('#line-a', { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' }, ch10 + 0.15);
+      tl.fromTo('#line-b', { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' }, ch10 + 0.75);
+
+      // ================= CH11 — CTA (50.70 – 55.50) =================
+      const ctaStart = 50.70;
+      tl.to('.ring, .wordmark, .handle, .hairline, .progress-track', { opacity: 0, duration: 0.25, ease: EASE }, ctaStart - 0.3);
+      tl.set('.ring, .wordmark, .handle, .hairline, .progress-track', { opacity: 0 }, ctaStart);
+
+      tl.fromTo('#ch11-bookmark', { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }, ctaStart + 0.3);
+      tl.fromTo('#ch11-chip', { opacity: 0, y: 10, rotate: -6 }, { opacity: 1, y: 0, rotate: -1.4, duration: 0.4, ease: 'power2.out' }, ctaStart + 0.65);
+      tl.fromTo('#ch11-title', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.55, ease: 'power3.out' }, ctaStart + 0.9);
+      tl.to('#ch11-body', { opacity: 1, duration: 0.4, ease: EASE }, ctaStart + 1.4);
+      tl.to('#ch11-footer', { opacity: 1, duration: 0.35, ease: EASE }, ctaStart + 1.7);
+
+      // ---- progress bar (scaleX, not width) ----
+      tl.fromTo('#progress-fill', { scaleX: 0 }, { scaleX: 1, duration: ctaStart, ease: 'none' }, 0);
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
