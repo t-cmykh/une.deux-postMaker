@@ -106,6 +106,14 @@ Workflow v7 : Claude ne génère PAS d'images (pas d'appels Higgsfield). Claude
 fournit uniquement les prompts texte ; Thomas génère les photos et les intègre
 dans son éditeur.
 
+**Reel "Ce jour-là" à partir d'images de match réelles (pas de photos à
+générer) : voir `CLAUDE.md` à la racine du repo.** C'est un format différent
+du Reel-promo ci-dessus — construit avec HyperFrames dans `hyperframes/`,
+recette figée et validée (récupération vidéo Drive, composite ffmpeg,
+sous-titres animés). Déclencheur : Thomas envoie un lien Drive vers une vidéo
+de match, ou dit "on va faire un reel une·deux" à propos d'un montage vidéo.
+Ne pas utiliser le format `script_reel.json` ci-dessous pour ce cas.
+
 ## Structure des 8 slides (gabarit de référence)
 
 | # | Template | Fonction | Rôle |
@@ -475,6 +483,10 @@ de raisonnement, pas à copier tel quel.
   ton, vérif factuelle).
 
 ### Format reel (`script_reel.json`)
+
+Ce format sert au **Reel-promo** (images fixes générées par Thomas). Pour un
+reel "Ce jour-là" à partir d'une vraie vidéo de match, voir `CLAUDE.md` à la
+racine du repo (pipeline HyperFrames, format distinct).
 
 `meta` porte les réglages verrouillés :
 - `cadence_subs` : **2** (sous-titres toutes les 2 sec)
