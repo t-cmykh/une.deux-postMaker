@@ -132,8 +132,15 @@ Slide 2 — Titre
 Corps de la slide 2.
 ⸻
 Slide 3 — Titre
-Corps de la slide 3."></textarea>
-        <div class="hint">Format « Slide N — titre » puis corps, blocs séparés par une ligne ⸻ seule (celui de tes brouillons Gmail). Slide 1 = titre seul. Entoure de **double étoiles** les mots du titre à colorer.</div>
+Corps de la slide 3.
+⸻
+CTA — Titre du CTA (optionnel, sinon le CTA fixe enregistré est utilisé)
+Corps du CTA."></textarea>
+        <div class="hint">Format « Slide N — titre » puis corps, blocs séparés par une ligne ⸻ seule (celui de tes brouillons Gmail). Slide 1 = titre seul. Entoure de **double étoiles** les mots du titre à colorer. Bloc final « CTA — … » optionnel pour un CTA propre à ce post (sinon le CTA fixe enregistré pour la série est utilisé).</div>
+      </div>
+      <div class="row2">
+        <div class="toggle-row on" id="batch_swipe_first"><div class="tg"></div><span>Swipe sur la cover</span></div>
+        <div class="toggle-row" id="batch_pagination"><div class="tg"></div><span>Pagination</span></div>
       </div>
       <div class="btns" style="margin-top:0;margin-bottom:16px">
         <button class="btn btn-ghost" id="b_batch_parse">Parser le script</button>
@@ -148,7 +155,7 @@ Corps de la slide 3."></textarea>
       <div class="hint" id="batch_progress" style="text-align:center;margin-top:8px"></div>
     </div>
 
-    <div class="field" id="field_batch_separator" style="display:none;border-top:1px solid var(--line);margin-top:8px;padding-top:22px">
+    <div class="field" id="field_batch_separator" style="border-top:1px solid var(--line);margin-top:8px;padding-top:22px">
       <div class="section-h" style="margin-top:0">Édition slide par slide</div>
     </div>
 
@@ -1406,6 +1413,203 @@ function drawVerbatim(W,H,s){
   }
   g.textAlign='left';
 }
+/* ===== MODE BATCH — parse un script de post complet, une image par slide
+   (glissée à la main comme aujourd'hui), génère toutes les PNG d'affilée.
+   N'existe que pour les séries à structure uniforme (titre seul en cover,
+   puis titre+corps répété) : Les oubliés et Portraits. Ne remplace pas
+   l'édition slide par slide ci-dessous, qui reste utilisable telle quelle. */
+let batchSlides = [], batchCta = null;
+
+function pad2(n){ return String(n).padStart(2,'0'); }
+
+/* mots entre **doubles étoiles** dans un titre → mot-clé coloré (state.greenWords),
+   même convention que **gras** déjà supportée dans body/quote */
+function extractGreenWords(rawTitle){
+  const green = new Set();
+  const clean = String(rawTitle).replace(/\*\*(.+?)\*\*/g, (m,g1)=>{
+    g1.trim().split(/\s+/).forEach(w=>green.add(w.toUpperCase()));
+    return g1;
+  });
+  return {clean, green};
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* blocs séparés par une ligne ⸻ seule ; dans chaque bloc, cherche la ligne
+   "Slide N — titre" ou "CTA — titre" (celle-ci peut être précédée d'une
+   ligne "POST : ..." à ignorer), le reste du bloc est le corps */
+function parseBatchScript(text){
+  const blocks = String(text).split(/\n[ \t]*⸻[ \t]*\n/);
+  const slides = []; let cta = null;
+  blocks.forEach(block=>{
+    const lines = block.split(/\r?\n/);
+    const idx = lines.findIndex(l=>/^\s*(Slide\s+\d+|CTA)\s*[—\-]/i.test(l));
+    if(idx===-1) return;
+    const m = lines[idx].match(/^\s*(Slide\s+\d+|CTA)\s*[—\-]\s*(.+?)\s*$/i);
+    if(!m) return;
+    const isCta = /^CTA/i.test(m[1]);
+    const {clean, green} = extractGreenWords(m[2]);
+    const body = lines.slice(idx+1).join('\n').trim();
+    if(isCta) cta = {title:clean, body, greenWords:green};
+    else slides.push({title:clean, body, greenWords:green, img:null});
+  });
+  return {slides, cta};
+}
+
+function ctaStorageKey(serie){ return 'unedeux_cta_fixed_'+serie; }
+function saveFixedCta(){
+  const data = {title:state.title, body:state.body, btnlabel:state.btnlabel, greenWords:[...state.greenWords]};
+  localStorage.setItem(ctaStorageKey(state.serie), JSON.stringify(data));
+  document.getElementById('cta_saved_hint').textContent = 'Enregistré comme CTA fixe de '+SERIES[state.serie].name+'.';
+  updateBatchExportState();
+}
+function loadFixedCta(serie){
+  const raw = localStorage.getItem(ctaStorageKey(serie));
+  if(!raw) return null;
+  try{
+    const d = JSON.parse(raw);
+    return {title:d.title||'', body:d.body||'', btnlabel:d.btnlabel||'ENREGISTRE', greenWords:new Set(d.greenWords||[])};
+  }catch(e){ return null; }
+}
+
+function loadBatchImage(idx, file, nameEl, zone){
+  if(!file) return;
+  const img = new Image();
+  img.onload=()=>{ batchSlides[idx].img=img; nameEl.textContent=file.name; zone.style.borderColor=SERIES[state.serie].sig; };
+  img.onerror=()=>alert('Image non chargée. Essaie un JPG ou PNG.');
+  img.src = URL.createObjectURL(file);
+}
+
+function renderBatchSlideList(){
+  const wrap = document.getElementById('batch_slides');
+  wrap.innerHTML = '';
+  batchSlides.forEach((sl,i)=>{
+    const row = document.createElement('div');
+    row.className = 'field';
+    row.innerHTML =
+      '<label>Slide '+(i+1)+(i===0?' (cover, titre seul)':'')+' — '+escapeHtml(sl.title)+'</label>'+
+      '<div class="media-zone" data-idx="'+i+'" style="padding:12px;margin-bottom:2px">'+
+        '<div class="mt">CLIQUE OU GLISSE LA PHOTO</div>'+
+        '<div class="ms" data-name>aucune image</div>'+
+      '</div>'+
+      '<input type="file" accept="image/*" style="display:none" data-fileinput>';
+    wrap.appendChild(row);
+    const zone=row.querySelector('.media-zone'), input=row.querySelector('[data-fileinput]'), nameEl=row.querySelector('[data-name]');
+    zone.onclick=()=>input.click();
+    input.onchange=e=>loadBatchImage(i,e.target.files[0],nameEl,zone);
+    zone.addEventListener('dragover',e=>{e.preventDefault();zone.style.borderColor=SERIES[state.serie].sig;});
+    zone.addEventListener('dragleave',()=>{if(!batchSlides[i].img)zone.style.borderColor='';});
+    zone.addEventListener('drop',e=>{e.preventDefault();if(e.dataTransfer.files[0])loadBatchImage(i,e.dataTransfer.files[0],nameEl,zone);});
+  });
+  updateBatchExportState();
+}
+
+function updateBatchExportState(){
+  const btn=document.getElementById('b_batch_export'), box=document.getElementById('batch_cta_status'), hint=document.getElementById('batch_cta_hint');
+  const savedCta = loadFixedCta(state.serie);
+  const ctaData = batchCta || savedCta;
+  box.style.display = 'block';
+  if(batchCta) hint.textContent = 'CTA de ce post (dans le script) : « '+batchCta.title+' ».';
+  else if(savedCta) hint.textContent = 'CTA fixe enregistré pour '+SERIES[state.serie].name+' sera utilisé : « '+savedCta.title+' ».';
+  else hint.textContent = '⚠️ Aucun CTA disponible — ajoute un bloc « CTA — … » dans le script, ou enregistre un CTA fixe (choisis le template CTA ci-dessous, remplis les champs, bouton « Enregistrer comme CTA fixe »).';
+  btn.disabled = !(batchSlides.length>0 && ctaData);
+}
+
+function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+
+function forceDownloadBlob(blob,filename){
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.download=filename; a.href=url;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(()=>{ try{URL.revokeObjectURL(url);}catch(e){} },4000);
+}
+
+/* rendu + export sans passer par le partage natif (déclencherait une boîte de
+   dialogue à chaque slide en boucle) — téléchargement direct systématique */
+function renderAndDownload(filename){
+  return new Promise(resolve=>{
+    const wasSafe=state.safeOn; state.safeOn=false;
+    draw();
+    cv.toBlob(blob=>{
+      state.safeOn=wasSafe; draw();
+      if(!blob){ resolve(false); return; }
+      forceDownloadBlob(blob,filename);
+      resolve(true);
+    },'image/png');
+  });
+}
+
+function applyBatchSlideState(sl,i,total,isFirst){
+  state.template = isFirst ? 'titre' : 'cover';
+  state.title = sl.title;
+  state.greenWords = new Set(sl.greenWords);
+  state.body = isFirst ? '' : sl.body;
+  state.img = sl.img||null; state.isVideo=false;
+  state.cur = pad2(i+1); state.tot = pad2(total);
+  state.showSwipe = isFirst && document.getElementById('batch_swipe_first').classList.contains('on');
+  state.paginationOn = document.getElementById('batch_pagination').classList.contains('on');
+  if(isFirst) state.titleSizeManual = clampTitle();
+}
+function applyBatchCtaState(ctaData){
+  state.template='cta';
+  state.title=ctaData.title; state.body=ctaData.body;
+  /* convention observée sur les 3 séries : le libellé du CTA porte le nom
+     de la série ("LES OUBLIÉS", "PORTRAITS"…), pas "ENREGISTRE" */
+  state.btnlabel=ctaData.btnlabel||SERIES[state.serie].label;
+  state.greenWords=new Set(ctaData.greenWords||[]);
+  state.img=null; state.isVideo=false;
+}
+
+async function batchExportAll(){
+  const btn=document.getElementById('b_batch_export'), progress=document.getElementById('batch_progress');
+  const ctaData = batchCta || loadFixedCta(state.serie);
+  if(!batchSlides.length || !ctaData) return;
+  btn.disabled=true;
+  const total = batchSlides.length+1;
+  for(let i=0;i<batchSlides.length;i++){
+    progress.textContent = 'Génération '+(i+1)+'/'+total+'…';
+    applyBatchSlideState(batchSlides[i],i,total,i===0);
+    await renderAndDownload('unedeux-'+state.serie+'-'+state.cur+'.png');
+    await sleep(220);
+  }
+  progress.textContent = 'Génération '+total+'/'+total+' (CTA)…';
+  applyBatchCtaState(ctaData);
+  await renderAndDownload('unedeux-'+state.serie+'-'+pad2(total)+'-cta.png');
+  progress.textContent = total+' PNG générées et téléchargées.';
+  btn.disabled=false;
+  draw();
+}
+
+const tbatch=document.getElementById('t_batchmode');
+tbatch.onclick=()=>{
+  const on=!tbatch.classList.contains('on');
+  tbatch.classList.toggle('on',on);
+  document.getElementById('batch_panel').style.display = on?'block':'none';
+};
+document.getElementById('b_batch_parse').onclick=()=>{
+  const {slides,cta} = parseBatchScript(document.getElementById('batch_script').value);
+  if(!slides.length){ alert('Aucune slide reconnue. Vérifie le format « Slide N — titre » avec des blocs séparés par une ligne ⸻ seule.'); return; }
+  batchSlides = slides; batchCta = cta;
+  renderBatchSlideList();
+};
+document.getElementById('b_batch_export').onclick=()=>{ batchExportAll(); };
+document.getElementById('batch_swipe_first').onclick=function(){ this.classList.toggle('on'); };
+document.getElementById('batch_pagination').onclick=function(){ this.classList.toggle('on'); };
+document.getElementById('b_savecta').onclick=saveFixedCta;
+
+/* hook léger sur selectSerie pour rafraîchir le libellé/hint du CTA fixe */
+const _selectSerieBase = selectSerie;
+selectSerie = function(key){
+  _selectSerieBase(key);
+  document.getElementById('b_savecta_serie').textContent = SERIES[key].name;
+  const saved = loadFixedCta(key);
+  document.getElementById('cta_saved_hint').textContent = saved ? ('CTA fixe déjà enregistré : « '+saved.title+' ».') : '';
+  if(document.getElementById('batch_panel').style.display!=='none') updateBatchExportState();
+};
+document.getElementById('b_savecta_serie').textContent = SERIES[state.serie].name;
+
 document.documentElement.style.setProperty('--sig',SERIES.cejourla.sig);
 rebuildPicker(); buildRatioTabs(); updateKwPadVisibility();
 document.getElementById('legend').innerHTML='<b>'+SERIES.cejourla.name+'</b> — '+SERIES.cejourla.legend;
