@@ -1550,7 +1550,10 @@ function applyBatchSlideState(sl,i,total,isFirst){
   state.cur = pad2(i+1); state.tot = pad2(total);
   state.showSwipe = isFirst && document.getElementById('batch_swipe_first').classList.contains('on');
   state.paginationOn = document.getElementById('batch_pagination').classList.contains('on');
-  if(isFirst) state.titleSizeManual = clampTitle();
+  /* taille de titre validée sur tes posts réels pour la cover "titre seul" —
+     pas clampTitle() (qui plafonne à 120 par défaut, en dessous des 130
+     observés) */
+  if(isFirst) state.titleSizeManual = 130;
 }
 function applyBatchCtaState(ctaData){
   state.template='cta';
