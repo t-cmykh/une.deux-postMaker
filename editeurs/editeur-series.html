@@ -118,6 +118,41 @@ input[type=range]{flex:1;accent-color:var(--sig)}
     <div class="series-grid" id="series_grid"></div>
 
     <div class="field">
+      <div class="toggle-row" id="t_batchmode"><div class="tg"></div><span>Mode batch (post complet)</span></div>
+      <div class="hint">Colle le script du post + glisse les photos, génère toutes les slides d'un coup. Le mode édition slide par slide reste en dessous, inchangé.</div>
+    </div>
+
+    <div id="batch_panel" style="display:none">
+      <div class="field">
+        <label>Script du post</label>
+        <textarea id="batch_script" rows="8" placeholder="POST : Nom
+Slide 1 — Hook de cover
+⸻
+Slide 2 — Titre
+Corps de la slide 2.
+⸻
+Slide 3 — Titre
+Corps de la slide 3."></textarea>
+        <div class="hint">Format « Slide N — titre » puis corps, blocs séparés par une ligne ⸻ seule (celui de tes brouillons Gmail). Slide 1 = titre seul. Entoure de **double étoiles** les mots du titre à colorer.</div>
+      </div>
+      <div class="btns" style="margin-top:0;margin-bottom:16px">
+        <button class="btn btn-ghost" id="b_batch_parse">Parser le script</button>
+      </div>
+      <div id="batch_slides"></div>
+      <div class="field" id="batch_cta_status" style="display:none">
+        <div class="hint" id="batch_cta_hint"></div>
+      </div>
+      <div class="btns">
+        <button class="btn btn-sig" id="b_batch_export" disabled>Générer toutes les PNG</button>
+      </div>
+      <div class="hint" id="batch_progress" style="text-align:center;margin-top:8px"></div>
+    </div>
+
+    <div class="field" id="field_batch_separator" style="display:none;border-top:1px solid var(--line);margin-top:8px;padding-top:22px">
+      <div class="section-h" style="margin-top:0">Édition slide par slide</div>
+    </div>
+
+    <div class="field">
       <label>Type de slide</label>
       <div class="chips" id="tpl_chips">
         <div class="chip on" data-tpl="cover">COVER</div>
@@ -171,6 +206,11 @@ input[type=range]{flex:1;accent-color:var(--sig)}
     <div class="field" id="field_btnlabel" style="display:none">
       <label>Libellé du bouton CTA</label>
       <input id="f_btnlabel" type="text" value="ENREGISTRE" maxlength="20">
+      <div class="hint">Titre/corps/mot-clé coloré ci-dessus servent aussi pour cette slide CTA.</div>
+      <div class="btns" style="margin-top:11px">
+        <button class="btn btn-ghost" id="b_savecta">Enregistrer comme CTA fixe de « <span id="b_savecta_serie"></span> »</button>
+      </div>
+      <div class="hint" id="cta_saved_hint"></div>
     </div>
 
     <div id="field_citation" style="display:none">
