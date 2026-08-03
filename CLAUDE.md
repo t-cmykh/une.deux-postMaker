@@ -3,8 +3,9 @@
 Voir `SKILL.md` pour la production de **posts carrousel** (skill `une-deux-post`).
 
 Ce fichier couvre un format différent : le **reel montage vidéo "Ce jour-là"**
-(images de match réelles + texte animé), construit avec HyperFrames dans
-`hyperframes/`. Déclencheur : Thomas envoie un lien Drive vers une vidéo de
+(images de match réelles + texte animé), construit avec HyperFrames sur la
+branche dédiée **`ce-jour-là`** (jamais `main` — voir §7). Déclencheur :
+Thomas envoie un lien Drive vers une vidéo de
 match et demande d'y ajouter le texte du post (sous-titres ou corps animé) —
 **ou** dépose une demande via le lanceur `editeurs/lanceur-cejourla.html`
 (voir ci-dessous), traitée automatiquement par une Routine.
@@ -262,13 +263,21 @@ Utiliser des tweens **opacity uniquement** sur ces éléments.
 
 ### 7. Scaffolding projet
 
-Chaque reel = un nouveau dossier `hyperframes/<slug>/` avec
+**Branche dédiée `ce-jour-là`, jamais `main` ni une branche de session
+quelconque.** Se placer sur cette branche (la créer depuis `main` si elle
+n'existe pas encore localement) avant de committer quoi que ce soit. Cette
+branche n'est **jamais fusionnée vers `main`** — elle reste la seule source
+de vérité pour les reels "Ce jour-là", indépendamment de `main` (qui resterait
+sinon alourdi par les vidéos).
+
+Chaque reel = un nouveau dossier **à la racine de cette branche**, nommé par
+la date ISO du post (`AAAA-MM-JJ/`, ex. `2026-08-05/` — pas de slug
+descriptif, pas de préfixe `hyperframes/`). Contenu du dossier :
 `hyperframes.json`, `meta.json`, `package.json` (copier depuis un projet
-`cejourla-uruguay-2011-textreveal*` existant et adapter `name`/`id`),
-`.gitignore` (`node_modules/`, `renders/`, `snapshots/`, `.debug/`),
-`tokens/fonts.css` + `tokens/colors.css` copiés tels quels (source de
-vérité : palette `--ocre`/`--ink`/`--cream`/`--muted-cream` de
-`editeurs/editeur-series.html`).
+existant de cette branche et adapter `name`/`id`), `.gitignore`
+(`node_modules/`, `renders/`, `snapshots/`, `.debug/`), `tokens/fonts.css` +
+`tokens/colors.css` copiés tels quels (source de vérité : palette
+`--ocre`/`--ink`/`--cream`/`--muted-cream` de `editeurs/editeur-series.html`).
 
 Vidéo et audio en enfants directs de `#root`, vidéo mutée
 (`muted playsinline`), son porté par un `<audio>` séparé avec sa propre
@@ -296,4 +305,12 @@ ffmpeg -y -i render.mp4 -c:v libx264 -crf 25-26 -preset medium -pix_fmt yuv420p 
 
 Committer le dossier du projet (assets compris — seuls `renders/`,
 `node_modules/`, `snapshots/`, `.debug/` sont ignorés) et pousser sur la
-branche de travail en cours.
+branche `ce-jour-là`.
+
+**INTERDIT de livrer un fichier depuis `assets/`** (ce sont les sources
+brutes du composite ffmpeg — fond flouté + plan net, sans header ni texte —
+jamais le résultat final). Le seul livrable valide pour `SendUserFile` est le
+fichier produit par `npm run render`, dans `renders/` (jamais committé,
+gitignored). Si le render n'a pas encore tourné ou a échoué, ne rien
+livrer — relancer `npm run render` et attendre, ou signaler le blocage
+plutôt que de livrer le composite brut par erreur.
