@@ -44,6 +44,14 @@ html,body{margin:0;padding:0;background:var(--encre);color:var(--newsprint);
 .field .err{font-size:11.5px;color:#c9705a;margin-top:5px;display:none}
 .field.invalid input{border-color:#c9705a}
 .field.invalid .err{display:block}
+.field .warn{font-size:11.5px;color:var(--sig);margin-top:5px;line-height:1.4;display:none}
+.field .warn.show{display:block}
+
+.field input[type=file]{padding:9px 10px;font-size:13.5px;cursor:pointer}
+.file-info{margin-top:7px;font-size:12.5px;color:var(--newsprint);background:var(--panel);
+  border:1px solid var(--line);border-radius:7px;padding:9px 11px;display:none}
+.file-info.show{display:block}
+.file-info b{color:var(--sig)}
 
 .chips{display:flex;flex-wrap:wrap;gap:7px}
 .chip{font-family:'Saira Condensed';font-weight:700;font-size:12.5px;letter-spacing:1px;padding:7px 13px;
@@ -106,10 +114,26 @@ html,body{margin:0;padding:0;background:var(--encre);color:var(--newsprint);
 
     <div class="section-h">Source</div>
 
+    <div class="field" id="field_source_mode" style="display:none">
+      <label>Vidéo fournie via</label>
+      <div class="chips" id="source_mode_chips">
+        <div class="chip on" data-m="link">LIEN DRIVE</div>
+        <div class="chip" data-m="file">VIDÉO DEPUIS L'APPAREIL</div>
+      </div>
+    </div>
+
     <div class="field" id="field_link">
       <label>Lien Drive de la vidéo</label>
       <input id="f_link" type="url" placeholder="https://drive.google.com/file/d/…">
       <div class="err">Colle un lien Google Drive valide.</div>
+    </div>
+
+    <div class="field" id="field_file" style="display:none">
+      <label>Vidéo (intro, quelques secondes)</label>
+      <input id="f_file" type="file" accept="video/*">
+      <div class="file-info" id="file_info"></div>
+      <div class="hint">Choisis un clip court directement depuis ta pellicule — pas besoin de l'envoyer sur Drive.</div>
+      <div class="warn" id="file_warn">Le partage direct n'est pas dispo sur cet appareil/navigateur : quand l'email s'ouvre, joins toi-même le même fichier avant d'envoyer.</div>
     </div>
 
     <div class="field">
@@ -158,8 +182,8 @@ html,body{margin:0;padding:0;background:var(--encre);color:var(--newsprint);
     <div class="pipeline">
       <div class="section-h" style="margin-top:0">Ce qui se passe ensuite</div>
       <ol>
-        <li><b>Lancer le montage</b> ouvre un brouillon email pré-rempli dans ta messagerie — vérifie et envoie-le (ou laisse-le en brouillon, les deux fonctionnent).</li>
-        <li>Une <b>Routine</b> horaire côté Claude Code cherche un email/brouillon « LANCER REEL » non traité.</li>
+        <li><b>Lancer le montage</b> ouvre un brouillon email pré-rempli dans ta messagerie (ou, si tu as choisi une vidéo depuis l'appareil et que ton navigateur le permet, le menu de partage natif avec la vidéo déjà jointe) — vérifie et envoie-le (ou laisse-le en brouillon, les deux fonctionnent).</li>
+        <li>Une <b>Routine</b> horaire côté Claude Code cherche un email/brouillon « LANCER REEL » non traité — pièce jointe vidéo ou lien Drive, les deux sont pris en charge.</li>
         <li>Si elle en trouve un : téléchargement de la vidéo, sélection des plans, montage complet selon la recette figée du <b>CLAUDE.md</b>, rendu, vérification par extraction de frames.</li>
         <li>Livraison du fichier + commit/push sur la branche de travail — tu reçois une notification.</li>
         <li>L'email déclencheur est marqué traité pour ne pas être relancé deux fois.</li>
@@ -172,16 +196,20 @@ html,body{margin:0;padding:0;background:var(--encre);color:var(--newsprint);
 
 <script>
 const $ = (id) => document.getElementById(id);
-const linkInput = $('f_link'), dateInput = $('f_date'), notesInput = $('f_notes');
-const fieldLink = $('field_link');
+const linkInput = $('f_link'), dateInput = $('f_date'), notesInput = $('f_notes'), fileInput = $('f_file');
+const fieldLink = $('field_link'), fieldFile = $('field_file'), fieldSourceMode = $('field_source_mode');
+const fileInfo = $('file_info'), fileWarn = $('file_warn');
 const prevSubject = $('prev_subject'), prevBody = $('prev_body'), statusPill = $('status_pill');
 const toast = $('toast');
 
 let variante = 'complet';
+let sourceMode = 'link'; // 'link' | 'file' — le mode "file" n'existe que pour variante==='intro'
+let selectedFile = null;
+const canShareFiles = !!(navigator.canShare); // vérifié précisément par fichier au moment du choix
 const variantLabels = { complet: 'reel complet', intro: 'intro seule' };
 const variantHints = {
   complet: 'Montage multi-plans + header + corps de texte animé (recette §1-§8 du CLAUDE.md).',
-  intro: 'Composite letterbox seul (fond flouté/désaturé + plan net) — pas de header, pas de texte.'
+  intro: 'Composite letterbox + header + titre animé en surcouche (recette dédiée du CLAUDE.md).'
 };
 
 // date par défaut = demain
@@ -190,14 +218,57 @@ const variantHints = {
   dateInput.value = d.toISOString().slice(0, 10);
 })();
 
+function applySourceModeVisibility(){
+  fieldSourceMode.style.display = (variante === 'intro') ? '' : 'none';
+  const fileActive = (variante === 'intro' && sourceMode === 'file');
+  fieldFile.style.display = fileActive ? '' : 'none';
+  fieldLink.style.display = fileActive ? 'none' : '';
+}
+
 document.querySelectorAll('#variante_chips .chip').forEach(chip => {
   chip.addEventListener('click', () => {
     document.querySelectorAll('#variante_chips .chip').forEach(c => c.classList.remove('on'));
     chip.classList.add('on');
     variante = chip.dataset.v;
     $('variante_hint').textContent = variantHints[variante];
+    if(variante !== 'intro'){
+      // le reel complet garde uniquement le lien Drive (source vidéo plus longue, moins adapté à un envoi direct)
+      sourceMode = 'link';
+      document.querySelectorAll('#source_mode_chips .chip').forEach(c => c.classList.toggle('on', c.dataset.m === 'link'));
+    }
+    applySourceModeVisibility();
     render();
   });
+});
+
+document.querySelectorAll('#source_mode_chips .chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('#source_mode_chips .chip').forEach(c => c.classList.remove('on'));
+    chip.classList.add('on');
+    sourceMode = chip.dataset.m;
+    applySourceModeVisibility();
+    render();
+  });
+});
+
+function fmtMo(bytes){ return (bytes / (1024*1024)).toFixed(1); }
+
+fileInput.addEventListener('change', () => {
+  selectedFile = fileInput.files && fileInput.files[0] || null;
+  if(selectedFile){
+    fileInfo.textContent = `${selectedFile.name} — ${fmtMo(selectedFile.size)} Mo`;
+    fileInfo.classList.add('show');
+    if(selectedFile.size > 24 * 1024 * 1024){
+      fileInfo.innerHTML += ' <b>⚠ plus de 24 Mo, risque de dépasser la limite pièce jointe Gmail — préfère un lien Drive.</b>';
+    }
+    // le vrai test de compatibilité se fait sur CE fichier (canShare accepte un tableau de File)
+    const shareable = canShareFiles && navigator.canShare({ files: [selectedFile] });
+    fileWarn.classList.toggle('show', !shareable);
+  } else {
+    fileInfo.classList.remove('show');
+    fileWarn.classList.remove('show');
+  }
+  render();
 });
 
 function frDate(iso){
@@ -216,12 +287,18 @@ function buildSubject(){
   return `LANCER REEL — ${iso || '(date à définir)'}`;
 }
 
+function usingFileMode(){
+  return variante === 'intro' && sourceMode === 'file';
+}
+
 function buildBody(){
-  const link = linkInput.value.trim() || '(lien à coller)';
   const iso = dateInput.value || '(date à définir)';
   const notes = notesInput.value.trim();
+  const sourceLine = usingFileMode()
+    ? `VIDÉO: en pièce jointe de cet email (${selectedFile ? selectedFile.name : '(à joindre)'})`
+    : `LIEN DRIVE: ${linkInput.value.trim() || '(lien à coller)'}`;
   return [
-    `LIEN DRIVE: ${link}`,
+    sourceLine,
     `DATE DU POST: ${iso}`,
     `VARIANTE: ${variantLabels[variante]}`,
     `NOTES: ${notes || '(aucune)'}`,
@@ -231,20 +308,22 @@ function buildBody(){
 }
 
 function render(){
+  const fileMode = usingFileMode();
   const link = linkInput.value.trim();
-  const valid = isValidDriveLink(link);
+  const validLink = isValidDriveLink(link);
 
-  fieldLink.classList.toggle('invalid', link.length > 0 && !valid);
+  fieldLink.classList.toggle('invalid', !fileMode && link.length > 0 && !validLink);
 
   prevSubject.textContent = buildSubject();
   prevBody.innerHTML = buildBody()
-    .replace(/^(LIEN DRIVE:|DATE DU POST:|VARIANTE:|NOTES:)/gm, '<span class="k">$1</span>')
+    .replace(/^(LIEN DRIVE:|VIDÉO:|DATE DU POST:|VARIANTE:|NOTES:)/gm, '<span class="k">$1</span>')
     .replace(/\n/g, '<br>');
 
-  const ready = valid && !!dateInput.value;
-  statusPill.textContent = ready ? 'PRÊT À LANCER' : (link ? 'LIEN INVALIDE' : 'EN ATTENTE DE LIEN');
-  statusPill.className = 'status-pill ' + (ready ? 'ready' : 'wait');
-  $('b_launch').disabled = !ready;
+  const ready = fileMode ? !!selectedFile : validLink;
+  const readyFull = ready && !!dateInput.value;
+  statusPill.textContent = readyFull ? 'PRÊT À LANCER' : (fileMode ? (selectedFile ? 'DATE MANQUANTE' : 'EN ATTENTE DE VIDÉO') : (link ? 'LIEN INVALIDE' : 'EN ATTENTE DE LIEN'));
+  statusPill.className = 'status-pill ' + (readyFull ? 'ready' : 'wait');
+  $('b_launch').disabled = !readyFull;
 }
 
 [linkInput, dateInput, notesInput].forEach(el => el.addEventListener('input', render));
@@ -260,14 +339,35 @@ $('b_copy').addEventListener('click', () => {
   navigator.clipboard.writeText(text).then(() => showToast('Consigne copiée'));
 });
 
-$('b_launch').addEventListener('click', () => {
+$('b_launch').addEventListener('click', async () => {
   if($('b_launch').disabled) return;
-  const subject = encodeURIComponent(buildSubject());
-  const body = encodeURIComponent(buildBody());
-  window.location.href = `mailto:t.louisor@gmail.com?subject=${subject}&body=${body}`;
-  showToast('Brouillon email ouvert — vérifie et envoie');
+  const subject = buildSubject();
+  const bodyText = buildBody();
+
+  if(usingFileMode() && selectedFile){
+    // chemin idéal (mobile surtout) : partage natif avec la vidéo déjà jointe,
+    // Thomas choisit Gmail/Mail dans le menu — mailto: seul ne peut jamais
+    // attacher un fichier, c'est une limitation du navigateur, pas de ce code
+    const shareable = canShareFiles && navigator.canShare({ files: [selectedFile] });
+    if(shareable){
+      try{
+        await navigator.share({ files: [selectedFile], title: subject, text: bodyText });
+        showToast('Partagé — choisis Gmail/Mail pour envoyer');
+        return;
+      }catch(e){
+        if(e && e.name === 'AbortError') return; // annulé par Thomas, on ne fait rien de plus
+        // sinon on retombe sur le mailto ci-dessous
+      }
+    }
+    showToast('Brouillon ouvert — joins la vidéo toi-même avant d\'envoyer');
+  } else {
+    showToast('Brouillon email ouvert — vérifie et envoie');
+  }
+
+  window.location.href = `mailto:t.louisor@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyText)}`;
 });
 
+applySourceModeVisibility();
 render();
 </script>
 </body>

@@ -12,13 +12,34 @@ match et demande d'y ajouter le texte du post (sous-titres ou corps animé) —
 ## Lanceur automatique (`editeurs/lanceur-cejourla.html`)
 
 Outil statique (même DA que `editeur-series.html` : panel sombre, ocre,
-Saira Condensed/Anton/Archivo) où Thomas colle le lien Drive + la date du
-post + la variante (reel complet / intro seule) + des notes optionnelles.
-Le bouton « Lancer le montage » ouvre un brouillon email pré-rempli
-(`mailto:` vers t.louisor@gmail.com, objet `LANCER REEL — <date>`, corps au
-format `LIEN DRIVE: … / DATE DU POST: … / VARIANTE: … / NOTES: …`) — une
-page statique ne peut pas appeler Claude Code directement, l'email est le
-pont.
+Saira Condensed/Anton/Archivo) où Thomas colle le lien Drive (ou, pour
+« intro seule », choisit directement un fichier vidéo depuis l'appareil —
+voir ci-dessous) + la date du post + la variante (reel complet / intro
+seule) + des notes optionnelles. Le bouton « Lancer le montage » ouvre un
+brouillon email pré-rempli (`mailto:` vers t.louisor@gmail.com, objet
+`LANCER REEL — <date>`, corps au format `LIEN DRIVE: … / DATE DU POST: … /
+VARIANTE: … / NOTES: …`) — une page statique ne peut pas appeler Claude Code
+directement, l'email est le pont.
+
+**Vidéo directe depuis l'appareil (intro seule uniquement)** : un toggle
+« Lien Drive / Vidéo depuis l'appareil » n'apparaît que pour la variante
+« intro seule » (le reel complet garde uniquement le lien Drive — source
+généralement plus longue, moins adaptée à un envoi direct). En mode
+fichier, le corps de l'email remplace la ligne `LIEN DRIVE: …` par
+`VIDÉO: en pièce jointe de cet email (<nom du fichier>)`. `mailto:` ne peut
+jamais joindre un fichier (limitation universelle des navigateurs, pas de ce
+code) : le bouton tente d'abord `navigator.share({files:[...]})` (Web Share
+API — fonctionne sur mobile, où Thomas utilise principalement ces outils :
+le menu de partage natif s'ouvre avec la vidéo déjà jointe, il choisit
+Gmail/Mail) ; si l'appareil/navigateur ne supporte pas le partage de
+fichiers (desktop notamment), repli automatique sur le `mailto:` habituel
+avec un avertissement visible dans l'éditeur et rappelé dans le corps de
+l'email : joindre soi-même le même fichier avant d'envoyer.
+
+Côté traitement : la Routine doit gérer les deux cas indifféremment — si le
+corps de l'email contient `VIDÉO: en pièce jointe …` (pas de `LIEN DRIVE:`),
+récupérer la vidéo depuis la pièce jointe Gmail du message plutôt que
+tenter un téléchargement Drive.
 
 Une **Routine** ("Lanceur reels Ce jour-là", trig_01CJMco7Azm8WwCSEpM8dhvX)
 tourne une fois par jour à 14h heure de Paris (créée via l'interface Routines
