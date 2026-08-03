@@ -36,14 +36,20 @@
 
       /* titre animé — porté à l'identique du template "titre seul" cejourla
          de editeur-series.html (canvas draw(), branche state.serie==='cejourla')
-         taille 130, Anton, aligné à gauche (pas centré — spécifique au titre,
-         contrairement au corps de texte du §4), ancré bas de cadre */
+         taille 150px CSS (calibrée par comparaison de frame avec la vidéo de
+         référence — un canvas 130px et un texte CSS 130px n'ont PAS le même
+         corps apparent : la hauteur de casse mesurée en pixels sur la vidéo
+         de référence exigeait ~150px CSS pour être reproduite à l'identique,
+         cf. CLAUDE.md), Anton, aligné à gauche (pas centré — spécifique au
+         titre, contrairement au corps de texte du §4), ancré bas de cadre.
+         Pas d'ombre portée (contrairement au corps de texte du §4) : la
+         vidéo de référence n'en a aucune, la lisibilité vient du carré plein
+         sur les mots-clés et du fond assombri sous le composite. */
       .title-zone { position: absolute; inset: 0; z-index: 10; }
       .t-line {
         position: absolute; left: 96px; right: 96px;
-        font-family: 'Anton', sans-serif; font-size: 130px; line-height: 1;
+        font-family: 'Anton', sans-serif; font-size: 140px; line-height: 1;
         text-transform: uppercase; color: var(--cream); opacity: 0;
-        text-shadow: 0 2px 16px rgba(0,0,0,.5);
       }
       /* mot(s)-clé encadré(s) : carré fusionné derrière un groupe de mots
          consécutifs accentués (drawWordLine — kwPad=10, carré teinte de
@@ -79,10 +85,10 @@
            extraction de frame, cf. §check CLAUDE.md) ; mots-clés du bas
            encadrés (dernières lignes, faits marquants) -->
       <div class="title-zone">
-        <div class="t-line" id="l1" style="top:1231px">3 AOÛT 2017 : LE</div>
-        <div class="t-line" id="l2" style="top:1351px">PLUS GROS</div>
-        <div class="t-line" id="l3" style="top:1470px"><span class="kw-box">TRANSFERT DE</span></div>
-        <div class="t-line" id="l4" style="top:1590px"><span class="kw-box">L&rsquo;HISTOIRE</span></div>
+        <div class="t-line" id="l1" style="top:1194px">3 AOÛT 2017 : LE</div>
+        <div class="t-line" id="l2" style="top:1322px">PLUS GROS</div>
+        <div class="t-line" id="l3" style="top:1451px"><span class="kw-box">TRANSFERT DE</span></div>
+        <div class="t-line" id="l4" style="top:1580px"><span class="kw-box">L&rsquo;HISTOIRE</span></div>
       </div>
     </div>
 
