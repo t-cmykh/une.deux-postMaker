@@ -36,14 +36,20 @@ Pour un montage immédiat, demander directement dans le chat reste plus
 rapide (pas d'attente jusqu'à 14h) — le lanceur sert pour poser une demande à
 traiter en tâche de fond.
 
-## Recette figée — intro d'un reel une·deux (fond plein cadre, sans texte)
+## Recette figée — intro d'un reel une·deux (composite + header + titre animé)
 
 Quand Thomas demande **"l'intro d'un reel une·deux"** (ou formulation
-équivalente : juste le traitement visuel de la vidéo, sans habillage), livrer
-**uniquement** le composite letterbox — pas de header, pas de tag, pas de
-texte, rien d'autre. C'est un sous-ensemble de la recette complète
-ci-dessous : seulement l'étape 2 (composite letterbox), sans les étapes
-3-4 (header, texte).
+équivalente) et donne une vidéo courte (quelques secondes, généralement
+< 7 s) : le montage de la composition (étape 2 ci-dessous, inchangée)
+tourne d'abord, puis, une fois fini, l'habillage vient **en surcouche** —
+header (§3 de la recette complète, identique) **et** le titre du post animé
+ligne par ligne, exactement comme le template "cover · titre seul" de
+`editeur-series.html` (série `cejourla`). Référence de rendu validée :
+`templates/titre-anime-intro/` sur la branche `ce-jour-là` (gabarit +
+render de test, composite du 3 août 2017 réutilisé, titre "3 AOÛT 2017 :
+LE PLUS GROS TRANSFERT DE L'HISTOIRE" avec "TRANSFERT DE"/"L'HISTOIRE"
+encadrés) — comparer visuellement à cette référence avant de considérer un
+nouvel intro conforme.
 
 ```bash
 ffmpeg -y -i video_raw.mp4 -filter_complex \
@@ -51,13 +57,64 @@ ffmpeg -y -i video_raw.mp4 -filter_complex \
 -map "[outv]" -map 0:a? -c:v libx264 -crf 20 -preset fast -pix_fmt yuv420p -c:a aac -b:a 160k intro.mp4
 ```
 
-- Mêmes réglages figés que la recette complète : `gblur=sigma=36`,
-  `eq=saturation=0.4`, source horizontale (~1.77) recentrée en 9:16.
-  Recalculer `scale=`/`y=` si le ratio source diffère (voir étape 2
-  ci-dessous pour la formule).
-- Simple opération ffmpeg, **pas besoin d'un projet HyperFrames** (pas
-  d'animation, pas de composition) — traiter directement dans un dossier de
-  travail, livrer le fichier obtenu.
+- Mêmes réglages figés que la recette complète pour le composite :
+  `gblur=sigma=36`, `eq=saturation=0.4`, source horizontale (~1.77)
+  recentrée en 9:16. Recalculer `scale=`/`y=` si le ratio source diffère
+  (voir étape 2 ci-dessous pour la formule).
+- **Contrairement à la recette complète, ce composite EST un projet
+  HyperFrames** (§7 scaffolding) dès qu'un titre animé est ajouté par-dessus
+  — le `<video>` composite passe en simple `<div class="video-full">
+  inset:0</div>` plein cadre (le composite déjà cuit par ffmpeg fait tout le
+  travail visuel, la vidéo HTML ne fait qu'occuper tout le canvas), header
+  en HTML/CSS statique par-dessus (§3, valeurs pixel identiques), titre en
+  divs absolus animés par GSAP.
+- **Source du titre** : champ `TITRE` du brouillon Gmail "POST DU JOUR —
+  <date>" correspondant (pas `CORPS` — c'est le champ court/percutant,
+  distinct du texte long utilisé en §4 pour le reel complet). Repris tel
+  quel, mis en capitales par le CSS (`text-transform:uppercase`).
+- **Découpage en lignes** : à la main (pas d'auto-wrap côté HTML/HyperFrames
+  contrairement au canvas de l'éditeur) — composer au jugé puis corriger
+  après vérification par extraction de frame (§8) si une ligne déborde des
+  marges (`left:96px; right:96px`, soit 888px de large utile).
+- **Mots-clés encadrés** : dernière(s) ligne(s) ou fait(s) marquant(s)
+  (chiffres, nom propre, verdict) — un carré fusionné derrière chaque
+  groupe de mots consécutifs accentués, même mécanique que
+  `drawWordLine`/§4 : couleur du carré = teinte de la série (`--ocre` pour
+  `cejourla`), texte toujours crème (pas d'inversion de couleur de texte).
+  Ne pas surcharger, une ligne ou deux au maximum.
+- **CSS/HTML/GSAP à reproduire à l'identique** (taille 130, `Anton`,
+  aligné à **gauche** — pas centré, contrairement au corps de texte du §4) :
+  ```css
+  .t-line { position:absolute; left:96px; right:96px; font-family:'Anton',sans-serif;
+            font-size:130px; line-height:1; text-transform:uppercase; color:var(--cream);
+            opacity:0; text-shadow:0 2px 16px rgba(0,0,0,.5); }
+  .kw-box { background:var(--ocre); padding:10px; margin:-10px; display:inline-block; }
+  ```
+  (la marge négative égale au padding annule le décalage de layout — le
+  texte encadré reste aligné avec les lignes non encadrées)
+  ```js
+  const start = 0.3, revealMs = 0.62, fadeMs = 0.22;   // vitesse par défaut (×1)
+  lines.forEach((sel, i) => {
+    tl.fromTo(sel, {opacity:0, y:8}, {opacity:1, y:0, duration:fadeMs, ease:'none'}, start + i*revealMs);
+  });
+  ```
+  Formule exacte de l'éditeur : `revealMs = 620/vitesse`,
+  `fadeMs = clamp(80, 220, revealMs*0.6)` — rampe **linéaire** (`ease:'none'`),
+  pas d'easing, avec un léger décalage vertical 8px→0px qui accompagne le
+  fondu. Le texte reste affiché jusqu'à la fin du clip (pas de fondu de
+  sortie, contrairement aux blocs de corps du §4 — pas de hard-kill requis
+  ici puisque l'opacité finale est 1, pas 0).
+- **Positionnement vertical** : ancrer par le bas, `top` de chaque ligne =
+  baseline − ascent avec baseline la plus basse ≈ 1690-1730px (juste
+  au-dessus de la zone de sécurité basse) et un écart entre lignes de
+  `tSize*0.92` ≈ 120px — recalculer précisément pour chaque titre (nombre de
+  lignes différent) plutôt que de réutiliser les pixels bruts du gabarit de
+  référence, qui ne valent que pour son titre à 4 lignes.
+- Si Thomas demande explicitement **"juste le composite, sans habillage"**
+  (aucun header, aucun titre — juste le traitement visuel de la vidéo),
+  revenir à l'ancien comportement : livrer uniquement le fichier
+  `intro.mp4` produit par la commande ffmpeg ci-dessus, sans projet
+  HyperFrames.
 - Si Thomas demande seulement "le fond plein cadre" (sans "derrière" /
   sans vidéo nette dessus), livrer juste la couche flou/désaturé plein cadre
   (`[0:v]fps=30,scale=3400:1920,crop=1080:1920,gblur=sigma=36,eq=saturation=0.4`
