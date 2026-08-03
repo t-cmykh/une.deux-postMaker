@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 4 août 1999, Mexique bat Brésil en finale</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* montage d'entrée non retouché — plan unique, continu, ordre et
+         longueur de la vidéo source intacts, composité (fond plein cadre
+         flouté+désaturé, sigma 36 / saturation 0.4, + plan net plein cadre
+         horizontal 1080×888 par dessus, y=420) via ffmpeg en amont ;
+         source zoomée ×1.25 avant crop pour exclure l'habillage broadcast
+         d'origine (bandeau score, logos de chaîne) ; muté, son porté par
+         un <audio> séparé */
+      .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+
+      /* header — constantes fixes de la série, ne jamais improviser */
+      #hdr { position: absolute; inset: 0 0 auto 0; z-index: 20; }
+      .ring {
+        position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
+        border: 4px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
+      .tag {
+        position: absolute; left: 96px; top: 350px; height: 58px; z-index: 20;
+        display: flex; align-items: center; background: var(--ocre); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; padding: 0 15px;
+      }
+
+      /* corps de texte animé — centré même sur plusieurs lignes, pas de
+         scrim sombre (lisibilité via l'ombre portée du texte uniquement) */
+      .text-zone { position: absolute; left: 96px; right: 96px; top: 1420px; transform: translateY(-50%); z-index: 10; text-align: center; }
+      .text-chunk {
+        position: absolute; left: 0; right: 0; top: 0; transform: translateY(-50%); opacity: 0;
+        font-family: 'Archivo', sans-serif; font-weight: 500; font-size: 36px; line-height: 1.35;
+        color: var(--cream); text-shadow: 0 2px 16px rgba(0,0,0,.65), 0 1px 4px rgba(0,0,0,.8);
+      }
+      .text-chunk b { font-weight: 800; color: var(--cream); }
+      .text-chunk b.ocre { color: var(--ocre); }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="46.2100"
+      data-fps="30"
+    >
+      <video class="video-full" id="full" src="assets/full.mp4" data-start="0.0000" data-duration="46.2000" data-track-index="1" muted playsinline></video>
+
+      <audio id="afull" src="assets/full-audio.m4a" data-start="0.0000" data-duration="46.1800" data-track-index="20"></audio>
+
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+      <div class="tag">CE JOUR LÀ …</div>
+
+      <!-- corps du post du 4 août (brouillon "Mexique bat Brésil, finale
+           Confédérations 1999"), texte intégral repris tel quel, mots-clés
+           en gras/ocre -->
+      <div class="text-zone">
+        <div class="text-chunk" id="t1">À l'Estadio Azteca, devant <b class="ocre">110 000 personnes</b>, le Mexique et le Brésil nous font vivre une des meilleures finale lors de la Coupe des Confédérations 1999.</div>
+        <div class="text-chunk" id="t2"><b>Zepeda</b> ouvre le score peu avant le quart d'heure, <b>Abundis</b> double la mise à la 28e.</div>
+        <div class="text-chunk" id="t3"><b>Serginho</b> répond sur pénalty juste avant la pause.</div>
+        <div class="text-chunk" id="t4">Au retour des vestiaires, <b>Rôni</b> recolle (47e), mais Zepeda s'offre un doublé dans la foulée (51e).</div>
+        <div class="text-chunk" id="t5"><b>Blanco</b> enfonce le clou à la 62e, <b>Zé Roberto</b> réduit l'écart une minute plus tard : le Brésil n'est jamais repassé devant.</div>
+        <div class="text-chunk" id="t6">Dans le camp brésilien, un ailier de 19 ans nommé <b class="ocre">Ronaldinho</b> termine le tournoi meilleur joueur et meilleur buteur, avec <b class="ocre">6 buts</b>.</div>
+        <div class="text-chunk" id="t7">Il n'en marque aucun ce jour-là.</div>
+        <div class="text-chunk" id="t8">Le Mexique devient la <b class="ocre">seule sélection CONCACAF</b> à avoir soulevé ce trophée.</div>
+        <div class="text-chunk" id="t9">La Coupe des Confédérations a disparu depuis 2017 : personne ne pourra jamais lui prendre ce record.</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // corps du post animé — réparti sur la durée complète et non
+      // retouchée de la vidéo source, rythme calculé via la formule
+      // établie (mots × 0.27 + 0.35, facteur d'étirement ~1.05) ;
+      // pas de tween width/height/top/left/x/y (interdit par le runtime,
+      // et y en particulier entrerait en conflit avec le translateY(-50%)
+      // statique du CSS sur .text-chunk)
+      const lines = [
+        { id: 't1', start: 0.30, dur: 7.76 },
+        { id: 't2', start: 8.26, dur: 4.92 },
+        { id: 't3', start: 13.38, dur: 2.64 },
+        { id: 't4', start: 16.22, dur: 4.92 },
+        { id: 't5', start: 21.34, dur: 6.34 },
+        { id: 't6', start: 27.88, dur: 6.63 },
+        { id: 't7', start: 34.71, dur: 2.08 },
+        { id: 't8', start: 36.99, dur: 3.78 },
+        { id: 't9', start: 40.97, dur: 4.92 },
+      ];
+
+      lines.forEach(({ id, start, dur }) => {
+        tl.fromTo(`#${id}`, { opacity: 0 }, { opacity: 1, duration: 0.3, ease: 'power2.out' }, start);
+        tl.to(`#${id}`, { opacity: 0, duration: 0.26, ease: 'sine.in' }, start + dur - 0.26);
+        tl.set(`#${id}`, { opacity: 0 }, start + dur);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
