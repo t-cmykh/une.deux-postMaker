@@ -82,16 +82,31 @@ ffmpeg -y -i video_raw.mp4 -filter_complex \
   `drawWordLine`/§4 : couleur du carré = teinte de la série (`--ocre` pour
   `cejourla`), texte toujours crème (pas d'inversion de couleur de texte).
   Ne pas surcharger, une ligne ou deux au maximum.
-- **CSS/HTML/GSAP à reproduire à l'identique** (taille 130, `Anton`,
-  aligné à **gauche** — pas centré, contrairement au corps de texte du §4) :
+- **CSS/HTML/GSAP à reproduire à l'identique** (`Anton`, aligné à **gauche**
+  — pas centré, contrairement au corps de texte du §4, et **sans ombre
+  portée** — contrairement au corps de texte du §4 qui en a besoin faute de
+  carré plein derrière, la lisibilité du titre vient du carré ocre sur les
+  mots-clés) :
   ```css
   .t-line { position:absolute; left:96px; right:96px; font-family:'Anton',sans-serif;
-            font-size:130px; line-height:1; text-transform:uppercase; color:var(--cream);
-            opacity:0; text-shadow:0 2px 16px rgba(0,0,0,.5); }
+            font-size:140px; line-height:1; text-transform:uppercase; color:var(--cream);
+            opacity:0; }
   .kw-box { background:var(--ocre); padding:10px; margin:-10px; display:inline-block; }
   ```
   (la marge négative égale au padding annule le décalage de layout — le
   texte encadré reste aligné avec les lignes non encadrées)
+  **`font-size` : ~140px est le point de départ validé sur le titre-test
+  4 lignes de `templates/titre-anime-intro/` (branche `ce-jour-là`), mais ce
+  n'est PAS une constante universelle à réutiliser telle quelle** — un
+  canvas 130px (éditeur) et un texte CSS 130px n'ont pas le même corps de
+  casse apparent une fois rendus par HyperFrames (chargement de police
+  différent), et le nombre/longueur des lignes change la marge disponible
+  dans la boîte de 888px (`left:96px; right:96px`) avant renvoi à la ligne.
+  Pour chaque nouveau titre : partir de 140px, **comparer la hauteur de
+  casse par extraction de frame** face à une vidéo de référence si
+  disponible (sinon au jugé), et si une ligne déborde/revient à la ligne
+  dans la boîte de 888px, réduire la taille (jamais laisser une ligne se
+  scinder en deux — ça fait chevaucher la ligne suivante).
   ```js
   const start = 0.3, revealMs = 0.62, fadeMs = 0.22;   // vitesse par défaut (×1)
   lines.forEach((sel, i) => {
