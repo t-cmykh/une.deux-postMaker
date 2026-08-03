@@ -13,16 +13,16 @@
       body { font-family: 'Archivo', system-ui, sans-serif; }
       #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
 
-      /* intro — premier plan réel (trophée), composite fond plein cadre
+      /* vidéo du Drive gardée intégralement, telle quelle (pas de montage
+         multi-plans / sélection de plans) — juste composite + overlays.
+         intro = 0-4.0s (durée pilotée par le titre), fond plein cadre
          flouté/désaturé + plan net recentré verticalement sur tout le
-         canvas (pas de zone de texte réservée, le titre flotte par-dessus,
-         overlay y=656 — §2 CLAUDE.md) */
-      /* corps — 6 plans réels (montage multi-plans, aucun carton
-         graphique), chacun composité fond plein cadre + plan net
+         canvas (overlay y=656 — §2 CLAUDE.md). corps = tout le reste de
+         la vidéo (4.0s → fin), composite fond plein cadre + plan net
          1080×888 plein cadre horizontal (y=420 — §2bis CLAUDE.md) ;
          source zoomée ×1.25 avant crop pour exclure le bandeau
-         scoreboard/watermark d'origine (MLSMX) ; chaque plan ≥3.5s ;
-         mutés, son porté par des <audio> séparés */
+         scoreboard/watermark d'origine (MLSMX) ; mutés, son porté par
+         des <audio> séparés */
       .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
 
       /* header — constantes fixes de la série, persistant du début à la
@@ -75,30 +75,18 @@
       data-start="0"
       data-width="1080"
       data-height="1920"
-      data-duration="33.48"
+      data-duration="49.77"
       data-fps="30"
     >
-      <!-- intro : premier plan réel (trophée soulevé), 3.80s réels + 0.23s
-           de tenue sur la dernière image (fenêtre étendue pour couvrir le
-           titre à 5 lignes), muet -->
+      <!-- intro : 4.0s, littéralement les 4 premières secondes de la vidéo
+           du Drive (pas de sélection de plan), muet -->
       <video class="video-full" id="introv" src="assets/intro.mp4" data-start="0.0000" data-duration="4.0000" data-track-index="1" muted playsinline></video>
 
-      <!-- corps : 6 plans réels, montage multi-plans, en continu après l'intro ;
-           seg6 = même plan trophée que l'intro (bookend), réutilisé pour clore
-           le corps sur l'image du trophée plutôt qu'un plan neutre (arbitre) -->
-      <video class="video-full" id="seg1" src="assets/seg1.mp4" data-start="4.0000" data-duration="3.6000" data-track-index="1" muted playsinline></video>
-      <video class="video-full" id="seg2" src="assets/seg2.mp4" data-start="7.6000" data-duration="3.8000" data-track-index="1" muted playsinline></video>
-      <video class="video-full" id="seg3" src="assets/seg3.mp4" data-start="11.4000" data-duration="7.4500" data-track-index="1" muted playsinline></video>
-      <video class="video-full" id="seg4" src="assets/seg4.mp4" data-start="18.8500" data-duration="6.5500" data-track-index="1" muted playsinline></video>
-      <video class="video-full" id="seg5" src="assets/seg5.mp4" data-start="25.4000" data-duration="4.2500" data-track-index="1" muted playsinline></video>
-      <video class="video-full" id="seg6" src="assets/seg6.mp4" data-start="29.6500" data-duration="3.8000" data-track-index="1" muted playsinline></video>
+      <!-- corps : tout le reste de la vidéo du Drive, intégralement,
+           en un seul plan continu (aucun montage/sélection) -->
+      <video class="video-full" id="corpsv" src="assets/corps.mp4" data-start="4.0000" data-duration="45.7667" data-track-index="1" muted playsinline></video>
 
-      <audio id="a1" src="assets/seg1-audio.m4a" data-start="4.0000"  data-duration="3.57" data-track-index="20"></audio>
-      <audio id="a2" src="assets/seg2-audio.m4a" data-start="7.6000"  data-duration="3.77" data-track-index="20"></audio>
-      <audio id="a3" src="assets/seg3-audio.m4a" data-start="11.4000" data-duration="7.42" data-track-index="20"></audio>
-      <audio id="a4" src="assets/seg4-audio.m4a" data-start="18.8500" data-duration="6.52" data-track-index="20"></audio>
-      <audio id="a5" src="assets/seg5-audio.m4a" data-start="25.4000" data-duration="4.22" data-track-index="20"></audio>
-      <audio id="a6" src="assets/seg6-audio.m4a" data-start="29.6500" data-duration="3.77" data-track-index="20"></audio>
+      <audio id="corpsa" src="assets/corps-audio.m4a" data-start="4.0000" data-duration="45.70" data-track-index="20"></audio>
 
       <div id="hdr">
         <div class="ring">1·2</div>
@@ -151,20 +139,21 @@
       tl.set('.t-line', { opacity: 0 }, introEnd);
 
       /* corps — 9 blocs de sens, rythme calculé sur la durée vidéo
-         disponible (§5 CLAUDE.md) : 143 mots au total pour 29.45s de
-         plans réels (facteur de compression ≈0.669, rythme serré —
-         pauses de 0.15s entre blocs) ; premier bloc démarre à
-         introEnd + 0.3s */
+         disponible (§5 CLAUDE.md) : 143 mots au total pour 45.77s de
+         vidéo (toute la vidéo du Drive après l'intro, non montée) —
+         facteur ≈1.06 (léger étirement, texte et vidéo finissent
+         ensemble), pauses de 0.15s entre blocs ; premier bloc démarre
+         à introEnd + 0.3s */
       const lines = [
-        { id: 'l1', start: 4.30,  dur: 4.93 },
-        { id: 'l2', start: 9.38,  dur: 2.95 },
-        { id: 'l3', start: 12.48, dur: 1.68 },
-        { id: 'l4', start: 14.31, dur: 3.13 },
-        { id: 'l5', start: 17.59, dur: 4.21 },
-        { id: 'l6', start: 21.95, dur: 4.03 },
-        { id: 'l7', start: 26.13, dur: 1.32 },
-        { id: 'l8', start: 27.60, dur: 2.40 },
-        { id: 'l9', start: 30.15, dur: 3.31 },
+        { id: 'l1', start: 4.30,  dur: 7.81 },
+        { id: 'l2', start: 12.26, dur: 4.66 },
+        { id: 'l3', start: 17.07, dur: 2.66 },
+        { id: 'l4', start: 19.88, dur: 4.95 },
+        { id: 'l5', start: 24.98, dur: 6.67 },
+        { id: 'l6', start: 31.80, dur: 6.38 },
+        { id: 'l7', start: 38.33, dur: 2.09 },
+        { id: 'l8', start: 40.57, dur: 3.81 },
+        { id: 'l9', start: 44.53, dur: 5.24 },
       ];
 
       lines.forEach(({ id, start, dur }) => {
