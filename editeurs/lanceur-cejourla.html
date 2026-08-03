@@ -114,7 +114,7 @@ html,body{margin:0;padding:0;background:var(--encre);color:var(--newsprint);
 
     <div class="section-h">Source</div>
 
-    <div class="field" id="field_source_mode" style="display:none">
+    <div class="field" id="field_source_mode">
       <label>Vidéo fournie via</label>
       <div class="chips" id="source_mode_chips">
         <div class="chip on" data-m="link">LIEN DRIVE</div>
@@ -126,29 +126,21 @@ html,body{margin:0;padding:0;background:var(--encre);color:var(--newsprint);
       <label>Lien Drive de la vidéo</label>
       <input id="f_link" type="url" placeholder="https://drive.google.com/file/d/…">
       <div class="err">Colle un lien Google Drive valide.</div>
+      <div class="hint">Le premier plan réel de la vidéo sert d'intro (titre animé), tout le reste devient le corps du reel.</div>
     </div>
 
     <div class="field" id="field_file" style="display:none">
-      <label>Vidéo (intro, quelques secondes)</label>
+      <label>Vidéo du match</label>
       <input id="f_file" type="file" accept="video/*">
       <div class="file-info" id="file_info"></div>
-      <div class="hint">Choisis un clip court directement depuis ta pellicule — pas besoin de l'envoyer sur Drive.</div>
+      <div class="hint">Choisis-la directement depuis ta pellicule — pas besoin de l'envoyer sur Drive. Le premier plan réel sert d'intro, tout le reste devient le corps du reel.</div>
       <div class="warn" id="file_warn">Le partage direct n'est pas dispo sur cet appareil/navigateur : quand l'email s'ouvre, joins toi-même le même fichier avant d'envoyer.</div>
     </div>
 
     <div class="field">
       <label>Date du post à utiliser</label>
       <input id="f_date" type="date">
-      <div class="hint">Le brouillon Gmail « POST DU JOUR — cette date » sera utilisé tel quel pour le corps du texte.</div>
-    </div>
-
-    <div class="field">
-      <label>Variante</label>
-      <div class="chips" id="variante_chips">
-        <div class="chip on" data-v="complet">REEL COMPLET</div>
-        <div class="chip" data-v="intro">INTRO SEULE</div>
-      </div>
-      <div class="hint" id="variante_hint">Montage multi-plans + header + corps de texte animé (recette §1-§8 du CLAUDE.md).</div>
+      <div class="hint">Le brouillon Gmail « POST DU JOUR — cette date » sera utilisé tel quel : TITRE (mots-clés entre **étoiles**) pour l'intro animée, CORPS pour le reste du reel.</div>
     </div>
 
     <div class="section-h">Notes (optionnel)</div>
@@ -184,7 +176,7 @@ html,body{margin:0;padding:0;background:var(--encre);color:var(--newsprint);
       <ol>
         <li><b>Lancer le montage</b> ouvre un brouillon email pré-rempli dans ta messagerie (ou, si tu as choisi une vidéo depuis l'appareil et que ton navigateur le permet, le menu de partage natif avec la vidéo déjà jointe) — vérifie et envoie-le (ou laisse-le en brouillon, les deux fonctionnent).</li>
         <li>Une <b>Routine</b> horaire côté Claude Code cherche un email/brouillon « LANCER REEL » non traité — pièce jointe vidéo ou lien Drive, les deux sont pris en charge.</li>
-        <li>Si elle en trouve un : téléchargement de la vidéo, sélection des plans, montage complet selon la recette figée du <b>CLAUDE.md</b>, rendu, vérification par extraction de frames.</li>
+        <li>Si elle en trouve un : téléchargement de la vidéo, premier plan réel = intro (titre animé), le reste = corps (sous-titres), montage complet + CTA de fin selon la recette figée du <b>CLAUDE.md</b>, rendu, vérification par extraction de frames.</li>
         <li>Livraison du fichier + commit/push sur la branche de travail — tu reçois une notification.</li>
         <li>L'email déclencheur est marqué traité pour ne pas être relancé deux fois.</li>
       </ol>
@@ -202,15 +194,9 @@ const fileInfo = $('file_info'), fileWarn = $('file_warn');
 const prevSubject = $('prev_subject'), prevBody = $('prev_body'), statusPill = $('status_pill');
 const toast = $('toast');
 
-let variante = 'complet';
-let sourceMode = 'link'; // 'link' | 'file' — le mode "file" n'existe que pour variante==='intro'
+let sourceMode = 'link'; // 'link' | 'file'
 let selectedFile = null;
 const canShareFiles = !!(navigator.canShare); // vérifié précisément par fichier au moment du choix
-const variantLabels = { complet: 'reel complet', intro: 'intro seule' };
-const variantHints = {
-  complet: 'Montage multi-plans + header + corps de texte animé (recette §1-§8 du CLAUDE.md).',
-  intro: 'Composite letterbox + header + titre animé en surcouche (recette dédiée du CLAUDE.md).'
-};
 
 // date par défaut = demain
 (function initDate(){
@@ -219,27 +205,10 @@ const variantHints = {
 })();
 
 function applySourceModeVisibility(){
-  fieldSourceMode.style.display = (variante === 'intro') ? '' : 'none';
-  const fileActive = (variante === 'intro' && sourceMode === 'file');
+  const fileActive = (sourceMode === 'file');
   fieldFile.style.display = fileActive ? '' : 'none';
   fieldLink.style.display = fileActive ? 'none' : '';
 }
-
-document.querySelectorAll('#variante_chips .chip').forEach(chip => {
-  chip.addEventListener('click', () => {
-    document.querySelectorAll('#variante_chips .chip').forEach(c => c.classList.remove('on'));
-    chip.classList.add('on');
-    variante = chip.dataset.v;
-    $('variante_hint').textContent = variantHints[variante];
-    if(variante !== 'intro'){
-      // le reel complet garde uniquement le lien Drive (source vidéo plus longue, moins adapté à un envoi direct)
-      sourceMode = 'link';
-      document.querySelectorAll('#source_mode_chips .chip').forEach(c => c.classList.toggle('on', c.dataset.m === 'link'));
-    }
-    applySourceModeVisibility();
-    render();
-  });
-});
 
 document.querySelectorAll('#source_mode_chips .chip').forEach(chip => {
   chip.addEventListener('click', () => {
@@ -288,7 +257,7 @@ function buildSubject(){
 }
 
 function usingFileMode(){
-  return variante === 'intro' && sourceMode === 'file';
+  return sourceMode === 'file';
 }
 
 function buildBody(){
@@ -300,7 +269,6 @@ function buildBody(){
   return [
     sourceLine,
     `DATE DU POST: ${iso}`,
-    `VARIANTE: ${variantLabels[variante]}`,
     `NOTES: ${notes || '(aucune)'}`,
     '',
     `— généré depuis le lanceur reels Ce jour-là`
@@ -316,7 +284,7 @@ function render(){
 
   prevSubject.textContent = buildSubject();
   prevBody.innerHTML = buildBody()
-    .replace(/^(LIEN DRIVE:|VIDÉO:|DATE DU POST:|VARIANTE:|NOTES:)/gm, '<span class="k">$1</span>')
+    .replace(/^(LIEN DRIVE:|VIDÉO:|DATE DU POST:|NOTES:)/gm, '<span class="k">$1</span>')
     .replace(/\n/g, '<br>');
 
   const ready = fileMode ? !!selectedFile : validLink;
