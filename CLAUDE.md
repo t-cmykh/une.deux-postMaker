@@ -12,29 +12,29 @@ match et demande d'y ajouter le texte du post (sous-titres ou corps animé) —
 ## Lanceur automatique (`editeurs/lanceur-cejourla.html`)
 
 Outil statique (même DA que `editeur-series.html` : panel sombre, ocre,
-Saira Condensed/Anton/Archivo) où Thomas colle le lien Drive (ou, pour
-« intro seule », choisit directement un fichier vidéo depuis l'appareil —
-voir ci-dessous) + la date du post + la variante (reel complet / intro
-seule) + des notes optionnelles. Le bouton « Lancer le montage » ouvre un
-brouillon email pré-rempli (`mailto:` vers t.louisor@gmail.com, objet
-`LANCER REEL — <date>`, corps au format `LIEN DRIVE: … / DATE DU POST: … /
-VARIANTE: … / NOTES: …`) — une page statique ne peut pas appeler Claude Code
+Saira Condensed/Anton/Archivo) où Thomas colle le lien Drive (ou choisit
+directement un fichier vidéo depuis l'appareil — voir ci-dessous) + la date
+du post + des notes optionnelles. **Une seule variante** (voir section
+recette ci-dessous — l'ancien choix "reel complet / intro seule" a été
+fusionné, il n'y a plus de champ VARIANTE). Le bouton « Lancer le montage »
+ouvre un brouillon email pré-rempli (`mailto:` vers t.louisor@gmail.com,
+objet `LANCER REEL — <date>`, corps au format `LIEN DRIVE: … / DATE DU
+POST: … / NOTES: …`) — une page statique ne peut pas appeler Claude Code
 directement, l'email est le pont.
 
-**Vidéo directe depuis l'appareil (intro seule uniquement)** : un toggle
-« Lien Drive / Vidéo depuis l'appareil » n'apparaît que pour la variante
-« intro seule » (le reel complet garde uniquement le lien Drive — source
-généralement plus longue, moins adaptée à un envoi direct). En mode
-fichier, le corps de l'email remplace la ligne `LIEN DRIVE: …` par
-`VIDÉO: en pièce jointe de cet email (<nom du fichier>)`. `mailto:` ne peut
-jamais joindre un fichier (limitation universelle des navigateurs, pas de ce
-code) : le bouton tente d'abord `navigator.share({files:[...]})` (Web Share
-API — fonctionne sur mobile, où Thomas utilise principalement ces outils :
-le menu de partage natif s'ouvre avec la vidéo déjà jointe, il choisit
-Gmail/Mail) ; si l'appareil/navigateur ne supporte pas le partage de
-fichiers (desktop notamment), repli automatique sur le `mailto:` habituel
-avec un avertissement visible dans l'éditeur et rappelé dans le corps de
-l'email : joindre soi-même le même fichier avant d'envoyer.
+**Vidéo directe depuis l'appareil** : un toggle « Lien Drive / Vidéo depuis
+l'appareil » permet de choisir un fichier vidéo directement dans la
+photothèque plutôt que de coller un lien. En mode fichier, le corps de
+l'email remplace la ligne `LIEN DRIVE: …` par `VIDÉO: en pièce jointe de
+cet email (<nom du fichier>)`. `mailto:` ne peut jamais joindre un fichier
+(limitation universelle des navigateurs, pas de ce code) : le bouton tente
+d'abord `navigator.share({files:[...]})` (Web Share API — fonctionne sur
+mobile, où Thomas utilise principalement ces outils : le menu de partage
+natif s'ouvre avec la vidéo déjà jointe, il choisit Gmail/Mail) ; si
+l'appareil/navigateur ne supporte pas le partage de fichiers (desktop
+notamment), repli automatique sur le `mailto:` habituel avec un
+avertissement visible dans l'éditeur et rappelé dans le corps de l'email :
+joindre soi-même le même fichier avant d'envoyer.
 
 Côté traitement : la Routine doit gérer les deux cas indifféremment — si le
 corps de l'email contient `VIDÉO: en pièce jointe …` (pas de `LIEN DRIVE:`),
@@ -57,124 +57,30 @@ Pour un montage immédiat, demander directement dans le chat reste plus
 rapide (pas d'attente jusqu'à 14h) — le lanceur sert pour poser une demande à
 traiter en tâche de fond.
 
-## Recette figée — intro d'un reel une·deux (composite + header + titre animé)
-
-Quand Thomas demande **"l'intro d'un reel une·deux"** (ou formulation
-équivalente) et donne une vidéo courte (quelques secondes, généralement
-< 7 s) : le montage de la composition (étape 2 ci-dessous, inchangée)
-tourne d'abord, puis, une fois fini, l'habillage vient **en surcouche** —
-**Aucun trim automatique** : le composite tourne sur toute la durée du
-fichier reçu, tel quel — que la source vienne d'un lien Drive ou d'une
-vidéo envoyée depuis la photothèque (§ lanceur ci-dessus). Si le fichier
-fourni dépasse largement les quelques secondes attendues pour une intro,
-c'est à Thomas de le pré-couper avant de l'envoyer ; ce n'est ni détecté ni
-corrigé côté traitement (choix explicite — pas de complexité de découpe
-auto à maintenir pour un usage marginal).
-header (§3 de la recette complète, identique) **et** le titre du post animé
-ligne par ligne, exactement comme le template "cover · titre seul" de
-`editeur-series.html` (série `cejourla`). Référence de rendu validée :
-`templates/titre-anime-intro/` sur la branche `ce-jour-là` (gabarit +
-render de test, composite du 3 août 2017 réutilisé, titre "3 AOÛT 2017 :
-LE PLUS GROS TRANSFERT DE L'HISTOIRE" avec "TRANSFERT DE"/"L'HISTOIRE"
-encadrés) — comparer visuellement à cette référence avant de considérer un
-nouvel intro conforme.
-
-```bash
-ffmpeg -y -i video_raw.mp4 -filter_complex \
-"[0:v]fps=30,scale=3400:1920,crop=1080:1920,gblur=sigma=36,eq=saturation=0.4[bg];[0:v]fps=30,scale=1080:-2[fg];[bg][fg]overlay=x=0:y=655:shortest=1[outv]" \
--map "[outv]" -map 0:a? -c:v libx264 -crf 20 -preset fast -pix_fmt yuv420p -c:a aac -b:a 160k intro.mp4
-```
-
-- Mêmes réglages figés que la recette complète pour le composite :
-  `gblur=sigma=36`, `eq=saturation=0.4`, source horizontale (~1.77)
-  recentrée en 9:16. Recalculer `scale=`/`y=` si le ratio source diffère
-  (voir étape 2 ci-dessous pour la formule).
-- **Contrairement à la recette complète, ce composite EST un projet
-  HyperFrames** (§7 scaffolding) dès qu'un titre animé est ajouté par-dessus
-  — le `<video>` composite passe en simple `<div class="video-full">
-  inset:0</div>` plein cadre (le composite déjà cuit par ffmpeg fait tout le
-  travail visuel, la vidéo HTML ne fait qu'occuper tout le canvas), header
-  en HTML/CSS statique par-dessus (§3, valeurs pixel identiques), titre en
-  divs absolus animés par GSAP.
-- **Source du titre** : champ `TITRE` du brouillon Gmail "POST DU JOUR —
-  <date>" correspondant (pas `CORPS` — c'est le champ court/percutant,
-  distinct du texte long utilisé en §4 pour le reel complet). Repris tel
-  quel, mis en capitales par le CSS (`text-transform:uppercase`).
-- **Découpage en lignes** : à la main (pas d'auto-wrap côté HTML/HyperFrames
-  contrairement au canvas de l'éditeur) — composer au jugé puis corriger
-  après vérification par extraction de frame (§8) si une ligne déborde des
-  marges (`left:96px; right:96px`, soit 888px de large utile).
-- **Mots-clés encadrés** : dernière(s) ligne(s) ou fait(s) marquant(s)
-  (chiffres, nom propre, verdict) — un carré fusionné derrière chaque
-  groupe de mots consécutifs accentués, même mécanique que
-  `drawWordLine`/§4 : couleur du carré = teinte de la série (`--ocre` pour
-  `cejourla`), texte toujours crème (pas d'inversion de couleur de texte).
-  Ne pas surcharger, une ligne ou deux au maximum.
-- **CSS/HTML/GSAP à reproduire à l'identique** (`Anton`, aligné à **gauche**
-  — pas centré, contrairement au corps de texte du §4, et **sans ombre
-  portée** — contrairement au corps de texte du §4 qui en a besoin faute de
-  carré plein derrière, la lisibilité du titre vient du carré ocre sur les
-  mots-clés) :
-  ```css
-  .t-line { position:absolute; left:96px; right:96px; font-family:'Anton',sans-serif;
-            font-size:140px; line-height:1; text-transform:uppercase; color:var(--cream);
-            opacity:0; }
-  .kw-box { background:var(--ocre); padding:10px; margin:-10px; display:inline-block; }
-  ```
-  (la marge négative égale au padding annule le décalage de layout — le
-  texte encadré reste aligné avec les lignes non encadrées)
-  **`font-size` : ~140px est le point de départ validé sur le titre-test
-  4 lignes de `templates/titre-anime-intro/` (branche `ce-jour-là`), mais ce
-  n'est PAS une constante universelle à réutiliser telle quelle** — un
-  canvas 130px (éditeur) et un texte CSS 130px n'ont pas le même corps de
-  casse apparent une fois rendus par HyperFrames (chargement de police
-  différent), et le nombre/longueur des lignes change la marge disponible
-  dans la boîte de 888px (`left:96px; right:96px`) avant renvoi à la ligne.
-  Pour chaque nouveau titre : partir de 140px, **comparer la hauteur de
-  casse par extraction de frame** face à une vidéo de référence si
-  disponible (sinon au jugé), et si une ligne déborde/revient à la ligne
-  dans la boîte de 888px, réduire la taille (jamais laisser une ligne se
-  scinder en deux — ça fait chevaucher la ligne suivante).
-  ```js
-  const start = 0.3, revealMs = 0.62, fadeMs = 0.22;   // vitesse par défaut (×1)
-  lines.forEach((sel, i) => {
-    tl.fromTo(sel, {opacity:0, y:8}, {opacity:1, y:0, duration:fadeMs, ease:'none'}, start + i*revealMs);
-  });
-  ```
-  Formule exacte de l'éditeur : `revealMs = 620/vitesse`,
-  `fadeMs = clamp(80, 220, revealMs*0.6)` — rampe **linéaire** (`ease:'none'`),
-  pas d'easing, avec un léger décalage vertical 8px→0px qui accompagne le
-  fondu. Le texte reste affiché jusqu'à la fin du clip (pas de fondu de
-  sortie, contrairement aux blocs de corps du §4 — pas de hard-kill requis
-  ici puisque l'opacité finale est 1, pas 0).
-- **Positionnement vertical** : ancrer par le bas, `top` de chaque ligne =
-  baseline − ascent avec baseline la plus basse ≈ 1690-1730px (juste
-  au-dessus de la zone de sécurité basse) et un écart entre lignes de
-  `tSize*0.92` ≈ 120px — recalculer précisément pour chaque titre (nombre de
-  lignes différent) plutôt que de réutiliser les pixels bruts du gabarit de
-  référence, qui ne valent que pour son titre à 4 lignes.
-- Si Thomas demande explicitement **"juste le composite, sans habillage"**
-  (aucun header, aucun titre — juste le traitement visuel de la vidéo),
-  revenir à l'ancien comportement : livrer uniquement le fichier
-  `intro.mp4` produit par la commande ffmpeg ci-dessus, sans projet
-  HyperFrames.
-- Si Thomas demande seulement "le fond plein cadre" (sans "derrière" /
-  sans vidéo nette dessus), livrer juste la couche flou/désaturé plein cadre
-  (`[0:v]fps=30,scale=3400:1920,crop=1080:1920,gblur=sigma=36,eq=saturation=0.4`
-  seule, sans overlay du premier plan net).
-
-## Recette figée — reel "Ce jour-là" à partir d'images de match
+## Recette figée — reel "Ce jour-là" (intro + corps + CTA de fin, une seule vidéo)
 
 Quand Thomas dit "fait la même chose avec cette vidéo" / "on va faire un
-reel une·deux" à propos d'un montage vidéo (pas un carrousel), reproduire
-**à l'identique** les réglages ci-dessous, établis et validés sur les
-projets `hyperframes/cejourla-uruguay-2011-textreveal*`. Ne dévier que si
-Thomas donne une instruction explicite contraire pour ce reel précis — dans
-ce cas, la nouvelle instruction s'applique à CE reel, mais ne remplace pas
-la recette par défaut pour les suivants (sauf si Thomas dit explicitement
-que c'est le nouveau standard).
+reel une·deux" à propos d'un montage vidéo (pas un carrousel), ou déclenche
+via le lanceur ci-dessus, reproduire **à l'identique** les réglages
+ci-dessous. Ne dévier que si Thomas donne une instruction explicite
+contraire pour ce reel précis — dans ce cas, la nouvelle instruction
+s'applique à CE reel, mais ne remplace pas la recette par défaut pour les
+suivants (sauf si Thomas dit explicitement que c'est le nouveau standard).
 
-### 1. Récupération de la vidéo (Drive)
+**Vue d'ensemble** : à partir d'**une seule vidéo source**, le reel se
+découpe en trois parties qui s'enchaînent dans une seule composition
+HyperFrames, puis un CTA de fin est ajouté en post-traitement :
+1. **Intro** — le premier plan réel repéré dans la source (§1bis), habillé
+   en header + titre du post animé ligne par ligne (§4bis).
+2. **Corps** — tous les plans suivants, montage multi-plans habillé en
+   header + corps de texte animé façon sous-titres (§4), comme avant.
+3. **CTA "RDV DEMAIN"** — carte de fin générique, concaténée après le rendu
+   (§9), pas de personnalisation par date.
+
+Il n'y a plus de choix "intro seule / reel complet" à faire : une vidéo
+donnée produit toujours ce montage complet en une fois.
+
+### 1. Récupération de la vidéo (Drive ou pièce jointe)
 
 ```bash
 curl -sL -o video_raw.mp4 "https://drive.google.com/uc?export=download&id=<ID>"
@@ -188,6 +94,15 @@ grep -o 'name="[a-z]*" value="[^"]*"' raw_download   # récupère confirm + uuid
 curl -sL -o video_raw.mp4 "https://drive.usercontent.google.com/download?id=<ID>&export=download&confirm=t&uuid=<UUID>"
 ```
 
+Si la demande contient `VIDÉO: en pièce jointe …` (pas de `LIEN DRIVE:`),
+récupérer la vidéo depuis la pièce jointe Gmail du message plutôt que
+télécharger depuis Drive (voir § lanceur ci-dessus).
+
+**Aucun trim automatique** : la vidéo reçue est utilisée telle quelle, sur
+toute sa durée — que la source vienne d'un lien Drive ou d'une vidéo envoyée
+depuis la photothèque. Ce n'est ni détecté ni corrigé côté traitement (choix
+explicite — pas de complexité de découpe auto à maintenir).
+
 **Toujours vérifier l'orientation avant de composer** — ne jamais supposer :
 ```bash
 ffprobe -v error -show_entries stream=width,height:format=duration -of default=noprint_wrappers=1 video_raw.mp4
@@ -198,21 +113,29 @@ Les vidéos fournies jusqu'ici sont horizontales (~16:9, ratio ≈1.77), avec ou
 sans métadonnée de rotation trompeuse — se fier à l'image extraite, pas
 seulement aux nombres.
 
-### 1bis. Sélection des plans (montage multi-plans)
+### 1bis. Sélection des plans — le premier plan réel = l'intro, tout le reste = le corps
 
-Règles figées, validées par Thomas sur `cejourla-25juillet-reel` — à
-appliquer par défaut dès que le reel est un montage découpé (plusieurs
-segments coupés dans une vidéo source, cf. §2bis/§8), sauf demande contraire :
+Règles figées, validées par Thomas sur `cejourla-25juillet-reel`, à
+appliquer sur l'ensemble de la vidéo source :
 
-- **Aucun plan de moins de 3.5s.** Repérer des fenêtres source d'au moins
-  ~3.5-4s par segment ; ne jamais garder un plan de 1-2s même si le contenu
-  est pertinent — l'étendre ou le remplacer par un autre passage.
 - **Uniquement des images filmées réelles** (plan de caméra, photo
   d'époque) — aucun carton graphique/infographie généré (habillage
   chaîne : stats, cartes de score animées, etc.), même si la source en
   contient et que ça illustrerait bien le texte. Scanner la vidéo source
   dans son ensemble (contact-sheets ffmpeg à différentes fenêtres/grilles)
   pour repérer les passages réellement filmés avant de choisir les plans.
+- **Le premier plan réel identifié devient l'intro** (§2 composite +
+  §4bis titre animé). **Tous les plans réels suivants deviennent le corps**
+  (§2bis composite + §4 texte animé), dans leur ordre d'apparition dans la
+  source, comme avant.
+- **Aucun plan de moins de 3.5s** — ni pour l'intro ni pour le corps.
+  Repérer des fenêtres source d'au moins ~3.5-4s par segment ; ne jamais
+  garder un plan de 1-2s même si le contenu est pertinent — l'étendre ou le
+  remplacer par un autre passage. **Cas particulier de l'intro** : le plan
+  choisi doit aussi couvrir au moins la durée totale de la révélation du
+  titre + 1s de pause (§4bis) — si le titre est long (beaucoup de lignes),
+  étendre la fenêtre du premier plan en conséquence plutôt que de couper le
+  titre ou la vidéo trop tôt.
 - **Vérifier la cohérence factuelle plan/texte** : un même passage source
   peut illustrer deux événements différents (ex. verdict initial vs verdict
   en appel, deux dates distinctes) — ne jamais réutiliser un plan/carton
@@ -220,43 +143,47 @@ segments coupés dans une vidéo source, cf. §2bis/§8), sauf demande contraire
   illustrer ; en cas de doute, préférer un plan neutre (lieu, ambiance,
   personne concernée) à un plan trop spécifique mais potentiellement faux.
 
-### 2. Composite letterbox 9:16 (fond flouté + désaturé, pré-calculé ffmpeg)
+### 2. Composite de l'intro (fond plein cadre, centrage vertical complet)
 
 **Ne jamais faire le flou en live via CSS au rendu** (coût énorme en Chrome
 headless / SwiftShader — un rendu peut passer de 5 min à 30+ min). Toujours
 pré-cuire le composite fond+premier plan dans un seul fichier vidéo via
 ffmpeg, en amont.
 
-Pour une source horizontale (ratio ~1.77) vers un canvas 1080×1920 :
+Pour le plan d'intro (source horizontale ratio ~1.77 vers un canvas 1080×1920) :
 
 ```bash
-ffmpeg -y -i video_raw.mp4 -filter_complex \
+ffmpeg -y -i intro_plan.mp4 -filter_complex \
 "[0:v]fps=30,scale=3400:1920,crop=1080:1920,gblur=sigma=36,eq=saturation=0.4[bg];[0:v]fps=30,scale=1080:-2[fg];[bg][fg]overlay=x=0:y=655:shortest=1[outv]" \
--map "[outv]" -c:v libx264 -crf 20 -preset fast -pix_fmt yuv420p -an composite.mp4
-
-ffmpeg -y -i video_raw.mp4 -vn -c:a aac -b:a 160k audio.m4a   # si la source a du son
+-map "[outv]" -c:v libx264 -crf 20 -preset fast -pix_fmt yuv420p -an intro-composite.mp4
 ```
 
-Réglages figés (dernière validation Thomas — "Super !") :
-- `gblur=sigma=36` (flou fort — a été doublé une fois depuis sigma=18, la
-  valeur 36 est celle validée, à réutiliser par défaut)
-- `eq=saturation=0.4` (fond nettement désaturé, ~40% de la saturation
-  d'origine)
+- `gblur=sigma=36` / `eq=saturation=0.4` : mêmes réglages figés que partout
+  ailleurs dans cette recette.
 - `overlay=x=0:y=655` — recentre le premier plan net verticalement sur tout
-  le canvas 1920 (pour une source ratio 1.77 → fg height≈610 → y=(1920-610)/2)
-- Si le ratio de la source diffère de 1.77, recalculer `scale=3400:1920`
-  (fond, cover-crop) et `y=` (centrage vertical) en conséquence — ne pas
-  réutiliser les chiffres bruts tels quels.
-- `fps=30` partout (aligne sur `data-fps="30"` de la composition)
+  le canvas 1920 (pas de zone de texte réservée en bas, contrairement au
+  corps — le titre flotte par-dessus, cf. §4bis). Pour une source ratio 1.77
+  → fg height≈610 → y=(1920-610)/2. Recalculer si le ratio source diffère.
+- `fps=30` partout (aligne sur `data-fps="30"` de la composition).
+- Référence de rendu validée : `templates/titre-anime-intro/` sur la
+  branche `ce-jour-là` (gabarit + render de test, titre "3 AOÛT 2017 : LE
+  PLUS GROS TRANSFERT DE L'HISTOIRE" avec "TRANSFERT DE"/"L'HISTOIRE"
+  encadrés) — comparer visuellement à cette référence avant de considérer un
+  nouvel intro conforme.
 
-### 2bis. Variante montage multi-plans (plusieurs segments, header + texte présents)
+### 2bis. Composite du corps (montage multi-plans, header + texte présents)
 
-Quand le reel est un montage découpé en plusieurs plans (1 segment ≈ 1 phrase,
-cf. §8 scaffolding), le plan net ne doit pas recentrer sur tout le canvas
-1920 comme en §2 (qui suppose un habillage sans header/texte) : il doit
-occuper exactement l'espace entre le bas du tag (§3, tag bottom ≈408) et le
-haut de la zone de texte (§4), plein cadre horizontalement. Réglages figés
-(validés par Thomas via capture d'écran de rendu) :
+Pour chaque plan du corps (1 segment ≈ 1 phrase, cf. §5/§7 scaffolding), le
+plan net ne recentre pas sur tout le canvas comme en §2 (qui suppose un
+titre flottant, sans zone de texte fixe) : il doit occuper exactement
+l'espace entre le bas du tag (§3, tag bottom ≈408) et le haut de la zone de
+texte (§4), plein cadre horizontalement.
+
+```bash
+ffmpeg -y -i plan_N.mp4 -vn -c:a aac -b:a 160k audio_N.m4a   # si la source a du son
+```
+
+Réglages figés (validés par Thomas via capture d'écran de rendu) :
 
 - `overlay=x=0:y=420` — plan net plein cadre horizontal (`x=0`, pas de marge
   96px type header/texte), hauteur **888px fixe**, donc du haut à
@@ -282,10 +209,13 @@ haut de la zone de texte (§4), plein cadre horizontalement. Réglages figés
   source zoomée, cover-crop classique : facteur = max(target_w/src_w,
   target_h/src_h))
 
-### 3. Header — repris à l'identique de `editeurs/editeur-series.html`
+### 3. Header — repris à l'identique de `editeurs/editeur-series.html`, persistant sur tout le reel
 
 Valeurs pixel exactes (ratio 9:16, série `cejourla`), à ne jamais
-approximer — ce sont les vraies constantes de l'éditeur de série :
+approximer — ce sont les vraies constantes de l'éditeur de série. Le header
+(ring/wordmark/handle/hairline/tag) reste affiché en continu du début à la
+fin du reel — intro **et** corps — il n'est jamais ré-animé ni masqué entre
+les deux parties :
 
 ```css
 /* M = MR = 96 (marges), safeTop() = 150 pour le ratio 9:16 */
@@ -304,7 +234,7 @@ approximer — ce sont les vraies constantes de l'éditeur de série :
 Ne PAS ajouter de dégradé d'assombrissement en bas du cadre (`scrim-bottom`)
 — règle permanente pour ce format, sauf demande contraire explicite.
 
-### 4. Texte — corps du post, animé, découpé en unités de sens
+### 4. Corps de texte — sous-titres animés, découpés en unités de sens
 
 - Utiliser le texte du **CORPS** du brouillon Gmail tel quel (ne pas le
   réécrire) — chercher le brouillon "POST DU JOUR — <date>" correspondant à
@@ -328,12 +258,87 @@ Ne PAS ajouter de dégradé d'assombrissement en bas du cadre (`scrim-bottom`)
 - Position : `top:1420px` avec `transform:translateY(-50%)`, zone
   `left:96px; right:96px`, dans la bande floutée basse (sous le plan net —
   valeur calibrée pour la variante §2bis, où le plan net s'arrête à
-  `y=1308` ; remonté depuis `top:1560px` à la demande de Thomas pour
-  rapprocher le texte du plan net). Si le plan net occupe un espace
-  différent (variante §2 plein-centrage), ajuster en conséquence — garder
-  une marge d'environ 100-115px entre le bas du plan net et `top`.
+  `y=1308`). Garder une marge d'environ 100-115px entre le bas du plan net
+  et `top`.
+- **Le corps démarre juste après la fin de l'intro** (§4bis) dans la
+  timeline globale de la composition — décaler tous les `start` calculés en
+  §5 de `introEnd` (durée totale de l'intro, cf. §4bis), pas de `t=0`.
 
-### 5. Calcul du rythme (formule établie, réutiliser systématiquement)
+### 4bis. Titre animé de l'intro
+
+- **Source du titre** : champ `TITRE` du brouillon Gmail "POST DU JOUR —
+  <date>" correspondant (pas `CORPS` — c'est le champ court/percutant,
+  distinct du texte long utilisé en §4 pour le corps). Repris tel quel, mis
+  en capitales par le CSS (`text-transform:uppercase`).
+- **Mots-clés encadrés : uniquement ceux marqués `**entre étoiles**`** dans
+  le champ TITRE — même mécanisme d'extraction par position que le mode
+  batch de `editeur-series.html` (`extractGreenWords`) : retirer les `**`,
+  garder la position des mots qu'ils entouraient, et n'encadrer que ces
+  mots-là. Pas de sélection "au jugé" — c'est Thomas qui marque explicitement
+  le(s) mot(s)/la ou les lignes à encadrer en écrivant le brouillon.
+  Un carré fusionné derrière chaque groupe de mots consécutifs marqués,
+  couleur `--ocre`, texte toujours crème (pas d'inversion de couleur).
+- **Découpage en lignes** : à la main (pas d'auto-wrap côté HTML/HyperFrames
+  contrairement au canvas de l'éditeur) — composer au jugé puis corriger
+  après vérification par extraction de frame (§9) si une ligne déborde des
+  marges (`left:96px; right:96px`, soit 888px de large utile).
+- **CSS/HTML/GSAP à reproduire à l'identique** (`Anton`, aligné à **gauche**
+  — pas centré, contrairement au corps de texte du §4, et **sans ombre
+  portée** — contrairement au corps de texte du §4 qui en a besoin faute de
+  carré plein derrière, la lisibilité du titre vient du carré ocre sur les
+  mots-clés) :
+  ```css
+  .t-line { position:absolute; left:96px; right:96px; font-family:'Anton',sans-serif;
+            font-size:140px; line-height:1; text-transform:uppercase; color:var(--cream);
+            opacity:0; }
+  .kw-box { background:var(--ocre); padding:10px; margin:-10px; display:inline-block; }
+  ```
+  (la marge négative égale au padding annule le décalage de layout — le
+  texte encadré reste aligné avec les lignes non encadrées)
+  **`font-size` : ~140px est le point de départ validé sur le titre-test
+  4 lignes de `templates/titre-anime-intro/` (branche `ce-jour-là`), mais ce
+  n'est PAS une constante universelle à réutiliser telle quelle** — un
+  canvas 130px (éditeur) et un texte CSS 130px n'ont pas le même corps de
+  casse apparent une fois rendus par HyperFrames (chargement de police
+  différent), et le nombre/longueur des lignes change la marge disponible
+  dans la boîte de 888px (`left:96px; right:96px`) avant renvoi à la ligne.
+  Pour chaque nouveau titre : partir de 140px, **comparer la hauteur de
+  casse par extraction de frame** face à une vidéo de référence si
+  disponible (sinon au jugé), et si une ligne déborde/revient à la ligne
+  dans la boîte de 888px, réduire la taille (jamais laisser une ligne se
+  scinder en deux — ça fait chevaucher la ligne suivante).
+- **Vitesse d'apparition fixée à 1.0×** (pas de variation) :
+  ```js
+  const start = 0.3, revealMs = 0.62, fadeMs = 0.22;   // vitesse figée ×1
+  lines.forEach((sel, i) => {
+    tl.fromTo(sel, {opacity:0, y:8}, {opacity:1, y:0, duration:fadeMs, ease:'none'}, start + i*revealMs);
+  });
+  ```
+  Formule : `revealMs = 620/1 = 0.62s`, `fadeMs = clamp(80,220,revealMs*0.6) = 0.22s`
+  (capé) — rampe **linéaire** (`ease:'none'`), pas d'easing, avec un léger
+  décalage vertical 8px→0px qui accompagne le fondu.
+- **Une fois toutes les lignes affichées, le titre reste figé à l'écran
+  1 seconde avant la coupe vers le corps** (nouveau — avant la fusion
+  intro/corps, le titre restait affiché jusqu'à la fin du clip puisque
+  l'intro était le livrable entier ; maintenant il faut couper). Durée
+  totale de l'intro (à utiliser comme `data-duration` du plan vidéo
+  d'intro ET comme offset de démarrage du corps, cf. §4) :
+  ```
+  introEnd = start + (nombreDeLignes - 1) × revealMs + fadeMs + 1.0
+           = 0.3 + (n-1) × 0.62 + 0.22 + 1.0   (secondes)
+  ```
+  À `introEnd`, **masquer les lignes de titre** (`tl.set('.t-line', {opacity:0}, introEnd)`,
+  hard-kill sur toutes les lignes en une fois) — le header (ring/wordmark/
+  handle/hairline/tag) reste affiché, seul le titre disparaît avant que le
+  plan vidéo suivant (premier plan du corps) ne commence.
+- **Positionnement vertical** : ancrer par le bas, `top` de chaque ligne =
+  baseline − ascent avec baseline la plus basse ≈ 1690-1730px (juste
+  au-dessus de la zone de sécurité basse) et un écart entre lignes de
+  `tSize*0.92` ≈ 120px — recalculer précisément pour chaque titre (nombre de
+  lignes différent) plutôt que de réutiliser les pixels bruts du gabarit de
+  référence, qui ne valent que pour son titre à 4 lignes.
+
+### 5. Calcul du rythme du corps (formule établie, réutiliser systématiquement)
 
 ```
 durée_brute_ligne = nombre_de_mots × 0.27 + 0.35   (secondes)
@@ -346,8 +351,8 @@ durée_ligne = durée_brute_ligne × facteur
 - Si `facteur < 1` (vidéo plus courte que le texte au rythme naturel) :
   compresser quand même plutôt que couper le texte — ne jamais réduire le
   contenu du corps sans demande explicite.
-- Démarrer le premier bloc à `t≈0.3s` (pas de délai d'intro/titre sauf
-  demande contraire).
+- Démarrer le premier bloc du corps à `introEnd + 0.3s` (§4bis) — pas de
+  `t≈0.3s` absolu comme avant la fusion, le corps commence après l'intro.
 - `tl.fromTo(..., {opacity:0}, {opacity:1, duration:0.2-0.35, ease:'power2.out'})`
   puis `tl.to(..., {opacity:0, duration:0.18-0.3, ease:'sine.in'})` puis
   `tl.set(..., {opacity:0}, start+dur)` (hard-kill obligatoire, sinon lint
@@ -358,23 +363,58 @@ durée_ligne = durée_brute_ligne × facteur
 Un élément avec un `transform: translateY(-50%)` **statique** en CSS (pour
 le centrage vertical) ne doit **jamais** recevoir de tween GSAP incluant la
 propriété `y` — ça entre en conflit avec le transform géré par le CSS.
-Utiliser des tweens **opacity uniquement** sur ces éléments.
+Utiliser des tweens **opacity uniquement** sur ces éléments (le titre de
+l'intro, qui anime `y:8→0`, est une exception volontaire : `.t-line` n'a
+**pas** de `transform` statique, donc pas de conflit).
 
 ### 7. Scaffolding projet
 
-Chaque reel = un nouveau dossier `hyperframes/<slug>/` avec
-`hyperframes.json`, `meta.json`, `package.json` (copier depuis un projet
-`cejourla-uruguay-2011-textreveal*` existant et adapter `name`/`id`),
-`.gitignore` (`node_modules/`, `renders/`, `snapshots/`, `.debug/`),
-`tokens/fonts.css` + `tokens/colors.css` copiés tels quels (source de
-vérité : palette `--ocre`/`--ink`/`--cream`/`--muted-cream` de
-`editeurs/editeur-series.html`).
+Chaque reel = un nouveau dossier `<date-ISO>/` (ex. `2026-08-05/`) **à la
+racine de la branche `ce-jour-là`** — pas de préfixe `hyperframes/`, pas de
+slug descriptif — avec `hyperframes.json`, `meta.json`, `package.json`
+(copier depuis un projet existant et adapter `name`/`id`), `.gitignore`
+(`node_modules/`, `renders/`, `snapshots/`, `.debug/`), `tokens/fonts.css` +
+`tokens/colors.css` copiés tels quels (source de vérité : palette
+`--ocre`/`--ink`/`--cream`/`--muted-cream` de `editeurs/editeur-series.html`).
+
+Toujours un projet HyperFrames (le titre animé de l'intro est désormais
+systématique — il n'y a plus de cas "composite ffmpeg seul, sans
+HyperFrames").
 
 Vidéo et audio en enfants directs de `#root`, vidéo mutée
 (`muted playsinline`), son porté par un `<audio>` séparé avec sa propre
-`data-duration` (contrainte HyperFrames — jamais de son sur `<video>`).
+`data-duration` (contrainte HyperFrames — jamais de son sur `<video>`). Le
+plan d'intro et chaque plan du corps sont des éléments `<video>` distincts,
+avec leurs propres `data-start`/`data-duration` respectifs (même mécanisme
+que les segments multi-plans du corps entre eux).
 
-### 8. Check → render → vérif → livraison
+### 8. CTA de fin — carte "RDV DEMAIN", ajoutée systématiquement
+
+**Tous les montages se terminent par le même CTA générique** — pas de
+personnalisation par date, pas de re-rendu à chaque fois. Le rendu final
+validé est committé en tant qu'asset réutilisable :
+`templates/rdvdemain-intro/cta-final.mp4` (branche `ce-jour-là`, 3.0s,
+1080×1920, h264/yuv420p/30fps, pas de piste audio). Le gabarit HyperFrames
+source (`templates/rdvdemain-intro/index.html`) n'a besoin d'être modifié
+et re-rendu que si le CTA lui-même doit changer un jour — sinon, toujours
+réutiliser `cta-final.mp4` tel quel.
+
+Une fois le rendu HyperFrames de l'intro+corps obtenu (§9), le concaténer
+avec le CTA via le filtre `concat` (pas le démuxeur `-f concat`, qui exige
+des flux strictement identiques — le CTA n'a pas de piste audio, le reel
+peut en avoir une) :
+
+```bash
+ffmpeg -y -i reel-intro-corps.mp4 -i templates/rdvdemain-intro/cta-final.mp4 -filter_complex \
+"[0:v]setpts=PTS-STARTPTS[v0];[1:v]setpts=PTS-STARTPTS[v1];[v0][v1]concat=n=2:v=1:a=0[outv]" \
+-map "[outv]" -map 0:a? -c:v libx264 -crf 20 -preset fast -pix_fmt yuv420p -c:a aac reel-final.mp4
+```
+
+Le CTA s'ajoute donc en coupe franche (pas de fondu-enchaîné) — c'est
+attendu, c'est une carte de fin sur fond clair complètement différente du
+composite sombre du reel, pas une continuité visuelle.
+
+### 9. Check → render → concat CTA → vérif → livraison
 
 ```bash
 npm run check     # 0 erreur attendu ; le warning StaticGuard "data-end
@@ -384,16 +424,25 @@ npm run render     # tourne en tâche de fond (>2 min) — laisser tourner,
                    # ne pas sonder, attendre la notification
 ```
 
-Après rendu : extraire des frames à quelques instants clés (ballon officiel/
-date, but, scoreboard, célébration finale) via `ffmpeg -ss <t> -frames:v 1`
-et les lire avec l'outil Read pour vérifier visuellement le calage texte/
-image, la lisibilité et le header — ne jamais livrer sans ce contrôle.
+Puis concaténer le CTA (§8) sur le fichier obtenu dans `renders/`.
 
-Si le rendu dépasse 30 Mo (limite `SendUserFile`), recompresser :
+Après concat : extraire des frames à quelques instants clés (titre de
+l'intro à mi-révélation et pleinement révélé, coupe intro→corps, ballon
+officiel/date, but, scoreboard, célébration finale, carte CTA finale) via
+`ffmpeg -ss <t> -frames:v 1` et les lire avec l'outil Read pour vérifier
+visuellement le calage texte/image, la lisibilité, le header et la coupe
+propre vers le CTA — ne jamais livrer sans ce contrôle.
+
+**INTERDIT de livrer un fichier depuis `assets/`** (sources brutes du
+composite, sans header ni texte) — le seul livrable valide est le fichier
+issu de `npm run render` (dans `renders/`) **après concat du CTA**. Si le
+render n'a pas tourné ou a échoué, ne rien livrer et signaler le blocage.
+
+Si le rendu final dépasse 30 Mo (limite `SendUserFile`), recompresser :
 ```bash
-ffmpeg -y -i render.mp4 -c:v libx264 -crf 25-26 -preset medium -pix_fmt yuv420p -c:a aac -b:a 128k compressed.mp4
+ffmpeg -y -i reel-final.mp4 -c:v libx264 -crf 25-26 -preset medium -pix_fmt yuv420p -c:a aac -b:a 128k compressed.mp4
 ```
 
 Committer le dossier du projet (assets compris — seuls `renders/`,
 `node_modules/`, `snapshots/`, `.debug/` sont ignorés) et pousser sur la
-branche de travail en cours.
+branche `ce-jour-là` (jamais fusionnée dans `main`).
