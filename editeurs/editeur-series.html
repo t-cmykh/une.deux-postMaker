@@ -136,7 +136,7 @@ Corps de la slide 3.
 ⸻
 CTA — Titre du CTA (optionnel, sinon le CTA fixe enregistré est utilisé)
 Corps du CTA."></textarea>
-        <div class="hint">Format « Slide N — titre » puis corps, blocs séparés par une ligne ⸻ seule (celui de tes brouillons Gmail). Slide 1 = titre seul. Entoure de **double étoiles** les mots du titre à colorer. Bloc final « CTA — … » optionnel pour un CTA propre à ce post (sinon le CTA fixe enregistré pour la série est utilisé).</div>
+        <div class="hint">Format « Slide N — titre » puis corps, blocs séparés par une ligne ⸻ seule (celui de tes brouillons Gmail). Slide 1 = titre seul. Mot-clé coloré automatique (les 2 derniers mots du titre) — pour choisir un autre mot toi-même, entoure-le de **doubles étoiles**. Bloc final « CTA — … » optionnel pour un CTA propre à ce post (sinon le CTA fixe enregistré pour la série est utilisé).</div>
       </div>
       <div class="row2">
         <div class="toggle-row on" id="batch_swipe_first"><div class="tg"></div><span>Swipe sur la cover</span></div>
@@ -1433,6 +1433,17 @@ function extractGreenWords(rawTitle){
   return {clean, green};
 }
 
+/* choix automatique du mot-clé encadré quand le titre ne contient pas de
+   **balisage** explicite : les 2 derniers mots (tout le titre si ≤2 mots) —
+   split identique à celui utilisé au rendu (drawWordLine), pour que le Set
+   corresponde exactement aux tokens réellement dessinés */
+function autoGreenWords(cleanTitle){
+  const words = String(cleanTitle).trim().split(/\s+/).filter(Boolean);
+  if(!words.length) return new Set();
+  const n = words.length<=2 ? words.length : 2;
+  return new Set(words.slice(-n).map(w=>w.toUpperCase()));
+}
+
 function escapeHtml(s){
   return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
@@ -1452,8 +1463,14 @@ function parseBatchScript(text){
     const isCta = /^CTA/i.test(m[1]);
     const {clean, green} = extractGreenWords(m[2]);
     const body = lines.slice(idx+1).join('\n').trim();
-    if(isCta) cta = {title:clean, body, greenWords:green};
-    else slides.push({title:clean, body, greenWords:green, img:null});
+    if(isCta){
+      /* pas d'auto-encadré sur le CTA : dans les posts réels il est
+         souvent sans mot-clé coloré (Les oubliés, Portraits) — ne
+         s'applique que si explicitement balisé **ainsi** */
+      cta = {title:clean, body, greenWords:green};
+    } else {
+      slides.push({title:clean, body, greenWords: green.size?green:autoGreenWords(clean), img:null});
+    }
   });
   return {slides, cta};
 }
@@ -1555,6 +1572,9 @@ function applyBatchSlideState(sl,i,total,isFirst){
   state.cur = pad2(i+1); state.tot = pad2(total);
   state.showSwipe = isFirst && document.getElementById('batch_swipe_first').classList.contains('on');
   state.paginationOn = document.getElementById('batch_pagination').classList.contains('on');
+  /* Portraits : saturation 100% (photo en couleur) — le curseur "Saturation"
+     de l'éditeur manuel vaut 0 par défaut (N&B), le batch doit forcer 100 */
+  state.satPortrait = 100;
   /* taille de titre validée sur tes posts réels pour la cover "titre seul" —
      pas clampTitle() (qui plafonne à 120 par défaut, en dessous des 130
      observés) */
