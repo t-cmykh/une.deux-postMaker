@@ -150,7 +150,7 @@ Corps du CTA."></textarea>
         <div class="hint" id="batch_cta_hint"></div>
       </div>
       <div class="btns">
-        <button class="btn btn-sig" id="b_batch_export" disabled>Générer toutes les PNG</button>
+        <button class="btn btn-sig" id="b_batch_export">Générer toutes les PNG</button>
       </div>
       <div class="hint" id="batch_progress" style="text-align:center;margin-top:8px"></div>
     </div>
@@ -1506,15 +1506,20 @@ function renderBatchSlideList(){
   updateBatchExportState();
 }
 
+/* le bouton reste TOUJOURS cliquable (jamais désactivé silencieusement) —
+   un clic donne toujours un retour, y compris quand une condition manque
+   (cf. batchExportAll). updateBatchExportState() ne fait ici que le style
+   visuel et le message d'aide, jamais un blocage muet du clic. */
 function updateBatchExportState(){
   const btn=document.getElementById('b_batch_export'), box=document.getElementById('batch_cta_status'), hint=document.getElementById('batch_cta_hint');
   const savedCta = loadFixedCta(state.serie);
   const ctaData = batchCta || savedCta;
+  const ready = batchSlides.length>0 && ctaData;
   box.style.display = 'block';
   if(batchCta) hint.textContent = 'CTA de ce post (dans le script) : « '+batchCta.title+' ».';
   else if(savedCta) hint.textContent = 'CTA fixe enregistré pour '+SERIES[state.serie].name+' sera utilisé : « '+savedCta.title+' ».';
   else hint.textContent = '⚠️ Aucun CTA disponible — ajoute un bloc « CTA — … » dans le script, ou enregistre un CTA fixe (choisis le template CTA ci-dessous, remplis les champs, bouton « Enregistrer comme CTA fixe »).';
-  btn.disabled = !(batchSlides.length>0 && ctaData);
+  btn.style.opacity = ready ? '1' : '.55';
 }
 
 function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
@@ -1567,8 +1572,15 @@ function applyBatchCtaState(ctaData){
 
 async function batchExportAll(){
   const btn=document.getElementById('b_batch_export'), progress=document.getElementById('batch_progress');
+  if(!batchSlides.length){
+    alert("Aucune slide parsée — clique d'abord « Parser le script » (le texte collé doit contenir au moins un bloc « Slide N — titre »).");
+    return;
+  }
   const ctaData = batchCta || loadFixedCta(state.serie);
-  if(!batchSlides.length || !ctaData) return;
+  if(!ctaData){
+    alert('Aucun CTA disponible pour « '+SERIES[state.serie].name+' » — soit tu ajoutes un bloc « CTA — titre » à la fin du script, soit tu configures le template CTA ci-dessous (titre/corps/libellé) puis tu cliques « Enregistrer comme CTA fixe » avant de relancer.');
+    return;
+  }
   btn.disabled=true;
   const total = batchSlides.length+1;
   for(let i=0;i<batchSlides.length;i++){
