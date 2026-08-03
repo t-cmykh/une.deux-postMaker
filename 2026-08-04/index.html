@@ -44,13 +44,14 @@
 
       /* titre animé de l'intro — Anton, aligné à gauche, sans ombre
          portée, mots-clés (marqués **entre étoiles** dans le brouillon)
-         encadrés d'un carré ocre. 4 lignes à 113px (réduit depuis le
-         point de départ 140px : à 4 lignes ce titre déborde la boîte de
-         888px à 140px — vérifié par mesure de largeur réelle avant rendu) */
+         encadrés d'un carré ocre. 5 lignes à 130px (réduit depuis le
+         point de départ 140px : ce titre à 4 lignes dépassait 888px de
+         large à 140px ; 5 lignes à 130px tient avec marge — vérifié par
+         mesure de largeur réelle avant rendu) */
       .title-zone { position: absolute; inset: 0; z-index: 10; }
       .t-line {
         position: absolute; left: 96px; right: 96px;
-        font-family: 'Anton', sans-serif; font-size: 113px; line-height: 1;
+        font-family: 'Anton', sans-serif; font-size: 130px; line-height: 1;
         text-transform: uppercase; color: var(--cream); opacity: 0;
       }
       .kw-box { background: var(--ocre); padding: 10px; margin: -10px; display: inline-block; }
@@ -74,26 +75,30 @@
       data-start="0"
       data-width="1080"
       data-height="1920"
-      data-duration="32.60"
+      data-duration="33.48"
       data-fps="30"
     >
-      <!-- intro : premier plan réel (trophée soulevé), 3.43s, muet -->
-      <video class="video-full" id="introv" src="assets/intro.mp4" data-start="0.0000" data-duration="3.3800" data-track-index="1" muted playsinline></video>
+      <!-- intro : premier plan réel (trophée soulevé), 3.80s réels + 0.23s
+           de tenue sur la dernière image (fenêtre étendue pour couvrir le
+           titre à 5 lignes), muet -->
+      <video class="video-full" id="introv" src="assets/intro.mp4" data-start="0.0000" data-duration="4.0000" data-track-index="1" muted playsinline></video>
 
-      <!-- corps : 6 plans réels, montage multi-plans, en continu après l'intro -->
-      <video class="video-full" id="seg1" src="assets/seg1.mp4" data-start="3.3800" data-duration="3.6000" data-track-index="1" muted playsinline></video>
-      <video class="video-full" id="seg2" src="assets/seg2.mp4" data-start="6.9800" data-duration="3.8000" data-track-index="1" muted playsinline></video>
-      <video class="video-full" id="seg3" src="assets/seg3.mp4" data-start="10.7800" data-duration="7.4500" data-track-index="1" muted playsinline></video>
-      <video class="video-full" id="seg4" src="assets/seg4.mp4" data-start="18.2300" data-duration="6.5500" data-track-index="1" muted playsinline></video>
-      <video class="video-full" id="seg5" src="assets/seg5.mp4" data-start="24.7800" data-duration="4.2500" data-track-index="1" muted playsinline></video>
-      <video class="video-full" id="seg6" src="assets/seg6.mp4" data-start="29.0300" data-duration="3.5500" data-track-index="1" muted playsinline></video>
+      <!-- corps : 6 plans réels, montage multi-plans, en continu après l'intro ;
+           seg6 = même plan trophée que l'intro (bookend), réutilisé pour clore
+           le corps sur l'image du trophée plutôt qu'un plan neutre (arbitre) -->
+      <video class="video-full" id="seg1" src="assets/seg1.mp4" data-start="4.0000" data-duration="3.6000" data-track-index="1" muted playsinline></video>
+      <video class="video-full" id="seg2" src="assets/seg2.mp4" data-start="7.6000" data-duration="3.8000" data-track-index="1" muted playsinline></video>
+      <video class="video-full" id="seg3" src="assets/seg3.mp4" data-start="11.4000" data-duration="7.4500" data-track-index="1" muted playsinline></video>
+      <video class="video-full" id="seg4" src="assets/seg4.mp4" data-start="18.8500" data-duration="6.5500" data-track-index="1" muted playsinline></video>
+      <video class="video-full" id="seg5" src="assets/seg5.mp4" data-start="25.4000" data-duration="4.2500" data-track-index="1" muted playsinline></video>
+      <video class="video-full" id="seg6" src="assets/seg6.mp4" data-start="29.6500" data-duration="3.8000" data-track-index="1" muted playsinline></video>
 
-      <audio id="a1" src="assets/seg1-audio.m4a" data-start="3.3800"  data-duration="3.57" data-track-index="20"></audio>
-      <audio id="a2" src="assets/seg2-audio.m4a" data-start="6.9800"  data-duration="3.77" data-track-index="20"></audio>
-      <audio id="a3" src="assets/seg3-audio.m4a" data-start="10.7800" data-duration="7.42" data-track-index="20"></audio>
-      <audio id="a4" src="assets/seg4-audio.m4a" data-start="18.2300" data-duration="6.52" data-track-index="20"></audio>
-      <audio id="a5" src="assets/seg5-audio.m4a" data-start="24.7800" data-duration="4.22" data-track-index="20"></audio>
-      <audio id="a6" src="assets/seg6-audio.m4a" data-start="29.0300" data-duration="3.52" data-track-index="20"></audio>
+      <audio id="a1" src="assets/seg1-audio.m4a" data-start="4.0000"  data-duration="3.57" data-track-index="20"></audio>
+      <audio id="a2" src="assets/seg2-audio.m4a" data-start="7.6000"  data-duration="3.77" data-track-index="20"></audio>
+      <audio id="a3" src="assets/seg3-audio.m4a" data-start="11.4000" data-duration="7.42" data-track-index="20"></audio>
+      <audio id="a4" src="assets/seg4-audio.m4a" data-start="18.8500" data-duration="6.52" data-track-index="20"></audio>
+      <audio id="a5" src="assets/seg5-audio.m4a" data-start="25.4000" data-duration="4.22" data-track-index="20"></audio>
+      <audio id="a6" src="assets/seg6-audio.m4a" data-start="29.6500" data-duration="3.77" data-track-index="20"></audio>
 
       <div id="hdr">
         <div class="ring">1·2</div>
@@ -106,10 +111,11 @@
       <!-- titre du post (champ TITRE du brouillon "POST DU JOUR — 4 août
            2026"), mots-clés marqués **entre étoiles** encadrés -->
       <div class="title-zone">
-        <div class="t-line" id="t1" style="top:1303px">4 AOÛT 1999 : LE</div>
-        <div class="t-line" id="t2" style="top:1407px">MEXIQUE A FAIT</div>
-        <div class="t-line" id="t3" style="top:1511px">CHUTER <span class="kw-box">LE MEILLEUR</span></div>
-        <div class="t-line" id="t4" style="top:1615px"><span class="kw-box">JOUEUR DU TOURNOI</span></div>
+        <div class="t-line" id="t1" style="top:1100px">4 AOÛT 1999 :</div>
+        <div class="t-line" id="t2" style="top:1220px">LE MEXIQUE A</div>
+        <div class="t-line" id="t3" style="top:1340px">FAIT CHUTER <span class="kw-box">LE</span></div>
+        <div class="t-line" id="t4" style="top:1460px"><span class="kw-box">MEILLEUR JOUEUR</span></div>
+        <div class="t-line" id="t5" style="top:1580px"><span class="kw-box">DU TOURNOI</span></div>
       </div>
 
       <!-- corps du post (champ CORPS du même brouillon), texte intégral
@@ -134,31 +140,31 @@
       /* titre animé de l'intro — vitesse figée ×1 (§4bis CLAUDE.md) :
          revealMs=620/1=0.62s, fadeMs=clamp(80,220,revealMs*0.6)=0.22s,
          rampe linéaire, léger décalage vertical 8px→0 sur le fondu.
-         Une fois les 4 lignes révélées, le titre reste figé 1s avant la
-         coupe vers le corps (introEnd = 0.3 + 3*0.62 + 0.22 + 1.0 = 3.38s) */
+         Une fois les 5 lignes révélées, le titre reste figé 1s avant la
+         coupe vers le corps (introEnd = 0.3 + 4*0.62 + 0.22 + 1.0 = 4.0s) */
       const tStart = 0.3, revealMs = 0.62, fadeMs = 0.22;
-      const tLines = ['#t1', '#t2', '#t3', '#t4'];
+      const tLines = ['#t1', '#t2', '#t3', '#t4', '#t5'];
       tLines.forEach((sel, i) => {
         tl.fromTo(sel, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: fadeMs, ease: 'none' }, tStart + i * revealMs);
       });
-      const introEnd = 3.38;
+      const introEnd = 4.0;
       tl.set('.t-line', { opacity: 0 }, introEnd);
 
       /* corps — 9 blocs de sens, rythme calculé sur la durée vidéo
-         disponible (§5 CLAUDE.md) : 143 mots au total pour 29.20s de
-         plans réels (facteur de compression ≈0.663, rythme serré —
+         disponible (§5 CLAUDE.md) : 143 mots au total pour 29.45s de
+         plans réels (facteur de compression ≈0.669, rythme serré —
          pauses de 0.15s entre blocs) ; premier bloc démarre à
          introEnd + 0.3s */
       const lines = [
-        { id: 'l1', start: 3.68,  dur: 4.89 },
-        { id: 'l2', start: 8.72,  dur: 2.92 },
-        { id: 'l3', start: 11.79, dur: 1.67 },
-        { id: 'l4', start: 13.61, dur: 3.10 },
-        { id: 'l5', start: 16.86, dur: 4.17 },
-        { id: 'l6', start: 21.18, dur: 3.99 },
-        { id: 'l7', start: 25.32, dur: 1.31 },
-        { id: 'l8', start: 26.78, dur: 2.38 },
-        { id: 'l9', start: 29.31, dur: 3.28 },
+        { id: 'l1', start: 4.30,  dur: 4.93 },
+        { id: 'l2', start: 9.38,  dur: 2.95 },
+        { id: 'l3', start: 12.48, dur: 1.68 },
+        { id: 'l4', start: 14.31, dur: 3.13 },
+        { id: 'l5', start: 17.59, dur: 4.21 },
+        { id: 'l6', start: 21.95, dur: 4.03 },
+        { id: 'l7', start: 26.13, dur: 1.32 },
+        { id: 'l8', start: 27.60, dur: 2.40 },
+        { id: 'l9', start: 30.15, dur: 3.31 },
       ];
 
       lines.forEach(({ id, start, dur }) => {
