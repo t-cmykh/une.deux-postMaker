@@ -63,6 +63,13 @@ Quand Thomas demande **"l'intro d'un reel une·deux"** (ou formulation
 équivalente) et donne une vidéo courte (quelques secondes, généralement
 < 7 s) : le montage de la composition (étape 2 ci-dessous, inchangée)
 tourne d'abord, puis, une fois fini, l'habillage vient **en surcouche** —
+**Aucun trim automatique** : le composite tourne sur toute la durée du
+fichier reçu, tel quel — que la source vienne d'un lien Drive ou d'une
+vidéo envoyée depuis la photothèque (§ lanceur ci-dessus). Si le fichier
+fourni dépasse largement les quelques secondes attendues pour une intro,
+c'est à Thomas de le pré-couper avant de l'envoyer ; ce n'est ni détecté ni
+corrigé côté traitement (choix explicite — pas de complexité de découpe
+auto à maintenir pour un usage marginal).
 header (§3 de la recette complète, identique) **et** le titre du post animé
 ligne par ligne, exactement comme le template "cover · titre seul" de
 `editeur-series.html` (série `cejourla`). Référence de rendu validée :
