@@ -150,7 +150,7 @@ Corps du CTA."></textarea>
         <div class="hint" id="batch_cta_hint"></div>
       </div>
       <div class="btns">
-        <button class="btn btn-sig" id="b_batch_export">Générer toutes les PNG</button>
+        <button class="btn btn-sig" id="b_batch_export">Générer et télécharger le ZIP</button>
       </div>
       <div class="hint" id="batch_progress" style="text-align:center;margin-top:8px"></div>
     </div>
@@ -325,7 +325,7 @@ const SERIES = {
 /* ===== State (calé sur post.html) ===== */
 const state = {
   serie:'cejourla',
-  tag:'', title:'', greenWords:new Set(),
+  tag:'', title:'', greenWords:new Set(), greenWordIndices:null,
   body:'',
   cur:'01', tot:'09',
   img:null, vid:null, isVideo:false, zoom:1, posx:0.5, posy:0.5, dark:0.78,
@@ -465,7 +465,7 @@ function rebuildPicker(){
 
 /* ===== binds ===== */
 const f_tag=document.getElementById('f_tag'); f_tag.value=defaultTag(state.serie);
-document.getElementById('f_title').oninput=e=>{state.title=e.target.value;rebuildPicker();restartTitleReveal();draw();};
+document.getElementById('f_title').oninput=e=>{state.title=e.target.value;state.greenWordIndices=null;rebuildPicker();restartTitleReveal();draw();};
 document.getElementById('f_body').oninput=e=>{state.body=e.target.value;draw();};
 document.getElementById('f_cur').oninput=e=>{state.cur=e.target.value;draw();};
 document.getElementById('f_tot').oninput=e=>{state.tot=e.target.value;draw();};
@@ -744,7 +744,8 @@ function wrapAtSize(g,text,maxW,fontPx){
   return lines.map(ln=>{ let out=ln; if(openBold)out='**'+out;
     const n=(out.match(/\*\*/g)||[]).length; openBold=(n%2!==0); if(openBold)out=out+'**'; return out; });
 }
-function drawWordLine(g,words,x,y){
+function drawWordLine(g,words,x,y,baseIndex){
+  baseIndex = baseIndex||0;
   const space=g.measureText(' ').width, s=SERIES[state.serie], pad=state.kwPad;
   /* hauteur du carré mesurée sur une référence fixe (haut de casse « M », sans
      descente) plutôt que sur le mot lui-même : ni un accent (É, Â…) ni une
@@ -755,12 +756,19 @@ function drawWordLine(g,words,x,y){
   const desc=ref.actualBoundingBoxDescent||0;
   const portraitKw=(state.serie==='portraits');
 
+  /* accent par POSITION (state.greenWordIndices, rempli par le mode batch —
+     chaque occurrence d'un mot est indépendante, "le" répété ne s'encadre
+     pas en bloc) si présent, sinon repli sur l'ancien mécanisme par TEXTE
+     (state.greenWords, le sélecteur de mots-clés de l'édition manuelle) */
+  const useIdx = state.greenWordIndices instanceof Set;
+
   /* 1er passage : position/largeur de chaque mot + détection accent */
   let cx=x;
-  const items=words.map(w=>{
+  const items=words.map((w,i)=>{
     const up=w.toUpperCase();
     const wW=g.measureText(up).width;
-    const item={up, x:cx, w:wW, isAccent:state.greenWords.has(up)};
+    const isAccent = useIdx ? state.greenWordIndices.has(baseIndex+i) : state.greenWords.has(up);
+    const item={up, x:cx, w:wW, isAccent};
     cx+=wW+space;
     return item;
   });
@@ -789,7 +797,7 @@ function drawWordLine(g,words,x,y){
 function drawTitle(g,x,y1,y2,size){
   const words=state.title.trim().split(/\s+/); const [l1,l2]=splitTitleTwoLines(words);
   g.font=size+"px 'Anton'"; g.textBaseline='alphabetic'; g.textAlign='left';
-  drawWordLine(g,l1,x,y1); drawWordLine(g,l2,x,y2);
+  drawWordLine(g,l1,x,y1,0); drawWordLine(g,l2,x,y2,l1.length);
 }
 function roundedArrow(g,cx,cy,color){
   g.strokeStyle=color; g.lineWidth=5; g.lineCap='round'; g.lineJoin='round';
@@ -992,6 +1000,11 @@ function draw(){
     if(bottomEdge>safeBottomBound) shift-=(bottomEdge-safeBottomBound);
     baselines=baselines.map(b=>b+shift);
 
+    /* index de base (position dans le titre complet) de chaque ligne, pour
+       l'accent par position (state.greenWordIndices) */
+    const lineBaseIdx=[]; let __idx=0;
+    shown.forEach(lw=>{ lineBaseIdx.push(__idx); __idx+=lw.length; });
+
     if(state.serie==='cejourla'){
       /* apparition ligne par ligne, uniquement pour Ce jour-là — vitesse réglable */
       if(state.titleRevealStart==null) state.titleRevealStart=performance.now();
@@ -1002,13 +1015,13 @@ function draw(){
         const p=Math.max(0,Math.min(1,(elapsed-i*revealMs)/fadeMs));
         if(p<=0) return;
         g.save(); g.globalAlpha=p;
-        drawWordLine(g,lw,M,baselines[i]+(1-p)*8);
+        drawWordLine(g,lw,M,baselines[i]+(1-p)*8,lineBaseIdx[i]);
         g.restore();
       });
       titleRevealDone = elapsed >= (shown.length-1)*revealMs+fadeMs;
     } else {
       /* autres séries : template "titre seul" inchangé, tout le titre s'affiche directement */
-      shown.forEach((lw,i)=> drawWordLine(g,lw,M,baselines[i]) );
+      shown.forEach((lw,i)=> drawWordLine(g,lw,M,baselines[i],lineBaseIdx[i]) );
     }
   } else {
     /* corps : wrap + tailles adaptatives (post.html) */
@@ -1093,7 +1106,8 @@ function drawPortraitCover(g,W,H,M,footY,s){
   const lineGap=tSize*0.94;
   let ty=(bodyTxt?bodyBlockTop-40:footY-30)-(lines.length-1)*lineGap;
   g.textAlign='left'; g.textBaseline='alphabetic'; g.font=tSize+"px 'Anton'";
-  lines.forEach(line=>{ drawWordLine(g,line.split(' '),baseX,ty); ty+=lineGap; });
+  let __portraitIdx=0;
+  lines.forEach(line=>{ const lw=line.split(' '); drawWordLine(g,lw,baseX,ty,__portraitIdx); __portraitIdx+=lw.length; ty+=lineGap; });
 
   /* mention discrète */
   g.fillStyle='rgba(237,220,178,0.6)'; g.font="26px 'Saira Condensed'"; g.textBaseline='middle'; g.textAlign='left';
@@ -1150,17 +1164,19 @@ function drawCTA(W,H,s){
   const lh=tSize*0.94;
   g.font=tSize+"px 'Anton'"; g.textBaseline='alphabetic'; g.textAlign='center';
   const ty1=tagY+tagH+tSize+30, ty2=ty1+lh;
-  const drawCenterLine=(words2,y)=>{
-    /* gère le mot-clé coloré au centre */
+  const useIdxCta = state.greenWordIndices instanceof Set;
+  const drawCenterLine=(words2,y,baseIndex)=>{
+    /* gère le mot-clé coloré au centre (accent par position si dispo,
+       sinon repli texte — cf. drawWordLine) */
     const full=words2.join(' '); const totalW=g.measureText(full).width; let x=cx-totalW/2;
     const space=g.measureText(' ').width;
     g.textAlign='left';
-    words2.forEach(w=>{ const acc=state.greenWords.has(w);
+    words2.forEach((w,i)=>{ const acc=useIdxCta?state.greenWordIndices.has(baseIndex+i):state.greenWords.has(w);
       g.fillStyle=acc?s.sig:C.encre; g.fillText(w,x,y); x+=g.measureText(w).width+space; });
     g.textAlign='center';
   };
-  drawCenterLine(l1,ty1);
-  if(l2.length) drawCenterLine(l2,ty2);
+  drawCenterLine(l1,ty1,0);
+  if(l2.length) drawCenterLine(l2,ty2,l1.length);
 
   /* sous-titre encre centré */
   g.fillStyle=C.encre; g.font="40px 'Archivo'"; g.textAlign='center'; g.textBaseline='alphabetic';
@@ -1424,24 +1440,36 @@ function pad2(n){ return String(n).padStart(2,'0'); }
 
 /* mots entre **doubles étoiles** dans un titre → mot-clé coloré (state.greenWords),
    même convention que **gras** déjà supportée dans body/quote */
+/* mots entre **doubles étoiles** → indices (POSITION dans le titre, pas le
+   texte) des mots à encadrer — chaque occurrence est indépendante : si "le"
+   apparaît 3 fois et qu'un seul est balisé **le**, seul celui-là s'encadre.
+   Découpe le texte en segments (hors/dans **...**) puis reconstruit le
+   titre mot par mot pour connaître la position exacte de chaque mot balisé. */
 function extractGreenWords(rawTitle){
-  const green = new Set();
-  const clean = String(rawTitle).replace(/\*\*(.+?)\*\*/g, (m,g1)=>{
-    g1.trim().split(/\s+/).forEach(w=>green.add(w.toUpperCase()));
-    return g1;
+  const parts = String(rawTitle).split(/\*\*(.+?)\*\*/g);
+  const indices = new Set();
+  const words = [];
+  parts.forEach((part,i)=>{
+    if(!part) return;
+    const isBold = (i%2===1);
+    part.trim().split(/\s+/).filter(Boolean).forEach(w=>{
+      if(isBold) indices.add(words.length);
+      words.push(w);
+    });
   });
-  return {clean, green};
+  return {clean: words.join(' '), indices};
 }
 
 /* choix automatique du mot-clé encadré quand le titre ne contient pas de
    **balisage** explicite : les 2 derniers mots (tout le titre si ≤2 mots) —
-   split identique à celui utilisé au rendu (drawWordLine), pour que le Set
-   corresponde exactement aux tokens réellement dessinés */
+   par position, cohérent avec extractGreenWords */
 function autoGreenWords(cleanTitle){
   const words = String(cleanTitle).trim().split(/\s+/).filter(Boolean);
-  if(!words.length) return new Set();
+  const indices = new Set();
+  if(!words.length) return indices;
   const n = words.length<=2 ? words.length : 2;
-  return new Set(words.slice(-n).map(w=>w.toUpperCase()));
+  for(let i=words.length-n;i<words.length;i++) indices.add(i);
+  return indices;
 }
 
 function escapeHtml(s){
@@ -1461,15 +1489,15 @@ function parseBatchScript(text){
     const m = lines[idx].match(/^\s*(Slide\s+\d+|CTA)\s*[—\-]\s*(.+?)\s*$/i);
     if(!m) return;
     const isCta = /^CTA/i.test(m[1]);
-    const {clean, green} = extractGreenWords(m[2]);
+    const {clean, indices} = extractGreenWords(m[2]);
     const body = lines.slice(idx+1).join('\n').trim();
     if(isCta){
       /* pas d'auto-encadré sur le CTA : dans les posts réels il est
          souvent sans mot-clé coloré (Les oubliés, Portraits) — ne
          s'applique que si explicitement balisé **ainsi** */
-      cta = {title:clean, body, greenWords:green};
+      cta = {title:clean, body, greenIndices:indices};
     } else {
-      slides.push({title:clean, body, greenWords: green.size?green:autoGreenWords(clean), img:null});
+      slides.push({title:clean, body, greenIndices: indices.size?indices:autoGreenWords(clean), img:null});
     }
   });
   return {slides, cta};
@@ -1548,25 +1576,72 @@ function forceDownloadBlob(blob,filename){
   setTimeout(()=>{ try{URL.revokeObjectURL(url);}catch(e){} },4000);
 }
 
-/* rendu + export sans passer par le partage natif (déclencherait une boîte de
-   dialogue à chaque slide en boucle) — téléchargement direct systématique */
-function renderAndDownload(filename){
+/* rendu vers un Blob PNG, sans télécharger (le batch regroupe tout dans un
+   seul ZIP à la fin plutôt que de déclencher un téléchargement par slide) */
+function renderToPngBlob(){
   return new Promise(resolve=>{
     const wasSafe=state.safeOn; state.safeOn=false;
     draw();
     cv.toBlob(blob=>{
       state.safeOn=wasSafe; draw();
-      if(!blob){ resolve(false); return; }
-      forceDownloadBlob(blob,filename);
-      resolve(true);
+      resolve(blob);
     },'image/png');
   });
+}
+
+/* ===== mini writer ZIP (méthode STORE, sans compression — les PNG sont déjà
+   compressés, DEFLATE n'apporterait rien) — évite une dépendance externe pour
+   juste regrouper des fichiers dans une seule archive téléchargeable */
+function crc32(bytes){
+  let c, crc=0xFFFFFFFF;
+  for(let i=0;i<bytes.length;i++){
+    c=(crc^bytes[i])&0xFF;
+    for(let j=0;j<8;j++) c=(c&1)?(0xEDB88320^(c>>>1)):(c>>>1);
+    crc=(crc>>>8)^c;
+  }
+  return (crc^0xFFFFFFFF)>>>0;
+}
+function buildZip(files){
+  const enc=new TextEncoder();
+  const localChunks=[], centralChunks=[];
+  let offset=0;
+  const now=new Date();
+  const dosTime=((now.getHours()<<11)|(now.getMinutes()<<5)|(now.getSeconds()>>1))&0xFFFF;
+  const dosDate=(((now.getFullYear()-1980)<<9)|((now.getMonth()+1)<<5)|now.getDate())&0xFFFF;
+  files.forEach(f=>{
+    const nameBytes=enc.encode(f.name), data=f.data, crc=crc32(data);
+    const lh=new Uint8Array(30+nameBytes.length), ldv=new DataView(lh.buffer);
+    ldv.setUint32(0,0x04034b50,true); ldv.setUint16(4,20,true); ldv.setUint16(6,0,true);
+    ldv.setUint16(8,0,true); ldv.setUint16(10,dosTime,true); ldv.setUint16(12,dosDate,true);
+    ldv.setUint32(14,crc,true); ldv.setUint32(18,data.length,true); ldv.setUint32(22,data.length,true);
+    ldv.setUint16(26,nameBytes.length,true); ldv.setUint16(28,0,true);
+    lh.set(nameBytes,30);
+    localChunks.push(lh,data);
+
+    const ch=new Uint8Array(46+nameBytes.length), cdv=new DataView(ch.buffer);
+    cdv.setUint32(0,0x02014b50,true); cdv.setUint16(4,20,true); cdv.setUint16(6,20,true);
+    cdv.setUint16(8,0,true); cdv.setUint16(10,0,true); cdv.setUint16(12,dosTime,true); cdv.setUint16(14,dosDate,true);
+    cdv.setUint32(16,crc,true); cdv.setUint32(20,data.length,true); cdv.setUint32(24,data.length,true);
+    cdv.setUint16(28,nameBytes.length,true); cdv.setUint16(30,0,true); cdv.setUint16(32,0,true);
+    cdv.setUint16(34,0,true); cdv.setUint16(36,0,true); cdv.setUint32(38,0,true); cdv.setUint32(42,offset,true);
+    ch.set(nameBytes,46);
+    centralChunks.push(ch);
+
+    offset += lh.length + data.length;
+  });
+  const centralOffset=offset, centralSize=centralChunks.reduce((s,c)=>s+c.length,0);
+  const end=new Uint8Array(22), edv=new DataView(end.buffer);
+  edv.setUint32(0,0x06054b50,true); edv.setUint16(4,0,true); edv.setUint16(6,0,true);
+  edv.setUint16(8,files.length,true); edv.setUint16(10,files.length,true);
+  edv.setUint32(12,centralSize,true); edv.setUint32(16,centralOffset,true); edv.setUint16(20,0,true);
+  return new Blob([...localChunks, ...centralChunks, end], {type:'application/zip'});
 }
 
 function applyBatchSlideState(sl,i,total,isFirst){
   state.template = isFirst ? 'titre' : 'cover';
   state.title = sl.title;
-  state.greenWords = new Set(sl.greenWords);
+  state.greenWordIndices = new Set(sl.greenIndices);
+  state.greenWords = new Set();
   state.body = isFirst ? '' : sl.body;
   state.img = sl.img||null; state.isVideo=false;
   state.cur = pad2(i+1); state.tot = pad2(total);
@@ -1586,7 +1661,16 @@ function applyBatchCtaState(ctaData){
   /* convention observée sur les 3 séries : le libellé du CTA porte le nom
      de la série ("LES OUBLIÉS", "PORTRAITS"…), pas "ENREGISTRE" */
   state.btnlabel=ctaData.btnlabel||SERIES[state.serie].label;
-  state.greenWords=new Set(ctaData.greenWords||[]);
+  /* CTA du script (batch, dynamique) → accent par position ; CTA fixe
+     enregistré (édition manuelle du template CTA) → accent par texte,
+     comme le reste de l'éditeur manuel */
+  if(ctaData.greenIndices){
+    state.greenWordIndices = new Set(ctaData.greenIndices);
+    state.greenWords = new Set();
+  } else {
+    state.greenWordIndices = null;
+    state.greenWords = new Set(ctaData.greenWords||[]);
+  }
   state.img=null; state.isVideo=false;
 }
 
@@ -1603,16 +1687,23 @@ async function batchExportAll(){
   }
   btn.disabled=true;
   const total = batchSlides.length+1;
+  const files = [];
   for(let i=0;i<batchSlides.length;i++){
     progress.textContent = 'Génération '+(i+1)+'/'+total+'…';
     applyBatchSlideState(batchSlides[i],i,total,i===0);
-    await renderAndDownload('unedeux-'+state.serie+'-'+state.cur+'.png');
-    await sleep(220);
+    const blob = await renderToPngBlob();
+    if(blob) files.push({name:'unedeux-'+state.serie+'-'+state.cur+'.png', data:new Uint8Array(await blob.arrayBuffer())});
+    await sleep(30);
   }
   progress.textContent = 'Génération '+total+'/'+total+' (CTA)…';
   applyBatchCtaState(ctaData);
-  await renderAndDownload('unedeux-'+state.serie+'-'+pad2(total)+'-cta.png');
-  progress.textContent = total+' PNG générées et téléchargées.';
+  const ctaBlob = await renderToPngBlob();
+  if(ctaBlob) files.push({name:'unedeux-'+state.serie+'-'+pad2(total)+'-cta.png', data:new Uint8Array(await ctaBlob.arrayBuffer())});
+
+  progress.textContent = 'Assemblage du ZIP…';
+  const zipBlob = buildZip(files);
+  forceDownloadBlob(zipBlob, 'unedeux-'+state.serie+'.zip');
+  progress.textContent = files.length+' PNG regroupées dans un seul ZIP téléchargé.';
   btn.disabled=false;
   draw();
 }
