@@ -20,17 +20,20 @@ format `LIEN DRIVE: … / DATE DU POST: … / VARIANTE: … / NOTES: …`) — u
 page statique ne peut pas appeler Claude Code directement, l'email est le
 pont.
 
-Une **Routine** ("Lanceur reels Ce jour-là", trig_01GLuTTF7yfddRXnLRzvkm1U)
-tourne toutes les heures (limite technique — pas de déclenchement
-instantané), liée à cette session (pas de session fraîche : les connecteurs
-Gmail ne sont pas transmissibles aux sessions fraîches sur cette org). Elle
-cherche un brouillon/thread Gmail `subject:LANCER REEL` non marqué
+Une **Routine** ("Lanceur reels Ce jour-là", trig_01CJMco7Azm8WwCSEpM8dhvX)
+tourne une fois par jour à 14h heure de Paris (créée via l'interface Routines
+de claude.ai, connecteurs Gmail + Google Drive attachés explicitement — la
+création via l'outil `create_trigger` en session échoue silencieusement sur
+les connecteurs pour cette organisation, toujours passer par l'interface web
+pour ce genre de Routine). Liée à une session existante (pas une session
+fraîche : le connecteur Gmail ne s'y transmet pas de façon fiable sur cette
+org). Elle cherche un brouillon/thread Gmail `subject:LANCER REEL` non marqué
 `[TRAITÉ]`/label `reel-traite`, construit le reel selon la recette figée de
 ce fichier, livre, committe/pousse, puis marque la demande traitée. Si rien
 n'est en attente, elle ne fait rien.
 
 Pour un montage immédiat, demander directement dans le chat reste plus
-rapide (pas d'attente horaire) — le lanceur sert pour poser une demande à
+rapide (pas d'attente jusqu'à 14h) — le lanceur sert pour poser une demande à
 traiter en tâche de fond.
 
 ## Recette figée — intro d'un reel une·deux (fond plein cadre, sans texte)
