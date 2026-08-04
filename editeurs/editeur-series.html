@@ -1506,6 +1506,51 @@ function drawPhotoPanel(g,x,y,w,h,s){
   g.restore();
 }
 
+/* photo (cover-crop + filtre de série), rendue sur un canvas hors-écran isolé
+   de la taille de la boîte demandée — brique de base du texte « rempli »
+   par la photo (titre XXL, cf. drawPhotoFilledText) */
+function buildPhotoTile(w,h,s){
+  const off=document.createElement('canvas');
+  off.width=Math.max(1,Math.round(w)); off.height=Math.max(1,Math.round(h));
+  const og=off.getContext('2d');
+  if(state.img){
+    const img=state.img, ir=mediaW(img)/mediaH(img), cr=w/h; let dw,dh;
+    if(ir>cr){dh=h*state.zoom;dw=dh*ir;}else{dw=w*state.zoom;dh=dw/ir;}
+    og.drawImage(img,(w-dw)*state.posx,(h-dh)*state.posy,dw,dh);
+    applyPhotoFilter(og,w,h,s.photo);
+  } else {
+    const lg=og.createLinearGradient(0,0,0,h);
+    lg.addColorStop(0,'#3a332c'); lg.addColorStop(1,'#161310');
+    og.fillStyle=lg; og.fillRect(0,0,w,h);
+  }
+  return off;
+}
+
+/* texte « rempli » par la photo — la photo (avec son virage de série) n'est
+   visible qu'à travers les lettres, comme un cache-découpe (knockout text).
+   paintFn(g) doit peindre les glyphes en plein (n'importe quelle couleur
+   opaque) dans le repère du canvas principal ; le composite source-in ne
+   garde ensuite que la photo là où ces pixels étaient opaques. Utilisé pour
+   le titre XXL quand une photo est chargée (sinon, l'appelant garde un
+   remplissage couleur classique) — cf. réf. « ON L'A EFFACÉ » où le titre
+   est rempli par le portrait plutôt qu'en aplat de couleur. */
+function drawPhotoFilledText(g,paintFn,boxX,boxY,boxW,boxH,s){
+  /* le composite source-in doit rester isolé sur un canvas hors-écran dédié :
+     appliqué directement sur le canvas principal, il efface (Porter-Duff)
+     TOUT le reste du canvas là où la nouvelle source est transparente — pas
+     seulement en dehors du rectangle dessiné — donc ferait disparaître le
+     header/fond déjà peints. On construit le résultat à part, puis on le
+     replaque au-dessus en composite normal (source-over, non destructif). */
+  const off=document.createElement('canvas');
+  off.width=g.canvas.width; off.height=g.canvas.height;
+  const og=off.getContext('2d');
+  paintFn(og);
+  og.globalCompositeOperation='source-in';
+  const tile=buildPhotoTile(boxW,boxH,s);
+  og.drawImage(tile,boxX,boxY,boxW,boxH);
+  g.drawImage(off,0,0);
+}
+
 /* une ligne de texte italique (Archivo), avec **gras** supporté — utilisée
    pour le chapô des templates témoin/duo */
 function drawItalicLine(g,line,x,y,fontPx,color){
@@ -1673,8 +1718,12 @@ function drawEnqueteTemoin(W,H,s){
   const photoBottom=Math.round(H*0.60);
   drawPhotoPanel(g,photoX,panelTop,photoW,photoBottom-panelTop,s);
 
-  /* titre 2 lignes — 1ère en encre, 2e pleine couleur signature */
-  const titleMaxW=photoX-M-28;
+  /* titre 2 lignes — 1ère en encre, 2e pleine couleur signature. Pas de
+     marge réservée avant la photo (référence « LE DERNIER TÉMOIN ») : le
+     titre est ajusté pour occuper tout l'espace jusqu'au bord de la photo,
+     quitte à le frôler/légèrement chevaucher — dessiné après la photo (cf.
+     drawPhotoPanel plus haut), il reste donc lisible par-dessus. */
+  const titleMaxW=photoX-M;
   const words=state.title.trim().split(/\s+/).filter(Boolean);
   const [l1,l2]=splitTitleTwoLines(words);
   let tSize=88; g.font=tSize+"px 'Anton'";
@@ -1766,8 +1815,12 @@ function drawEnqueteDuo(W,H,s){
 
   const colX=M+photoW+32, colW=rightEdge-colX;
 
-  /* titre auto-wrappé dans la colonne — la ligne médiane (ou la dernière si
-     2 lignes) ressort en pleine couleur signature */
+  /* titre : bleed volontaire par-dessus la photo (référence « QUI A TUÉ
+     SINDELAR ? » — le titre déborde largement sur le portrait, dessiné
+     après lui donc lisible par-dessus), pas confiné à la colonne droite
+     comme le chapô/corps ci-dessous. Ancré nettement à l'intérieur de la
+     photo plutôt qu'à son bord. */
+  const titleX=M+Math.round(photoW*0.42), titleW=rightEdge-titleX;
   const words=state.title.trim().split(/\s+/).filter(Boolean);
   let tSize=76;
   function wrapTitle(size){
@@ -1775,7 +1828,7 @@ function drawEnqueteDuo(W,H,s){
     const lines=[]; let cur=[];
     words.forEach(w=>{
       const test=cur.concat([w]).join(' ').toUpperCase();
-      if(cur.length && g.measureText(test).width>colW){ lines.push(cur); cur=[w]; } else cur.push(w);
+      if(cur.length && g.measureText(test).width>titleW){ lines.push(cur); cur=[w]; } else cur.push(w);
     });
     if(cur.length) lines.push(cur);
     return lines;
@@ -1788,7 +1841,7 @@ function drawEnqueteDuo(W,H,s){
   let ty=panelTop+tSize;
   tLines.forEach((lw,i)=>{
     g.fillStyle = (i===accentIdx) ? s.sig : C.encre;
-    g.fillText(lw.join(' ').toUpperCase(), colX, ty);
+    g.fillText(lw.join(' ').toUpperCase(), titleX, ty);
     ty+=lh;
   });
 
@@ -1856,7 +1909,13 @@ function drawEnqueteTitre(W,H,s){
   const photoBottom=Math.round(H*0.66);
   drawPhotoPanel(g,photoX,panelTop,photoW,photoBottom-panelTop,s);
 
-  /* titre XXL en rouille estompée — 2 lignes max, ajusté à la colonne gauche */
+  /* titre XXL — 2 lignes max, ajusté à la colonne gauche (marge réservée
+     avant la photo conservée ici : contrairement à « témoin »/« duo photo »,
+     le titre ne déborde pas sur le cadre photo dans cette référence). Rempli
+     par la photo elle-même quand une photo est chargée (knockout text, cf.
+     drawPhotoFilledText) — référence « ON L'A EFFACÉ » où le titre prend
+     exactement la teinte/texture du portrait plutôt qu'un aplat de couleur.
+     Sans photo, repli sur un aplat rouille estompé. */
   const titleMaxW=photoX-M-28;
   const words=state.title.trim().split(/\s+/).filter(Boolean);
   const [l1,l2]=splitTitleTwoLines(words);
@@ -1866,11 +1925,23 @@ function drawEnqueteTitre(W,H,s){
   tSize=Math.max(52,Math.min(136,tSize));
   const lh=tSize*0.92;
   g.font=tSize+"px 'Anton'"; g.textBaseline='alphabetic'; g.textAlign='left';
-  g.fillStyle='rgba(168,69,43,0.65)';
   const ty1=panelTop+tSize;
-  g.fillText(l1.join(' ').toUpperCase(),M,ty1);
-  let titleBottom=ty1;
-  if(l2.length){ const ty2=ty1+lh; g.fillText(l2.join(' ').toUpperCase(),M,ty2); titleBottom=ty2; }
+  let titleBottom=ty1, ty2=null;
+  if(l2.length){ ty2=ty1+lh; titleBottom=ty2; }
+  /* trace les glyphes seuls — la couleur passée n'importe que pour le repli
+     sans photo : pour le masque (drawPhotoFilledText), seule l'opacité
+     compte, la couleur réelle vient ensuite de la photo composée par-dessus */
+  const paintTitle=(gg,color)=>{
+    gg.font=tSize+"px 'Anton'"; gg.textBaseline='alphabetic'; gg.textAlign='left'; gg.fillStyle=color;
+    gg.fillText(l1.join(' ').toUpperCase(),M,ty1);
+    if(ty2!=null) gg.fillText(l2.join(' ').toUpperCase(),M,ty2);
+  };
+  if(state.img){
+    const boxY=ty1-tSize*0.85, boxH=(titleBottom-boxY)+tSize*0.25;
+    drawPhotoFilledText(g,gg=>paintTitle(gg,'#000'),M,boxY,titleMaxW,boxH,s);
+  } else {
+    paintTitle(g,'rgba(168,69,43,0.65)');
+  }
 
   /* byline + filet, sous le plus bas de {titre, photo} */
   const blockTop=Math.max(titleBottom+50, photoBottom+50);
