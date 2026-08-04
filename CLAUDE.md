@@ -98,11 +98,26 @@ Les vidéos fournies jusqu'ici sont horizontales (~16:9, ratio ≈1.77), avec ou
 sans métadonnée de rotation trompeuse — se fier à l'image extraite, pas
 seulement aux nombres.
 
-### 1bis. Sélection des plans (montage multi-plans)
+### 1bis. Vidéo intégrale par défaut — sélection de plans seulement si nécessaire
 
-Règles figées, validées par Thomas sur `cejourla-25juillet-reel` — à
-appliquer par défaut dès que le reel est un montage découpé (plusieurs
-segments coupés dans une vidéo source, cf. §2bis/§8), sauf demande contraire :
+**Par défaut, garder la vidéo source intégrale, sans découpage ni
+sélection de plans** : composite + overlays (titre puis corps) appliqués
+à toute la vidéo, du début à la fin, durée inchangée. Les vidéos fournies
+par Thomas sont en général déjà des montages propres (highlights, pas du
+brut de captation) — il n'y a rien à curer.
+
+Erreur commise sur `4aout-mexique-bresil` (Copa Confederaciones 1999,
+routine du 3 août 2026) : une sélection de "6 meilleurs plans ≥3.5s" a
+été appliquée à tort à une vidéo déjà montée, livrant 37s au lieu des
+~50s réels de la source. Corrigée après retour explicite de Thomas :
+« GARDE LA VIDÉO DU DRIVE TELQUEL ». C'est la consigne par défaut.
+
+**Ne sélectionner/curer des plans que si** : Thomas le demande
+explicitement pour ce reel précis, OU la source est manifestement du
+brut mélangé à des cartons graphiques/infographie qu'il faut exclure
+(repérable par contact-sheets ffmpeg à différentes fenêtres/grilles).
+Dans ce cas seulement, appliquer les règles ci-dessous (validées par
+Thomas sur `cejourla-25juillet-reel`) :
 
 - **Aucun plan de moins de 3.5s.** Repérer des fenêtres source d'au moins
   ~3.5-4s par segment ; ne jamais garder un plan de 1-2s même si le contenu
@@ -182,6 +197,23 @@ haut de la zone de texte (§4), plein cadre horizontalement. Réglages figés
   source zoomée, cover-crop classique : facteur = max(target_w/src_w,
   target_h/src_h))
 
+**Un seul composite pour toute la vidéo, pas de split intro/corps à
+géométries différentes.** Pour un reel complet (titre animé + corps),
+appliquer CETTE géométrie (y=420, bande 888px, zoom ×1.25 si besoin)
+en un seul passage ffmpeg sur la vidéo entière, du début à la fin — y
+compris sous le titre animé. Ne PAS composer l'intro séparément avec
+la géométrie §2 (plein canvas, y=655) puis le corps avec §2bis : le
+plan net ne démarre alors pas à la même hauteur dans les deux
+composites, décalage de cadrage visible à la coupe titre→texte (bug
+identifié par Thomas sur `4aout-mexique-bresil` via une capture
+annotée comparant les deux frames — corps net dès juste sous le
+header, intro net nettement plus bas). Un seul fichier vidéo continu,
+un seul `<video>` dans la composition ; seuls les overlays de texte
+(titre puis corps) changent dans le temps, jamais le cadrage vidéo.
+Le §2 (plein canvas, sans texte en dessous) reste réservé au cas
+« intro seule, sans habillage » livrée en autonome (voir tout en haut
+de ce fichier) — jamais mélangé dans le même reel qu'un §2bis.
+
 ### 3. Header — repris à l'identique de `editeurs/editeur-series.html`
 
 Valeurs pixel exactes (ratio 9:16, série `cejourla`), à ne jamais
@@ -203,6 +235,26 @@ approximer — ce sont les vraies constantes de l'éditeur de série :
 
 Ne PAS ajouter de dégradé d'assombrissement en bas du cadre (`scrim-bottom`)
 — règle permanente pour ce format, sauf demande contraire explicite.
+
+**Compensation couleur ocre pour le rendu vidéo.** Le pipeline de render
+HyperFrames (capture écran → encodage vidéo H.264) décale légèrement les
+couleurs : `var(--ocre)` (#C2A04E) ressort mesuré ~(197,156,73) dans une
+vidéo rendue au lieu de (194,160,78) CSS — confirmé par pixel-sampling
+sur un rendu réel et par un test isolé (composition minimale, aplat de
+couleur seul). Pour tout élément dont l'ocre doit apparaître correct
+DANS LA VIDÉO RENDUE (`.tag`, `.kw-box` du titre, mots-clés `b.ocre` du
+corps), déclarer et utiliser une variable locale compensée dans la
+composition :
+```css
+:root { --ocre-render: #B9A456; }  /* rend ~(186,160,79) en vidéo — quasi
+                                       pixel-exact sur la référence de Thomas */
+```
+au lieu de `var(--ocre)` directement sur ces éléments. **Ne pas modifier
+`tokens/colors.css`** — le token `--ocre` doit rester fidèle à
+`editeur-series.html` (l'éditeur web n'a pas ce problème, propre au
+pipeline de render vidéo) ; `--ocre-render` est une compensation locale
+à déclarer dans chaque composition qui a besoin d'ocre à l'écran dans un
+rendu final.
 
 ### 4. Texte — corps du post, animé, découpé en unités de sens
 
