@@ -504,7 +504,23 @@ composite, sans header ni texte) — le seul livrable valide est le fichier
 issu de `npm run render` (dans `renders/`) **après concat du CTA**. Si le
 render n'a pas tourné ou a échoué, ne rien livrer et signaler le blocage.
 
-Si le rendu final dépasse 30 Mo (limite `SendUserFile`), recompresser :
+**Livraison : dépôt sur Google Drive, pas `SendUserFile`.** Tous les
+reels finis vont dans le dossier Drive dédié
+`https://drive.google.com/drive/folders/1Dcvt6NhjzG5AjW2rSBxu4nV-SFoTXX6G`
+("Ce jour là…"), dans un **sous-dossier au nom du jour du reel**, format
+`MM/JJ` (ex. `08/05`) — c'est la convention déjà en usage dans ce dossier
+(les sources vidéo de Thomas y arrivent déjà sous ce nom). Avant de créer
+le sous-dossier, vérifier s'il existe déjà (`search_files`, requête
+`parentId = '1Dcvt6NhjzG5AjW2rSBxu4nV-SFoTXX6G' and title = 'MM/JJ'`) —
+le réutiliser si oui (il peut déjà contenir la vidéo source), sinon le
+créer (`create_file`, `mimeType: application/vnd.google-apps.folder`,
+`parentId` = l'ID du dossier "Ce jour là…"). Puis uploader le fichier
+final dans ce sous-dossier (`create_file`, `parentId` = l'ID du
+sous-dossier du jour, `contentMimeType: video/mp4`,
+`disableConversionToGoogleType: true`, contenu en base64).
+
+Si l'upload échoue ou que le fichier est trop volumineux, recompresser
+avant de réessayer plutôt que d'abandonner silencieusement :
 ```bash
 ffmpeg -y -i reel-final.mp4 -c:v libx264 -crf 25-26 -preset medium -pix_fmt yuv420p -c:a aac -b:a 128k compressed.mp4
 ```
