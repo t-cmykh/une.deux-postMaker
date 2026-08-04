@@ -19,10 +19,12 @@
          flouté/désaturé + plan net recentré verticalement sur tout le
          canvas (overlay y=656 — §2 CLAUDE.md). corps = tout le reste de
          la vidéo (4.0s → fin), composite fond plein cadre + plan net
-         1080×888 plein cadre horizontal (y=420 — §2bis CLAUDE.md) ;
-         source zoomée ×1.25 avant crop pour exclure le bandeau
-         scoreboard/watermark d'origine (MLSMX) ; mutés, son porté par
-         des <audio> séparés */
+         1080×888 plein cadre horizontal (y=420 — §2bis CLAUDE.md).
+         Le même zoom ×1.25 + crop centré est appliqué à la source AVANT
+         composite pour l'intro ET le corps (exclut le bandeau/watermark
+         MLSMX d'origine) — sans ça le plan net de l'intro ressortait à
+         une échelle différente de celui du corps, décalage visible à la
+         coupe. Mutés, son porté par des <audio> séparés */
       .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
 
       /* header — constantes fixes de la série, persistant du début à la
