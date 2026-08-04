@@ -14,17 +14,17 @@
       #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
 
       /* vidéo du Drive gardée intégralement, telle quelle (pas de montage
-         multi-plans / sélection de plans) — juste composite + overlays.
-         intro = 0-4.0s (durée pilotée par le titre), fond plein cadre
-         flouté/désaturé + plan net recentré verticalement sur tout le
-         canvas (overlay y=656 — §2 CLAUDE.md). corps = tout le reste de
-         la vidéo (4.0s → fin), composite fond plein cadre + plan net
-         1080×888 plein cadre horizontal (y=420 — §2bis CLAUDE.md).
-         Le même zoom ×1.25 + crop centré est appliqué à la source AVANT
-         composite pour l'intro ET le corps (exclut le bandeau/watermark
-         MLSMX d'origine) — sans ça le plan net de l'intro ressortait à
-         une échelle différente de celui du corps, décalage visible à la
-         coupe. Mutés, son porté par des <audio> séparés */
+         multi-plans / sélection de plans) — un seul composite continu du
+         début à la fin (0 → 49.77s), même géométrie sur toute la durée :
+         fond plein cadre flouté/désaturé + plan net 1080×888 plein cadre
+         horizontal (overlay y=420 — §2bis CLAUDE.md), zoom ×1.25 + crop
+         centré appliqué à la source avant composite (exclut le
+         bandeau/watermark MLSMX d'origine). Un seul fichier vidéo pour
+         intro+corps (pas de split en deux composites à géométrie
+         différente) : évite tout décalage de cadrage/hauteur à la coupe
+         titre→texte — le plan net démarre au même y=420 dès la première
+         image. Muté, son porté par un <audio> séparé qui ne démarre
+         qu'à la fin du titre (la vidéo, elle, joue en continu) */
       .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
 
       /* header — constantes fixes de la série, persistant du début à la
@@ -92,15 +92,12 @@
       data-duration="49.77"
       data-fps="30"
     >
-      <!-- intro : 4.0s, littéralement les 4 premières secondes de la vidéo
-           du Drive (pas de sélection de plan), muet -->
-      <video class="video-full" id="introv" src="assets/intro.mp4" data-start="0.0000" data-duration="4.0000" data-track-index="1" muted playsinline></video>
+      <!-- vidéo du Drive intégrale, un seul plan continu du début à la fin,
+           composite identique sur toute la durée (pas de split intro/corps
+           côté vidéo — seuls les overlays de texte changent) -->
+      <video class="video-full" id="fullv" src="assets/full.mp4" data-start="0.0000" data-duration="49.7667" data-track-index="1" muted playsinline></video>
 
-      <!-- corps : tout le reste de la vidéo du Drive, intégralement,
-           en un seul plan continu (aucun montage/sélection) -->
-      <video class="video-full" id="corpsv" src="assets/corps.mp4" data-start="4.0000" data-duration="45.7667" data-track-index="1" muted playsinline></video>
-
-      <audio id="corpsa" src="assets/corps-audio.m4a" data-start="4.0000" data-duration="45.70" data-track-index="20"></audio>
+      <audio id="corpsa" src="assets/full-audio.m4a" data-start="4.0000" data-duration="45.70" data-track-index="20"></audio>
 
       <div id="hdr">
         <div class="ring">1·2</div>
