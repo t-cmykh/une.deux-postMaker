@@ -1551,6 +1551,48 @@ function drawPhotoFilledText(g,paintFn,boxX,boxY,boxW,boxH,s){
   g.drawImage(off,0,0);
 }
 
+/* rend la photo UNE SEULE FOIS, cover-croppée sur le canvas entier (mêmes
+   repères x/y que le reste de la composition) — pour que le cadre photo et
+   le titre « rempli » par la photo montrent des fenêtres sur UNE SEULE
+   image continue (référence « ON L'A EFFACÉ » : la photo se prolonge du
+   cadre jusque dans les lettres) plutôt que deux recadrages indépendants
+   qui donneraient l'impression de deux photos différentes. */
+function buildMasterPhoto(W,H,s){
+  const off=document.createElement('canvas');
+  off.width=W; off.height=H;
+  const og=off.getContext('2d');
+  if(state.img){
+    const img=state.img, ir=mediaW(img)/mediaH(img), cr=W/H; let dw,dh;
+    if(ir>cr){dh=H*state.zoom;dw=dh*ir;}else{dw=W*state.zoom;dh=dw/ir;}
+    og.drawImage(img,(W-dw)*state.posx,(H-dh)*state.posy,dw,dh);
+    applyPhotoFilter(og,W,H,s.photo);
+  } else {
+    const lg=og.createLinearGradient(0,0,0,H);
+    lg.addColorStop(0,'#3a332c'); lg.addColorStop(1,'#161310');
+    og.fillStyle=lg; og.fillRect(0,0,W,H);
+  }
+  return off;
+}
+/* découpe une région du master directement à sa position — simple copie de
+   pixels (mêmes repères), donc toujours raccord avec le reste de l'image */
+function blitMasterRegion(g,master,x,y,w,h){
+  g.save(); g.beginPath(); g.rect(x,y,w,h); g.clip();
+  g.drawImage(master,x,y,w,h,x,y,w,h);
+  g.restore();
+}
+/* variante de drawPhotoFilledText qui pioche dans un master déjà construit
+   (au lieu de recadrer indépendamment) — même précaution de composite
+   isolé sur canvas hors-écran, cf. commentaire de drawPhotoFilledText */
+function drawPhotoFilledTextFromMaster(g,paintFn,boxX,boxY,boxW,boxH,master){
+  const off=document.createElement('canvas');
+  off.width=g.canvas.width; off.height=g.canvas.height;
+  const og=off.getContext('2d');
+  paintFn(og);
+  og.globalCompositeOperation='source-in';
+  og.drawImage(master,boxX,boxY,boxW,boxH,boxX,boxY,boxW,boxH);
+  g.drawImage(off,0,0);
+}
+
 /* une ligne de texte italique (Archivo), avec **gras** supporté — utilisée
    pour le chapô des templates témoin/duo */
 function drawItalicLine(g,line,x,y,fontPx,color){
@@ -1629,24 +1671,76 @@ function dropCapParagraph(g,text,x,topY,maxW,maxH,color){
   return y;
 }
 
-/* texte en 2 colonnes (façon presse) : un seul wrap à la largeur de colonne,
-   coupé en 2 à peu près à moitié — utilisé par le template "titre XXL" */
-function drawTwoColumnBody(g,text,x,top,colW,colGap,bottom,color){
-  const sizes=[27,25,23,21,19];
-  let size=sizes[sizes.length-1], lineH=Math.round(size*1.42), lines=[];
-  for(let i=0;i<sizes.length;i++){
-    const sz=sizes[i], lh=Math.round(sz*1.42), ls=wrapAtSize(g,text,colW,sz);
-    const perCol=Math.ceil(ls.length/2);
-    if(perCol*lh<=Math.max(40,bottom-top) || i===sizes.length-1){ size=sz; lineH=lh; lines=ls; break; }
+/* variante de layoutDropCap dont la largeur disponible change en cours de
+   texte : étroite (narrowW) tant qu'on est encore à hauteur de la photo,
+   pleine largeur (fullW) une fois qu'on l'a dépassée — permet au corps de
+   texte de démarrer juste sous le titre XXL, à côté de la photo qui
+   continue à droite, sans jamais empiéter dessus, puis de profiter de
+   toute la largeur dès qu'il en sort. x reste fixe (M) dans les deux cas,
+   seule la largeur change. */
+function layoutFlowAroundImage(g,restText,topY,narrowW,fullW,imageBottomY,capSize,bodySize,lineH){
+  g.font="700 "+capSize+"px 'Archivo'";
+  const capW=g.measureText('M').width, capH=capSize*0.86;
+  const capLines=Math.max(2,Math.round(capH/lineH));
+  const indentW=capW+22;
+
+  const words=restText.split(/\s+/).filter(Boolean);
+  const built=[]; let cur=[]; let i=0; let y=topY;
+  g.font="500 "+bodySize+"px 'Archivo'";
+  while(i<words.length){
+    const lineIdx=built.length;
+    const wide = y>=imageBottomY;
+    let maxW = wide?fullW:narrowW;
+    if(lineIdx<capLines) maxW=Math.max(40,maxW-indentW);
+    const test=cur.concat([words[i]]).join(' ');
+    if(cur.length && g.measureText(stripBold(test)).width>maxW){
+      built.push({words:cur, indented:(lineIdx<capLines)}); cur=[]; y+=lineH;
+    } else { cur.push(words[i]); i++; }
   }
-  /* même à la plus petite taille, un texte trop long doit être tronqué plutôt
-     que déborder sur ce qui suit (footer…) — plafond dur par colonne */
-  const maxPerCol=Math.max(1,Math.floor(Math.max(40,bottom-top)/lineH));
-  let perCol=Math.min(Math.ceil(lines.length/2),maxPerCol);
-  let col1=lines.slice(0,perCol), col2=lines.slice(perCol,perCol*2);
-  g.fillStyle=color; g.textAlign='left'; g.textBaseline='alphabetic';
-  col1.forEach((ln,i)=> drawBodyRich(g,ln,x,top+(i+1)*lineH-lineH*0.25,size));
-  col2.forEach((ln,i)=> drawBodyRich(g,ln,x+colW+colGap,top+(i+1)*lineH-lineH*0.25,size));
+  if(cur.length) built.push({words:cur, indented:(built.length<capLines)});
+  return {lines:built, indentW, capH};
+}
+
+/* paragraphe à lettrine qui épouse la photo : étroit tant qu'il longe la
+   photo (narrowW, typiquement la largeur du titre au-dessus), plein largeur
+   une fois en dessous (fullW) — référence « ON L'A EFFACÉ » où le corps
+   démarre juste sous le titre, à côté de la photo qui continue. Taille
+   adaptative + troncature dure en dernier recours, comme dropCapParagraph. */
+function dropCapFlowAroundImage(g,text,x,topY,narrowW,fullW,imageBottomY,maxBottom,color){
+  const trimmed=String(text).trim();
+  if(!trimmed) return topY;
+  let idx=0;
+  while(trimmed.slice(idx,idx+2)==='**') idx+=2;
+  const capChar=(trimmed[idx]||'').toUpperCase();
+  const restText=trimmed.slice(0,idx)+trimmed.slice(idx+1);
+
+  const sizes=[28,26,24,22,20,18,16];
+  let picked=null;
+  for(let i=0;i<sizes.length;i++){
+    const bodySize=sizes[i], lineH=Math.round(bodySize*1.36), capSize=Math.round(bodySize*2.55);
+    const layout=layoutFlowAroundImage(g,restText,topY,narrowW,fullW,imageBottomY,capSize,bodySize,lineH);
+    const h=bodySize*1.02+(layout.lines.length-1)*lineH;
+    if(topY+h<=maxBottom || i===sizes.length-1){ picked={bodySize,lineH,capSize,layout}; break; }
+  }
+  const {bodySize,lineH,capSize,layout}=picked;
+
+  /* garde-fou dur : même à la plus petite taille, tronquer plutôt que
+     déborder sur le footer */
+  const maxLines=Math.max(1,Math.floor((maxBottom-(topY+bodySize*1.02))/lineH)+1);
+  const lines=layout.lines.slice(0,maxLines);
+
+  g.textAlign='left'; g.textBaseline='alphabetic';
+  g.fillStyle=color; g.font="700 "+capSize+"px 'Archivo'";
+  g.fillText(capChar, x, topY+layout.capH);
+
+  g.font="500 "+bodySize+"px 'Archivo'";
+  let y=topY+bodySize*1.02;
+  lines.forEach(ln=>{
+    const lx = ln.indented ? x+layout.indentW : x;
+    drawBodyRich(g, ln.words.join(' '), lx, y, bodySize);
+    y+=lineH;
+  });
+  return y;
 }
 
 /* découpe le bloc Q&R (⸻ = séparateur, 1ère ligne = question) — jusqu'à 3 blocs */
@@ -1819,10 +1913,13 @@ function drawEnqueteDuo(W,H,s){
      SINDELAR ? » — le titre déborde largement sur le portrait, dessiné
      après lui donc lisible par-dessus), pas confiné à la colonne droite
      comme le chapô/corps ci-dessous. Ancré nettement à l'intérieur de la
-     photo plutôt qu'à son bord. */
+     photo plutôt qu'à son bord. Encre par défaut, mot(s)-clé(s) en couleur
+     de signature — même mécanisme que le sélecteur « Mot-clé coloré » du
+     titre partout ailleurs dans l'éditeur (pas de coloration de ligne
+     entière : sur une seule ligne ça teintait tout le titre à tort). */
   const titleX=M+Math.round(photoW*0.42), titleW=rightEdge-titleX;
   const words=state.title.trim().split(/\s+/).filter(Boolean);
-  let tSize=76;
+  let tSize=104;
   function wrapTitle(size){
     g.font=size+"px 'Anton'";
     const lines=[]; let cur=[];
@@ -1834,15 +1931,23 @@ function drawEnqueteDuo(W,H,s){
     return lines;
   }
   let tLines=wrapTitle(tSize);
-  while(tLines.length>3 && tSize>40){ tSize-=4; tLines=wrapTitle(tSize); }
+  while(tLines.length>3 && tSize>44){ tSize-=4; tLines=wrapTitle(tSize); }
   const lh=tSize*0.96;
   g.textAlign='left'; g.textBaseline='alphabetic'; g.font=tSize+"px 'Anton'";
-  const accentIdx = tLines.length>=3 ? Math.floor(tLines.length/2) : (tLines.length-1);
-  let ty=panelTop+tSize;
-  tLines.forEach((lw,i)=>{
-    g.fillStyle = (i===accentIdx) ? s.sig : C.encre;
-    g.fillText(lw.join(' ').toUpperCase(), titleX, ty);
-    ty+=lh;
+  const useIdx=state.greenWordIndices instanceof Set;
+  const space=g.measureText(' ').width;
+  let ty=panelTop+tSize, baseIdx=0;
+  tLines.forEach(lw=>{
+    let cx=titleX;
+    lw.forEach((w,i)=>{
+      const up=w.toUpperCase();
+      const isAccent = useIdx ? state.greenWordIndices.has(baseIdx+i) : state.greenWords.has(up);
+      g.fillStyle = isAccent ? s.sig : C.encre;
+      g.fillText(up, cx, ty);
+      cx += g.measureText(up).width + space;
+    });
+    baseIdx += lw.length;
+    ty += lh;
   });
 
   /* chapô italique */
@@ -1903,34 +2008,40 @@ function drawEnqueteTitre(W,H,s){
   const showFooter=!isVert && paginationShown();
 
   /* photo encadrée en haut à droite, plus haute que dans "témoin" (le titre
-     XXL prend le pas visuellement, la photo sert de respiration) */
+     XXL prend le pas visuellement, la photo sert de respiration). Rendue à
+     partir d'un master unique (cf. buildMasterPhoto) : le titre, plus loin,
+     pioche dans ce même master pour montrer la continuité d'UNE SEULE photo
+     entre le cadre et les lettres (référence « ON L'A EFFACÉ »). */
   const panelTop=tagY+tagH+30;
   const photoX=Math.round(W*0.5), photoW=rightEdge-photoX;
   const photoBottom=Math.round(H*0.66);
-  drawPhotoPanel(g,photoX,panelTop,photoW,photoBottom-panelTop,s);
+  const master=buildMasterPhoto(W,H,s);
+  blitMasterRegion(g,master,photoX,panelTop,photoW,photoBottom-panelTop);
 
   /* titre XXL — 2 lignes max, ajusté à la colonne gauche (marge réservée
      avant la photo conservée ici : contrairement à « témoin »/« duo photo »,
      le titre ne déborde pas sur le cadre photo dans cette référence). Rempli
-     par la photo elle-même quand une photo est chargée (knockout text, cf.
-     drawPhotoFilledText) — référence « ON L'A EFFACÉ » où le titre prend
-     exactement la teinte/texture du portrait plutôt qu'un aplat de couleur.
-     Sans photo, repli sur un aplat rouille estompé. */
+     par la MÊME photo que le cadre ci-dessus quand une photo est chargée
+     (knockout text, cf. drawPhotoFilledTextFromMaster) — référence « ON L'A
+     EFFACÉ » où le titre prend exactement la teinte/texture du portrait
+     plutôt qu'un aplat de couleur. Sans photo, repli sur un aplat rouille
+     estompé. Taille poussée plus haut (impact visuel maximal recherché). */
   const titleMaxW=photoX-M-28;
   const words=state.title.trim().split(/\s+/).filter(Boolean);
   const [l1,l2]=splitTitleTwoLines(words);
-  let tSize=136; g.font=tSize+"px 'Anton'";
+  let tSize=170; g.font=tSize+"px 'Anton'";
   const longest=Math.max(g.measureText(l1.join(' ').toUpperCase()).width,g.measureText((l2.join(' ')||'').toUpperCase()).width,1);
   if(longest>titleMaxW) tSize=Math.floor(tSize*titleMaxW/longest);
-  tSize=Math.max(52,Math.min(136,tSize));
+  tSize=Math.max(52,Math.min(170,tSize));
   const lh=tSize*0.92;
   g.font=tSize+"px 'Anton'"; g.textBaseline='alphabetic'; g.textAlign='left';
   const ty1=panelTop+tSize;
   let titleBottom=ty1, ty2=null;
   if(l2.length){ ty2=ty1+lh; titleBottom=ty2; }
   /* trace les glyphes seuls — la couleur passée n'importe que pour le repli
-     sans photo : pour le masque (drawPhotoFilledText), seule l'opacité
-     compte, la couleur réelle vient ensuite de la photo composée par-dessus */
+     sans photo : pour le masque (drawPhotoFilledTextFromMaster), seule
+     l'opacité compte, la couleur réelle vient ensuite de la photo composée
+     par-dessus */
   const paintTitle=(gg,color)=>{
     gg.font=tSize+"px 'Anton'"; gg.textBaseline='alphabetic'; gg.textAlign='left'; gg.fillStyle=color;
     gg.fillText(l1.join(' ').toUpperCase(),M,ty1);
@@ -1938,24 +2049,28 @@ function drawEnqueteTitre(W,H,s){
   };
   if(state.img){
     const boxY=ty1-tSize*0.85, boxH=(titleBottom-boxY)+tSize*0.25;
-    drawPhotoFilledText(g,gg=>paintTitle(gg,'#000'),M,boxY,titleMaxW,boxH,s);
+    drawPhotoFilledTextFromMaster(g,gg=>paintTitle(gg,'#000'),M,boxY,titleMaxW,boxH,master);
   } else {
     paintTitle(g,'rgba(168,69,43,0.65)');
   }
 
-  /* byline + filet, sous le plus bas de {titre, photo} */
-  const blockTop=Math.max(titleBottom+50, photoBottom+50);
+  /* byline + filet, juste sous le titre — confinés à sa largeur (pas de
+     filet qui traverserait la photo à droite) */
+  const blockTop=titleBottom+42;
   g.font="600 26px 'Saira Condensed'"; g.fillStyle=s.sig; g.textAlign='left'; g.textBaseline='middle';
   g.fillText((state.byline||'').toUpperCase(), M, blockTop);
   g.strokeStyle='rgba(44,40,35,0.25)'; g.lineWidth=2;
-  g.beginPath(); g.moveTo(M, blockTop+26); g.lineTo(rightEdge, blockTop+26); g.stroke();
+  g.beginPath(); g.moveTo(M, blockTop+22); g.lineTo(M+titleMaxW, blockTop+22); g.stroke();
   g.textBaseline='alphabetic';
 
-  /* corps en 2 colonnes, pleine largeur */
-  const bodyTop=blockTop+56;
+  /* corps de texte dans la zone sous le titre : démarre tout de suite (à
+     côté de la photo qui continue à droite, sans jamais l'atteindre), puis
+     passe en pleine largeur une fois sous la photo — référence « ON L'A
+     EFFACÉ » demandant explicitement du texte dans cette zone plutôt qu'un
+     grand vide sous le titre. */
+  const bodyTop=blockTop+48;
   const bodyBottom=(showFooter?footY-46:H-90)-10;
-  const colGap=48, colW=(rightEdge-M-colGap)/2;
-  drawTwoColumnBody(g,state.body,M,bodyTop,colW,colGap,bodyBottom,C.encre);
+  dropCapFlowAroundImage(g,state.body,M,bodyTop,titleMaxW,rightEdge-M,photoBottom,bodyBottom,C.encre);
 
   if(showFooter){
     if(state.showSwipe){
