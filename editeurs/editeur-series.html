@@ -167,6 +167,7 @@ Corps du CTA."></textarea>
         <div class="chip" data-tpl="corps">COVER · CORPS SEUL</div>
         <div class="chip" data-tpl="citation">CITATION</div>
         <div class="chip" data-tpl="verbatim" id="chip_verbatim" style="display:none">CITATION · INTERVIEW</div>
+        <div class="chip" data-tpl="citation-echo" id="chip_citation_echo" style="display:none">CITATION · ÉCHO</div>
         <div class="chip" data-tpl="enquete-temoin" id="chip_enquete_temoin" style="display:none">ENQUÊTE · TÉMOIN</div>
         <div class="chip" data-tpl="enquete-duo" id="chip_enquete_duo" style="display:none">ENQUÊTE · DUO PHOTO</div>
         <div class="chip" data-tpl="enquete-titre" id="chip_enquete_titre" style="display:none">ENQUÊTE · TITRE XXL</div>
@@ -443,12 +444,15 @@ function selectSerie(key){
   /* template "citation · interview" (duo photo/texte) : réservé à L'arrêt de jeu */
   const chipVerbatim=document.getElementById('chip_verbatim');
   chipVerbatim.style.display = (key==='arretdejeu')?'':'none';
+  /* template "citation · écho" (photo à gauche devant un encadré teracota
+     qui reprend la même photo) : réservé à L'arrêt de jeu */
+  document.getElementById('chip_citation_echo').style.display = (key==='arretdejeu')?'':'none';
   /* templates longform "enquête" (témoin / duo photo / titre XXL) : réservés à L'arrêt de jeu */
   const LONGFORM_TPLS=['enquete-temoin','enquete-duo','enquete-titre'];
   ['chip_enquete_temoin','chip_enquete_duo','chip_enquete_titre'].forEach(id=>{
     document.getElementById(id).style.display = (key==='arretdejeu')?'':'none';
   });
-  if((state.template==='verbatim' || LONGFORM_TPLS.includes(state.template)) && key!=='arretdejeu'){
+  if((state.template==='verbatim' || state.template==='citation-echo' || LONGFORM_TPLS.includes(state.template)) && key!=='arretdejeu'){
     document.querySelector('#tpl_chips [data-tpl="citation"]').click();
   }
   /* apparition ligne par ligne du titre : uniquement Ce jour-là */
@@ -519,7 +523,7 @@ document.querySelectorAll('#tpl_chips .chip').forEach(c=>{
     document.querySelectorAll('#tpl_chips .chip').forEach(x=>x.classList.remove('on'));
     c.classList.add('on'); state.template=c.dataset.tpl;
     document.getElementById('field_btnlabel').style.display = (state.template==='cta')?'block':'none';
-    document.getElementById('field_citation').style.display = (state.template==='citation'||state.template==='verbatim')?'block':'none';
+    document.getElementById('field_citation').style.display = (state.template==='citation'||state.template==='verbatim'||state.template==='citation-echo')?'block':'none';
     document.getElementById('field_body').style.display = (state.template==='titre')?'none':'block';
     document.getElementById('field_titlesize').style.display = (state.template==='titre')?'block':'none';
     document.getElementById('field_titleanim').style.display = (state.template==='titre' && state.serie==='cejourla')?'block':'none';
@@ -535,7 +539,7 @@ document.querySelectorAll('#tpl_chips .chip').forEach(c=>{
     else bodyLabel.textContent='Sous-titre (corps)';
     updateKwPadVisibility();
     setVerbatimLabels(state.template==='verbatim');
-    if(state.template==='citation'||state.template==='verbatim') rebuildQuotePicker();
+    if(state.template==='citation'||state.template==='verbatim'||state.template==='citation-echo') rebuildQuotePicker();
     if(state.template==='titre'){
       state.titleSizeManual = clampTitle();
       const rts=document.getElementById('r_titlesize');
@@ -936,6 +940,10 @@ function draw(){
 
   /* router CITATION · INTERVIEW (duo photo/texte, L'arrêt de jeu) */
   if(state.template==='verbatim'){ drawVerbatim(W,H,s); if(state.safeOn) drawSafeGuides(W,H); return; }
+
+  /* router CITATION · ÉCHO (photo à gauche devant un encadré teracota qui
+     reprend la même photo, L'arrêt de jeu) */
+  if(state.template==='citation-echo'){ drawEnqueteEcho(W,H,s); if(state.safeOn) drawSafeGuides(W,H); return; }
 
   /* router templates longform "enquête" (L'arrêt de jeu) */
   if(state.template==='enquete-temoin'){ drawEnqueteTemoin(W,H,s); if(state.safeOn) drawSafeGuides(W,H); return; }
@@ -2128,6 +2136,139 @@ function drawEnqueteTitre(W,H,s){
     g.textAlign='right'; g.textBaseline='middle'; g.font="60px 'Anton'";
     const totTxt='/'+state.tot; g.fillStyle=C.encre; g.fillText(totTxt,rightEdge,footY);
     const tw=g.measureText(totTxt).width; g.fillStyle=s.sig; g.fillText(state.cur,rightEdge-tw-4,footY);
+  }
+  g.textAlign='left';
+}
+
+/* ===== TEMPLATE CITATION · ÉCHO — photo à gauche devant un encadré teracota
+   qui reprend la même photo (duoton fort), citation à droite. Inspiré d'une
+   réf externe (carte citation avec sujet net posé devant une réplique
+   colorée en fond) adaptée à la charte L'arrêt de jeu : cadre net traité
+   avec le même virage sépia/rouille que le reste de la série, écho
+   nettement plus saturé en teracota derrière pour bien lire les deux
+   couches (net devant, écho qui dépasse en haut). ===== */
+
+/* couche « écho » : la même photo, désaturée puis noyée sous un aplat
+   teracota fort — pas de source-in/knockout ici (les deux rectangles ne se
+   chevauchent pas), juste un cover-crop classique + duoton */
+function drawEchoPanel(g,x,y,w,h,s){
+  g.save(); g.beginPath(); g.rect(x,y,w,h); g.clip(); g.translate(x,y);
+  if(state.img){
+    const img=state.img, ir=mediaW(img)/mediaH(img), cr=w/h; let dw,dh;
+    if(ir>cr){dh=h*state.zoom;dw=dh*ir;}else{dw=w*state.zoom;dh=dw/ir;}
+    g.drawImage(img,(w-dw)*state.posx,(h-dh)*state.posy,dw,dh);
+    g.save(); g.globalCompositeOperation='saturation'; g.fillStyle='hsl(0,0%,50%)'; g.fillRect(0,0,w,h); g.restore();
+    g.fillStyle='rgba(168,69,43,0.74)'; g.fillRect(0,0,w,h);
+  } else {
+    g.fillStyle=s.sig; g.globalAlpha=0.6; g.fillRect(0,0,w,h); g.globalAlpha=1;
+  }
+  g.restore();
+}
+
+function drawEnqueteEcho(W,H,s){
+  const g=ctx, isVert=state.ratio==='9:16';
+  const M=isVert?96:50, MR=isVert?96:120, rightEdge=W-MR;
+
+  g.fillStyle=C.creme; g.fillRect(0,0,W,H);
+  g.save(); g.strokeStyle='rgba(44,40,35,0.05)'; g.lineWidth=2;
+  for(let i=-H;i<W+H;i+=46){ g.beginPath(); g.moveTo(i,0); g.lineTo(i+H,H); g.stroke(); }
+  g.restore();
+
+  const ringD=92, ringC=66+safeTop()+ringD/2;
+  g.strokeStyle=C.encre; g.lineWidth=4;
+  g.beginPath(); g.arc(M+ringD/2,ringC,ringD/2-2,0,Math.PI*2); g.stroke();
+  g.fillStyle=C.encre; g.textBaseline='middle'; g.textAlign='center'; g.font="38px 'Saira Condensed'";
+  g.fillText('1·2',M+ringD/2,ringC+1);
+  g.textAlign='left'; g.font="58px 'Anton'"; g.fillText('une·deux',M+ringD+26,ringC+2);
+  g.textAlign='right'; g.font="32px 'Saira Condensed'"; g.fillStyle=C.encre;
+  g.fillText('@UNE.DEUX',rightEdge,ringC); g.textAlign='left';
+  g.fillStyle=C.encre; g.fillRect(M,168+safeTop(),rightEdge-M,4);
+
+  const tagY=200+safeTop(), tagH=58;
+  g.font="32px 'Saira Condensed'"; g.textBaseline='middle';
+  const nameTxt=s.label.toUpperCase(), nameW=g.measureText(nameTxt).width+30;
+  g.fillStyle=s.sig; g.fillRect(M,tagY,nameW,tagH);
+  g.fillStyle=s.sigTextColor||C.encre; g.fillText(nameTxt,M+15,tagY+tagH/2+1);
+  g.textBaseline='alphabetic'; g.textAlign='left';
+
+  const footY=H-70-safeBottom();
+  const showFooter=!isVert && paginationShown();
+
+  /* --- panneau gauche : écho teracota plein zone, photo nette en premier
+     plan par-dessus, décalée vers le bas pour laisser l'écho dépasser en
+     haut (point important de la réf : le cadre coloré reprend la photo,
+     le sujet net vient devant) --- */
+  const panelTop=tagY+tagH+34;
+  const panelBottom=(showFooter?footY-46:H-90)-6;
+  const panelRight=M+Math.round(W*0.40);
+  drawEchoPanel(g,M,panelTop,panelRight-M,panelBottom-panelTop,s);
+
+  const topInset=100;
+  const fx=M, fy=panelTop+topInset, fw=panelRight-M, fh=panelBottom-fy;
+  drawPhotoPanel(g,fx,fy,fw,fh,s);
+  /* liseré crème : sépare nettement le cadre net de l'écho qui dépasse au-dessus */
+  g.save(); g.strokeStyle=C.creme; g.lineWidth=5; g.strokeRect(fx+2.5,fy+2.5,fw-5,fh-5); g.restore();
+
+  /* --- colonne droite : citation, même moteur que CITATION · INTERVIEW --- */
+  const padX=panelRight+56, rightW=rightEdge-padX;
+  const quoteTop=tagY+tagH+36;
+  const quoteBottom=(showFooter?footY-46:H-70-safeBottom())-34;
+  const maxH=Math.max(60,quoteBottom-quoteTop);
+
+  function layoutRichWords(size){
+    const plainFull=stripBold(state.quote), mask=boldMask(state.quote);
+    g.font="500 "+size+"px 'Archivo'"; const space=g.measureText(' ').width;
+    const lines=[]; let offset=0;
+    plainFull.split('\n').forEach(paraText=>{
+      if(paraText.trim()===''){ lines.push([]); offset+=paraText.length+1; return; }
+      const words=[]; let m, re=/\S+/g;
+      while((m=re.exec(paraText))!==null){
+        const start=offset+m.index;
+        const o={w:m[0], start, bold:mask[start]||false, accent: state.quoteWords.has(m[0].toLowerCase())};
+        words.push(o);
+      }
+      let cur=[]; let curW=0;
+      words.forEach(o=>{
+        g.font=(o.bold?'700 ':'500 ')+size+"px 'Archivo'";
+        const ww=g.measureText(o.w).width;
+        if(curW+ww>rightW && cur.length){ lines.push(cur); cur=[]; curW=0; }
+        cur.push(o); curW+=ww+space;
+      });
+      if(cur.length) lines.push(cur);
+      offset+=paraText.length+1;
+    });
+    return lines;
+  }
+  const sizes=[54,48,42,38,34,30,27];
+  let qSize=sizes[sizes.length-1], qLines=[];
+  for(let i=0;i<sizes.length;i++){
+    const sz=sizes[i], lh=Math.round(sz*1.32), ls=layoutRichWords(sz);
+    if(ls.length*lh<=maxH || i===sizes.length-1){ qSize=sz; qLines=ls; break; }
+  }
+  const qLineH=Math.round(qSize*1.32);
+  const qSpace=(()=>{ g.font="500 "+qSize+"px 'Archivo'"; return g.measureText(' ').width; })();
+  g.textAlign='left'; g.textBaseline='alphabetic';
+  qLines.forEach((ln,li)=>{
+    let cx=padX; const y=quoteTop+(li+1)*qLineH-qLineH*0.22;
+    ln.forEach(o=>{
+      g.font=(o.bold?'700 ':'500 ')+qSize+"px 'Archivo'";
+      g.fillStyle=o.accent?s.sig:C.encre;
+      g.fillText(o.w,cx,y); cx+=g.measureText(o.w).width+qSpace;
+    });
+  });
+
+  /* auteur sous la citation */
+  const qBlockBottom=quoteTop+qLines.length*qLineH;
+  if(state.quoteAuthor && state.quoteAuthor.trim()){
+    g.fillStyle=C.encre; g.font="38px 'Saira Condensed'";
+    g.fillText('— '+state.quoteAuthor.trim().toUpperCase(), padX, qBlockBottom+56);
+  }
+
+  if(showFooter){
+    g.fillStyle=C.encre; g.fillRect(padX, footY-46, rightEdge-padX, 3);
+    g.textAlign='right'; g.textBaseline='middle'; g.font="60px 'Anton'";
+    const totTxt='/'+state.tot; g.fillStyle=C.encre; g.fillText(totTxt, rightEdge, footY);
+    const tw=g.measureText(totTxt).width; g.fillStyle=s.sig; g.fillText(state.cur, rightEdge-tw-4, footY);
   }
   g.textAlign='left';
 }
