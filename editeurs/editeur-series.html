@@ -1508,6 +1508,10 @@ function drawVerbatim(W,H,s){
     if(ls.length*lh<=maxH || i===sizes.length-1){ qSize=sz; qLines=ls; break; }
   }
   const qLineH=Math.round(qSize*1.32);
+  /* garde-fou dur : même à la plus petite taille, tronquer plutôt que
+     déborder sur le filet/pagination (cf. même correctif sur CITATION · ÉCHO) */
+  const qMaxLines=Math.max(1,Math.floor(maxH/qLineH));
+  if(qLines.length>qMaxLines) qLines=qLines.slice(0,qMaxLines);
   /* ancré en haut du cadre (pas de centrage vertical), comme le corps des autres templates */
   const qBlockTop=quoteTop;
   const qSpace=(()=>{ g.font="500 "+qSize+"px 'Archivo'"; return g.measureText(' ').width; })();
@@ -1704,7 +1708,11 @@ function dropCapParagraph(g,text,x,topY,maxW,maxH,color){
     const h=bodySize*1.02+(layout.lines.length-1)*lineH;
     if(h<=Math.max(40,maxH) || i===sizes.length-1){ picked={bodySize,lineH,capSize,layout}; break; }
   }
-  const {bodySize,lineH,capSize,layout}=picked;
+  let {bodySize,lineH,capSize,layout}=picked;
+  /* garde-fou dur : même à la plus petite taille, tronquer plutôt que
+     déborder sur ce qui suit (cf. dropCapFlowAroundImage, même correctif) */
+  const dcMaxLines=Math.max(1,Math.floor(Math.max(40,maxH)/lineH));
+  if(layout.lines.length>dcMaxLines) layout={...layout, lines:layout.lines.slice(0,dcMaxLines)};
 
   g.textAlign='left'; g.textBaseline='alphabetic';
   g.fillStyle=color; g.font="700 "+capSize+"px 'Archivo'";
@@ -2326,6 +2334,13 @@ function drawEnqueteEcho(W,H,s){
     if(ls.length*lh<=maxH || i===sizes.length-1){ qSize=sz; qLines=ls; break; }
   }
   const qLineH=Math.round(qSize*1.32);
+  /* garde-fou dur : même à la plus petite taille (27px), un pavé de texte
+     démesuré ne rentre pas forcément dans maxH — sans ça la citation
+     pouvait déborder jusque sur le guillemet fermant, dont la position
+     est désormais fixe (bug remonté sur un rendu réel : texte de test
+     très long recouvert par le « 99 »). On tronque plutôt que déborder. */
+  const qMaxLines=Math.max(1,Math.floor(maxH/qLineH));
+  if(qLines.length>qMaxLines) qLines=qLines.slice(0,qMaxLines);
   const qSpace=(()=>{ g.font="500 "+qSize+"px 'Archivo'"; return g.measureText(' ').width; })();
 
   /* citation centrée dans l'espace disponible entre les deux guillemets
