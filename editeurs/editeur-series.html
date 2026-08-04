@@ -2201,7 +2201,11 @@ function drawEnqueteEcho(W,H,s){
   const panelTop=tagY+tagH+34;
   const panelBottom=(showFooter?footY-46:H-90)-6;
   const panelRight=M+Math.round(W*0.40);
-  drawEchoPanel(g,M,panelTop,panelRight-M,panelBottom-panelTop,s);
+  /* écho légèrement décalé vers la droite par rapport à la photo nette
+     ci-dessous (même largeur, juste translaté) — reste dans la marge avant
+     la colonne de citation (padX = panelRight+56), pas de chevauchement */
+  const echoOffsetX=32;
+  drawEchoPanel(g,M+echoOffsetX,panelTop,panelRight-M,panelBottom-panelTop,s);
 
   /* la photo nette ne doit pas remonter plus haut qu'environ le tiers du
      panneau (repère validé par Thomas sur un rendu annoté) — l'écho reste
@@ -2215,7 +2219,7 @@ function drawEnqueteEcho(W,H,s){
      CITATION · INTERVIEW), gros guillemet fermant en bas — référence :
      grosses coupures « 66 »/« 99 » encadrant la citation --- */
   const padX=panelRight+56, rightW=rightEdge-padX;
-  const markSize=120;
+  const markSize=200;
   const markTop=tagY+tagH+36;
   g.font=markSize+"px 'Anton'"; g.fillStyle=s.sig; g.textAlign='left'; g.textBaseline='alphabetic';
   g.fillText('“', padX-8, markTop+markSize*0.72);
