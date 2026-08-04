@@ -2222,12 +2222,14 @@ function drawEnqueteTitre(W,H,s){
      plus large (cadre + colonne du titre), est donc construit plus loin
      spécifiquement pour le titre : même photo, mais pas raccordée pixel
      pour pixel au cadre — un compromis assumé, pas une vraie continuité. */
-  /* décalé plus bas que juste sous le tag (demande explicite) — laisse de
-     l'air sous le header/tag avant que le cadre ne démarre, plutôt que de
-     s'aligner strictement sur le haut du titre à côté */
-  const panelTop=tagY+tagH+30+190;
+  /* le cadre remplit toute la hauteur disponible (repère validé par Thomas
+     sur un rendu annoté) : démarre au même niveau que le haut du titre
+     (panelTop, partagé avec le titre plus bas — ty1=panelTop+tSize), et
+     descend jusqu'à la zone sûre basse, comme témoin/duo photo plutôt que
+     de s'arrêter à 66% de la hauteur. */
+  const panelTop=tagY+tagH+30;
   const photoX=Math.round(W*0.5), photoW=rightEdge-photoX;
-  const photoBottom=Math.round(H*0.66);
+  const photoBottom=(showFooter?footY-46:H-90)-6;
   const master=buildMasterPhoto(W,H,photoX,panelTop,photoW,photoBottom-panelTop,s);
   blitMasterRegion(g,master,photoX,panelTop,photoW,photoBottom-panelTop);
 
