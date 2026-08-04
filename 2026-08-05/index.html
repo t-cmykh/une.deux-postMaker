@@ -13,9 +13,16 @@
       body { font-family: 'Archivo', system-ui, sans-serif; }
       #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
 
-      /* deux composites pré-cuits distincts : intro (overlay centré y=655-ish,
-         §2 CLAUDE.md) + corps en 4 plans successifs (overlay fixe y=420/888,
-         §2bis) — chaque <video> plein cadre, empilés dans le temps */
+      /* vidéo du Drive gardée intégrale, telle quelle (pas de sélection de
+         plans, §1bis CLAUDE.md) — un seul composite continu du début à la
+         fin (0 → 37.80s), même géométrie sur toute la durée : fond plein
+         cadre flouté/désaturé + plan net 1080×888 plein cadre horizontal
+         (overlay y=420 — §2 CLAUDE.md). Un seul fichier vidéo pour
+         intro+corps (pas de split en deux composites à géométrie
+         différente) : évite tout décalage de cadrage/hauteur à la coupe
+         titre→texte — le plan net démarre au même y=420 dès la première
+         image. Muté, son porté par un <audio> séparé qui ne démarre
+         qu'à la fin du titre (la vidéo, elle, joue en continu) */
       .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
 
       /* header — constantes fixes de la série, persistant du début à la
@@ -31,8 +38,9 @@
       .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
 
       /* --ocre-render : compensation du décalage de teinte du pipeline de
-         render HyperFrames sur --ocre (cf. commentaire équivalent dans
-         2026-08-04/index.html) */
+         render HyperFrames sur --ocre (§3 CLAUDE.md) — ne pas remplacer
+         var(--ocre) dans tokens/colors.css, uniquement une variable locale
+         à la composition. */
       :root { --ocre-render: #B9A456; }
       .tag {
         position: absolute; left: 96px; top: 350px; height: 58px; z-index: 20;
@@ -40,10 +48,10 @@
         font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; padding: 0 15px;
       }
 
-      /* titre animé de l'intro — Anton, aligné à gauche, sans ombre portée,
-         mots-clés (marqués **entre étoiles** dans le brouillon) encadrés
-         d'un carré ocre. 5 lignes à 130px, même gabarit vertical que le
-         titre 5 lignes validé sur cejourla-4aout-reel */
+      /* titre animé de l'intro — Anton, aligné à gauche, sans ombre
+         portée, mots-clés (marqués **entre étoiles** dans le brouillon)
+         encadrés d'un carré ocre. 5 lignes à 130px (même gabarit que le
+         titre 5 lignes validé sur cejourla-4aout-reel) */
       .title-zone { position: absolute; inset: 0; z-index: 10; }
       .t-line {
         position: absolute; left: 96px; right: 96px;
@@ -71,23 +79,15 @@
       data-start="0"
       data-width="1080"
       data-height="1920"
-      data-duration="37.90"
+      data-duration="37.80"
       data-fps="30"
     >
-      <!-- intro : premier plan réel de la source (conférence de presse
-           d'adieu), composite §2 (overlay centré verticalement, pas de
-           zone de texte réservée) -->
-      <video class="video-full" id="vintro" src="assets/intro-composite.mp4" data-start="0.0000" data-duration="4.0000" data-track-index="1" muted playsinline></video>
+      <!-- vidéo du Drive intégrale, un seul plan continu du début à la fin,
+           composite identique sur toute la durée (pas de split intro/corps
+           côté vidéo — seuls les overlays de texte changent) -->
+      <video class="video-full" id="fullv" src="assets/full.mp4" data-start="0.0000" data-duration="37.8000" data-track-index="1" muted playsinline></video>
 
-      <!-- corps : 4 plans réels successifs, contigus dans la source
-           (3.98s → fin, aucun plan sauté ni réordonné), composite §2bis
-           (overlay fixe y=420/888) -->
-      <video class="video-full" id="vA" src="assets/corpsA.mp4" data-start="4.0000" data-duration="5.3667" data-track-index="1" muted playsinline></video>
-      <video class="video-full" id="vB" src="assets/corpsB.mp4" data-start="9.3667" data-duration="8.7000" data-track-index="1" muted playsinline></video>
-      <video class="video-full" id="vC" src="assets/corpsC.mp4" data-start="18.0667" data-duration="8.0000" data-track-index="1" muted playsinline></video>
-      <video class="video-full" id="vD" src="assets/corpsD.mp4" data-start="26.0667" data-duration="11.8000" data-track-index="1" muted playsinline></video>
-
-      <audio id="corpsa" src="assets/corps-audio.m4a" data-start="4.0000" data-duration="33.8030" data-track-index="20"></audio>
+      <audio id="corpsa" src="assets/full-audio.m4a" data-start="4.0000" data-duration="33.80" data-track-index="20"></audio>
 
       <div id="hdr">
         <div class="ring">1·2</div>
@@ -108,20 +108,20 @@
       </div>
 
       <!-- corps du post (champ CORPS du même brouillon), texte intégral
-           repris tel quel, découpé en unités de sens, mots-clés en
-           gras/ocre -->
+           repris tel quel (paragraphes du brouillon = unités de sens),
+           mots-clés en gras/ocre -->
       <div class="text-zone">
-        <div class="text-chunk" id="l1">Un jeudi soir d&rsquo;août, le <b class="ocre">FC Barcelone</b> publie un communiqué de quelques lignes.</div>
-        <div class="text-chunk" id="l2"><b class="ocre">Lionel Messi</b> ne continuera pas au club.</div>
-        <div class="text-chunk" id="l3">Vingt et un ans, <b class="ocre">six Ballons d&rsquo;Or</b>, <b>672 buts</b>. Terminé à cause des finances.</div>
-        <div class="text-chunk" id="l4">Le plus fou, c&rsquo;est que tout était <b>réglé</b>.</div>
-        <div class="text-chunk" id="l5">Quelques semaines avant, joueur et dirigeants s&rsquo;étaient mis d&rsquo;accord sur <b>cinq ans</b> de plus, et Messi avait accepté de <b class="ocre">diviser son salaire par deux</b>.</div>
+        <div class="text-chunk" id="l1">Un jeudi soir d&rsquo;août, le <b class="ocre">Barça</b> publie un <b>communiqué</b>.</div>
+        <div class="text-chunk" id="l2"><b class="ocre">Messi</b> ne continuera pas au club.</div>
+        <div class="text-chunk" id="l3"><b>21 ans</b>, <b>6 Ballons d&rsquo;Or</b>, <b>672 buts</b>. Terminé, à cause des <b class="ocre">finances</b>.</div>
+        <div class="text-chunk" id="l4">Le plus fou&nbsp;? Tout était <b class="ocre">réglé</b>.</div>
+        <div class="text-chunk" id="l5">Accord sur <b>cinq ans</b> de plus. Messi avait divisé son <b class="ocre">salaire par deux</b>.</div>
         <div class="text-chunk" id="l6">Il voulait <b class="ocre">rester</b> à ce point-là.</div>
-        <div class="text-chunk" id="l7">Sauf que <b class="ocre">la Liga</b> venait de baisser le plafond de dépenses du club pour la saison, et qu&rsquo;avec une dette de <b>plus d&rsquo;un milliard</b>, même un Messi à moitié prix ne rentrait plus dans les clous.</div>
-        <div class="text-chunk" id="l8">La Liga <b class="ocre">refuse</b> d&rsquo;enregistrer le contrat. Le contrat n&rsquo;existe pas. Le joueur non plus.</div>
-        <div class="text-chunk" id="l9">Cinq jours plus tard, il signe deux ans au <b class="ocre">Paris Saint-Germain</b>.</div>
-        <div class="text-chunk" id="l10"><b>Aucun rival</b> n&rsquo;est venu le chercher, <b>aucune brouille</b> ne l&rsquo;a poussé dehors.</div>
-        <div class="text-chunk" id="l11">Le <b>meilleur joueur</b> de l&rsquo;histoire du club a été sorti par une <b class="ocre">ligne de tableur</b>.</div>
+        <div class="text-chunk" id="l7">Sauf que la <b class="ocre">Liga</b> venait de baisser le <b>plafond</b> du club.</div>
+        <div class="text-chunk" id="l8"><b class="ocre">Un milliard de dette</b>. Même à moitié prix, ça ne rentre pas.</div>
+        <div class="text-chunk" id="l9"><b class="ocre">Contrat refusé</b>. Le joueur n&rsquo;existe plus.</div>
+        <div class="text-chunk" id="l10">Cinq jours après, il signe au <b class="ocre">PSG</b>.</div>
+        <div class="text-chunk" id="l11">Le <b class="ocre">meilleur joueur</b> de l&rsquo;histoire du club, sorti par une <b>ligne de tableur</b>.</div>
       </div>
     </div>
 
@@ -132,7 +132,8 @@
       /* titre animé de l'intro — vitesse figée ×1 (§4bis CLAUDE.md) :
          revealMs=620/1=0.62s, fadeMs=clamp(80,220,revealMs*0.6)=0.22s,
          rampe linéaire, léger décalage vertical 8px→0 sur le fondu.
-         5 lignes → introEnd = 0.3 + 4*0.62 + 0.22 + 1.0 = 4.0s */
+         Une fois les 5 lignes révélées, le titre reste figé 1s avant la
+         coupe vers le corps (introEnd = 0.3 + 4*0.62 + 0.22 + 1.0 = 4.0s) */
       const tStart = 0.3, revealMs = 0.62, fadeMs = 0.22;
       const tLines = ['#t1', '#t2', '#t3', '#t4', '#t5'];
       tLines.forEach((sel, i) => {
@@ -141,30 +142,30 @@
       const introEnd = 4.0;
       tl.set('.t-line', { opacity: 0 }, introEnd);
 
-      /* corps — 11 unités de sens, rythme calculé sur la durée vidéo
-         disponible (§5 CLAUDE.md) : 160 mots pour 33.57s de corps
-         disponible (33.8667s de vidéo corps, moins 0.3s de pré-roll) —
-         facteur ≈0.682 (compression, vidéo plus courte que le texte au
-         rythme naturel — compressé plutôt que coupé, conformément à la
-         règle), pauses de 0.15s entre blocs ; premier bloc démarre à
-         introEnd + 0.3s */
+      /* corps — 11 blocs de sens (paragraphes du brouillon), rythme
+         calculé sur la durée vidéo disponible (§5 CLAUDE.md) : 102 mots
+         pour 33.80s de vidéo après l'intro (37.80 − introEnd) — facteur
+         ≈1.0035 (quasi 1:1, le texte tient presque exactement au rythme
+         naturel), pauses de 0.2s entre blocs ; premier bloc démarre à
+         introEnd + 0.3s, dernier bloc se termine exactement à la fin de
+         la vidéo (37.80s) */
       const lines = [
-        { id: 'l1',  start: 4.300,  dur: 2.631, inD: 0.30, outD: 0.24 },
-        { id: 'l2',  start: 7.081,  dur: 1.527, inD: 0.22, outD: 0.18 },
-        { id: 'l3',  start: 8.758,  dur: 2.815, inD: 0.30, outD: 0.24 },
-        { id: 'l4',  start: 11.723, dur: 1.711, inD: 0.25, outD: 0.20 },
-        { id: 'l5',  start: 13.584, dur: 4.655, inD: 0.30, outD: 0.24 },
-        { id: 'l6',  start: 18.389, dur: 1.343, inD: 0.20, outD: 0.16 },
-        { id: 'l7',  start: 19.882, dur: 6.864, inD: 0.30, outD: 0.24 },
-        { id: 'l8',  start: 26.896, dur: 2.815, inD: 0.30, outD: 0.24 },
-        { id: 'l9',  start: 29.861, dur: 2.263, inD: 0.25, outD: 0.20 },
-        { id: 'l10', start: 32.274, dur: 2.447, inD: 0.25, outD: 0.20 },
-        { id: 'l11', start: 34.871, dur: 2.999, inD: 0.30, outD: 0.24 },
+        { id: 'l1',  start: 4.30,  dur: 2.79 },
+        { id: 'l2',  start: 7.29,  dur: 1.98 },
+        { id: 'l3',  start: 9.47,  dur: 3.60 },
+        { id: 'l4',  start: 13.27, dur: 2.25 },
+        { id: 'l5',  start: 15.72, dur: 3.87 },
+        { id: 'l6',  start: 19.79, dur: 1.98 },
+        { id: 'l7',  start: 21.97, dur: 3.33 },
+        { id: 'l8',  start: 25.50, dur: 3.60 },
+        { id: 'l9',  start: 29.30, dur: 1.98 },
+        { id: 'l10', start: 31.48, dur: 2.25 },
+        { id: 'l11', start: 33.93, dur: 3.87 },
       ];
 
-      lines.forEach(({ id, start, dur, inD, outD }) => {
-        tl.fromTo(`#${id}`, { opacity: 0 }, { opacity: 1, duration: inD, ease: 'power2.out' }, start);
-        tl.to(`#${id}`, { opacity: 0, duration: outD, ease: 'sine.in' }, start + dur - outD);
+      lines.forEach(({ id, start, dur }) => {
+        tl.fromTo(`#${id}`, { opacity: 0 }, { opacity: 1, duration: 0.3, ease: 'power2.out' }, start);
+        tl.to(`#${id}`, { opacity: 0, duration: 0.24, ease: 'sine.in' }, start + dur - 0.24);
         tl.set(`#${id}`, { opacity: 0 }, start + dur);
       });
 
