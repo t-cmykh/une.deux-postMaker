@@ -53,6 +53,15 @@ org). Elle cherche un brouillon/thread Gmail `subject:LANCER REEL` non marqué
 ce fichier, livre, committe/pousse, puis marque la demande traitée. Si rien
 n'est en attente, elle ne fait rien.
 
+**Important — cette Routine travaille sur la branche `ce-jour-là`, qui n'est
+jamais fusionnée dans `main` : toute correction qu'elle découvre en cours de
+production (bug de cadrage, couleur, etc.) doit être reportée MANUELLEMENT
+dans la copie de `CLAUDE.md` sur `main` (via une session normale, PR) pour
+ne pas rester bloquée sur une branche qui ne remonte jamais.** C'est arrivé
+une fois (3 correctifs découverts le 4 août 2026 sur `cejourla-4aout-reel`,
+fusionnés ici avec le reste de la recette) — vérifier périodiquement que les
+deux copies n'ont pas divergé.
+
 Pour un montage immédiat, demander directement dans le chat reste plus
 rapide (pas d'attente jusqu'à 14h) — le lanceur sert pour poser une demande à
 traiter en tâche de fond.
@@ -67,15 +76,12 @@ contraire pour ce reel précis — dans ce cas, la nouvelle instruction
 s'applique à CE reel, mais ne remplace pas la recette par défaut pour les
 suivants (sauf si Thomas dit explicitement que c'est le nouveau standard).
 
-**Vue d'ensemble** : à partir d'**une seule vidéo source**, le reel se
-découpe en trois parties qui s'enchaînent dans une seule composition
-HyperFrames, puis un CTA de fin est ajouté en post-traitement :
-1. **Intro** — le premier plan réel repéré dans la source (§1bis), habillé
-   en header + titre du post animé ligne par ligne (§4bis).
-2. **Corps** — tous les plans suivants, montage multi-plans habillé en
-   header + corps de texte animé façon sous-titres (§4), comme avant.
-3. **CTA "RDV DEMAIN"** — carte de fin générique, concaténée après le rendu
-   (§9), pas de personnalisation par date.
+**Vue d'ensemble** : à partir d'**une seule vidéo source, gardée intégrale**
+(§1bis), un **unique composite continu** (§2, même géométrie du début à la
+fin) est habillé de deux couches de texte qui se relaient dans le temps —
+titre animé de l'intro (§4bis) sur les premières secondes, puis corps de
+texte façon sous-titres (§4) sur le reste — dans une seule composition
+HyperFrames. Un CTA de fin est ajouté en post-traitement (§8).
 
 Il n'y a plus de choix "intro seule / reel complet" à faire : une vidéo
 donnée produit toujours ce montage complet en une fois.
@@ -113,87 +119,96 @@ Les vidéos fournies jusqu'ici sont horizontales (~16:9, ratio ≈1.77), avec ou
 sans métadonnée de rotation trompeuse — se fier à l'image extraite, pas
 seulement aux nombres.
 
-### 1bis. Sélection des plans — le premier plan réel = l'intro, tout le reste = le corps
+### 1bis. Vidéo intégrale par défaut — pas de sélection de plans
 
-Règles figées, validées par Thomas sur `cejourla-25juillet-reel`, à
-appliquer sur l'ensemble de la vidéo source :
+**Par défaut, garder la vidéo source intégrale, sans découpage ni sélection
+de plans** : le composite (§2) et les overlays (titre puis corps) s'appliquent
+à toute la vidéo, du début à la fin, durée inchangée. Les vidéos fournies par
+Thomas sont en général déjà des montages propres (highlights, pas du brut de
+captation) — il n'y a rien à curer.
 
+Erreur commise sur `cejourla-4aout-reel` (Copa Confederaciones 1999, routine
+du 3 août 2026) : une sélection de "6 meilleurs plans ≥3.5s" a été appliquée
+à tort à une vidéo déjà montée, livrant 37s au lieu des ~50s réels de la
+source. Corrigée après retour explicite de Thomas : « GARDE LA VIDÉO DU
+DRIVE TEL QUEL ». **C'est la consigne par défaut.**
+
+Le titre animé (§4bis) joue sur les premières secondes de cette même vidéo
+continue, le corps de texte (§4) prend le relais sur le reste — aucune
+découpe ni sélection n'intervient pour distinguer "l'intro" du "corps", ce
+sont deux fenêtres temporelles d'overlay sur le **même** fichier vidéo composité
+une seule fois (§2), jamais deux composites à géométries différentes.
+
+**Ne sélectionner/curer des plans que si** : Thomas le demande explicitement
+pour ce reel précis, OU la source est manifestement du brut mélangé à des
+cartons graphiques/infographie qu'il faut exclure (repérable par
+contact-sheets ffmpeg à différentes fenêtres/grilles). Dans ce cas
+seulement, appliquer les règles ci-dessous (validées par Thomas sur
+`cejourla-25juillet-reel`) :
+
+- **Aucun plan de moins de 3.5s.** Repérer des fenêtres source d'au moins
+  ~3.5-4s par segment ; ne jamais garder un plan de 1-2s même si le contenu
+  est pertinent — l'étendre ou le remplacer par un autre passage.
 - **Uniquement des images filmées réelles** (plan de caméra, photo
   d'époque) — aucun carton graphique/infographie généré (habillage
   chaîne : stats, cartes de score animées, etc.), même si la source en
-  contient et que ça illustrerait bien le texte. Scanner la vidéo source
-  dans son ensemble (contact-sheets ffmpeg à différentes fenêtres/grilles)
-  pour repérer les passages réellement filmés avant de choisir les plans.
-- **Le premier plan réel identifié devient l'intro** (§2 composite +
-  §4bis titre animé). **Tous les plans réels suivants deviennent le corps**
-  (§2bis composite + §4 texte animé), dans leur ordre d'apparition dans la
-  source, comme avant.
-- **Aucun plan de moins de 3.5s** — ni pour l'intro ni pour le corps.
-  Repérer des fenêtres source d'au moins ~3.5-4s par segment ; ne jamais
-  garder un plan de 1-2s même si le contenu est pertinent — l'étendre ou le
-  remplacer par un autre passage. **Cas particulier de l'intro** : le plan
-  choisi doit aussi couvrir au moins la durée totale de la révélation du
-  titre + 1s de pause (§4bis) — si le titre est long (beaucoup de lignes),
-  étendre la fenêtre du premier plan en conséquence plutôt que de couper le
-  titre ou la vidéo trop tôt.
+  contient et que ça illustrerait bien le texte.
 - **Vérifier la cohérence factuelle plan/texte** : un même passage source
   peut illustrer deux événements différents (ex. verdict initial vs verdict
   en appel, deux dates distinctes) — ne jamais réutiliser un plan/carton
   dont le contenu contredirait la phrase du corps qu'il est censé
   illustrer ; en cas de doute, préférer un plan neutre (lieu, ambiance,
   personne concernée) à un plan trop spécifique mais potentiellement faux.
+- Dans ce mode curé, un seul composite continu s'applique quand même (§2)
+  sur la vidéo reconstituée à partir des plans retenus, mis bout à bout —
+  jamais un composite séparé par plan avec des géométries différentes.
 
-### 2. Composite de l'intro (fond plein cadre, centrage vertical complet)
+### 2. Composite unique (fond flouté + désaturé, même géométrie du début à la fin)
 
 **Ne jamais faire le flou en live via CSS au rendu** (coût énorme en Chrome
 headless / SwiftShader — un rendu peut passer de 5 min à 30+ min). Toujours
-pré-cuire le composite fond+premier plan dans un seul fichier vidéo via
-ffmpeg, en amont.
+pré-cuire le composite en un seul fichier vidéo via ffmpeg, en amont.
 
-Pour le plan d'intro (source horizontale ratio ~1.77 vers un canvas 1080×1920) :
+**Un seul passage ffmpeg sur la vidéo entière, une seule géométrie, y
+compris sous le titre animé de l'intro.** Ne PAS composer l'intro
+séparément avec une géométrie plein-canvas puis le corps avec une géométrie
+différente : le plan net ne démarrerait alors pas à la même hauteur dans
+les deux composites, ce qui crée un décalage de cadrage visible à la coupe
+titre→texte (bug identifié par Thomas sur `cejourla-4aout-reel` via une
+capture annotée comparant les deux frames — corps net dès juste sous le
+header, intro net nettement plus bas). Un seul fichier vidéo continu, un
+seul `<video>` dans la composition ; seuls les overlays de texte (titre
+puis corps) changent dans le temps, jamais le cadrage vidéo.
 
-```bash
-ffmpeg -y -i intro_plan.mp4 -filter_complex \
-"[0:v]fps=30,scale=3400:1920,crop=1080:1920,gblur=sigma=36,eq=saturation=0.4[bg];[0:v]fps=30,scale=1080:-2[fg];[bg][fg]overlay=x=0:y=655:shortest=1[outv]" \
--map "[outv]" -c:v libx264 -crf 20 -preset fast -pix_fmt yuv420p -an intro-composite.mp4
-```
-
-- `gblur=sigma=36` / `eq=saturation=0.4` : mêmes réglages figés que partout
-  ailleurs dans cette recette.
-- `overlay=x=0:y=655` — recentre le premier plan net verticalement sur tout
-  le canvas 1920 (pas de zone de texte réservée en bas, contrairement au
-  corps — le titre flotte par-dessus, cf. §4bis). Pour une source ratio 1.77
-  → fg height≈610 → y=(1920-610)/2. Recalculer si le ratio source diffère.
-- `fps=30` partout (aligne sur `data-fps="30"` de la composition).
-- Référence de rendu validée : `templates/titre-anime-intro/` sur la
-  branche `ce-jour-là` (gabarit + render de test, titre "3 AOÛT 2017 : LE
-  PLUS GROS TRANSFERT DE L'HISTOIRE" avec "TRANSFERT DE"/"L'HISTOIRE"
-  encadrés) — comparer visuellement à cette référence avant de considérer un
-  nouvel intro conforme.
-
-### 2bis. Composite du corps (montage multi-plans, header + texte présents)
-
-Pour chaque plan du corps (1 segment ≈ 1 phrase, cf. §5/§7 scaffolding), le
-plan net ne recentre pas sur tout le canvas comme en §2 (qui suppose un
-titre flottant, sans zone de texte fixe) : il doit occuper exactement
-l'espace entre le bas du tag (§3, tag bottom ≈408) et le haut de la zone de
-texte (§4), plein cadre horizontalement.
+Géométrie figée (validée par Thomas via capture d'écran de rendu) — plan net
+occupant l'espace entre le bas du tag (§3, tag bottom ≈408) et la zone de
+texte (§4), plein cadre horizontalement :
 
 ```bash
-ffmpeg -y -i plan_N.mp4 -vn -c:a aac -b:a 160k audio_N.m4a   # si la source a du son
+ffmpeg -y -i video_raw.mp4 -filter_complex \
+"[0:v]fps=30,scale=3400:1920,crop=1080:1920,gblur=sigma=36,eq=saturation=0.4[bg];[0:v]fps=30,scale=<cover_w2>:888,crop=1080:888:<centerX>:0[fg];[bg][fg]overlay=x=0:y=420:shortest=1[outv]" \
+-map "[outv]" -c:v libx264 -crf 20 -preset fast -pix_fmt yuv420p -g 30 -keyint_min 30 -sc_threshold 0 -an composite.mp4
+
+ffmpeg -y -i video_raw.mp4 -vn -c:a aac -b:a 160k audio.m4a   # si la source a du son
 ```
 
-Réglages figés (validés par Thomas via capture d'écran de rendu) :
-
+- `gblur=sigma=36` (flou fort — a été doublé une fois depuis sigma=18, la
+  valeur 36 est celle validée) / `eq=saturation=0.4` (fond nettement
+  désaturé, ~40% de la saturation d'origine).
 - `overlay=x=0:y=420` — plan net plein cadre horizontal (`x=0`, pas de marge
-  96px type header/texte), hauteur **888px fixe**, donc du haut à
-  `y=420` jusqu'à `y=1308`.
-- Fond (flouté/désaturé, mêmes réglages `gblur=sigma=36`/`eq=saturation=0.4`)
-  toujours plein canvas 1080×1920 derrière.
+  96px type header/texte), hauteur **888px fixe**, donc du haut à `y=420`
+  jusqu'à `y=1308`.
+- **`-g 30 -keyint_min 30 -sc_threshold 0` obligatoires sur chaque composite**
+  (intervalle de keyframes = 1s à 30fps) — un intervalle trop large cause des
+  sauts/figeages perceptibles à la lecture ("séquences" au lieu d'un plan
+  continu), signalés par le compilateur HyperFrames au check
+  (`sparse keyframes... causes seek failures and frame freezing`) mais
+  **à tort ignorables comme non-bloquants** : ce warning-là DOIT être
+  corrigé avant de livrer, contrairement aux flakes listés en §9.
 - Si la source a son propre habillage à exclure (logo de la chaîne d'origine,
   bouton d'interface, etc.), zoomer la source ~25% (`scale=W*1.25:H*1.25` puis
   `crop=W:H` centré) **avant** ce calcul de cover-crop, sur le fond ET le
-  premier plan — recadre juste assez pour sortir les éléments de bord sans
+  plan net — recadre juste assez pour sortir les éléments de bord sans
   perdre le sujet ; ajuster le facteur au cas par cas si un élément déborde
   encore (ex. logo en coin déjà recadré à ×1.25 mais toujours visible → passer
   à ×1.35 et vérifier par extraction de frame).
@@ -208,6 +223,26 @@ Réglages figés (validés par Thomas via capture d'écran de rendu) :
   (recalculer `cover_w`/`cover_w2`/`centerX` selon le ratio réel de la
   source zoomée, cover-crop classique : facteur = max(target_w/src_w,
   target_h/src_h))
+- Référence de rendu pour l'habillage titre animé (header + `.t-line`,
+  géométrie à part, prototype antérieur à cette unification) :
+  `templates/titre-anime-intro/` sur la branche `ce-jour-là` — utile pour le
+  texte/l'animation du titre, **pas** pour le cadrage vidéo (qui utilisait
+  encore l'ancienne géométrie plein-canvas y=655, corrigée depuis).
+
+**Cas à part — "juste le composite, sans habillage" :** si Thomas demande
+explicitement uniquement le traitement visuel de la vidéo (pas de header,
+pas de titre, pas de texte, rien d'autre), c'est un livrable différent, pas
+un sous-ensemble de la recette ci-dessus : géométrie plein-canvas
+recentrée (`overlay=x=0:y=655`, pas de zone de texte réservée puisqu'il n'y
+a pas de texte), pas de projet HyperFrames, livrer directement le fichier
+ffmpeg obtenu.
+```bash
+ffmpeg -y -i video_raw.mp4 -filter_complex \
+"[0:v]fps=30,scale=3400:1920,crop=1080:1920,gblur=sigma=36,eq=saturation=0.4[bg];[0:v]fps=30,scale=1080:-2[fg];[bg][fg]overlay=x=0:y=655:shortest=1[outv]" \
+-map "[outv]" -map 0:a? -c:v libx264 -crf 20 -preset fast -pix_fmt yuv420p -g 30 -keyint_min 30 -sc_threshold 0 -c:a aac -b:a 160k intro.mp4
+```
+Si Thomas demande seulement "le fond plein cadre" (sans vidéo nette
+dessus), livrer juste la couche flou/désaturé seule, sans overlay.
 
 ### 3. Header — repris à l'identique de `editeurs/editeur-series.html`, persistant sur tout le reel
 
@@ -226,13 +261,36 @@ les deux parties :
 .handle   { right:96px; top:262px; transform:translateY(-50%); font:32px 'Saira Condensed'; font-weight:600; color:var(--cream); }
            /* "@UNE.DEUX" */
 .hairline { left:96px; right:96px; top:318px; height:4px; background:var(--cream); }
-.tag      { left:96px; top:350px; height:58px; background:var(--ocre); color:var(--ink);
+.tag      { left:96px; top:350px; height:58px; background:var(--ocre-render); color:var(--ink);
             font:32px 'Saira Condensed'; font-weight:600; padding:0 15px; display:flex; align-items:center; }
            /* "CE JOUR LÀ …" */
 ```
 
 Ne PAS ajouter de dégradé d'assombrissement en bas du cadre (`scrim-bottom`)
 — règle permanente pour ce format, sauf demande contraire explicite.
+
+**Compensation couleur ocre pour le rendu vidéo** (`--ocre-render`, utilisé
+ci-dessus sur `.tag` et référencé en §4/§4bis) : le pipeline de render
+HyperFrames (capture écran → encodage vidéo H.264) décale légèrement les
+couleurs — `var(--ocre)` (#C2A04E) ressort visiblement plus terne/décalé
+dans une vidéo rendue que dans l'éditeur web (confirmé par pixel-sampling
+sur un rendu réel et par un test isolé, aplat de couleur seul). Pour tout
+élément dont l'ocre doit apparaître correct **dans la vidéo rendue** (`.tag`,
+`.kw-box` du titre §4bis, mots-clés `b.ocre` du corps §4), déclarer une
+variable locale compensée dans la composition :
+```css
+:root { --ocre-render: #B9A456; }  /* compense le décalage du pipeline de
+                                       render — quasi pixel-exact sur la
+                                       référence validée par Thomas */
+```
+**Ne pas modifier `tokens/colors.css`** — le token `--ocre` doit rester
+fidèle à `editeur-series.html` (l'éditeur web n'a pas ce problème, propre au
+pipeline de render vidéo) ; `--ocre-render` est une compensation locale à
+déclarer dans chaque composition qui affiche de l'ocre à l'écran dans un
+rendu final. Si un nouveau rendu montre encore un écart visible face à une
+référence validée, recalibrer cette valeur par pixel-sampling plutôt que de
+supposer qu'elle reste universelle indéfiniment (le pipeline de render peut
+évoluer).
 
 ### 4. Corps de texte — sous-titres animés, découpés en unités de sens
 
@@ -245,8 +303,9 @@ Ne PAS ajouter de dégradé d'assombrissement en bas du cadre (`scrim-bottom`)
   que les sous-titres établis dans ce projet : `fromTo(opacity 0→1)` puis
   `to(opacity→0)` + `tl.set(opacity:0)` hard-kill en fin de fenêtre).
 - Mots-clés importants en **gras et/ou ocre** (`<b>` pour gras crème,
-  `<b class="ocre">` pour gras + couleur ocre) — chiffres, scores, noms
-  propres, faits marquants. Ne pas surcharger : un ou deux par phrase.
+  `<b class="ocre">` pour gras + couleur `var(--ocre-render)`, cf. §3) —
+  chiffres, scores, noms propres, faits marquants. Ne pas surcharger : un ou
+  deux par phrase.
 - **Texte centré**, y compris sur les blocs à plusieurs lignes
   (`text-align:center` sur la zone ET sur chaque bloc) — pas d'alignement à
   gauche.
@@ -257,9 +316,8 @@ Ne PAS ajouter de dégradé d'assombrissement en bas du cadre (`scrim-bottom`)
   assombri).
 - Position : `top:1420px` avec `transform:translateY(-50%)`, zone
   `left:96px; right:96px`, dans la bande floutée basse (sous le plan net —
-  valeur calibrée pour la variante §2bis, où le plan net s'arrête à
-  `y=1308`). Garder une marge d'environ 100-115px entre le bas du plan net
-  et `top`.
+  valeur calibrée pour la géométrie §2, où le plan net s'arrête à `y=1308`).
+  Garder une marge d'environ 100-115px entre le bas du plan net et `top`.
 - **Le corps démarre juste après la fin de l'intro** (§4bis) dans la
   timeline globale de la composition — décaler tous les `start` calculés en
   §5 de `introEnd` (durée totale de l'intro, cf. §4bis), pas de `t=0`.
@@ -277,7 +335,8 @@ Ne PAS ajouter de dégradé d'assombrissement en bas du cadre (`scrim-bottom`)
   mots-là. Pas de sélection "au jugé" — c'est Thomas qui marque explicitement
   le(s) mot(s)/la ou les lignes à encadrer en écrivant le brouillon.
   Un carré fusionné derrière chaque groupe de mots consécutifs marqués,
-  couleur `--ocre`, texte toujours crème (pas d'inversion de couleur).
+  couleur `var(--ocre-render)` (cf. §3), texte toujours crème (pas
+  d'inversion de couleur).
 - **Découpage en lignes** : à la main (pas d'auto-wrap côté HTML/HyperFrames
   contrairement au canvas de l'éditeur) — composer au jugé puis corriger
   après vérification par extraction de frame (§9) si une ligne déborde des
@@ -291,7 +350,7 @@ Ne PAS ajouter de dégradé d'assombrissement en bas du cadre (`scrim-bottom`)
   .t-line { position:absolute; left:96px; right:96px; font-family:'Anton',sans-serif;
             font-size:140px; line-height:1; text-transform:uppercase; color:var(--cream);
             opacity:0; }
-  .kw-box { background:var(--ocre); padding:10px; margin:-10px; display:inline-block; }
+  .kw-box { background:var(--ocre-render); padding:10px; margin:-10px; display:inline-block; }
   ```
   (la marge négative égale au padding annule le décalage de layout — le
   texte encadré reste aligné avec les lignes non encadrées)
@@ -318,11 +377,8 @@ Ne PAS ajouter de dégradé d'assombrissement en bas du cadre (`scrim-bottom`)
   (capé) — rampe **linéaire** (`ease:'none'`), pas d'easing, avec un léger
   décalage vertical 8px→0px qui accompagne le fondu.
 - **Une fois toutes les lignes affichées, le titre reste figé à l'écran
-  1 seconde avant la coupe vers le corps** (nouveau — avant la fusion
-  intro/corps, le titre restait affiché jusqu'à la fin du clip puisque
-  l'intro était le livrable entier ; maintenant il faut couper). Durée
-  totale de l'intro (à utiliser comme `data-duration` du plan vidéo
-  d'intro ET comme offset de démarrage du corps, cf. §4) :
+  1 seconde avant la coupe vers le corps.** Durée totale de l'intro (à
+  utiliser comme offset de démarrage du corps, cf. §4) :
   ```
   introEnd = start + (nombreDeLignes - 1) × revealMs + fadeMs + 1.0
            = 0.3 + (n-1) × 0.62 + 0.22 + 1.0   (secondes)
@@ -330,7 +386,9 @@ Ne PAS ajouter de dégradé d'assombrissement en bas du cadre (`scrim-bottom`)
   À `introEnd`, **masquer les lignes de titre** (`tl.set('.t-line', {opacity:0}, introEnd)`,
   hard-kill sur toutes les lignes en une fois) — le header (ring/wordmark/
   handle/hairline/tag) reste affiché, seul le titre disparaît avant que le
-  plan vidéo suivant (premier plan du corps) ne commence.
+  corps de texte (§4) ne commence. Le plan vidéo, lui, ne change pas : c'est
+  le même composite continu (§2) qui continue de jouer sous les deux
+  couches de texte successives.
 - **Positionnement vertical** : ancrer par le bas, `top` de chaque ligne =
   baseline − ascent avec baseline la plus basse ≈ 1690-1730px (juste
   au-dessus de la zone de sécurité basse) et un écart entre lignes de
@@ -353,6 +411,7 @@ durée_ligne = durée_brute_ligne × facteur
   contenu du corps sans demande explicite.
 - Démarrer le premier bloc du corps à `introEnd + 0.3s` (§4bis) — pas de
   `t≈0.3s` absolu comme avant la fusion, le corps commence après l'intro.
+  `durée_vidéo_disponible` = durée totale de la vidéo moins `introEnd`.
 - `tl.fromTo(..., {opacity:0}, {opacity:1, duration:0.2-0.35, ease:'power2.out'})`
   puis `tl.to(..., {opacity:0, duration:0.18-0.3, ease:'sine.in'})` puis
   `tl.set(..., {opacity:0}, start+dur)` (hard-kill obligatoire, sinon lint
@@ -375,18 +434,22 @@ slug descriptif — avec `hyperframes.json`, `meta.json`, `package.json`
 (copier depuis un projet existant et adapter `name`/`id`), `.gitignore`
 (`node_modules/`, `renders/`, `snapshots/`, `.debug/`), `tokens/fonts.css` +
 `tokens/colors.css` copiés tels quels (source de vérité : palette
-`--ocre`/`--ink`/`--cream`/`--muted-cream` de `editeurs/editeur-series.html`).
+`--ocre`/`--ink`/`--cream`/`--muted-cream` de `editeurs/editeur-series.html`
+— `--ocre-render`, lui, se déclare localement dans `index.html`, cf. §3).
 
 Toujours un projet HyperFrames (le titre animé de l'intro est désormais
 systématique — il n'y a plus de cas "composite ffmpeg seul, sans
-HyperFrames").
+HyperFrames", sauf le cas à part §2 "juste le composite, sans habillage").
 
 Vidéo et audio en enfants directs de `#root`, vidéo mutée
 (`muted playsinline`), son porté par un `<audio>` séparé avec sa propre
-`data-duration` (contrainte HyperFrames — jamais de son sur `<video>`). Le
-plan d'intro et chaque plan du corps sont des éléments `<video>` distincts,
-avec leurs propres `data-start`/`data-duration` respectifs (même mécanisme
-que les segments multi-plans du corps entre eux).
+`data-duration` (contrainte HyperFrames — jamais de son sur `<video>`).
+**Un seul élément `<video>`** pour toute la composition (le composite
+continu de §2) — pas d'élément par plan/segment sauf si le mode curé
+(§1bis, opt-in) a explicitement recomposé la vidéo à partir de plusieurs
+plans mis bout à bout, auquel cas ils restent quand même mergés en un seul
+fichier composite avant d'entrer dans HyperFrames, jamais plusieurs
+`<video>` séquencés par `data-start`/`data-duration`.
 
 ### 8. CTA de fin — carte "RDV DEMAIN", ajoutée systématiquement
 
@@ -419,7 +482,9 @@ composite sombre du reel, pas une continuité visuelle.
 ```bash
 npm run check     # 0 erreur attendu ; le warning StaticGuard "data-end
                    # without data-duration" et le timeout Runtime sont des
-                   # flakes connus, non bloquants si le Lint affiche 0 erreur
+                   # flakes connus, non bloquants si le Lint affiche 0 erreur —
+                   # MAIS le warning "sparse keyframes" (§2) doit lui être
+                   # corrigé avant de livrer, ce n'est pas un flake
 npm run render     # tourne en tâche de fond (>2 min) — laisser tourner,
                    # ne pas sonder, attendre la notification
 ```
@@ -427,11 +492,12 @@ npm run render     # tourne en tâche de fond (>2 min) — laisser tourner,
 Puis concaténer le CTA (§8) sur le fichier obtenu dans `renders/`.
 
 Après concat : extraire des frames à quelques instants clés (titre de
-l'intro à mi-révélation et pleinement révélé, coupe intro→corps, ballon
-officiel/date, but, scoreboard, célébration finale, carte CTA finale) via
-`ffmpeg -ss <t> -frames:v 1` et les lire avec l'outil Read pour vérifier
-visuellement le calage texte/image, la lisibilité, le header et la coupe
-propre vers le CTA — ne jamais livrer sans ce contrôle.
+l'intro à mi-révélation et pleinement révélé, coupe intro→corps — **vérifier
+qu'il n'y a aucun saut de cadrage visible à cette coupe, cf. §2**, quelques
+plans du corps, carte CTA finale) via `ffmpeg -ss <t> -frames:v 1` et les
+lire avec l'outil Read pour vérifier visuellement le calage texte/image, la
+lisibilité, le header, la couleur ocre (cf. §3) et la coupe propre vers le
+CTA — ne jamais livrer sans ce contrôle.
 
 **INTERDIT de livrer un fichier depuis `assets/`** (sources brutes du
 composite, sans header ni texte) — le seul livrable valide est le fichier
