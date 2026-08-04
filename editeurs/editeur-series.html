@@ -331,8 +331,37 @@ Je ne conclus pas, je documente.</textarea>
 const C = {
   newsprint:'#F1ECE1', encre:'#2C2823', vert:'#27543C', vertD:'#1F4430',
   ocre:'#C2A04E', creme:'#EDDCB2', soustitre:'#D1C1A3', line:'#EDDCB2',
-  rouille:'#A8452B'
+  rouille:'#A8452B',
+  /* fond crème désaturé de 25% (HSL, S×0.75), réservé à L'arrêt de jeu —
+     #EDDCB2 (62.1% sat) -> #E6D9B9 (46.6% sat). Ne pas toucher C.creme,
+     qui reste la référence pour les 3 autres séries. */
+  cremeEnquete:'#E6D9B9'
 };
+
+/* ===== trame de journal (halftone), L'arrêt de jeu uniquement — grille de
+   petits points construite une seule fois sur un canvas hors-écran (tuile
+   répétée via CanvasPattern), beaucoup plus rapide qu'un point par point à
+   chaque redraw. Le CanvasPattern renvoyé par createPattern n'est pas lié à
+   son contexte d'origine : on peut le mettre en cache et le réutiliser tel
+   quel comme fillStyle sur n'importe quel contexte. */
+let _newsprintTile=null;
+function newsprintPattern(g){
+  if(!_newsprintTile){
+    const size=9, off=document.createElement('canvas');
+    off.width=size; off.height=size;
+    const og=off.getContext('2d');
+    og.fillStyle='rgba(44,40,35,0.4)';
+    og.beginPath(); og.arc(size/2,size/2,1,0,Math.PI*2); og.fill();
+    _newsprintTile=off;
+  }
+  return g.createPattern(_newsprintTile,'repeat');
+}
+function drawNewsprintTrame(g,W,H){
+  g.save();
+  g.fillStyle=newsprintPattern(g);
+  g.fillRect(0,0,W,H);
+  g.restore();
+}
 
 /* ===== Séries : couche de signature par-dessus le template cover ===== */
 const SERIES = {
@@ -972,6 +1001,10 @@ function draw(){
   g.fillStyle=grad; g.fillRect(0,start,W,end-start);
   g.fillStyle='rgba(44,40,35,'+a+')'; g.fillRect(0,end,W,H-end);
 
+  /* trame de journal — L'arrêt de jeu uniquement, par-dessus le média/
+     dégradé et sous tout le texte */
+  if(state.serie==='arretdejeu') drawNewsprintTrame(g,W,H);
+
   const isVert=state.ratio==='9:16';
   const M = isVert ? 96 : 50, MR = isVert ? 96 : 120;
 
@@ -1179,11 +1212,13 @@ function drawCTA(W,H,s){
   const g=ctx;
   const isVert=state.ratio==='9:16';
   const M=isVert?96:50, MR=isVert?96:120;
-  /* fond crème + stries */
-  g.fillStyle=C.creme; g.fillRect(0,0,W,H);
+  /* fond crème (désaturé de 25% pour L'arrêt de jeu) + stries, + trame de
+     journal (L'arrêt de jeu uniquement) */
+  g.fillStyle=(state.serie==='arretdejeu')?C.cremeEnquete:C.creme; g.fillRect(0,0,W,H);
   g.save(); g.strokeStyle='rgba(44,40,35,0.06)'; g.lineWidth=2;
   for(let i=-H;i<W+H;i+=46){ g.beginPath(); g.moveTo(i,0); g.lineTo(i+H,H); g.stroke(); }
   g.restore();
+  if(state.serie==='arretdejeu') drawNewsprintTrame(g,W,H);
 
   /* header (encre, point vert) */
   const ringD=92, ringC=66+safeTop()+ringD/2;
@@ -1260,11 +1295,13 @@ function drawCitation(W,H,s){
      confondu avec le fond) : il garde l'encre du reste de la citation */
   const ACC = (state.serie==='portraits') ? C.encre : s.sig;
 
-  /* fond crème + stries sombres */
-  g.fillStyle=C.creme; g.fillRect(0,0,W,H);
+  /* fond crème (désaturé de 25% pour L'arrêt de jeu) + stries sombres +
+     trame de journal (L'arrêt de jeu uniquement) */
+  g.fillStyle=(state.serie==='arretdejeu')?C.cremeEnquete:C.creme; g.fillRect(0,0,W,H);
   g.save(); g.strokeStyle='rgba(44,40,35,0.05)'; g.lineWidth=2;
   for(let i=-H;i<W+H;i+=46){ g.beginPath(); g.moveTo(i,0); g.lineTo(i+H,H); g.stroke(); }
   g.restore();
+  if(state.serie==='arretdejeu') drawNewsprintTrame(g,W,H);
 
   /* header encre */
   const ringD=92, ringC=66+safeTop()+ringD/2;
@@ -1387,12 +1424,16 @@ function drawVerbatim(W,H,s){
     g.fillStyle=lg; g.fillRect(0,0,splitX,H);
   }
 
-  /* --- panneau droit : fond crème + stries fines (identique drawCitation) --- */
-  g.fillStyle=C.creme; g.fillRect(splitX,0,W-splitX,H);
+  /* --- panneau droit : fond crème désaturé de 25% + stries fines (identique
+     drawCitation) --- */
+  g.fillStyle=C.cremeEnquete; g.fillRect(splitX,0,W-splitX,H);
   g.save(); g.beginPath(); g.rect(splitX,0,W-splitX,H); g.clip();
   g.strokeStyle='rgba(44,40,35,0.05)'; g.lineWidth=2;
   for(let i=-H;i<W+H;i+=46){ g.beginPath(); g.moveTo(i,0); g.lineTo(i+H,H); g.stroke(); }
   g.restore();
+
+  /* trame de journal, par-dessus les deux panneaux */
+  drawNewsprintTrame(g,W,H);
 
   // ===== HEADER — identique aux autres templates de L'arrêt de jeu (cover/titre/corps) :
   // même anneau/monogramme, même wordmark, même tag de série, mêmes marges M/MR pleine largeur.
@@ -1789,10 +1830,11 @@ function drawEnqueteTemoin(W,H,s){
   const g=ctx, isVert=state.ratio==='9:16';
   const M=isVert?96:50, MR=isVert?96:120, rightEdge=W-MR;
 
-  g.fillStyle=C.creme; g.fillRect(0,0,W,H);
+  g.fillStyle=C.cremeEnquete; g.fillRect(0,0,W,H);
   g.save(); g.strokeStyle='rgba(44,40,35,0.05)'; g.lineWidth=2;
   for(let i=-H;i<W+H;i+=46){ g.beginPath(); g.moveTo(i,0); g.lineTo(i+H,H); g.stroke(); }
   g.restore();
+  drawNewsprintTrame(g,W,H);
 
   const ringD=92, ringC=66+safeTop()+ringD/2;
   g.strokeStyle=C.encre; g.lineWidth=4;
@@ -1884,10 +1926,11 @@ function drawEnqueteDuo(W,H,s){
   const g=ctx, isVert=state.ratio==='9:16';
   const M=isVert?96:50, MR=isVert?96:120, rightEdge=W-MR;
 
-  g.fillStyle=C.creme; g.fillRect(0,0,W,H);
+  g.fillStyle=C.cremeEnquete; g.fillRect(0,0,W,H);
   g.save(); g.strokeStyle='rgba(44,40,35,0.05)'; g.lineWidth=2;
   for(let i=-H;i<W+H;i+=46){ g.beginPath(); g.moveTo(i,0); g.lineTo(i+H,H); g.stroke(); }
   g.restore();
+  drawNewsprintTrame(g,W,H);
 
   const ringD=92, ringC=66+safeTop()+ringD/2;
   g.strokeStyle=C.encre; g.lineWidth=4;
@@ -2034,10 +2077,11 @@ function drawEnqueteTitre(W,H,s){
   const g=ctx, isVert=state.ratio==='9:16';
   const M=isVert?96:50, MR=isVert?96:120, rightEdge=W-MR;
 
-  g.fillStyle=C.creme; g.fillRect(0,0,W,H);
+  g.fillStyle=C.cremeEnquete; g.fillRect(0,0,W,H);
   g.save(); g.strokeStyle='rgba(44,40,35,0.05)'; g.lineWidth=2;
   for(let i=-H;i<W+H;i+=46){ g.beginPath(); g.moveTo(i,0); g.lineTo(i+H,H); g.stroke(); }
   g.restore();
+  drawNewsprintTrame(g,W,H);
 
   const ringD=92, ringC=66+safeTop()+ringD/2;
   g.strokeStyle=C.encre; g.lineWidth=4;
@@ -2169,10 +2213,11 @@ function drawEnqueteEcho(W,H,s){
   const g=ctx, isVert=state.ratio==='9:16';
   const M=isVert?96:50, MR=isVert?96:120, rightEdge=W-MR;
 
-  g.fillStyle=C.creme; g.fillRect(0,0,W,H);
+  g.fillStyle=C.cremeEnquete; g.fillRect(0,0,W,H);
   g.save(); g.strokeStyle='rgba(44,40,35,0.05)'; g.lineWidth=2;
   for(let i=-H;i<W+H;i+=46){ g.beginPath(); g.moveTo(i,0); g.lineTo(i+H,H); g.stroke(); }
   g.restore();
+  drawNewsprintTrame(g,W,H);
 
   const ringD=92, ringC=66+safeTop()+ringD/2;
   g.strokeStyle=C.encre; g.lineWidth=4;
