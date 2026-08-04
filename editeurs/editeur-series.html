@@ -2219,14 +2219,19 @@ function drawEnqueteEcho(W,H,s){
      CITATION · INTERVIEW), gros guillemet fermant en bas — référence :
      grosses coupures « 66 »/« 99 » encadrant la citation --- */
   const padX=panelRight+56, rightW=rightEdge-padX;
-  const markSize=200;
+  const markSize=600;
   const markTop=tagY+tagH+36;
   g.font=markSize+"px 'Anton'"; g.fillStyle=s.sig; g.textAlign='left'; g.textBaseline='alphabetic';
   g.fillText('“', padX-8, markTop+markSize*0.72);
 
   const quoteTop=markTop+markSize*0.8;
   const quoteBottom=(showFooter?footY-46:H-70-safeBottom())-34;
-  const maxH=Math.max(60,quoteBottom-quoteTop);
+  /* réserve de la place SOUS le texte pour la signature + le guillemet
+     fermant (calculés plus bas) — sans cette réserve, une citation très
+     longue peut remplir tout maxH et repousser la signature/le guillemet
+     jusqu'à chevaucher le filet/pagination, avant même que leur propre
+     filet de sécurité (réduction du guillemet) n'entre en jeu */
+  const maxH=Math.max(60,(quoteBottom-140)-quoteTop);
 
   function layoutRichWords(size){
     const plainFull=stripBold(state.quote), mask=boldMask(state.quote);
@@ -2270,16 +2275,41 @@ function drawEnqueteEcho(W,H,s){
     });
   });
 
-  /* auteur sous la citation + gros guillemet fermant à droite, aligné sur
-     la même ligne (référence : « 99 » posé au niveau de la signature) */
+  /* auteur sous la citation, puis gros guillemet fermant qui descend SOUS
+     la signature (référence : « 99 »). À cette taille, ancrer sa BASE près
+     de la signature comme avant ferait remonter son sommet (glyphe ~0.7×
+     sa taille de fonte) tout droit dans le bloc de citation — on l'ancre
+     donc par le HAUT, juste sous la signature, il grandit vers le bas. */
   const qBlockBottom=quoteTop+qLines.length*qLineH;
   const authorY=qBlockBottom+56;
   if(state.quoteAuthor && state.quoteAuthor.trim()){
     g.fillStyle=C.encre; g.font="38px 'Saira Condensed'"; g.textAlign='left';
     g.fillText('— '+state.quoteAuthor.trim().toUpperCase(), padX, authorY);
   }
-  g.font=markSize+"px 'Anton'"; g.fillStyle=s.sig; g.textAlign='right';
-  g.fillText('”', rightEdge, authorY+markSize*0.28);
+  const closeTop=authorY+26;
+  /* à cette taille, une citation longue (donc une signature repoussée plus
+     bas) peut ne plus laisser assez de place avant le filet/pagination —
+     on réduit le guillemet fermant juste assez pour tenir plutôt que de le
+     laisser déborder dessus (mesure réelle du glyphe, pas un ratio
+     approximatif : le fantaisie du guillemet dépasse plus haut que les
+     lettres capitales à cette taille) */
+  const closeAvailH=Math.max(40, (showFooter?footY-46:H-90) - closeTop - 16);
+  g.textBaseline='alphabetic'; g.textAlign='right';
+  /* réduction itérative (pas une formule algébrique one-shot) : plus fiable
+     que de déduire la taille voulue depuis un ratio, les métriques de
+     police n'étant pas parfaitement linéaires d'une taille à l'autre */
+  const numOr=(v,fallback)=> (typeof v==='number' && isFinite(v)) ? v : fallback;
+  let closeSize=markSize, closeM=null, closeH=0;
+  while(true){
+    g.font=closeSize+"px 'Anton'";
+    closeM=g.measureText('”');
+    closeH=numOr(closeM.actualBoundingBoxAscent,closeSize*0.72)+numOr(closeM.actualBoundingBoxDescent,closeSize*0.08);
+    if(closeH<=closeAvailH || closeSize<=60) break;
+    closeSize=Math.max(60,closeSize-8);
+  }
+  const closeAsc=numOr(closeM.actualBoundingBoxAscent,closeSize*0.72);
+  g.fillStyle=s.sig;
+  g.fillText('”', rightEdge, closeTop+closeAsc);
   g.textAlign='left';
 
   if(showFooter){
