@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 5 août 2021, Barcelone laisse partir Messi</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* deux composites pré-cuits distincts : intro (overlay centré y=655-ish,
+         §2 CLAUDE.md) + corps en 4 plans successifs (overlay fixe y=420/888,
+         §2bis) — chaque <video> plein cadre, empilés dans le temps */
+      .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+
+      /* header — constantes fixes de la série, persistant du début à la
+         fin du reel (intro et corps), jamais ré-animé ni masqué */
+      #hdr { position: absolute; inset: 0 0 auto 0; z-index: 20; }
+      .ring {
+        position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
+        border: 4px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
+
+      /* --ocre-render : compensation du décalage de teinte du pipeline de
+         render HyperFrames sur --ocre (cf. commentaire équivalent dans
+         2026-08-04/index.html) */
+      :root { --ocre-render: #B9A456; }
+      .tag {
+        position: absolute; left: 96px; top: 350px; height: 58px; z-index: 20;
+        display: flex; align-items: center; background: var(--ocre-render); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; padding: 0 15px;
+      }
+
+      /* titre animé de l'intro — Anton, aligné à gauche, sans ombre portée,
+         mots-clés (marqués **entre étoiles** dans le brouillon) encadrés
+         d'un carré ocre. 5 lignes à 130px, même gabarit vertical que le
+         titre 5 lignes validé sur cejourla-4aout-reel */
+      .title-zone { position: absolute; inset: 0; z-index: 10; }
+      .t-line {
+        position: absolute; left: 96px; right: 96px;
+        font-family: 'Anton', sans-serif; font-size: 130px; line-height: 1;
+        text-transform: uppercase; color: var(--cream); opacity: 0;
+      }
+      .kw-box { background: var(--ocre-render); padding: 10px; margin: -10px; display: inline-block; }
+
+      /* corps de texte animé — centré même sur plusieurs lignes, pas de
+         scrim sombre (lisibilité via l'ombre portée du texte uniquement) */
+      .text-zone { position: absolute; left: 96px; right: 96px; top: 1420px; transform: translateY(-50%); z-index: 10; text-align: center; }
+      .text-chunk {
+        position: absolute; left: 0; right: 0; top: 0; transform: translateY(-50%); opacity: 0;
+        font-family: 'Archivo', sans-serif; font-weight: 500; font-size: 36px; line-height: 1.35;
+        color: var(--cream); text-shadow: 0 2px 16px rgba(0,0,0,.65), 0 1px 4px rgba(0,0,0,.8);
+      }
+      .text-chunk b { font-weight: 800; color: var(--cream); }
+      .text-chunk b.ocre { color: var(--ocre-render); }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="37.90"
+      data-fps="30"
+    >
+      <!-- intro : premier plan réel de la source (conférence de presse
+           d'adieu), composite §2 (overlay centré verticalement, pas de
+           zone de texte réservée) -->
+      <video class="video-full" id="vintro" src="assets/intro-composite.mp4" data-start="0.0000" data-duration="4.0000" data-track-index="1" muted playsinline></video>
+
+      <!-- corps : 4 plans réels successifs, contigus dans la source
+           (3.98s → fin, aucun plan sauté ni réordonné), composite §2bis
+           (overlay fixe y=420/888) -->
+      <video class="video-full" id="vA" src="assets/corpsA.mp4" data-start="4.0000" data-duration="5.3667" data-track-index="1" muted playsinline></video>
+      <video class="video-full" id="vB" src="assets/corpsB.mp4" data-start="9.3667" data-duration="8.7000" data-track-index="1" muted playsinline></video>
+      <video class="video-full" id="vC" src="assets/corpsC.mp4" data-start="18.0667" data-duration="8.0000" data-track-index="1" muted playsinline></video>
+      <video class="video-full" id="vD" src="assets/corpsD.mp4" data-start="26.0667" data-duration="11.8000" data-track-index="1" muted playsinline></video>
+
+      <audio id="corpsa" src="assets/corps-audio.m4a" data-start="4.0000" data-duration="33.8030" data-track-index="20"></audio>
+
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+      <div class="tag">CE JOUR LÀ …</div>
+
+      <!-- titre du post (champ TITRE du brouillon "POST DU JOUR — 5 août
+           2026"), mots-clés marqués **entre étoiles** encadrés -->
+      <div class="title-zone">
+        <div class="t-line" id="t1" style="top:1100px">5 AOÛT 2021 :</div>
+        <div class="t-line" id="t2" style="top:1220px">MESSI QUITTE</div>
+        <div class="t-line" id="t3" style="top:1340px">LE BARCA</div>
+        <div class="t-line" id="t4" style="top:1460px"><span class="kw-box">À CAUSE DE</span></div>
+        <div class="t-line" id="t5" style="top:1580px"><span class="kw-box">LEURS FINANCES</span></div>
+      </div>
+
+      <!-- corps du post (champ CORPS du même brouillon), texte intégral
+           repris tel quel, découpé en unités de sens, mots-clés en
+           gras/ocre -->
+      <div class="text-zone">
+        <div class="text-chunk" id="l1">Un jeudi soir d&rsquo;août, le <b class="ocre">FC Barcelone</b> publie un communiqué de quelques lignes.</div>
+        <div class="text-chunk" id="l2"><b class="ocre">Lionel Messi</b> ne continuera pas au club.</div>
+        <div class="text-chunk" id="l3">Vingt et un ans, <b class="ocre">six Ballons d&rsquo;Or</b>, <b>672 buts</b>. Terminé à cause des finances.</div>
+        <div class="text-chunk" id="l4">Le plus fou, c&rsquo;est que tout était <b>réglé</b>.</div>
+        <div class="text-chunk" id="l5">Quelques semaines avant, joueur et dirigeants s&rsquo;étaient mis d&rsquo;accord sur <b>cinq ans</b> de plus, et Messi avait accepté de <b class="ocre">diviser son salaire par deux</b>.</div>
+        <div class="text-chunk" id="l6">Il voulait <b class="ocre">rester</b> à ce point-là.</div>
+        <div class="text-chunk" id="l7">Sauf que <b class="ocre">la Liga</b> venait de baisser le plafond de dépenses du club pour la saison, et qu&rsquo;avec une dette de <b>plus d&rsquo;un milliard</b>, même un Messi à moitié prix ne rentrait plus dans les clous.</div>
+        <div class="text-chunk" id="l8">La Liga <b class="ocre">refuse</b> d&rsquo;enregistrer le contrat. Le contrat n&rsquo;existe pas. Le joueur non plus.</div>
+        <div class="text-chunk" id="l9">Cinq jours plus tard, il signe deux ans au <b class="ocre">Paris Saint-Germain</b>.</div>
+        <div class="text-chunk" id="l10"><b>Aucun rival</b> n&rsquo;est venu le chercher, <b>aucune brouille</b> ne l&rsquo;a poussé dehors.</div>
+        <div class="text-chunk" id="l11">Le <b>meilleur joueur</b> de l&rsquo;histoire du club a été sorti par une <b class="ocre">ligne de tableur</b>.</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      /* titre animé de l'intro — vitesse figée ×1 (§4bis CLAUDE.md) :
+         revealMs=620/1=0.62s, fadeMs=clamp(80,220,revealMs*0.6)=0.22s,
+         rampe linéaire, léger décalage vertical 8px→0 sur le fondu.
+         5 lignes → introEnd = 0.3 + 4*0.62 + 0.22 + 1.0 = 4.0s */
+      const tStart = 0.3, revealMs = 0.62, fadeMs = 0.22;
+      const tLines = ['#t1', '#t2', '#t3', '#t4', '#t5'];
+      tLines.forEach((sel, i) => {
+        tl.fromTo(sel, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: fadeMs, ease: 'none' }, tStart + i * revealMs);
+      });
+      const introEnd = 4.0;
+      tl.set('.t-line', { opacity: 0 }, introEnd);
+
+      /* corps — 11 unités de sens, rythme calculé sur la durée vidéo
+         disponible (§5 CLAUDE.md) : 160 mots pour 33.57s de corps
+         disponible (33.8667s de vidéo corps, moins 0.3s de pré-roll) —
+         facteur ≈0.682 (compression, vidéo plus courte que le texte au
+         rythme naturel — compressé plutôt que coupé, conformément à la
+         règle), pauses de 0.15s entre blocs ; premier bloc démarre à
+         introEnd + 0.3s */
+      const lines = [
+        { id: 'l1',  start: 4.300,  dur: 2.631, inD: 0.30, outD: 0.24 },
+        { id: 'l2',  start: 7.081,  dur: 1.527, inD: 0.22, outD: 0.18 },
+        { id: 'l3',  start: 8.758,  dur: 2.815, inD: 0.30, outD: 0.24 },
+        { id: 'l4',  start: 11.723, dur: 1.711, inD: 0.25, outD: 0.20 },
+        { id: 'l5',  start: 13.584, dur: 4.655, inD: 0.30, outD: 0.24 },
+        { id: 'l6',  start: 18.389, dur: 1.343, inD: 0.20, outD: 0.16 },
+        { id: 'l7',  start: 19.882, dur: 6.864, inD: 0.30, outD: 0.24 },
+        { id: 'l8',  start: 26.896, dur: 2.815, inD: 0.30, outD: 0.24 },
+        { id: 'l9',  start: 29.861, dur: 2.263, inD: 0.25, outD: 0.20 },
+        { id: 'l10', start: 32.274, dur: 2.447, inD: 0.25, outD: 0.20 },
+        { id: 'l11', start: 34.871, dur: 2.999, inD: 0.30, outD: 0.24 },
+      ];
+
+      lines.forEach(({ id, start, dur, inD, outD }) => {
+        tl.fromTo(`#${id}`, { opacity: 0 }, { opacity: 1, duration: inD, ease: 'power2.out' }, start);
+        tl.to(`#${id}`, { opacity: 0, duration: outD, ease: 'sine.in' }, start + dur - outD);
+        tl.set(`#${id}`, { opacity: 0 }, start + dur);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
