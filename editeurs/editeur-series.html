@@ -1820,10 +1820,10 @@ function drawEnqueteTemoin(W,H,s){
   const titleMaxW=photoX-M;
   const words=state.title.trim().split(/\s+/).filter(Boolean);
   const [l1,l2]=splitTitleTwoLines(words);
-  let tSize=88; g.font=tSize+"px 'Anton'";
+  let tSize=170; g.font=tSize+"px 'Anton'";
   const longest=Math.max(g.measureText(l1.join(' ').toUpperCase()).width,g.measureText((l2.join(' ')||'').toUpperCase()).width,1);
   if(longest>titleMaxW) tSize=Math.floor(tSize*titleMaxW/longest);
-  tSize=Math.max(40,Math.min(88,tSize));
+  tSize=Math.max(40,Math.min(170,tSize));
   const lh=tSize*0.94;
   g.font=tSize+"px 'Anton'"; g.textBaseline='alphabetic'; g.textAlign='left';
   const ty1=panelTop+tSize;
