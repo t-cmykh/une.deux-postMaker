@@ -1,0 +1,490 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — L'arrêt de jeu · Infantino, entre pouvoir et argent : sa présidence tourne-t-elle au fiasco ?</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      .clip { opacity: 0; }
+
+      /* ===== header — identique au reste de la série (M=MR=96, ringD=92,
+         ringY=216, hairline y=318), persistant ===== */
+      #hdr { position: absolute; inset: 0 0 auto 0; z-index: 30; }
+      .ring {
+        position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
+        border: 4px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
+      .tag {
+        position: absolute; left: 96px; top: 350px; height: 58px; z-index: 30;
+        display: flex; align-items: center; background: var(--rouille); color: var(--cream);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; padding: 0 15px;
+      }
+
+      /* ===== zone visuelle principale — placeholders archives/logos ou
+         graphiques animés, DA "enquête" de la série ===== */
+      .visual-zone { position: absolute; left: 0; right: 0; top: 420px; height: 860px; overflow: hidden; z-index: 5; }
+      .placeholder-card {
+        position: absolute; inset: 0; background: linear-gradient(160deg, #3a332c 0%, #161310 100%);
+      }
+      .placeholder-card::before {
+        content: ''; position: absolute; inset: -50%;
+        background-image: repeating-linear-gradient(45deg, rgba(241,236,225,0.07) 0px, rgba(241,236,225,0.07) 1.5px, transparent 1.5px, transparent 38px);
+      }
+      .placeholder-card::after {
+        content: ''; position: absolute; inset: 0; background: rgba(168,69,43,0.24);
+      }
+      .ph-inner { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 2; text-align: center; padding: 0 80px; }
+      .ph-eyebrow { font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 24px; letter-spacing: .14em; text-transform: uppercase; color: var(--rouille); margin-bottom: 18px; }
+      .ph-desc { font-family: 'Saira Condensed', sans-serif; font-weight: 700; font-size: 44px; line-height: 1.15; text-transform: uppercase; color: var(--cream); }
+      .ph-icon { width: 84px; height: 84px; border: 3px solid var(--muted-cream); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 26px; opacity: .8; }
+      .ph-icon svg { width: 38px; height: 38px; }
+
+      /* ===== graphiques ===== */
+      .g-wrap { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 2; text-align: center; padding: 0 90px; }
+      .g-eyebrow { font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 24px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted-cream); margin-bottom: 20px; }
+      .g-stat { font-family: 'Anton', sans-serif; font-size: 140px; line-height: .9; color: var(--rouille); }
+      .g-stat.small { font-size: 100px; }
+      .g-sub { font-family: 'Saira Condensed', sans-serif; font-weight: 700; font-size: 36px; line-height: 1.2; text-transform: uppercase; color: var(--cream); margin-top: 22px; }
+      .g-arrow { font-family: 'Anton', sans-serif; font-size: 70px; color: var(--muted-cream); margin: 10px 0; }
+
+      /* ===== carte citation (S8) ===== */
+      .quote-card { position: absolute; inset: 0; background: linear-gradient(160deg, #3a332c 0%, #161310 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 96px; text-align: center; z-index: 2; }
+      .quote-mark { font-family: 'Anton', sans-serif; font-size: 110px; color: var(--rouille); line-height: .5; margin-bottom: 22px; opacity: .9; }
+      .quote-text { font-family: 'Archivo', sans-serif; font-weight: 600; font-style: italic; font-size: 46px; line-height: 1.32; color: var(--cream); }
+      .quote-text b { font-style: normal; color: var(--rouille); }
+      .quote-author { margin-top: 30px; font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 26px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted-cream); }
+      .quote-caption { margin-top: 14px; font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 24px; color: var(--rouille); text-transform: uppercase; letter-spacing: .1em; }
+
+      /* ===== texte écran — accroche / stat clé superposée ===== */
+      .screen-text-zone { position: absolute; left: 96px; right: 96px; top: 1310px; z-index: 10; text-align: center; }
+      .screen-text {
+        position: absolute; left: 0; right: 0; top: 0; font-family: 'Anton', sans-serif; font-size: 56px;
+        line-height: 1.08; text-transform: uppercase; color: var(--cream);
+        text-shadow: 0 2px 16px rgba(0,0,0,.65), 0 1px 4px rgba(0,0,0,.8);
+      }
+      .screen-text b { color: var(--rouille); background: rgba(168,69,43,0.18); padding: 0 8px; }
+
+      .poll-row { position: absolute; left: 0; right: 0; top: 190px; display: flex; align-items: center; justify-content: center; gap: 24px; }
+      .poll-chip {
+        font-family: 'Saira Condensed', sans-serif; font-weight: 700; font-size: 30px; text-transform: uppercase;
+        color: var(--cream); background: rgba(241,236,225,0.10); border: 2px solid var(--muted-cream);
+        border-radius: 999px; padding: 14px 28px;
+      }
+      .poll-vs { font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 26px; color: var(--muted-cream); text-transform: uppercase; }
+
+      /* ===== sous-titres (remplacent la voix off) ===== */
+      .caption-zone { position: absolute; left: 96px; right: 96px; top: 1560px; z-index: 15; text-align: center; }
+      .caption-line {
+        position: absolute; left: 0; right: 0; top: 0; font-family: 'Archivo', sans-serif; font-weight: 600;
+        font-size: 33px; line-height: 1.32; color: var(--cream);
+        text-shadow: 0 2px 14px rgba(0,0,0,.7), 0 1px 4px rgba(0,0,0,.85);
+      }
+      .caption-line b { font-family: 'Anton', sans-serif; font-weight: 400; font-size: 1.22em; color: var(--rouille); }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="106.00"
+      data-fps="30"
+    >
+      <!-- ============ ZONE VISUELLE (placeholders + graphiques) ============ -->
+      <div class="visual-zone">
+
+        <!-- S1 — HOOK (0.00-6.20) -->
+        <div class="placeholder-card clip" id="v1" data-start="0.00" data-duration="1.00">
+          <div class="ph-inner">
+            <div class="ph-icon"><svg viewBox="0 0 24 24" fill="none" stroke="var(--muted-cream)" stroke-width="1.6"><path d="M3 7l4-3h10l4 3v12a1 1 0 01-1 1H4a1 1 0 01-1-1V7z"/><circle cx="12" cy="13" r="4"/></svg></div>
+            <div class="ph-eyebrow">Placeholder — Photo</div>
+            <div class="ph-desc">Gianni Infantino, conférence de presse</div>
+          </div>
+        </div>
+        <div class="placeholder-card clip" id="v2" data-start="1.00" data-duration="1.00">
+          <div class="ph-inner">
+            <div class="ph-eyebrow">Placeholder — Logo</div>
+            <div class="ph-desc">FIFA</div>
+          </div>
+        </div>
+        <div class="placeholder-card clip" id="v3" data-start="2.00" data-duration="1.00">
+          <div class="ph-inner">
+            <div class="ph-icon"><svg viewBox="0 0 24 24" fill="none" stroke="var(--muted-cream)" stroke-width="1.6"><path d="M3 7l4-3h10l4 3v12a1 1 0 01-1 1H4a1 1 0 01-1-1V7z"/><circle cx="12" cy="13" r="4"/></svg></div>
+            <div class="ph-eyebrow">Placeholder — Photo</div>
+            <div class="ph-desc">Jet privé sur tarmac, Qatar Airways</div>
+          </div>
+        </div>
+        <div class="placeholder-card clip" id="v4" data-start="3.00" data-duration="3.20">
+          <div class="ph-inner">
+            <div class="ph-icon"><svg viewBox="0 0 24 24" fill="none" stroke="var(--muted-cream)" stroke-width="1.6"><path d="M3 7l4-3h10l4 3v12a1 1 0 01-1 1H4a1 1 0 01-1-1V7z"/><circle cx="12" cy="13" r="4"/></svg></div>
+            <div class="ph-eyebrow">Placeholder — Photo</div>
+            <div class="ph-desc">Siège de la FIFA, Zurich</div>
+          </div>
+        </div>
+
+        <!-- S2 — LE CONSTAT (6.20-16.20) -->
+        <div class="placeholder-card clip" id="v5" data-start="6.20" data-duration="3.40">
+          <div class="g-wrap">
+            <div class="g-eyebrow">Salaire 2025</div>
+            <div class="g-stat"><span id="n1">0</span>&nbsp;M$</div>
+            <div class="g-sub">le salaire du président de la FIFA</div>
+          </div>
+        </div>
+        <div class="placeholder-card clip" id="v6" data-start="9.60" data-duration="3.40">
+          <div class="g-wrap">
+            <div class="g-eyebrow">Sur un an</div>
+            <div class="g-stat">+<span id="n2">0</span>&nbsp;%</div>
+            <div class="g-sub">de hausse de son bonus</div>
+          </div>
+        </div>
+        <div class="placeholder-card clip" id="v7" data-start="13.00" data-duration="3.20">
+          <div class="ph-inner">
+            <div class="ph-eyebrow">Placeholder — Photo</div>
+            <div class="ph-desc">Statuts de la FIFA, art. 1</div>
+          </div>
+        </div>
+
+        <!-- S3 — LES JETS PRIVÉS (16.20-26.20) -->
+        <div class="placeholder-card clip" id="v8" data-start="16.20" data-duration="3.40">
+          <div class="ph-inner">
+            <div class="ph-icon"><svg viewBox="0 0 24 24" fill="none" stroke="var(--muted-cream)" stroke-width="1.6"><path d="M3 7l4-3h10l4 3v12a1 1 0 01-1 1H4a1 1 0 01-1-1V7z"/><circle cx="12" cy="13" r="4"/></svg></div>
+            <div class="ph-eyebrow">Placeholder — Photo</div>
+            <div class="ph-desc">Aile d'un jet, livrée Qatar Airways</div>
+          </div>
+        </div>
+        <div class="placeholder-card clip" id="v9" data-start="19.60" data-duration="3.40">
+          <div class="g-wrap">
+            <div class="g-eyebrow">Enquête Josimar, 2021-2024</div>
+            <div class="g-stat small"><span id="n3">0</span>&nbsp;000&nbsp;KM</div>
+            <div class="g-sub">parcourus en jet privé en 3 ans</div>
+          </div>
+        </div>
+        <div class="placeholder-card clip" id="v10" data-start="23.00" data-duration="3.20">
+          <div class="g-wrap">
+            <div class="g-stat small">×15</div>
+            <div class="g-sub">soit environ 15 fois le tour de la Terre</div>
+          </div>
+        </div>
+
+        <!-- S4 — LE CONGRÈS DU PARAGUAY (26.20-38.20) -->
+        <div class="placeholder-card clip" id="v11" data-start="26.20" data-duration="3.40">
+          <div class="ph-inner">
+            <div class="ph-icon"><svg viewBox="0 0 24 24" fill="none" stroke="var(--muted-cream)" stroke-width="1.6"><path d="M3 7l4-3h10l4 3v12a1 1 0 01-1 1H4a1 1 0 01-1-1V7z"/><circle cx="12" cy="13" r="4"/></svg></div>
+            <div class="ph-eyebrow">Placeholder — Photo</div>
+            <div class="ph-desc">Congrès de la FIFA, Asunción</div>
+          </div>
+        </div>
+        <div class="placeholder-card clip" id="v12" data-start="29.60" data-duration="3.40">
+          <div class="g-wrap">
+            <div class="g-eyebrow">Mai 2025</div>
+            <div class="g-stat">2H17</div>
+            <div class="g-sub">de retard au Congrès de la FIFA</div>
+          </div>
+        </div>
+        <div class="placeholder-card clip" id="v13" data-start="33.00" data-duration="5.20">
+          <div class="ph-inner">
+            <div class="ph-icon"><svg viewBox="0 0 24 24" fill="none" stroke="var(--muted-cream)" stroke-width="1.6"><path d="M3 7l4-3h10l4 3v12a1 1 0 01-1 1H4a1 1 0 01-1-1V7z"/><circle cx="12" cy="13" r="4"/></svg></div>
+            <div class="ph-eyebrow">Placeholder — Photo</div>
+            <div class="ph-desc">La délégation UEFA quitte la salle</div>
+          </div>
+        </div>
+
+        <!-- S5 — LA RÉSIDENCE À DOHA (38.20-47.20) -->
+        <div class="placeholder-card clip" id="v14" data-start="38.20" data-duration="3.40">
+          <div class="ph-inner">
+            <div class="ph-icon"><svg viewBox="0 0 24 24" fill="none" stroke="var(--muted-cream)" stroke-width="1.6"><path d="M3 7l4-3h10l4 3v12a1 1 0 01-1 1H4a1 1 0 01-1-1V7z"/><circle cx="12" cy="13" r="4"/></svg></div>
+            <div class="ph-eyebrow">Placeholder — Photo</div>
+            <div class="ph-desc">Doha, skyline</div>
+          </div>
+        </div>
+        <div class="placeholder-card clip" id="v15" data-start="41.60" data-duration="3.00">
+          <div class="g-wrap">
+            <div class="g-eyebrow">Siège de Zurich</div>
+            <div class="g-stat small"><span id="n4">0</span>+</div>
+            <div class="g-sub">salariés de la FIFA restés sur place</div>
+          </div>
+        </div>
+        <div class="placeholder-card clip" id="v16" data-start="44.60" data-duration="2.60">
+          <div class="ph-inner">
+            <div class="ph-icon"><svg viewBox="0 0 24 24" fill="none" stroke="var(--muted-cream)" stroke-width="1.6"><path d="M3 7l4-3h10l4 3v12a1 1 0 01-1 1H4a1 1 0 01-1-1V7z"/><circle cx="12" cy="13" r="4"/></svg></div>
+            <div class="ph-eyebrow">Placeholder — Photo</div>
+            <div class="ph-desc">Façade du siège de la FIFA, Zurich</div>
+          </div>
+        </div>
+
+        <!-- S6 — LE MONDIAL 2034 (47.20-59.20) -->
+        <div class="placeholder-card clip" id="v17" data-start="47.20" data-duration="3.40">
+          <div class="ph-inner">
+            <div class="ph-eyebrow">Placeholder — Logo</div>
+            <div class="ph-desc">Candidature Arabie saoudite 2034</div>
+          </div>
+        </div>
+        <div class="placeholder-card clip" id="v18" data-start="50.60" data-duration="3.40">
+          <div class="g-wrap">
+            <div class="g-eyebrow">Décembre 2024</div>
+            <div class="g-stat">1</div>
+            <div class="g-sub">seul pays candidat pour 2034</div>
+          </div>
+        </div>
+        <div class="placeholder-card clip" id="v19" data-start="54.00" data-duration="5.20">
+          <div class="ph-inner">
+            <div class="ph-icon"><svg viewBox="0 0 24 24" fill="none" stroke="var(--muted-cream)" stroke-width="1.6"><path d="M3 7l4-3h10l4 3v12a1 1 0 01-1 1H4a1 1 0 01-1-1V7z"/><circle cx="12" cy="13" r="4"/></svg></div>
+            <div class="ph-eyebrow">Placeholder — Photo</div>
+            <div class="ph-desc">Chantier de stade, Arabie saoudite</div>
+          </div>
+        </div>
+
+        <!-- S7 — LA COUPE DU MONDE DES CLUBS (59.20-71.20) -->
+        <div class="placeholder-card clip" id="v20" data-start="59.20" data-duration="3.40">
+          <div class="ph-inner">
+            <div class="ph-eyebrow">Placeholder — Logo</div>
+            <div class="ph-desc">PIF — fonds souverain saoudien</div>
+          </div>
+        </div>
+        <div class="placeholder-card clip" id="v21" data-start="62.60" data-duration="3.40">
+          <div class="g-wrap">
+            <div class="g-eyebrow">Coupe du Monde des Clubs, juin-juillet 2025</div>
+            <div class="g-stat small"><span id="n5">0</span>,<span id="n5b">0</span>&nbsp;M</div>
+            <div class="g-sub">sièges vides sur 2,49 M de billets distribués</div>
+          </div>
+        </div>
+        <div class="placeholder-card clip" id="v22" data-start="66.00" data-duration="5.20">
+          <div class="ph-inner">
+            <div class="ph-eyebrow">Placeholder — Logo</div>
+            <div class="ph-desc">Al Hilal (Arabie saoudite)</div>
+          </div>
+        </div>
+
+        <!-- S8 — LA CITATION (71.20-82.20) -->
+        <div class="quote-card clip" id="v23" data-start="71.20" data-duration="5.00">
+          <div class="quote-mark">"</div>
+          <div class="quote-text">Aujourd'hui, je me sens Qatari (…) Aujourd'hui, je me sens comme <b>un travailleur migrant</b>.</div>
+          <div class="quote-author">Gianni Infantino</div>
+          <div class="quote-caption">Conférence de presse, 19 novembre 2022</div>
+        </div>
+        <div class="placeholder-card clip" id="v24" data-start="76.20" data-duration="6.00">
+          <div class="ph-inner">
+            <div class="ph-icon"><svg viewBox="0 0 24 24" fill="none" stroke="var(--muted-cream)" stroke-width="1.6"><path d="M3 7l4-3h10l4 3v12a1 1 0 01-1 1H4a1 1 0 01-1-1V7z"/><circle cx="12" cy="13" r="4"/></svg></div>
+            <div class="ph-eyebrow">Placeholder — Photo</div>
+            <div class="ph-desc">Infantino, veille du Mondial 2022</div>
+          </div>
+        </div>
+
+        <!-- S9 — LA PISTE : les mandats (82.20-95.60) -->
+        <div class="placeholder-card clip" id="v25" data-start="82.20" data-duration="3.40">
+          <div class="g-wrap">
+            <div class="g-eyebrow">Statuts de la FIFA</div>
+            <div class="g-stat small">12 ANS</div>
+            <div class="g-sub">la limite légale de mandat</div>
+          </div>
+        </div>
+        <div class="placeholder-card clip" id="v26" data-start="85.60" data-duration="3.40">
+          <div class="g-wrap">
+            <div class="g-eyebrow">S'il est réélu en 2027</div>
+            <div class="g-stat small">→ 2031</div>
+            <div class="g-sub">ses 3 premières années ne comptent pas</div>
+          </div>
+        </div>
+        <div class="placeholder-card clip" id="v27" data-start="89.00" data-duration="6.60">
+          <div class="ph-inner">
+            <div class="ph-icon"><svg viewBox="0 0 24 24" fill="none" stroke="var(--muted-cream)" stroke-width="1.6"><path d="M3 7l4-3h10l4 3v12a1 1 0 01-1 1H4a1 1 0 01-1-1V7z"/><circle cx="12" cy="13" r="4"/></svg></div>
+            <div class="ph-eyebrow">Placeholder — Photo</div>
+            <div class="ph-desc">Michael Lauber, ex-procureur général suisse</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ============ TEXTE ÉCRAN ============ -->
+      <div class="screen-text-zone">
+        <div class="screen-text clip" id="st1" data-start="0.35" data-duration="5.85">INFANTINO DIRIGE-T-IL ENCORE LA FIFA — OU <b>SON PROPRE POUVOIR</b> ?</div>
+        <div class="screen-text clip" id="st4" data-start="26.50" data-duration="11.50">SON AVION EST ENCORE <b>EN VOL</b> QUAND LE CONGRÈS DEVAIT COMMENCER</div>
+        <div class="screen-text clip" id="st6" data-start="47.50" data-duration="11.50">UN SEUL CANDIDAT. <b>APPLAUDI</b> PAR 200 FÉDÉRATIONS.</div>
+        <div class="screen-text clip" id="st9" data-start="82.50" data-duration="11.40" style="font-size:50px;">LA RÈGLE DES 12 ANS NE <b>S'APPLIQUE PAS À LUI</b></div>
+        <div class="screen-text clip" id="st10" data-start="95.90" data-duration="8.50">SERT-IL LE FOOT ? OU <b>SON PROPRE POUVOIR</b> ?</div>
+        <div class="poll-row clip" id="poll" data-start="99.60" data-duration="5.60">
+          <div class="poll-chip">Le foot ⚽️</div>
+          <div class="poll-vs">ou</div>
+          <div class="poll-chip">Son pouvoir 👑</div>
+        </div>
+      </div>
+
+      <!-- ============ SOUS-TITRES (remplacent la voix off) ============ -->
+      <div class="caption-zone">
+        <div class="caption-line clip" id="c1" data-start="0.30" data-duration="5.90">Neuf ans à la tête du foot mondial. Une seule question revient : au service de qui ?</div>
+
+        <div class="caption-line clip" id="c2a" data-start="6.30" data-duration="3.10">En 2025, son salaire grimpe à <b>6 millions de dollars</b>.</div>
+        <div class="caption-line clip" id="c2b" data-start="9.70" data-duration="3.10">Soit <b>33&nbsp;%</b> de plus qu'un an plus tôt, portés par les bonus de la nouvelle Coupe du Monde des Clubs.</div>
+        <div class="caption-line clip" id="c2c" data-start="13.10" data-duration="2.90">La FIFA, elle, reste statutairement une association à but non lucratif.</div>
+
+        <div class="caption-line clip" id="c3a" data-start="16.30" data-duration="3.00">Le média Josimar a suivi ses trajets en jet privé.</div>
+        <div class="caption-line clip" id="c3b" data-start="19.70" data-duration="3.10">Résultat : près de <b>600&nbsp;000&nbsp;km</b> parcourus en trois ans sur des avions de Qatar Airways.</div>
+        <div class="caption-line clip" id="c3c" data-start="23.10" data-duration="2.90">Environ <b>quinze fois</b> le tour de la Terre.</div>
+
+        <div class="caption-line clip" id="c4a" data-start="26.30" data-duration="3.00">Mai 2025, Congrès de la FIFA au Paraguay.</div>
+        <div class="caption-line clip" id="c4b" data-start="29.70" data-duration="3.10">Infantino arrive avec <b>2h17</b> de retard, après un déplacement avec Donald Trump — escale de ravitaillement au Nigeria comprise.</div>
+        <div class="caption-line clip" id="c4c" data-start="33.10" data-duration="4.90">En représailles, la délégation européenne, menée par le président de l'UEFA, quitte la salle.</div>
+
+        <div class="caption-line clip" id="c5a" data-start="38.30" data-duration="3.00">Depuis janvier 2022, Infantino vit à Doha avec sa famille.</div>
+        <div class="caption-line clip" id="c5b" data-start="41.70" data-duration="2.90">Plus de <b>mille salariés</b> de la FIFA restent au siège de Zurich.</div>
+        <div class="caption-line clip" id="c5c" data-start="44.70" data-duration="2.50">La FIFA assure qu'il continue de payer ses impôts en Suisse.</div>
+
+        <div class="caption-line clip" id="c6a" data-start="47.30" data-duration="3.00">Décembre 2024&nbsp;: l'Arabie saoudite est désignée hôte du Mondial 2034.</div>
+        <div class="caption-line clip" id="c6b" data-start="50.70" data-duration="3.10">Seule candidate, après le retrait de l'Australie — validée par acclamation.</div>
+        <div class="caption-line clip" id="c6c" data-start="54.10" data-duration="5.00">Amnesty International parle d'un « <b>moment de grand danger</b> » pour les droits humains dans le pays.</div>
+
+        <div class="caption-line clip" id="c7a" data-start="59.30" data-duration="3.00">Juin 2025&nbsp;: première Coupe du Monde des Clubs élargie à 32 équipes, aux États-Unis.</div>
+        <div class="caption-line clip" id="c7b" data-start="62.70" data-duration="3.10">Sponsor principal&nbsp;: le PIF, le fonds souverain saoudien.</div>
+        <div class="caption-line clip" id="c7c" data-start="66.10" data-duration="4.90">Ce même PIF est aussi propriétaire majoritaire d'Al Hilal — un club qui dispute le tournoi qu'il finance.</div>
+
+        <div class="caption-line clip" id="c8a" data-start="71.30" data-duration="4.70">La veille du Mondial 2022, face aux critiques sur les droits humains au Qatar, Infantino tient un discours resté célèbre.</div>
+        <div class="caption-line clip" id="c8b" data-start="76.30" data-duration="5.70">Human Rights Watch qualifiera ces propos de « <b>trompeurs</b> ».</div>
+
+        <div class="caption-line clip" id="c9a" data-start="82.30" data-duration="3.00">Les statuts de la FIFA limitent un président à trois mandats, douze ans.</div>
+        <div class="caption-line clip" id="c9b" data-start="85.70" data-duration="4.60">Mais le comité de gouvernance a validé que ses trois premières années ne comptent pas. Réélu en 2027, il pourrait rester jusqu'en 2031.</div>
+        <div class="caption-line clip" id="c9c" data-start="90.40" data-duration="5.00">Une enquête suisse sur ses rencontres secrètes avec l'ex-procureur général a été classée sans suite en 2023 — un procureur spécial y a tout de même relevé des « signes de comportement <b>pénalement répréhensible</b> ».</div>
+
+        <div class="caption-line clip" id="c10a" data-start="95.70" data-duration="3.40">Officiellement, la FIFA affirme respecter toutes ses règles de gouvernance.</div>
+        <div class="caption-line clip" id="c10b" data-start="99.40" data-duration="5.80">Officieusement, la question reste ouverte. Et toi, qu'en penses-tu&nbsp;?</div>
+      </div>
+
+      <!-- ============ HEADER (persistant) ============ -->
+      <div id="hdr" class="clip" data-start="0" data-duration="106.00">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+      <div class="tag">L'ARRÊT DE JEU</div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      function fadeBlock(sel, start, dur, opts = {}) {
+        const inDur = opts.inDur ?? 0.28;
+        const outDur = opts.outDur ?? 0.24;
+        const y = opts.y ?? 14;
+        tl.fromTo(sel, { opacity: 0, y }, { opacity: 1, y: 0, duration: inDur, ease: 'power2.out' }, start);
+        tl.to(sel, { opacity: 0, duration: outDur, ease: 'sine.in' }, start + dur - outDur);
+        tl.set(sel, { opacity: 0, y: 0 }, start + dur);
+      }
+      function flashBlock(sel, start, dur) {
+        tl.fromTo(sel, { opacity: 0, scale: 1.10 }, { opacity: 1, scale: 1, duration: 0.16, ease: 'power2.out' }, start);
+        tl.to(sel, { opacity: 0, duration: 0.14, ease: 'sine.in' }, start + dur - 0.14);
+        tl.set(sel, { opacity: 0, scale: 1 }, start + dur);
+      }
+      function countUp(id, target, start, dur, decimals = 0) {
+        const o = { v: 0 };
+        tl.to(o, {
+          v: target, duration: dur, ease: 'power2.out',
+          onUpdate: () => { document.getElementById(id).textContent = decimals ? o.v.toFixed(decimals) : Math.round(o.v); }
+        }, start);
+      }
+
+      tl.fromTo('#hdr', { opacity: 0 }, { opacity: 1, duration: 0.4, ease: 'power2.out' }, 0);
+
+      // ===== S1 — HOOK =====
+      flashBlock('#v1', 0.00, 1.00);
+      flashBlock('#v2', 1.00, 1.00);
+      flashBlock('#v3', 2.00, 1.00);
+      fadeBlock('#v4', 3.00, 3.20, { inDur: 0.3, outDur: 0.2, y: 0 });
+      fadeBlock('#st1', 0.35, 5.85, { inDur: 0.35 });
+      fadeBlock('#c1', 0.30, 5.90);
+
+      // ===== S2 — LE CONSTAT =====
+      fadeBlock('#v5', 6.20, 3.40, { inDur: 0.35, outDur: 0.25, y: 0 });
+      countUp('n1', 6, 6.55, 0.9);
+      fadeBlock('#v6', 9.60, 3.40, { inDur: 0.35, outDur: 0.25, y: 0 });
+      countUp('n2', 33, 9.95, 0.9);
+      fadeBlock('#v7', 13.00, 3.20, { inDur: 0.3, outDur: 0.2, y: 0 });
+      fadeBlock('#c2a', 6.30, 3.10);
+      fadeBlock('#c2b', 9.70, 3.10);
+      fadeBlock('#c2c', 13.10, 2.90);
+
+      // ===== S3 — LES JETS PRIVÉS =====
+      fadeBlock('#v8', 16.20, 3.40, { inDur: 0.3, outDur: 0.2, y: 0 });
+      fadeBlock('#v9', 19.60, 3.40, { inDur: 0.35, outDur: 0.25, y: 0 });
+      countUp('n3', 600, 19.95, 0.9);
+      fadeBlock('#v10', 23.00, 3.20, { inDur: 0.35, outDur: 0.25, y: 0 });
+      fadeBlock('#c3a', 16.30, 3.00);
+      fadeBlock('#c3b', 19.70, 3.10);
+      fadeBlock('#c3c', 23.10, 2.90);
+
+      // ===== S4 — LE CONGRÈS DU PARAGUAY =====
+      fadeBlock('#v11', 26.20, 3.40, { inDur: 0.3, outDur: 0.2, y: 0 });
+      fadeBlock('#v12', 29.60, 3.40, { inDur: 0.35, outDur: 0.25, y: 0 });
+      fadeBlock('#v13', 33.00, 5.20, { inDur: 0.3, outDur: 0.25, y: 0 });
+      fadeBlock('#st4', 26.50, 11.50, { inDur: 0.35 });
+      fadeBlock('#c4a', 26.30, 3.00);
+      fadeBlock('#c4b', 29.70, 3.10);
+      fadeBlock('#c4c', 33.10, 4.90);
+
+      // ===== S5 — LA RÉSIDENCE À DOHA =====
+      fadeBlock('#v14', 38.20, 3.40, { inDur: 0.3, outDur: 0.2, y: 0 });
+      fadeBlock('#v15', 41.60, 3.00, { inDur: 0.35, outDur: 0.25, y: 0 });
+      countUp('n4', 1000, 41.95, 0.9);
+      fadeBlock('#v16', 44.60, 2.60, { inDur: 0.3, outDur: 0.2, y: 0 });
+      fadeBlock('#c5a', 38.30, 3.00);
+      fadeBlock('#c5b', 41.70, 2.90);
+      fadeBlock('#c5c', 44.70, 2.50);
+
+      // ===== S6 — LE MONDIAL 2034 =====
+      fadeBlock('#v17', 47.20, 3.40, { inDur: 0.3, outDur: 0.2, y: 0 });
+      fadeBlock('#v18', 50.60, 3.40, { inDur: 0.35, outDur: 0.25, y: 0 });
+      fadeBlock('#v19', 54.00, 5.20, { inDur: 0.3, outDur: 0.25, y: 0 });
+      fadeBlock('#st6', 47.50, 11.50, { inDur: 0.35 });
+      fadeBlock('#c6a', 47.30, 3.00);
+      fadeBlock('#c6b', 50.70, 3.10);
+      fadeBlock('#c6c', 54.10, 5.00);
+
+      // ===== S7 — LA COUPE DU MONDE DES CLUBS =====
+      fadeBlock('#v20', 59.20, 3.40, { inDur: 0.3, outDur: 0.2, y: 0 });
+      fadeBlock('#v21', 62.60, 3.40, { inDur: 0.35, outDur: 0.25, y: 0 });
+      countUp('n5', 1, 62.95, 0.9);
+      countUp('n5b', 67, 62.95, 0.9);
+      fadeBlock('#v22', 66.00, 5.20, { inDur: 0.3, outDur: 0.25, y: 0 });
+      fadeBlock('#c7a', 59.30, 3.00);
+      fadeBlock('#c7b', 62.70, 3.10);
+      fadeBlock('#c7c', 66.10, 4.90);
+
+      // ===== S8 — LA CITATION =====
+      fadeBlock('#v23', 71.20, 5.00, { inDur: 0.4, outDur: 0.3, y: 0 });
+      fadeBlock('#v24', 76.20, 6.00, { inDur: 0.3, outDur: 0.25, y: 0 });
+      fadeBlock('#c8a', 71.30, 4.70);
+      fadeBlock('#c8b', 76.30, 5.70);
+
+      // ===== S9 — LA PISTE : LES MANDATS =====
+      fadeBlock('#v25', 82.20, 3.40, { inDur: 0.35, outDur: 0.25, y: 0 });
+      fadeBlock('#v26', 85.60, 3.40, { inDur: 0.35, outDur: 0.25, y: 0 });
+      fadeBlock('#v27', 89.00, 6.60, { inDur: 0.3, outDur: 0.25, y: 0 });
+      fadeBlock('#st9', 82.50, 11.40, { inDur: 0.35 });
+      fadeBlock('#c9a', 82.30, 3.00);
+      fadeBlock('#c9b', 85.70, 4.60);
+      fadeBlock('#c9c', 90.40, 5.00);
+
+      // ===== S10 — ACTION / CTA OUVERT =====
+      fadeBlock('#st10', 95.90, 8.50, { inDur: 0.35 });
+      fadeBlock('#poll', 99.60, 5.60, { inDur: 0.35, outDur: 0 });
+      fadeBlock('#c10a', 95.70, 3.40);
+      fadeBlock('#c10b', 99.40, 5.80);
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
