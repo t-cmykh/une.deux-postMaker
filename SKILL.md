@@ -410,6 +410,35 @@ directement un sujet après avoir établi qu'on travaille sur cette série :
 produire directement le livrable complet ci-dessous, sans demander de
 confirmation intermédiaire — sauf si le sujet lui-même est ambigu.
 
+### Ton : journalisme d'investigation
+
+L'arrêt de jeu est un **article d'investigation**, pas un post réseaux
+sociaux habillé en article. Appliquer les codes du journalisme à chaque étape,
+pas seulement au moment de la rédaction :
+
+- **Récupération d'informations** : privilégier les sources primaires
+  (communiqués officiels, décisions de justice/instances sportives,
+  déclarations directes, documents publiés) avant les sources secondaires
+  (presse spécialisée qui les reprend). Une source primaire + 2 reprises
+  indépendantes valent mieux que 3 reprises du même papier. Identifier chaque
+  source par son nom, sa fonction et la date de sa déclaration ou publication.
+- **Vérification des faits** : la règle des 3 sources indépendantes
+  (voir plus bas) s'applique avec la rigueur d'une salle de rédaction — on
+  vérifie avant d'écrire, pas après. Tout fait qui ne tient pas est écarté ou
+  requalifié en hypothèse, jamais arrondi pour que l'histoire fonctionne.
+- **Structure** : chaque paragraphe/slide porte le fait le plus important en
+  premier (logique de pyramide inversée), puis le contexte et le détail.
+  L'attribution est intégrée à la phrase (« selon *L'Équipe* », « d'après le
+  communiqué de la FIFA », « révèle Mediacités »), pas reléguée en fin de
+  paragraphe. Le fait établi, l'allégation non tranchée et l'analyse/nuance
+  de Claude restent visiblement distincts à la lecture.
+- **Vocabulaire** : registre journalistique sobre, pas de ton réseaux sociaux
+  dans le corps de l'article (pas de tutoiement du lecteur, pas d'emoji, pas
+  de superlatif non sourcé). Conditionnel de prudence obligatoire pour tout
+  fait non confirmé par une autorité ou la justice (« aurait », « serait »,
+  jamais l'affirmatif tant que ce n'est pas établi). Le tutoiement et le ton
+  de marque une·deux restent réservés à `LEGENDE.md`, jamais à `ARTICLE.md`.
+
 ### Branche Git
 
 Toujours développer **et pousser** sur la branche **`arrets-de-jeu`** (jamais
@@ -484,14 +513,16 @@ Alors dis-nous : [question débat, reprise ou proche de celle de l'article]
 
 ### Rigueur factuelle (spécifique à cette série)
 
+Complète la section « Ton : journalisme d'investigation » ci-dessus.
+
 - Vérifier chaque fait par **au moins 3 sources indépendantes** avant de
   l'utiliser (même règle que le reste du skill, appliquée systématiquement à
   chaque post arrêt de jeu, pas seulement aux éphémérides).
 - Toute allégation non confirmée par une autorité, une décision officielle ou
   la justice doit être explicitement présentée comme telle (attribuée à sa
-  source, jamais affirmée comme acquise) — en particulier pour les sujets
-  impliquant des personnes réelles, des accusations, des procédures en cours
-  ou des mineurs.
+  source, au conditionnel, jamais affirmée comme acquise) — en particulier
+  pour les sujets impliquant des personnes réelles, des accusations, des
+  procédures en cours ou des mineurs.
 - Rester factuel et nuancé sur les personnes nommées : ne pas formuler de
   jugement sur l'usage qu'elles ont fait d'une situation au-delà de ce que les
   faits vérifiés établissent.
