@@ -489,6 +489,8 @@ npm run render     # tourne en tâche de fond (>2 min) — laisser tourner,
                    # ne pas sonder, attendre la notification
 ```
 
+**`package.json` doit passer `-w 4`** (`"render": "npx --yes hyperframes@0.7.64 render -w 4"`, à reprendre dans tous les nouveaux scaffolds §7) — le mode par défaut (`-w auto`) sous-estime souvent les workers disponibles (mesuré : 2 workers choisis sur une machine à 4 cœurs). Passer explicitement à 4 workers a réduit le temps de rendu de 43% sur un test contrôlé (67s → 38s, même composition, même machine) sans rien changer d'autre. Adapter le chiffre au nombre de cœurs réels si la machine de rendu diffère, mais ne jamais laisser `auto` deviner sans l'avoir vérifié au moins une fois.
+
 Puis concaténer le CTA (§8) sur le fichier obtenu dans `renders/`.
 
 Après concat : extraire des frames à quelques instants clés (titre de
@@ -519,11 +521,26 @@ final dans ce sous-dossier (`create_file`, `parentId` = l'ID du
 sous-dossier du jour, `contentMimeType: video/mp4`,
 `disableConversionToGoogleType: true`, contenu en base64).
 
-Si l'upload échoue ou que le fichier est trop volumineux, recompresser
-avant de réessayer plutôt que d'abandonner silencieusement :
+**Le connecteur Drive a une limite de taille sur ce chemin d'upload**
+(`create_file` encode le contenu en base64 dans l'appel — pas de
+téléversement par morceaux/résumable disponible dans ce connecteur) : un
+reel complet non recompressé (souvent 30-80 Mo) échoue régulièrement.
+Recompresser **avant** le premier essai plutôt que d'attendre l'échec,
+par paliers croissants jusqu'à passer :
 ```bash
-ffmpeg -y -i reel-final.mp4 -c:v libx264 -crf 25-26 -preset medium -pix_fmt yuv420p -c:a aac -b:a 128k compressed.mp4
+ffmpeg -y -i reel-final.mp4 -c:v libx264 -crf 26 -preset medium -pix_fmt yuv420p -c:a aac -b:a 128k drive-upload.mp4   # palier 1
+ffmpeg -y -i reel-final.mp4 -c:v libx264 -crf 30 -preset medium -pix_fmt yuv420p -vf scale=810:1440 -c:a aac -b:a 96k drive-upload.mp4   # palier 2, si le palier 1 échoue encore
 ```
+Ce fichier recompressé est **uniquement pour l'upload Drive** — le commit
+Git (ci-dessous) reste la version pleine qualité issue du render, jamais
+la version dégradée.
+
+**Si l'upload Drive échoue encore après le palier 2 (ou pour toute autre
+raison), ne pas bloquer la livraison** : le commit/push sur `ce-jour-là`
+(ci-dessous) reste un canal de livraison valide à lui seul — le signaler
+clairement dans le message de livraison (« Drive a échoué, fichier
+disponible via le commit <chemin> sur la branche ce-jour-là ») plutôt que
+de retenter indéfiniment ou d'abandonner sans rien livrer.
 
 Committer le dossier du projet (assets compris — seuls `renders/`,
 `node_modules/`, `snapshots/`, `.debug/` sont ignorés) et pousser sur la
