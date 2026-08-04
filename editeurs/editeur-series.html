@@ -756,6 +756,67 @@ function splitTitleTwoLines(words){
   }
   return [words.slice(0,best),words.slice(best)];
 }
+/* wrap simple à une taille de police FIXE (Anton) : jamais de rétrécissement
+   selon la longueur du texte — un titre long prend juste plus de lignes,
+   à la même taille qu'un titre court (demande explicite : les titres des
+   templates enquête doivent garder leur taille quelle que soit la longueur
+   du titre). Utilisé pour découper chaque « moitié » de titre (issue de
+   splitTitleTwoLines) en autant de lignes que nécessaire pour tenir dans
+   maxW, tout en gardant la couleur de cette moitié sur toutes ses lignes. */
+function wrapWordsAtSize(g,words,maxW,tSize){
+  g.font=tSize+"px 'Anton'";
+  const lines=[]; let cur=[];
+  words.forEach(w=>{
+    const test=cur.concat([w]).join(' ').toUpperCase();
+    if(cur.length && g.measureText(test).width>maxW){ lines.push(cur); cur=[w]; }
+    else cur.push(w);
+  });
+  if(cur.length) lines.push(cur);
+  return lines;
+}
+/* la taille reste fixe quelle que soit la longueur du TITRE (plus de mots =
+   plus de lignes, jamais plus petit) — mais un mot ISOLÉ plus large que la
+   colonne ne peut pas être coupé par le wrap (ligne à un seul mot, cf.
+   wrapWordsAtSize) : à 170px Anton, un mot comme « POURQUOI » peut à lui
+   seul dépasser la colonne, et pour le titre XXL (texte en cache-découpe)
+   ça se traduisait par un mot tronqué à mi-lettre plutôt qu'un débordement
+   visible (la portion hors du cadre du masque devient transparente, cf.
+   drawPhotoFilledTextFromMaster). On ne réduit donc QUE si le mot le plus
+   large, seul, ne rentre pas — jamais à cause du nombre de mots. */
+function fitTitleSizeToWords(g,words,maxW,baseSize){
+  g.font=baseSize+"px 'Anton'";
+  let widest=0;
+  words.forEach(w=>{ const wid=g.measureText(w.toUpperCase()).width; if(wid>widest) widest=wid; });
+  if(widest<=maxW || widest<=0) return baseSize;
+  return Math.max(28,Math.floor(baseSize*maxW/widest));
+}
+/* garde-fou vertical, en dernier recours seulement : un titre à un ou deux
+   mots reste toujours à baseSize (cas courant), mais un titre anormalement
+   long (beaucoup de mots) prendrait sinon plus de lignes que ce que le
+   cadre peut recevoir sans écraser le contenu en dessous — on ne réduit la
+   taille pour le NOMBRE DE LIGNES qu'à partir de maxLines, jamais avant. */
+function fitTitleToBox(g,words,maxW,baseSize,maxLines){
+  let size=fitTitleSizeToWords(g,words,maxW,baseSize);
+  let lines=wrapWordsAtSize(g,words,maxW,size);
+  while(lines.length>maxLines && size>28){
+    size=Math.max(28,size-4);
+    lines=wrapWordsAtSize(g,words,maxW,size);
+  }
+  return {size,lines};
+}
+/* variante pour un titre coupé en 2 « moitiés » de couleur (splitTitleTwoLines,
+   cf. témoin/titre XXL) : même taille appliquée aux deux moitiés, plafond de
+   lignes appliqué sur leur somme */
+function fitSplitTitleToBox(g,l1w,l2w,maxW,baseSize,maxLines){
+  const allWords=[...l1w,...l2w];
+  let size=fitTitleSizeToWords(g,allWords,maxW,baseSize);
+  let l1Lines=wrapWordsAtSize(g,l1w,maxW,size), l2Lines=wrapWordsAtSize(g,l2w,maxW,size);
+  while((l1Lines.length+l2Lines.length)>maxLines && size>28){
+    size=Math.max(28,size-4);
+    l1Lines=wrapWordsAtSize(g,l1w,maxW,size); l2Lines=wrapWordsAtSize(g,l2w,maxW,size);
+  }
+  return {size,l1Lines,l2Lines};
+}
 function maxLineLen(){ const [a,b]=splitTitleTwoLines(state.title.trim().split(/\s+/));
   return Math.max(a.join(' ').length,b.join(' ').length,1); }
 function clampTitle(minS,maxS){
@@ -1915,17 +1976,19 @@ function drawEnqueteTemoin(W,H,s){
      drawPhotoPanel plus haut), il reste donc lisible par-dessus. */
   const titleMaxW=photoX-M;
   const words=state.title.trim().split(/\s+/).filter(Boolean);
-  const [l1,l2]=splitTitleTwoLines(words);
-  let tSize=170; g.font=tSize+"px 'Anton'";
-  const longest=Math.max(g.measureText(l1.join(' ').toUpperCase()).width,g.measureText((l2.join(' ')||'').toUpperCase()).width,1);
-  if(longest>titleMaxW) tSize=Math.floor(tSize*titleMaxW/longest);
-  tSize=Math.max(40,Math.min(170,tSize));
+  const [l1w,l2w]=splitTitleTwoLines(words);
+  /* taille fixe (170px) quel que soit le nombre de mots — ne réduit que si
+     un mot isolé ne rentre pas seul dans la colonne, ou si le titre prend
+     décidément trop de lignes (garde-fous, cf. fitSplitTitleToBox) */
+  const {size:tSize,l1Lines,l2Lines}=fitSplitTitleToBox(g,l1w,l2w,titleMaxW,170,4);
   const lh=tSize*0.94;
   g.font=tSize+"px 'Anton'"; g.textBaseline='alphabetic'; g.textAlign='left';
-  const ty1=panelTop+tSize;
-  g.fillStyle=C.encre; g.fillText(l1.join(' ').toUpperCase(),M,ty1);
-  let ty2=ty1;
-  if(l2.length){ ty2=ty1+lh; g.fillStyle=s.sig; g.fillText(l2.join(' ').toUpperCase(),M,ty2); }
+  let ty2=panelTop+tSize;
+  g.fillStyle=C.encre;
+  l1Lines.forEach(lw=>{ g.fillText(lw.join(' ').toUpperCase(),M,ty2); ty2+=lh; });
+  g.fillStyle=s.sig;
+  l2Lines.forEach(lw=>{ g.fillText(lw.join(' ').toUpperCase(),M,ty2); ty2+=lh; });
+  ty2-=lh; /* revient à la ligne de base de la dernière ligne réellement dessinée */
 
   /* chapô italique, colonne gauche (largeur du titre) */
   let y=ty2+40;
@@ -2026,19 +2089,10 @@ function drawEnqueteDuo(W,H,s){
      visuel recherché sur les deux templates). */
   const titleX=M+Math.round(photoW*0.42), titleW=rightEdge-titleX;
   const words=state.title.trim().split(/\s+/).filter(Boolean);
-  let tSize=170;
-  function wrapTitle(size){
-    g.font=size+"px 'Anton'";
-    const lines=[]; let cur=[];
-    words.forEach(w=>{
-      const test=cur.concat([w]).join(' ').toUpperCase();
-      if(cur.length && g.measureText(test).width>titleW){ lines.push(cur); cur=[w]; } else cur.push(w);
-    });
-    if(cur.length) lines.push(cur);
-    return lines;
-  }
-  let tLines=wrapTitle(tSize);
-  while(tLines.length>3 && tSize>44){ tSize-=4; tLines=wrapTitle(tSize); }
+  /* taille fixe (170px) quel que soit le nombre de mots — ne réduit que si
+     un mot isolé ne rentre pas seul dans la colonne, ou si le titre prend
+     décidément trop de lignes (garde-fous, cf. fitTitleToBox) */
+  const {size:tSize,lines:tLines}=fitTitleToBox(g,words,titleW,170,4);
   const lh=tSize*0.96;
   const useIdx=state.greenWordIndices instanceof Set;
   /* trace les mots du titre — colorFn(isAccent) résout la couleur par mot :
@@ -2168,7 +2222,10 @@ function drawEnqueteTitre(W,H,s){
      plus large (cadre + colonne du titre), est donc construit plus loin
      spécifiquement pour le titre : même photo, mais pas raccordée pixel
      pour pixel au cadre — un compromis assumé, pas une vraie continuité. */
-  const panelTop=tagY+tagH+30;
+  /* décalé plus bas que juste sous le tag (demande explicite) — laisse de
+     l'air sous le header/tag avant que le cadre ne démarre, plutôt que de
+     s'aligner strictement sur le haut du titre à côté */
+  const panelTop=tagY+tagH+30+190;
   const photoX=Math.round(W*0.5), photoW=rightEdge-photoX;
   const photoBottom=Math.round(H*0.66);
   const master=buildMasterPhoto(W,H,photoX,panelTop,photoW,photoBottom-panelTop,s);
@@ -2184,24 +2241,26 @@ function drawEnqueteTitre(W,H,s){
      estompé. Taille poussée plus haut (impact visuel maximal recherché). */
   const titleMaxW=photoX-M-28;
   const words=state.title.trim().split(/\s+/).filter(Boolean);
-  const [l1,l2]=splitTitleTwoLines(words);
-  let tSize=170; g.font=tSize+"px 'Anton'";
-  const longest=Math.max(g.measureText(l1.join(' ').toUpperCase()).width,g.measureText((l2.join(' ')||'').toUpperCase()).width,1);
-  if(longest>titleMaxW) tSize=Math.floor(tSize*titleMaxW/longest);
-  tSize=Math.max(52,Math.min(170,tSize));
+  const [l1w,l2w]=splitTitleTwoLines(words);
+  /* taille fixe (170px) quel que soit le nombre de mots — ne réduit que si
+     un mot isolé ne rentre pas seul dans la colonne, ou si le titre prend
+     décidément trop de lignes (garde-fous, cf. fitSplitTitleToBox). Plafond
+     à 3 lignes ici (pas 4 comme témoin/duo) : il faut aussi laisser de la
+     place à la signature + au corps de texte sous ce titre déjà énorme. */
+  const {size:tSize,l1Lines,l2Lines}=fitSplitTitleToBox(g,l1w,l2w,titleMaxW,170,3);
   const lh=tSize*0.92;
   g.font=tSize+"px 'Anton'"; g.textBaseline='alphabetic'; g.textAlign='left';
+  const allLines=[...l1Lines,...l2Lines];
   const ty1=panelTop+tSize;
-  let titleBottom=ty1, ty2=null;
-  if(l2.length){ ty2=ty1+lh; titleBottom=ty2; }
+  const titleBottom=ty1+(allLines.length-1)*lh;
   /* trace les glyphes seuls — la couleur passée n'importe que pour le repli
      sans photo : pour le masque (drawPhotoFilledTextFromMaster), seule
      l'opacité compte, la couleur réelle vient ensuite de la photo composée
      par-dessus */
   const paintTitle=(gg,color)=>{
     gg.font=tSize+"px 'Anton'"; gg.textBaseline='alphabetic'; gg.textAlign='left'; gg.fillStyle=color;
-    gg.fillText(l1.join(' ').toUpperCase(),M,ty1);
-    if(ty2!=null) gg.fillText(l2.join(' ').toUpperCase(),M,ty2);
+    let ty=ty1;
+    allLines.forEach(lw=>{ gg.fillText(lw.join(' ').toUpperCase(),M,ty); ty+=lh; });
   };
   if(state.img){
     const boxY=ty1-tSize*0.85, boxH=(titleBottom-boxY)+tSize*0.25;
