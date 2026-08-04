@@ -1516,6 +1516,10 @@ function drawVerbatim(W,H,s){
   const qBlockTop=quoteTop;
   const qSpace=(()=>{ g.font="500 "+qSize+"px 'Archivo'"; return g.measureText(' ').width; })();
   g.textAlign='left'; g.textBaseline='alphabetic';
+  /* garde-fou horizontal : un mot sans espace plus large que rightW ne peut
+     pas être coupé par le wrap — on clippe la colonne plutôt que de le
+     laisser déborder à droite (cf. dropCapParagraph, même correctif) */
+  g.save(); g.beginPath(); g.rect(padX,0,rightW,4000); g.clip();
   qLines.forEach((ln,li)=>{
     let cx=padX; const y=qBlockTop+(li+1)*qLineH-qLineH*0.22;
     ln.forEach(o=>{
@@ -1524,6 +1528,7 @@ function drawVerbatim(W,H,s){
       g.fillText(o.w,cx,y); cx+=g.measureText(o.w).width+qSpace;
     });
   });
+  g.restore();
 
   /* filet bas + pagination (masqués en vertical) */
   if(showFooter){
@@ -1604,21 +1609,39 @@ function drawPhotoFilledText(g,paintFn,boxX,boxY,boxW,boxH,s){
   g.drawImage(off,0,0);
 }
 
-/* rend la photo UNE SEULE FOIS, cover-croppée sur le canvas entier (mêmes
-   repères x/y que le reste de la composition) — pour que le cadre photo et
-   le titre « rempli » par la photo montrent des fenêtres sur UNE SEULE
-   image continue (référence « ON L'A EFFACÉ » : la photo se prolonge du
-   cadre jusque dans les lettres) plutôt que deux recadrages indépendants
-   qui donneraient l'impression de deux photos différentes. */
-function buildMasterPhoto(W,H,s){
+/* rend la photo UNE SEULE FOIS sur un canvas hors-écran de la taille du
+   canvas principal, mais le cover-crop (zoom/position) est calculé sur les
+   dimensions du CADRE photo (frameX/Y/W/H) et non sur le canvas entier —
+   l'image reste repositionnable de façon intuitive dans CE cadre (zoom/pos
+   s'appliquent à ses propres proportions, comme n'importe quel autre cadre
+   photo de l'éditeur), tout en étant dessinée sans découpe : la zone hors
+   du cadre (là où le titre en cache-découpe pioche plus loin) montre alors
+   la suite naturelle de CETTE MÊME image positionnée dans le cadre, pas un
+   recadrage indépendant. (Avant ce correctif, le cover-crop portait sur le
+   canvas entier : zoom/position ne recadraient plus intuitivement le sujet
+   DANS le cadre, ils déplaçaient un cadrage pensé pour tout le visuel —
+   remonté par Thomas comme non repositionnable.)
+   Un seul cover-crop ne peut pas à la fois cadrer correctement le cadre
+   ET déborder naturellement jusque dans le titre à côté (agrandir l'image
+   pour qu'elle déborde change aussi le cadrage montré DANS le cadre — testé,
+   ça zoome nettement plus que prévu sur le sujet). Les appelants avec un
+   titre en cache-découpe adjacent (duo photo, titre XXL) construisent donc
+   DEUX masters : un pour le cadre (frame = le cadre lui-même, cadrage
+   fidèle) et un pour le titre (frame = le cadre + la colonne du titre,
+   cover-crop plus large qui montre la même photo mais pas raccordée pixel
+   pour pixel au cadre — c'est ce compromis, pas une vraie continuité, qui
+   est visé ici). */
+function buildMasterPhoto(W,H,frameX,frameY,frameW,frameH,s){
   const off=document.createElement('canvas');
   off.width=W; off.height=H;
   const og=off.getContext('2d');
   if(state.img){
-    const img=state.img, ir=mediaW(img)/mediaH(img), cr=W/H; let dw,dh;
-    if(ir>cr){dh=H*state.zoom;dw=dh*ir;}else{dw=W*state.zoom;dh=dw/ir;}
-    og.drawImage(img,(W-dw)*state.posx,(H-dh)*state.posy,dw,dh);
+    const img=state.img, ir=mediaW(img)/mediaH(img), cr=frameW/frameH; let dw,dh;
+    if(ir>cr){dh=frameH*state.zoom;dw=dh*ir;}else{dw=frameW*state.zoom;dh=dw/ir;}
+    og.drawImage(img,frameX+(frameW-dw)*state.posx,frameY+(frameH-dh)*state.posy,dw,dh);
+    og.save(); og.beginPath(); og.rect(0,0,W,H); og.clip();
     applyPhotoFilter(og,W,H,s.photo);
+    og.restore();
   } else {
     const lg=og.createLinearGradient(0,0,0,H);
     lg.addColorStop(0,'#3a332c'); lg.addColorStop(1,'#161310');
@@ -1714,6 +1737,12 @@ function dropCapParagraph(g,text,x,topY,maxW,maxH,color){
   const dcMaxLines=Math.max(1,Math.floor(Math.max(40,maxH)/lineH));
   if(layout.lines.length>dcMaxLines) layout={...layout, lines:layout.lines.slice(0,dcMaxLines)};
 
+  /* garde-fou horizontal : le retour à la ligne ne peut pas casser un mot
+     plus large que maxW à lui seul (aucun wrap ne le peut sans coupure de
+     mot) — un pavé de texte sans espaces (cas remonté par Thomas) produit
+     alors un « mot » qui déborde du cadre. On clippe la zone de dessin
+     plutôt que de laisser un débordement visible à droite. */
+  g.save(); g.beginPath(); g.rect(x,0,maxW,4000); g.clip();
   g.textAlign='left'; g.textBaseline='alphabetic';
   g.fillStyle=color; g.font="700 "+capSize+"px 'Archivo'";
   g.fillText(capChar, x, topY+layout.capH);
@@ -1725,6 +1754,7 @@ function dropCapParagraph(g,text,x,topY,maxW,maxH,color){
     drawBodyRich(g, ln.words.join(' '), lx, y, bodySize);
     y+=lineH;
   });
+  g.restore();
   return y;
 }
 
@@ -1786,6 +1816,10 @@ function dropCapFlowAroundImage(g,text,x,topY,narrowW,fullW,imageBottomY,maxBott
   const maxLines=Math.max(1,Math.floor((maxBottom-(topY+bodySize*1.02))/lineH)+1);
   const lines=layout.lines.slice(0,maxLines);
 
+  /* garde-fou horizontal, cf. dropCapParagraph — clippe sur la plus large
+     des deux largeurs (narrowW/fullW) puisque les lignes basculent de
+     l'une à l'autre en cours de texte */
+  g.save(); g.beginPath(); g.rect(x,0,Math.max(narrowW,fullW),4000); g.clip();
   g.textAlign='left'; g.textBaseline='alphabetic';
   g.fillStyle=color; g.font="700 "+capSize+"px 'Archivo'";
   g.fillText(capChar, x, topY+layout.capH);
@@ -1797,6 +1831,7 @@ function dropCapFlowAroundImage(g,text,x,topY,narrowW,fullW,imageBottomY,maxBott
     drawBodyRich(g, ln.words.join(' '), lx, y, bodySize);
     y+=lineH;
   });
+  g.restore();
   return y;
 }
 
@@ -1818,6 +1853,8 @@ function drawQAColumns(g,qaList,x0,x1,top,maxH,s){
   const gap=36, colW=(x1-x0-(n-1)*gap)/n;
   const qSize=25, qLh=32, aSize=23, aLh=30;
   const maxQLines=3;
+  /* garde-fou horizontal, cf. dropCapParagraph */
+  g.save(); g.beginPath(); g.rect(x0,0,x1-x0,4000); g.clip();
   qaList.forEach((qa,i)=>{
     const cx=x0+i*(colW+gap);
     g.textAlign='left'; g.textBaseline='alphabetic';
@@ -1829,6 +1866,7 @@ function drawQAColumns(g,qaList,x0,x1,top,maxH,s){
     const maxALines=Math.max(1,Math.floor((maxH-(qLines.length*qLh+8))/aLh));
     wrapAtSize(g,qa.a,colW,aSize).slice(0,maxALines).forEach(ln=>{ y+=aLh; drawBodyRich(g,ln,cx,y,aSize); });
   });
+  g.restore();
 }
 
 /* ===== TEMPLATE ENQUÊTE · TÉMOIN — titre + photo encadrée en haut, chapô
@@ -1892,7 +1930,9 @@ function drawEnqueteTemoin(W,H,s){
   /* chapô italique, colonne gauche (largeur du titre) */
   let y=ty2+40;
   const introLines=wrapAtSize(g,state.introText,titleMaxW,30);
+  g.save(); g.beginPath(); g.rect(M,0,titleMaxW,4000); g.clip();
   introLines.forEach(ln=>{ y+=38; drawItalicLine(g,ln,M,y,30,C.encre); });
+  g.restore();
 
   /* Q&R réservé en bas si renseigné */
   const qaList=parseQA(state.qaRaw);
@@ -1961,13 +2001,16 @@ function drawEnqueteDuo(W,H,s){
   const showFooter=!isVert && paginationShown();
 
   /* photo encadrée, colonne gauche, pleine hauteur. Rendue à partir d'un
-     master unique (cf. buildMasterPhoto) : le titre, dessiné ensuite,
-     pioche dans ce même master là où il chevauche le cadre, pour montrer
-     la continuité d'UNE SEULE image entre le cadre et les lettres. */
+     master (cf. buildMasterPhoto), cadré sur le cadre lui-même — le titre,
+     dessiné ensuite, chevauche directement CE cadre (pas une colonne à
+     part), donc pioche dans ce même master exactement là où il le
+     recouvre : pas de bleed ici, un bleed créerait un raccord visible
+     entre la photo normale du cadre et le texte en cache-découpe qui la
+     recouvre, puisque ce sont littéralement les mêmes pixels d'écran. */
   const panelTop=tagY+tagH+34;
   const panelBottom=(showFooter?footY-46:H-90)-6;
   const photoW=Math.round(W*0.40)-M;
-  const master=buildMasterPhoto(W,H,s);
+  const master=buildMasterPhoto(W,H,M,panelTop,photoW,panelBottom-panelTop,s);
   blitMasterRegion(g,master,M,panelTop,photoW,panelBottom-panelTop);
 
   const colX=M+photoW+32, colW=rightEdge-colX;
@@ -2056,7 +2099,9 @@ function drawEnqueteDuo(W,H,s){
   /* chapô italique */
   let y=ty+30;
   const introLines=wrapAtSize(g,state.introText,colW,30);
+  g.save(); g.beginPath(); g.rect(colX,0,colW,4000); g.clip();
   introLines.forEach(ln=>{ y+=38; drawItalicLine(g,ln,colX,y,30,C.encre); });
+  g.restore();
 
   /* corps à lettrine, confiné à la colonne droite */
   const dropTop=y+30;
@@ -2112,14 +2157,21 @@ function drawEnqueteTitre(W,H,s){
   const showFooter=!isVert && paginationShown();
 
   /* photo encadrée en haut à droite, plus haute que dans "témoin" (le titre
-     XXL prend le pas visuellement, la photo sert de respiration). Rendue à
-     partir d'un master unique (cf. buildMasterPhoto) : le titre, plus loin,
-     pioche dans ce même master pour montrer la continuité d'UNE SEULE photo
-     entre le cadre et les lettres (référence « ON L'A EFFACÉ »). */
+     XXL prend le pas visuellement, la photo sert de respiration). Cadrée
+     fidèlement sur SON cadre (repositionnable normalement, zoom/position
+     appliqués à ses propres proportions). Le titre, à gauche, est une
+     colonne SÉPARÉE du cadre (pas un chevauchement direct comme sur « duo
+     photo ») : un cover-crop unique ne peut pas cadrer fidèlement le cadre
+     ET déborder naturellement jusque dans cette colonne à côté (agrandir
+     l'image pour qu'elle déborde change aussi le cadrage montré DANS le
+     cadre — testé, ça zoome nettement plus que prévu). Un second master,
+     plus large (cadre + colonne du titre), est donc construit plus loin
+     spécifiquement pour le titre : même photo, mais pas raccordée pixel
+     pour pixel au cadre — un compromis assumé, pas une vraie continuité. */
   const panelTop=tagY+tagH+30;
   const photoX=Math.round(W*0.5), photoW=rightEdge-photoX;
   const photoBottom=Math.round(H*0.66);
-  const master=buildMasterPhoto(W,H,s);
+  const master=buildMasterPhoto(W,H,photoX,panelTop,photoW,photoBottom-panelTop,s);
   blitMasterRegion(g,master,photoX,panelTop,photoW,photoBottom-panelTop);
 
   /* titre XXL — 2 lignes max, ajusté à la colonne gauche (marge réservée
@@ -2153,7 +2205,10 @@ function drawEnqueteTitre(W,H,s){
   };
   if(state.img){
     const boxY=ty1-tSize*0.85, boxH=(titleBottom-boxY)+tSize*0.25;
-    drawPhotoFilledTextFromMaster(g,gg=>paintTitle(gg,'#000'),M,boxY,titleMaxW,boxH,master);
+    /* master dédié, plus large (cadre + colonne du titre) : cf. commentaire
+       plus haut sur pourquoi ce n'est pas le même master que le cadre */
+    const titleMaster=buildMasterPhoto(W,H,M,panelTop,rightEdge-M,photoBottom-panelTop,s);
+    drawPhotoFilledTextFromMaster(g,gg=>paintTitle(gg,'#000'),M,boxY,titleMaxW,boxH,titleMaster);
   } else {
     paintTitle(g,'rgba(168,69,43,0.65)');
   }
@@ -2162,7 +2217,9 @@ function drawEnqueteTitre(W,H,s){
      filet qui traverserait la photo à droite) */
   const blockTop=titleBottom+42;
   g.font="600 26px 'Saira Condensed'"; g.fillStyle=s.sig; g.textAlign='left'; g.textBaseline='middle';
+  g.save(); g.beginPath(); g.rect(M,0,titleMaxW,4000); g.clip();
   g.fillText((state.byline||'').toUpperCase(), M, blockTop);
+  g.restore();
   g.strokeStyle='rgba(44,40,35,0.25)'; g.lineWidth=2;
   g.beginPath(); g.moveTo(M, blockTop+22); g.lineTo(M+titleMaxW, blockTop+22); g.stroke();
   g.textBaseline='alphabetic';
@@ -2351,6 +2408,8 @@ function drawEnqueteEcho(W,H,s){
   const quoteTop=zoneTop+Math.max(0,(zoneBottom-zoneTop-blockH)/2);
 
   g.textAlign='left'; g.textBaseline='alphabetic';
+  /* garde-fou horizontal, cf. drawVerbatim/dropCapParagraph */
+  g.save(); g.beginPath(); g.rect(padX,0,rightW,4000); g.clip();
   qLines.forEach((ln,li)=>{
     let cx=padX; const y=quoteTop+(li+1)*qLineH-qLineH*0.22;
     ln.forEach(o=>{
@@ -2359,6 +2418,7 @@ function drawEnqueteEcho(W,H,s){
       g.fillText(o.w,cx,y); cx+=g.measureText(o.w).width+qSpace;
     });
   });
+  g.restore();
 
   /* signature sous la citation */
   const qBlockBottom=quoteTop+qLines.length*qLineH;
