@@ -2203,15 +2203,24 @@ function drawEnqueteEcho(W,H,s){
   const panelRight=M+Math.round(W*0.40);
   drawEchoPanel(g,M,panelTop,panelRight-M,panelBottom-panelTop,s);
 
-  const topInset=100;
+  /* la photo nette ne doit pas remonter plus haut qu'environ le tiers du
+     panneau (repère validé par Thomas sur un rendu annoté) — l'écho reste
+     largement visible au-dessus, pas juste un mince filet. Aucun liseré
+     entre les deux : elles se touchent directement, sans séparation. */
+  const topInset=Math.round((panelBottom-panelTop)*0.30);
   const fx=M, fy=panelTop+topInset, fw=panelRight-M, fh=panelBottom-fy;
   drawPhotoPanel(g,fx,fy,fw,fh,s);
-  /* liseré crème : sépare nettement le cadre net de l'écho qui dépasse au-dessus */
-  g.save(); g.strokeStyle=C.creme; g.lineWidth=5; g.strokeRect(fx+2.5,fy+2.5,fw-5,fh-5); g.restore();
 
-  /* --- colonne droite : citation, même moteur que CITATION · INTERVIEW --- */
+  /* --- colonne droite : gros guillemet ouvrant, citation (même moteur que
+     CITATION · INTERVIEW), gros guillemet fermant en bas — référence :
+     grosses coupures « 66 »/« 99 » encadrant la citation --- */
   const padX=panelRight+56, rightW=rightEdge-padX;
-  const quoteTop=tagY+tagH+36;
+  const markSize=120;
+  const markTop=tagY+tagH+36;
+  g.font=markSize+"px 'Anton'"; g.fillStyle=s.sig; g.textAlign='left'; g.textBaseline='alphabetic';
+  g.fillText('“', padX-8, markTop+markSize*0.72);
+
+  const quoteTop=markTop+markSize*0.8;
   const quoteBottom=(showFooter?footY-46:H-70-safeBottom())-34;
   const maxH=Math.max(60,quoteBottom-quoteTop);
 
@@ -2257,12 +2266,17 @@ function drawEnqueteEcho(W,H,s){
     });
   });
 
-  /* auteur sous la citation */
+  /* auteur sous la citation + gros guillemet fermant à droite, aligné sur
+     la même ligne (référence : « 99 » posé au niveau de la signature) */
   const qBlockBottom=quoteTop+qLines.length*qLineH;
+  const authorY=qBlockBottom+56;
   if(state.quoteAuthor && state.quoteAuthor.trim()){
-    g.fillStyle=C.encre; g.font="38px 'Saira Condensed'";
-    g.fillText('— '+state.quoteAuthor.trim().toUpperCase(), padX, qBlockBottom+56);
+    g.fillStyle=C.encre; g.font="38px 'Saira Condensed'"; g.textAlign='left';
+    g.fillText('— '+state.quoteAuthor.trim().toUpperCase(), padX, authorY);
   }
+  g.font=markSize+"px 'Anton'"; g.fillStyle=s.sig; g.textAlign='right';
+  g.fillText('”', rightEdge, authorY+markSize*0.28);
+  g.textAlign='left';
 
   if(showFooter){
     g.fillStyle=C.encre; g.fillRect(padX, footY-46, rightEdge-padX, 3);
