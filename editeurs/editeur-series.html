@@ -1901,25 +1901,30 @@ function drawEnqueteDuo(W,H,s){
   const footY=H-70-safeBottom();
   const showFooter=!isVert && paginationShown();
 
-  /* photo encadrée, colonne gauche, pleine hauteur */
+  /* photo encadrée, colonne gauche, pleine hauteur. Rendue à partir d'un
+     master unique (cf. buildMasterPhoto) : le titre, dessiné ensuite,
+     pioche dans ce même master là où il chevauche le cadre, pour montrer
+     la continuité d'UNE SEULE image entre le cadre et les lettres. */
   const panelTop=tagY+tagH+34;
   const panelBottom=(showFooter?footY-46:H-90)-6;
   const photoW=Math.round(W*0.40)-M;
-  drawPhotoPanel(g,M,panelTop,photoW,panelBottom-panelTop,s);
+  const master=buildMasterPhoto(W,H,s);
+  blitMasterRegion(g,master,M,panelTop,photoW,panelBottom-panelTop);
 
   const colX=M+photoW+32, colW=rightEdge-colX;
 
   /* titre : bleed volontaire par-dessus la photo (référence « QUI A TUÉ
-     SINDELAR ? » — le titre déborde largement sur le portrait, dessiné
-     après lui donc lisible par-dessus), pas confiné à la colonne droite
-     comme le chapô/corps ci-dessous. Ancré nettement à l'intérieur de la
-     photo plutôt qu'à son bord. Encre par défaut, mot(s)-clé(s) en couleur
-     de signature — même mécanisme que le sélecteur « Mot-clé coloré » du
-     titre partout ailleurs dans l'éditeur (pas de coloration de ligne
-     entière : sur une seule ligne ça teintait tout le titre à tort). */
+     SINDELAR ? » — le titre déborde largement sur le portrait), pas confiné
+     à la colonne droite comme le chapô/corps ci-dessous. Ancré nettement à
+     l'intérieur de la photo plutôt qu'à son bord. Encre par défaut, mot(s)-
+     clé(s) en couleur de signature — même mécanisme que le sélecteur
+     « Mot-clé coloré » du titre partout ailleurs dans l'éditeur (pas de
+     coloration de ligne entière : sur une seule ligne ça teintait tout le
+     titre à tort). Taille poussée aussi haut que le titre XXL (même impact
+     visuel recherché sur les deux templates). */
   const titleX=M+Math.round(photoW*0.42), titleW=rightEdge-titleX;
   const words=state.title.trim().split(/\s+/).filter(Boolean);
-  let tSize=104;
+  let tSize=170;
   function wrapTitle(size){
     g.font=size+"px 'Anton'";
     const lines=[]; let cur=[];
@@ -1933,22 +1938,61 @@ function drawEnqueteDuo(W,H,s){
   let tLines=wrapTitle(tSize);
   while(tLines.length>3 && tSize>44){ tSize-=4; tLines=wrapTitle(tSize); }
   const lh=tSize*0.96;
-  g.textAlign='left'; g.textBaseline='alphabetic'; g.font=tSize+"px 'Anton'";
   const useIdx=state.greenWordIndices instanceof Set;
-  const space=g.measureText(' ').width;
-  let ty=panelTop+tSize, baseIdx=0;
-  tLines.forEach(lw=>{
-    let cx=titleX;
-    lw.forEach((w,i)=>{
-      const up=w.toUpperCase();
-      const isAccent = useIdx ? state.greenWordIndices.has(baseIdx+i) : state.greenWords.has(up);
-      g.fillStyle = isAccent ? s.sig : C.encre;
-      g.fillText(up, cx, ty);
-      cx += g.measureText(up).width + space;
+  /* trace les mots du titre — colorFn(isAccent) résout la couleur par mot :
+     encre/signature pour le rendu normal, un aplat opaque unique pour le
+     masque de découpe photo (seule l'opacité compte alors, cf. plus bas) */
+  function paintDuoTitle(gg,colorFn){
+    gg.font=tSize+"px 'Anton'"; gg.textAlign='left'; gg.textBaseline='alphabetic';
+    const sp=gg.measureText(' ').width;
+    let ty2=panelTop+tSize, baseIdx=0;
+    tLines.forEach(lw=>{
+      let cx=titleX;
+      lw.forEach((w,i)=>{
+        const up=w.toUpperCase();
+        const isAccent = useIdx ? state.greenWordIndices.has(baseIdx+i) : state.greenWords.has(up);
+        gg.fillStyle = colorFn(isAccent);
+        gg.fillText(up, cx, ty2);
+        cx += gg.measureText(up).width + sp;
+      });
+      baseIdx += lw.length;
+      ty2 += lh;
     });
-    baseIdx += lw.length;
-    ty += lh;
-  });
+  }
+  paintDuoTitle(g, acc => acc ? s.sig : C.encre);
+  const ty=panelTop+tSize+(tLines.length-1)*lh; /* baseline de la dernière ligne, réutilisé plus bas */
+
+  /* là où le titre chevauche le cadre photo (référence : le texte devient
+     transparent et laisse voir la photo au travers, comme le titre XXL) —
+     seconde passe en cache-découpe, recomposée uniquement sur le
+     rectangle d'intersection titre×photo (le reste du titre, au-dessus du
+     fond crème, garde sa couleur pleine de la première passe). */
+  if(state.img){
+    const overlapX=titleX, overlapRight=M+photoW;
+    if(overlapRight>overlapX){
+      const overlapTop=panelTop+tSize-tSize*0.85;
+      const overlapBottom=panelTop+tSize+(tLines.length-1)*lh+tSize*0.25;
+      const off=document.createElement('canvas');
+      off.width=g.canvas.width; off.height=g.canvas.height;
+      const og=off.getContext('2d');
+      paintDuoTitle(og, ()=>'#000');
+      og.globalCompositeOperation='source-in';
+      og.drawImage(master,overlapX,overlapTop,overlapRight-overlapX,overlapBottom-overlapTop,
+                           overlapX,overlapTop,overlapRight-overlapX,overlapBottom-overlapTop);
+      /* ici, la photo « révélée » à travers les lettres est EXACTEMENT la
+         même que celle déjà visible dans le cadre juste en dessous (même
+         master, même zone) — sans traitement, les lettres deviendraient
+         invisibles au lieu de rester lisibles comme sur la réf « titre XXL ».
+         On les éclaircit légèrement pour qu'elles se détachent du cadre tout
+         en restant clairement « la même photo » qui continue au travers. */
+      og.globalCompositeOperation='source-atop';
+      og.fillStyle='rgba(241,236,225,0.45)';
+      og.fillRect(0,0,off.width,off.height);
+      g.save(); g.beginPath(); g.rect(overlapX,overlapTop,overlapRight-overlapX,overlapBottom-overlapTop); g.clip();
+      g.drawImage(off,0,0);
+      g.restore();
+    }
+  }
 
   /* chapô italique */
   let y=ty+30;
