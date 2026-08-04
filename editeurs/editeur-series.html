@@ -167,6 +167,10 @@ Corps du CTA."></textarea>
         <div class="chip" data-tpl="corps">COVER · CORPS SEUL</div>
         <div class="chip" data-tpl="citation">CITATION</div>
         <div class="chip" data-tpl="verbatim" id="chip_verbatim" style="display:none">CITATION · INTERVIEW</div>
+        <div class="chip" data-tpl="citation-echo" id="chip_citation_echo" style="display:none">CITATION · ÉCHO</div>
+        <div class="chip" data-tpl="enquete-temoin" id="chip_enquete_temoin" style="display:none">ENQUÊTE · TÉMOIN</div>
+        <div class="chip" data-tpl="enquete-duo" id="chip_enquete_duo" style="display:none">ENQUÊTE · DUO PHOTO</div>
+        <div class="chip" data-tpl="enquete-titre" id="chip_enquete_titre" style="display:none">ENQUÊTE · TITRE XXL</div>
         <div class="chip" data-tpl="cta">CTA ENREGISTRE</div>
       </div>
     </div>
@@ -189,10 +193,34 @@ Corps du CTA."></textarea>
       <div class="chips" id="greenpicker"></div>
     </div>
 
+    <div class="field" id="field_intro" style="display:none">
+      <label>Chapô (intro italique)</label>
+      <textarea id="f_intro" rows="4" placeholder="Chapô court en italique, sous le titre…">L'historien Paul Dietschy a passé vingt ans sur les zones d'ombre du football. Entretien.</textarea>
+      <div class="hint">Entrée = nouvelle ligne · **gras** supporté</div>
+    </div>
+
+    <div class="field" id="field_byline" style="display:none">
+      <label>Signature / byline</label>
+      <input id="f_byline" type="text" value="PAR UNE·DEUX — ENQUÊTE" maxlength="40">
+    </div>
+
     <div class="field" id="field_body">
-      <label>Sous-titre (corps)</label>
+      <label id="f_body_label">Sous-titre (corps)</label>
       <textarea id="f_body" placeholder="Sous-titre / corps de texte…"></textarea>
       <div class="hint">Entrée = nouvelle ligne · **gras** supporté</div>
+    </div>
+
+    <div class="field" id="field_qa" style="display:none">
+      <label>Questions / réponses (3 colonnes)</label>
+      <textarea id="f_qa" rows="9">Vingt ans sur une seule mort. Pourquoi celle-là ?
+Parce que tout le monde connaît la fin et personne ne connaît l'histoire.
+⸻
+Que dit le dossier de police ?
+Presque rien, et c'est ça qui parle.
+⸻
+Vous concluez à quoi ?
+Je ne conclus pas, je documente.</textarea>
+      <div class="hint">Blocs séparés par une ligne ⸻ seule · 1ère ligne = question (gras), le reste = réponse · 3 blocs max (3 colonnes)</div>
     </div>
 
     <div class="field" id="field_titlesize" style="display:none">
@@ -342,7 +370,10 @@ const state = {
   titleAnimSpeed:1,
   titleRevealStart:null,
   textBgOpacity:55,
-  enqueteFilterOn:false
+  enqueteFilterOn:false,
+  introText:"L'historien Paul Dietschy a passé vingt ans sur les zones d'ombre du football. Entretien.",
+  byline:'PAR UNE·DEUX — ENQUÊTE',
+  qaRaw:"Vingt ans sur une seule mort. Pourquoi celle-là ?\nParce que tout le monde connaît la fin et personne ne connaît l'histoire.\n⸻\nQue dit le dossier de police ?\nPresque rien, et c'est ça qui parle.\n⸻\nVous concluez à quoi ?\nJe ne conclus pas, je documente."
 };
 
 const RATIOS = {'3:4':[1080,1440], '4:5':[1080,1350], '9:16':[1080,1920], '1:1':[1080,1080]};
@@ -413,7 +444,15 @@ function selectSerie(key){
   /* template "citation · interview" (duo photo/texte) : réservé à L'arrêt de jeu */
   const chipVerbatim=document.getElementById('chip_verbatim');
   chipVerbatim.style.display = (key==='arretdejeu')?'':'none';
-  if(state.template==='verbatim' && key!=='arretdejeu'){
+  /* template "citation · écho" (photo à gauche devant un encadré teracota
+     qui reprend la même photo) : réservé à L'arrêt de jeu */
+  document.getElementById('chip_citation_echo').style.display = (key==='arretdejeu')?'':'none';
+  /* templates longform "enquête" (témoin / duo photo / titre XXL) : réservés à L'arrêt de jeu */
+  const LONGFORM_TPLS=['enquete-temoin','enquete-duo','enquete-titre'];
+  ['chip_enquete_temoin','chip_enquete_duo','chip_enquete_titre'].forEach(id=>{
+    document.getElementById(id).style.display = (key==='arretdejeu')?'':'none';
+  });
+  if((state.template==='verbatim' || state.template==='citation-echo' || LONGFORM_TPLS.includes(state.template)) && key!=='arretdejeu'){
     document.querySelector('#tpl_chips [data-tpl="citation"]').click();
   }
   /* apparition ligne par ligne du titre : uniquement Ce jour-là */
@@ -484,14 +523,23 @@ document.querySelectorAll('#tpl_chips .chip').forEach(c=>{
     document.querySelectorAll('#tpl_chips .chip').forEach(x=>x.classList.remove('on'));
     c.classList.add('on'); state.template=c.dataset.tpl;
     document.getElementById('field_btnlabel').style.display = (state.template==='cta')?'block':'none';
-    document.getElementById('field_citation').style.display = (state.template==='citation'||state.template==='verbatim')?'block':'none';
+    document.getElementById('field_citation').style.display = (state.template==='citation'||state.template==='verbatim'||state.template==='citation-echo')?'block':'none';
     document.getElementById('field_body').style.display = (state.template==='titre')?'none':'block';
     document.getElementById('field_titlesize').style.display = (state.template==='titre')?'block':'none';
     document.getElementById('field_titleanim').style.display = (state.template==='titre' && state.serie==='cejourla')?'block':'none';
     document.getElementById('field_textbg').style.display = (state.template==='corps')?'block':'none';
+    /* templates longform "enquête" : chapô italique (témoin/duo), byline (titre XXL),
+       Q&A 3 colonnes (témoin), corps relabellé selon le rôle qu'il joue dans chacun */
+    document.getElementById('field_intro').style.display = (state.template==='enquete-temoin'||state.template==='enquete-duo')?'block':'none';
+    document.getElementById('field_byline').style.display = (state.template==='enquete-titre')?'block':'none';
+    document.getElementById('field_qa').style.display = (state.template==='enquete-temoin')?'block':'none';
+    const bodyLabel=document.getElementById('f_body_label');
+    if(state.template==='enquete-titre') bodyLabel.textContent='Corps (texte, 2 colonnes)';
+    else if(state.template==='enquete-temoin'||state.template==='enquete-duo') bodyLabel.textContent='Corps (paragraphe, lettrine)';
+    else bodyLabel.textContent='Sous-titre (corps)';
     updateKwPadVisibility();
     setVerbatimLabels(state.template==='verbatim');
-    if(state.template==='citation'||state.template==='verbatim') rebuildQuotePicker();
+    if(state.template==='citation'||state.template==='verbatim'||state.template==='citation-echo') rebuildQuotePicker();
     if(state.template==='titre'){
       state.titleSizeManual = clampTitle();
       const rts=document.getElementById('r_titlesize');
@@ -510,6 +558,9 @@ document.getElementById('b_replayanim').onclick=()=>{ restartTitleReveal(); draw
 const rtbg=document.getElementById('r_textbg');
 rtbg.oninput=()=>{ state.textBgOpacity=+rtbg.value; document.getElementById('v_textbg').textContent=rtbg.value; draw(); };
 document.getElementById('f_btnlabel').oninput=e=>{state.btnlabel=e.target.value;draw();};
+document.getElementById('f_intro').oninput=e=>{state.introText=e.target.value;draw();};
+document.getElementById('f_byline').oninput=e=>{state.byline=e.target.value;draw();};
+document.getElementById('f_qa').oninput=e=>{state.qaRaw=e.target.value;draw();};
 document.getElementById('f_quote').oninput=e=>{state.quote=e.target.value;rebuildQuotePicker();draw();};
 document.getElementById('f_quoteAuthor').oninput=e=>{state.quoteAuthor=e.target.value;draw();};
 document.getElementById('f_caption').oninput=e=>{state.caption=e.target.value;draw();};
@@ -889,6 +940,15 @@ function draw(){
 
   /* router CITATION · INTERVIEW (duo photo/texte, L'arrêt de jeu) */
   if(state.template==='verbatim'){ drawVerbatim(W,H,s); if(state.safeOn) drawSafeGuides(W,H); return; }
+
+  /* router CITATION · ÉCHO (photo à gauche devant un encadré teracota qui
+     reprend la même photo, L'arrêt de jeu) */
+  if(state.template==='citation-echo'){ drawEnqueteEcho(W,H,s); if(state.safeOn) drawSafeGuides(W,H); return; }
+
+  /* router templates longform "enquête" (L'arrêt de jeu) */
+  if(state.template==='enquete-temoin'){ drawEnqueteTemoin(W,H,s); if(state.safeOn) drawSafeGuides(W,H); return; }
+  if(state.template==='enquete-duo'){ drawEnqueteDuo(W,H,s); if(state.safeOn) drawSafeGuides(W,H); return; }
+  if(state.template==='enquete-titre'){ drawEnqueteTitre(W,H,s); if(state.safeOn) drawSafeGuides(W,H); return; }
 
   /* 1. média de fond */
   if(state.img){
@@ -1429,6 +1489,838 @@ function drawVerbatim(W,H,s){
   }
   g.textAlign='left';
 }
+
+/* ===== TEMPLATES LONGFORM « ENQUÊTE » — trois mises en page magazine pour
+   L'arrêt de jeu (fond crème + stries, header/tag identiques aux autres
+   templates de la série), pensées pour un post d'enquête façon interview
+   longue plutôt qu'une simple citation. Partagent des helpers dédiés
+   ci-dessous (photo encadrée, lettrine, texte en colonnes, Q&R). ===== */
+
+/* photo encadrée dans un rectangle donné (pas plein cadre) — même logique de
+   cover-crop + filtre de série que le reste de l'éditeur, translatée dans le
+   repère local du cadre pour réutiliser applyPhotoFilter telle quelle */
+function drawPhotoPanel(g,x,y,w,h,s){
+  g.save(); g.beginPath(); g.rect(x,y,w,h); g.clip(); g.translate(x,y);
+  if(state.img){
+    const img=state.img, ir=mediaW(img)/mediaH(img), cr=w/h; let dw,dh;
+    if(ir>cr){dh=h*state.zoom;dw=dh*ir;}else{dw=w*state.zoom;dh=dw/ir;}
+    g.drawImage(img,(w-dw)*state.posx,(h-dh)*state.posy,dw,dh);
+    applyPhotoFilter(g,w,h,s.photo);
+  } else {
+    const lg=g.createLinearGradient(0,0,0,h);
+    lg.addColorStop(0,'#3a332c'); lg.addColorStop(1,'#161310');
+    g.fillStyle=lg; g.fillRect(0,0,w,h);
+  }
+  g.restore();
+}
+
+/* photo (cover-crop + filtre de série), rendue sur un canvas hors-écran isolé
+   de la taille de la boîte demandée — brique de base du texte « rempli »
+   par la photo (titre XXL, cf. drawPhotoFilledText) */
+function buildPhotoTile(w,h,s){
+  const off=document.createElement('canvas');
+  off.width=Math.max(1,Math.round(w)); off.height=Math.max(1,Math.round(h));
+  const og=off.getContext('2d');
+  if(state.img){
+    const img=state.img, ir=mediaW(img)/mediaH(img), cr=w/h; let dw,dh;
+    if(ir>cr){dh=h*state.zoom;dw=dh*ir;}else{dw=w*state.zoom;dh=dw/ir;}
+    og.drawImage(img,(w-dw)*state.posx,(h-dh)*state.posy,dw,dh);
+    applyPhotoFilter(og,w,h,s.photo);
+  } else {
+    const lg=og.createLinearGradient(0,0,0,h);
+    lg.addColorStop(0,'#3a332c'); lg.addColorStop(1,'#161310');
+    og.fillStyle=lg; og.fillRect(0,0,w,h);
+  }
+  return off;
+}
+
+/* texte « rempli » par la photo — la photo (avec son virage de série) n'est
+   visible qu'à travers les lettres, comme un cache-découpe (knockout text).
+   paintFn(g) doit peindre les glyphes en plein (n'importe quelle couleur
+   opaque) dans le repère du canvas principal ; le composite source-in ne
+   garde ensuite que la photo là où ces pixels étaient opaques. Utilisé pour
+   le titre XXL quand une photo est chargée (sinon, l'appelant garde un
+   remplissage couleur classique) — cf. réf. « ON L'A EFFACÉ » où le titre
+   est rempli par le portrait plutôt qu'en aplat de couleur. */
+function drawPhotoFilledText(g,paintFn,boxX,boxY,boxW,boxH,s){
+  /* le composite source-in doit rester isolé sur un canvas hors-écran dédié :
+     appliqué directement sur le canvas principal, il efface (Porter-Duff)
+     TOUT le reste du canvas là où la nouvelle source est transparente — pas
+     seulement en dehors du rectangle dessiné — donc ferait disparaître le
+     header/fond déjà peints. On construit le résultat à part, puis on le
+     replaque au-dessus en composite normal (source-over, non destructif). */
+  const off=document.createElement('canvas');
+  off.width=g.canvas.width; off.height=g.canvas.height;
+  const og=off.getContext('2d');
+  paintFn(og);
+  og.globalCompositeOperation='source-in';
+  const tile=buildPhotoTile(boxW,boxH,s);
+  og.drawImage(tile,boxX,boxY,boxW,boxH);
+  g.drawImage(off,0,0);
+}
+
+/* rend la photo UNE SEULE FOIS, cover-croppée sur le canvas entier (mêmes
+   repères x/y que le reste de la composition) — pour que le cadre photo et
+   le titre « rempli » par la photo montrent des fenêtres sur UNE SEULE
+   image continue (référence « ON L'A EFFACÉ » : la photo se prolonge du
+   cadre jusque dans les lettres) plutôt que deux recadrages indépendants
+   qui donneraient l'impression de deux photos différentes. */
+function buildMasterPhoto(W,H,s){
+  const off=document.createElement('canvas');
+  off.width=W; off.height=H;
+  const og=off.getContext('2d');
+  if(state.img){
+    const img=state.img, ir=mediaW(img)/mediaH(img), cr=W/H; let dw,dh;
+    if(ir>cr){dh=H*state.zoom;dw=dh*ir;}else{dw=W*state.zoom;dh=dw/ir;}
+    og.drawImage(img,(W-dw)*state.posx,(H-dh)*state.posy,dw,dh);
+    applyPhotoFilter(og,W,H,s.photo);
+  } else {
+    const lg=og.createLinearGradient(0,0,0,H);
+    lg.addColorStop(0,'#3a332c'); lg.addColorStop(1,'#161310');
+    og.fillStyle=lg; og.fillRect(0,0,W,H);
+  }
+  return off;
+}
+/* découpe une région du master directement à sa position — simple copie de
+   pixels (mêmes repères), donc toujours raccord avec le reste de l'image */
+function blitMasterRegion(g,master,x,y,w,h){
+  g.save(); g.beginPath(); g.rect(x,y,w,h); g.clip();
+  g.drawImage(master,x,y,w,h,x,y,w,h);
+  g.restore();
+}
+/* variante de drawPhotoFilledText qui pioche dans un master déjà construit
+   (au lieu de recadrer indépendamment) — même précaution de composite
+   isolé sur canvas hors-écran, cf. commentaire de drawPhotoFilledText */
+function drawPhotoFilledTextFromMaster(g,paintFn,boxX,boxY,boxW,boxH,master){
+  const off=document.createElement('canvas');
+  off.width=g.canvas.width; off.height=g.canvas.height;
+  const og=off.getContext('2d');
+  paintFn(og);
+  og.globalCompositeOperation='source-in';
+  og.drawImage(master,boxX,boxY,boxW,boxH,boxX,boxY,boxW,boxH);
+  g.drawImage(off,0,0);
+}
+
+/* une ligne de texte italique (Archivo), avec **gras** supporté — utilisée
+   pour le chapô des templates témoin/duo */
+function drawItalicLine(g,line,x,y,fontPx,color){
+  const segs=parseBoldSegments(line); let cx=x;
+  segs.forEach(seg=>{
+    g.font=(seg.bold?"italic 700 ":"italic 500 ")+fontPx+"px 'Archivo'";
+    g.fillStyle=color; g.fillText(seg.text,cx,y);
+    cx+=g.measureText(seg.text).width;
+  });
+}
+
+/* calcule le découpage (lettrine + lignes indentées puis pleine largeur)
+   pour une taille de police donnée, sans dessiner — utilisé par
+   dropCapParagraph pour choisir la plus grande taille qui tient */
+function layoutDropCap(g,restText,maxW,capSize,bodySize,lineH){
+  g.font="700 "+capSize+"px 'Archivo'";
+  const capW=g.measureText('M').width; // référence stable (pas la lettrine elle-même, cf. drawWordLine)
+  const capH=capSize*0.86;
+  const capLines=Math.max(2,Math.round(capH/lineH));
+  const indentW=capW+22;
+
+  const words=restText.split(/\s+/).filter(Boolean);
+  const narrowW=Math.max(40,maxW-indentW);
+  const built=[]; let cur=[]; let i=0;
+  g.font="500 "+bodySize+"px 'Archivo'";
+  while(i<words.length && built.length<capLines){
+    const test=cur.concat([words[i]]).join(' ');
+    if(cur.length && g.measureText(stripBold(test)).width>narrowW){ built.push({words:cur,indented:true}); cur=[]; }
+    else { cur.push(words[i]); i++; }
+  }
+  if(cur.length){ built.push({words:cur,indented:true}); cur=[]; }
+  while(i<words.length){
+    const test=cur.concat([words[i]]).join(' ');
+    if(cur.length && g.measureText(stripBold(test)).width>maxW){ built.push({words:cur,indented:false}); cur=[]; }
+    else { cur.push(words[i]); i++; }
+  }
+  if(cur.length) built.push({words:cur,indented:false});
+  return {lines:built, indentW, capH};
+}
+
+/* paragraphe à lettrine (1ère lettre en grand Archivo 700) : les premières
+   lignes sont indentées le temps que la lettrine occupe la hauteur, puis le
+   texte repasse en pleine largeur — approximation du drop cap presse des
+   références. Taille adaptative (comme le reste de l'éditeur) pour tenir
+   dans maxH sans déborder sur ce qui suit (Q&R, footer…). Renvoie la
+   position Y atteinte en bas du paragraphe. */
+function dropCapParagraph(g,text,x,topY,maxW,maxH,color){
+  const trimmed=String(text).trim();
+  if(!trimmed) return topY;
+  let idx=0;
+  while(trimmed.slice(idx,idx+2)==='**') idx+=2;
+  const capChar=(trimmed[idx]||'').toUpperCase();
+  const restText=trimmed.slice(0,idx)+trimmed.slice(idx+1);
+
+  const sizes=[28,26,24,22,20,18,16];
+  let picked=null;
+  for(let i=0;i<sizes.length;i++){
+    const bodySize=sizes[i], lineH=Math.round(bodySize*1.36), capSize=Math.round(bodySize*2.55);
+    const layout=layoutDropCap(g,restText,maxW,capSize,bodySize,lineH);
+    const h=bodySize*1.02+(layout.lines.length-1)*lineH;
+    if(h<=Math.max(40,maxH) || i===sizes.length-1){ picked={bodySize,lineH,capSize,layout}; break; }
+  }
+  const {bodySize,lineH,capSize,layout}=picked;
+
+  g.textAlign='left'; g.textBaseline='alphabetic';
+  g.fillStyle=color; g.font="700 "+capSize+"px 'Archivo'";
+  g.fillText(capChar, x, topY+layout.capH);
+
+  g.font="500 "+bodySize+"px 'Archivo'";
+  let y=topY+bodySize*1.02;
+  layout.lines.forEach(ln=>{
+    const lx = ln.indented ? x+layout.indentW : x;
+    drawBodyRich(g, ln.words.join(' '), lx, y, bodySize);
+    y+=lineH;
+  });
+  return y;
+}
+
+/* variante de layoutDropCap dont la largeur disponible change en cours de
+   texte : étroite (narrowW) tant qu'on est encore à hauteur de la photo,
+   pleine largeur (fullW) une fois qu'on l'a dépassée — permet au corps de
+   texte de démarrer juste sous le titre XXL, à côté de la photo qui
+   continue à droite, sans jamais empiéter dessus, puis de profiter de
+   toute la largeur dès qu'il en sort. x reste fixe (M) dans les deux cas,
+   seule la largeur change. */
+function layoutFlowAroundImage(g,restText,topY,narrowW,fullW,imageBottomY,capSize,bodySize,lineH){
+  g.font="700 "+capSize+"px 'Archivo'";
+  const capW=g.measureText('M').width, capH=capSize*0.86;
+  const capLines=Math.max(2,Math.round(capH/lineH));
+  const indentW=capW+22;
+
+  const words=restText.split(/\s+/).filter(Boolean);
+  const built=[]; let cur=[]; let i=0; let y=topY;
+  g.font="500 "+bodySize+"px 'Archivo'";
+  while(i<words.length){
+    const lineIdx=built.length;
+    const wide = y>=imageBottomY;
+    let maxW = wide?fullW:narrowW;
+    if(lineIdx<capLines) maxW=Math.max(40,maxW-indentW);
+    const test=cur.concat([words[i]]).join(' ');
+    if(cur.length && g.measureText(stripBold(test)).width>maxW){
+      built.push({words:cur, indented:(lineIdx<capLines)}); cur=[]; y+=lineH;
+    } else { cur.push(words[i]); i++; }
+  }
+  if(cur.length) built.push({words:cur, indented:(built.length<capLines)});
+  return {lines:built, indentW, capH};
+}
+
+/* paragraphe à lettrine qui épouse la photo : étroit tant qu'il longe la
+   photo (narrowW, typiquement la largeur du titre au-dessus), plein largeur
+   une fois en dessous (fullW) — référence « ON L'A EFFACÉ » où le corps
+   démarre juste sous le titre, à côté de la photo qui continue. Taille
+   adaptative + troncature dure en dernier recours, comme dropCapParagraph. */
+function dropCapFlowAroundImage(g,text,x,topY,narrowW,fullW,imageBottomY,maxBottom,color){
+  const trimmed=String(text).trim();
+  if(!trimmed) return topY;
+  let idx=0;
+  while(trimmed.slice(idx,idx+2)==='**') idx+=2;
+  const capChar=(trimmed[idx]||'').toUpperCase();
+  const restText=trimmed.slice(0,idx)+trimmed.slice(idx+1);
+
+  const sizes=[28,26,24,22,20,18,16];
+  let picked=null;
+  for(let i=0;i<sizes.length;i++){
+    const bodySize=sizes[i], lineH=Math.round(bodySize*1.36), capSize=Math.round(bodySize*2.55);
+    const layout=layoutFlowAroundImage(g,restText,topY,narrowW,fullW,imageBottomY,capSize,bodySize,lineH);
+    const h=bodySize*1.02+(layout.lines.length-1)*lineH;
+    if(topY+h<=maxBottom || i===sizes.length-1){ picked={bodySize,lineH,capSize,layout}; break; }
+  }
+  const {bodySize,lineH,capSize,layout}=picked;
+
+  /* garde-fou dur : même à la plus petite taille, tronquer plutôt que
+     déborder sur le footer */
+  const maxLines=Math.max(1,Math.floor((maxBottom-(topY+bodySize*1.02))/lineH)+1);
+  const lines=layout.lines.slice(0,maxLines);
+
+  g.textAlign='left'; g.textBaseline='alphabetic';
+  g.fillStyle=color; g.font="700 "+capSize+"px 'Archivo'";
+  g.fillText(capChar, x, topY+layout.capH);
+
+  g.font="500 "+bodySize+"px 'Archivo'";
+  let y=topY+bodySize*1.02;
+  lines.forEach(ln=>{
+    const lx = ln.indented ? x+layout.indentW : x;
+    drawBodyRich(g, ln.words.join(' '), lx, y, bodySize);
+    y+=lineH;
+  });
+  return y;
+}
+
+/* découpe le bloc Q&R (⸻ = séparateur, 1ère ligne = question) — jusqu'à 3 blocs */
+function parseQA(raw){
+  return String(raw).split(/\n[ \t]*⸻[ \t]*\n/).map(block=>{
+    const rawLines=block.split(/\r?\n/);
+    const qIdx=rawLines.findIndex(l=>l.trim()!=='');
+    if(qIdx===-1) return null;
+    return { q:rawLines[qIdx].trim(), a:rawLines.slice(qIdx+1).join('\n').trim() };
+  }).filter(Boolean).slice(0,3);
+}
+
+/* Q&R en colonnes (autant de colonnes que de blocs, question en gras Saira
+   Condensed, réponse en Archivo) — lignes plafonnées pour rester dans maxH
+   (réservé par l'appelant), plutôt que de déborder sur le footer */
+function drawQAColumns(g,qaList,x0,x1,top,maxH,s){
+  const n=qaList.length; if(!n) return;
+  const gap=36, colW=(x1-x0-(n-1)*gap)/n;
+  const qSize=25, qLh=32, aSize=23, aLh=30;
+  const maxQLines=3;
+  qaList.forEach((qa,i)=>{
+    const cx=x0+i*(colW+gap);
+    g.textAlign='left'; g.textBaseline='alphabetic';
+    let y=top;
+    const qFont="700 "+qSize+"px 'Saira Condensed'";
+    const qLines=simpleWrap(g,qa.q,colW,qFont).slice(0,maxQLines);
+    qLines.forEach(ln=>{ y+=qLh; g.font=qFont; g.fillStyle=C.encre; g.fillText(ln,cx,y); });
+    y+=8;
+    const maxALines=Math.max(1,Math.floor((maxH-(qLines.length*qLh+8))/aLh));
+    wrapAtSize(g,qa.a,colW,aSize).slice(0,maxALines).forEach(ln=>{ y+=aLh; drawBodyRich(g,ln,cx,y,aSize); });
+  });
+}
+
+/* ===== TEMPLATE ENQUÊTE · TÉMOIN — titre + photo encadrée en haut, chapô
+   italique, corps à lettrine pleine largeur, puis Q&R sur 3 colonnes (« LE
+   DERNIER TÉMOIN ») ===== */
+function drawEnqueteTemoin(W,H,s){
+  const g=ctx, isVert=state.ratio==='9:16';
+  const M=isVert?96:50, MR=isVert?96:120, rightEdge=W-MR;
+
+  g.fillStyle=C.creme; g.fillRect(0,0,W,H);
+  g.save(); g.strokeStyle='rgba(44,40,35,0.05)'; g.lineWidth=2;
+  for(let i=-H;i<W+H;i+=46){ g.beginPath(); g.moveTo(i,0); g.lineTo(i+H,H); g.stroke(); }
+  g.restore();
+
+  const ringD=92, ringC=66+safeTop()+ringD/2;
+  g.strokeStyle=C.encre; g.lineWidth=4;
+  g.beginPath(); g.arc(M+ringD/2,ringC,ringD/2-2,0,Math.PI*2); g.stroke();
+  g.fillStyle=C.encre; g.textBaseline='middle'; g.textAlign='center'; g.font="38px 'Saira Condensed'";
+  g.fillText('1·2',M+ringD/2,ringC+1);
+  g.textAlign='left'; g.font="58px 'Anton'"; g.fillText('une·deux',M+ringD+26,ringC+2);
+  g.textAlign='right'; g.font="32px 'Saira Condensed'"; g.fillStyle=C.encre;
+  g.fillText('@UNE.DEUX',rightEdge,ringC); g.textAlign='left';
+  g.fillStyle=C.encre; g.fillRect(M,168+safeTop(),rightEdge-M,4);
+
+  const tagY=200+safeTop(), tagH=58;
+  g.font="32px 'Saira Condensed'"; g.textBaseline='middle';
+  const nameTxt=s.label.toUpperCase(), nameW=g.measureText(nameTxt).width+30;
+  g.fillStyle=s.sig; g.fillRect(M,tagY,nameW,tagH);
+  g.fillStyle=s.sigTextColor||C.encre; g.fillText(nameTxt,M+15,tagY+tagH/2+1);
+  g.textBaseline='alphabetic'; g.textAlign='left';
+
+  const footY=H-70-safeBottom();
+  const showFooter=!isVert && paginationShown();
+
+  /* photo encadrée en haut à droite */
+  const panelTop=tagY+tagH+34;
+  const photoX=Math.round(W*0.485), photoW=rightEdge-photoX;
+  const photoBottom=Math.round(H*0.60);
+  drawPhotoPanel(g,photoX,panelTop,photoW,photoBottom-panelTop,s);
+
+  /* titre 2 lignes — 1ère en encre, 2e pleine couleur signature. Pas de
+     marge réservée avant la photo (référence « LE DERNIER TÉMOIN ») : le
+     titre est ajusté pour occuper tout l'espace jusqu'au bord de la photo,
+     quitte à le frôler/légèrement chevaucher — dessiné après la photo (cf.
+     drawPhotoPanel plus haut), il reste donc lisible par-dessus. */
+  const titleMaxW=photoX-M;
+  const words=state.title.trim().split(/\s+/).filter(Boolean);
+  const [l1,l2]=splitTitleTwoLines(words);
+  let tSize=170; g.font=tSize+"px 'Anton'";
+  const longest=Math.max(g.measureText(l1.join(' ').toUpperCase()).width,g.measureText((l2.join(' ')||'').toUpperCase()).width,1);
+  if(longest>titleMaxW) tSize=Math.floor(tSize*titleMaxW/longest);
+  tSize=Math.max(40,Math.min(170,tSize));
+  const lh=tSize*0.94;
+  g.font=tSize+"px 'Anton'"; g.textBaseline='alphabetic'; g.textAlign='left';
+  const ty1=panelTop+tSize;
+  g.fillStyle=C.encre; g.fillText(l1.join(' ').toUpperCase(),M,ty1);
+  let ty2=ty1;
+  if(l2.length){ ty2=ty1+lh; g.fillStyle=s.sig; g.fillText(l2.join(' ').toUpperCase(),M,ty2); }
+
+  /* chapô italique, colonne gauche (largeur du titre) */
+  let y=ty2+40;
+  const introLines=wrapAtSize(g,state.introText,titleMaxW,30);
+  introLines.forEach(ln=>{ y+=38; drawItalicLine(g,ln,M,y,30,C.encre); });
+
+  /* Q&R réservé en bas si renseigné */
+  const qaList=parseQA(state.qaRaw);
+  const qaBlockH=qaList.length?214:0;
+  const frameBottom=showFooter?footY-46:H-90;
+  const qaTop=qaList.length?frameBottom-qaBlockH:null;
+  const bodyBottom=qaList.length?qaTop-34:frameBottom;
+
+  /* corps à lettrine, pleine largeur, sous le plus bas de {chapô, photo} */
+  const bodyTop=Math.max(y+34, photoBottom+34);
+  dropCapParagraph(g,state.body,M,bodyTop,rightEdge-M,bodyBottom-bodyTop,C.encre);
+
+  if(qaList.length){
+    g.strokeStyle='rgba(44,40,35,0.25)'; g.lineWidth=2;
+    g.beginPath(); g.moveTo(M,qaTop-24); g.lineTo(rightEdge,qaTop-24); g.stroke();
+    drawQAColumns(g,qaList,M,rightEdge,qaTop,qaBlockH,s);
+  }
+
+  if(showFooter){
+    if(state.showSwipe){
+      g.fillStyle=s.sig; g.font="36px 'Saira Condensed'"; g.textBaseline='middle'; g.textAlign='left';
+      g.fillText('SWIPE',M,footY);
+      const sw=g.measureText('SWIPE').width;
+      const circD=76, circX=M+sw+28+circD/2, circY=footY;
+      g.fillStyle=s.sig; g.beginPath(); g.arc(circX,circY,circD/2,0,Math.PI*2); g.fill();
+      roundedArrow(g,circX,circY,C.creme);
+    }
+    g.textAlign='right'; g.textBaseline='middle'; g.font="60px 'Anton'";
+    const totTxt='/'+state.tot; g.fillStyle=C.encre; g.fillText(totTxt,rightEdge,footY);
+    const tw=g.measureText(totTxt).width; g.fillStyle=s.sig; g.fillText(state.cur,rightEdge-tw-4,footY);
+  }
+  g.textAlign='left';
+}
+
+/* ===== TEMPLATE ENQUÊTE · DUO PHOTO — photo encadrée pleine hauteur à
+   gauche, titre + chapô + corps à lettrine dans la colonne droite (« QUI A
+   TUÉ SINDELAR ? ») ===== */
+function drawEnqueteDuo(W,H,s){
+  const g=ctx, isVert=state.ratio==='9:16';
+  const M=isVert?96:50, MR=isVert?96:120, rightEdge=W-MR;
+
+  g.fillStyle=C.creme; g.fillRect(0,0,W,H);
+  g.save(); g.strokeStyle='rgba(44,40,35,0.05)'; g.lineWidth=2;
+  for(let i=-H;i<W+H;i+=46){ g.beginPath(); g.moveTo(i,0); g.lineTo(i+H,H); g.stroke(); }
+  g.restore();
+
+  const ringD=92, ringC=66+safeTop()+ringD/2;
+  g.strokeStyle=C.encre; g.lineWidth=4;
+  g.beginPath(); g.arc(M+ringD/2,ringC,ringD/2-2,0,Math.PI*2); g.stroke();
+  g.fillStyle=C.encre; g.textBaseline='middle'; g.textAlign='center'; g.font="38px 'Saira Condensed'";
+  g.fillText('1·2',M+ringD/2,ringC+1);
+  g.textAlign='left'; g.font="58px 'Anton'"; g.fillText('une·deux',M+ringD+26,ringC+2);
+  g.textAlign='right'; g.font="32px 'Saira Condensed'"; g.fillStyle=C.encre;
+  g.fillText('@UNE.DEUX',rightEdge,ringC); g.textAlign='left';
+  g.fillStyle=C.encre; g.fillRect(M,168+safeTop(),rightEdge-M,4);
+
+  const tagY=200+safeTop(), tagH=58;
+  g.font="32px 'Saira Condensed'"; g.textBaseline='middle';
+  const nameTxt=s.label.toUpperCase(), nameW=g.measureText(nameTxt).width+30;
+  g.fillStyle=s.sig; g.fillRect(M,tagY,nameW,tagH);
+  g.fillStyle=s.sigTextColor||C.encre; g.fillText(nameTxt,M+15,tagY+tagH/2+1);
+  g.textBaseline='alphabetic'; g.textAlign='left';
+
+  const footY=H-70-safeBottom();
+  const showFooter=!isVert && paginationShown();
+
+  /* photo encadrée, colonne gauche, pleine hauteur. Rendue à partir d'un
+     master unique (cf. buildMasterPhoto) : le titre, dessiné ensuite,
+     pioche dans ce même master là où il chevauche le cadre, pour montrer
+     la continuité d'UNE SEULE image entre le cadre et les lettres. */
+  const panelTop=tagY+tagH+34;
+  const panelBottom=(showFooter?footY-46:H-90)-6;
+  const photoW=Math.round(W*0.40)-M;
+  const master=buildMasterPhoto(W,H,s);
+  blitMasterRegion(g,master,M,panelTop,photoW,panelBottom-panelTop);
+
+  const colX=M+photoW+32, colW=rightEdge-colX;
+
+  /* titre : bleed volontaire par-dessus la photo (référence « QUI A TUÉ
+     SINDELAR ? » — le titre déborde largement sur le portrait), pas confiné
+     à la colonne droite comme le chapô/corps ci-dessous. Ancré nettement à
+     l'intérieur de la photo plutôt qu'à son bord. Encre par défaut, mot(s)-
+     clé(s) en couleur de signature — même mécanisme que le sélecteur
+     « Mot-clé coloré » du titre partout ailleurs dans l'éditeur (pas de
+     coloration de ligne entière : sur une seule ligne ça teintait tout le
+     titre à tort). Taille poussée aussi haut que le titre XXL (même impact
+     visuel recherché sur les deux templates). */
+  const titleX=M+Math.round(photoW*0.42), titleW=rightEdge-titleX;
+  const words=state.title.trim().split(/\s+/).filter(Boolean);
+  let tSize=170;
+  function wrapTitle(size){
+    g.font=size+"px 'Anton'";
+    const lines=[]; let cur=[];
+    words.forEach(w=>{
+      const test=cur.concat([w]).join(' ').toUpperCase();
+      if(cur.length && g.measureText(test).width>titleW){ lines.push(cur); cur=[w]; } else cur.push(w);
+    });
+    if(cur.length) lines.push(cur);
+    return lines;
+  }
+  let tLines=wrapTitle(tSize);
+  while(tLines.length>3 && tSize>44){ tSize-=4; tLines=wrapTitle(tSize); }
+  const lh=tSize*0.96;
+  const useIdx=state.greenWordIndices instanceof Set;
+  /* trace les mots du titre — colorFn(isAccent) résout la couleur par mot :
+     encre/signature pour le rendu normal, un aplat opaque unique pour le
+     masque de découpe photo (seule l'opacité compte alors, cf. plus bas) */
+  function paintDuoTitle(gg,colorFn){
+    gg.font=tSize+"px 'Anton'"; gg.textAlign='left'; gg.textBaseline='alphabetic';
+    const sp=gg.measureText(' ').width;
+    let ty2=panelTop+tSize, baseIdx=0;
+    tLines.forEach(lw=>{
+      let cx=titleX;
+      lw.forEach((w,i)=>{
+        const up=w.toUpperCase();
+        const isAccent = useIdx ? state.greenWordIndices.has(baseIdx+i) : state.greenWords.has(up);
+        gg.fillStyle = colorFn(isAccent);
+        gg.fillText(up, cx, ty2);
+        cx += gg.measureText(up).width + sp;
+      });
+      baseIdx += lw.length;
+      ty2 += lh;
+    });
+  }
+  paintDuoTitle(g, acc => acc ? s.sig : C.encre);
+  const ty=panelTop+tSize+(tLines.length-1)*lh; /* baseline de la dernière ligne, réutilisé plus bas */
+
+  /* là où le titre chevauche le cadre photo (référence : le texte devient
+     transparent et laisse voir la photo au travers, comme le titre XXL) —
+     seconde passe en cache-découpe, recomposée uniquement sur le
+     rectangle d'intersection titre×photo (le reste du titre, au-dessus du
+     fond crème, garde sa couleur pleine de la première passe). */
+  if(state.img){
+    const overlapX=titleX, overlapRight=M+photoW;
+    if(overlapRight>overlapX){
+      const overlapTop=panelTop+tSize-tSize*0.85;
+      const overlapBottom=panelTop+tSize+(tLines.length-1)*lh+tSize*0.25;
+      const off=document.createElement('canvas');
+      off.width=g.canvas.width; off.height=g.canvas.height;
+      const og=off.getContext('2d');
+      paintDuoTitle(og, ()=>'#000');
+      og.globalCompositeOperation='source-in';
+      og.drawImage(master,overlapX,overlapTop,overlapRight-overlapX,overlapBottom-overlapTop,
+                           overlapX,overlapTop,overlapRight-overlapX,overlapBottom-overlapTop);
+      /* ici, la photo « révélée » à travers les lettres est EXACTEMENT la
+         même que celle déjà visible dans le cadre juste en dessous (même
+         master, même zone) — sans traitement, les lettres deviendraient
+         invisibles au lieu de rester lisibles comme sur la réf « titre XXL ».
+         On les éclaircit légèrement pour qu'elles se détachent du cadre tout
+         en restant clairement « la même photo » qui continue au travers. */
+      og.globalCompositeOperation='source-atop';
+      og.fillStyle='rgba(241,236,225,0.45)';
+      og.fillRect(0,0,off.width,off.height);
+      g.save(); g.beginPath(); g.rect(overlapX,overlapTop,overlapRight-overlapX,overlapBottom-overlapTop); g.clip();
+      g.drawImage(off,0,0);
+      g.restore();
+    }
+  }
+
+  /* chapô italique */
+  let y=ty+30;
+  const introLines=wrapAtSize(g,state.introText,colW,30);
+  introLines.forEach(ln=>{ y+=38; drawItalicLine(g,ln,colX,y,30,C.encre); });
+
+  /* corps à lettrine, confiné à la colonne droite */
+  const dropTop=y+30;
+  dropCapParagraph(g,state.body,colX,dropTop,colW,panelBottom-dropTop,C.encre);
+
+  if(showFooter){
+    if(state.showSwipe){
+      g.fillStyle=s.sig; g.font="36px 'Saira Condensed'"; g.textBaseline='middle'; g.textAlign='left';
+      g.fillText('SWIPE',M,footY);
+      const sw=g.measureText('SWIPE').width;
+      const circD=76, circX=M+sw+28+circD/2, circY=footY;
+      g.fillStyle=s.sig; g.beginPath(); g.arc(circX,circY,circD/2,0,Math.PI*2); g.fill();
+      roundedArrow(g,circX,circY,C.creme);
+    }
+    g.textAlign='right'; g.textBaseline='middle'; g.font="60px 'Anton'";
+    const totTxt='/'+state.tot; g.fillStyle=C.encre; g.fillText(totTxt,rightEdge,footY);
+    const tw=g.measureText(totTxt).width; g.fillStyle=s.sig; g.fillText(state.cur,rightEdge-tw-4,footY);
+  }
+  g.textAlign='left';
+}
+
+/* ===== TEMPLATE ENQUÊTE · TITRE XXL — très grand titre en rouille estompée,
+   photo encadrée en haut à droite, byline + filet, corps en 2 colonnes
+   pleine largeur (« ON L'A EFFACÉ ») ===== */
+function drawEnqueteTitre(W,H,s){
+  const g=ctx, isVert=state.ratio==='9:16';
+  const M=isVert?96:50, MR=isVert?96:120, rightEdge=W-MR;
+
+  g.fillStyle=C.creme; g.fillRect(0,0,W,H);
+  g.save(); g.strokeStyle='rgba(44,40,35,0.05)'; g.lineWidth=2;
+  for(let i=-H;i<W+H;i+=46){ g.beginPath(); g.moveTo(i,0); g.lineTo(i+H,H); g.stroke(); }
+  g.restore();
+
+  const ringD=92, ringC=66+safeTop()+ringD/2;
+  g.strokeStyle=C.encre; g.lineWidth=4;
+  g.beginPath(); g.arc(M+ringD/2,ringC,ringD/2-2,0,Math.PI*2); g.stroke();
+  g.fillStyle=C.encre; g.textBaseline='middle'; g.textAlign='center'; g.font="38px 'Saira Condensed'";
+  g.fillText('1·2',M+ringD/2,ringC+1);
+  g.textAlign='left'; g.font="58px 'Anton'"; g.fillText('une·deux',M+ringD+26,ringC+2);
+  g.textAlign='right'; g.font="32px 'Saira Condensed'"; g.fillStyle=C.encre;
+  g.fillText('@UNE.DEUX',rightEdge,ringC); g.textAlign='left';
+  g.fillStyle=C.encre; g.fillRect(M,168+safeTop(),rightEdge-M,4);
+
+  const tagY=200+safeTop(), tagH=58;
+  g.font="32px 'Saira Condensed'"; g.textBaseline='middle';
+  const nameTxt=s.label.toUpperCase(), nameW=g.measureText(nameTxt).width+30;
+  g.fillStyle=s.sig; g.fillRect(M,tagY,nameW,tagH);
+  g.fillStyle=s.sigTextColor||C.encre; g.fillText(nameTxt,M+15,tagY+tagH/2+1);
+  g.textBaseline='alphabetic'; g.textAlign='left';
+
+  const footY=H-70-safeBottom();
+  const showFooter=!isVert && paginationShown();
+
+  /* photo encadrée en haut à droite, plus haute que dans "témoin" (le titre
+     XXL prend le pas visuellement, la photo sert de respiration). Rendue à
+     partir d'un master unique (cf. buildMasterPhoto) : le titre, plus loin,
+     pioche dans ce même master pour montrer la continuité d'UNE SEULE photo
+     entre le cadre et les lettres (référence « ON L'A EFFACÉ »). */
+  const panelTop=tagY+tagH+30;
+  const photoX=Math.round(W*0.5), photoW=rightEdge-photoX;
+  const photoBottom=Math.round(H*0.66);
+  const master=buildMasterPhoto(W,H,s);
+  blitMasterRegion(g,master,photoX,panelTop,photoW,photoBottom-panelTop);
+
+  /* titre XXL — 2 lignes max, ajusté à la colonne gauche (marge réservée
+     avant la photo conservée ici : contrairement à « témoin »/« duo photo »,
+     le titre ne déborde pas sur le cadre photo dans cette référence). Rempli
+     par la MÊME photo que le cadre ci-dessus quand une photo est chargée
+     (knockout text, cf. drawPhotoFilledTextFromMaster) — référence « ON L'A
+     EFFACÉ » où le titre prend exactement la teinte/texture du portrait
+     plutôt qu'un aplat de couleur. Sans photo, repli sur un aplat rouille
+     estompé. Taille poussée plus haut (impact visuel maximal recherché). */
+  const titleMaxW=photoX-M-28;
+  const words=state.title.trim().split(/\s+/).filter(Boolean);
+  const [l1,l2]=splitTitleTwoLines(words);
+  let tSize=170; g.font=tSize+"px 'Anton'";
+  const longest=Math.max(g.measureText(l1.join(' ').toUpperCase()).width,g.measureText((l2.join(' ')||'').toUpperCase()).width,1);
+  if(longest>titleMaxW) tSize=Math.floor(tSize*titleMaxW/longest);
+  tSize=Math.max(52,Math.min(170,tSize));
+  const lh=tSize*0.92;
+  g.font=tSize+"px 'Anton'"; g.textBaseline='alphabetic'; g.textAlign='left';
+  const ty1=panelTop+tSize;
+  let titleBottom=ty1, ty2=null;
+  if(l2.length){ ty2=ty1+lh; titleBottom=ty2; }
+  /* trace les glyphes seuls — la couleur passée n'importe que pour le repli
+     sans photo : pour le masque (drawPhotoFilledTextFromMaster), seule
+     l'opacité compte, la couleur réelle vient ensuite de la photo composée
+     par-dessus */
+  const paintTitle=(gg,color)=>{
+    gg.font=tSize+"px 'Anton'"; gg.textBaseline='alphabetic'; gg.textAlign='left'; gg.fillStyle=color;
+    gg.fillText(l1.join(' ').toUpperCase(),M,ty1);
+    if(ty2!=null) gg.fillText(l2.join(' ').toUpperCase(),M,ty2);
+  };
+  if(state.img){
+    const boxY=ty1-tSize*0.85, boxH=(titleBottom-boxY)+tSize*0.25;
+    drawPhotoFilledTextFromMaster(g,gg=>paintTitle(gg,'#000'),M,boxY,titleMaxW,boxH,master);
+  } else {
+    paintTitle(g,'rgba(168,69,43,0.65)');
+  }
+
+  /* byline + filet, juste sous le titre — confinés à sa largeur (pas de
+     filet qui traverserait la photo à droite) */
+  const blockTop=titleBottom+42;
+  g.font="600 26px 'Saira Condensed'"; g.fillStyle=s.sig; g.textAlign='left'; g.textBaseline='middle';
+  g.fillText((state.byline||'').toUpperCase(), M, blockTop);
+  g.strokeStyle='rgba(44,40,35,0.25)'; g.lineWidth=2;
+  g.beginPath(); g.moveTo(M, blockTop+22); g.lineTo(M+titleMaxW, blockTop+22); g.stroke();
+  g.textBaseline='alphabetic';
+
+  /* corps de texte dans la zone sous le titre : démarre tout de suite (à
+     côté de la photo qui continue à droite, sans jamais l'atteindre), puis
+     passe en pleine largeur une fois sous la photo — référence « ON L'A
+     EFFACÉ » demandant explicitement du texte dans cette zone plutôt qu'un
+     grand vide sous le titre. */
+  const bodyTop=blockTop+48;
+  const bodyBottom=(showFooter?footY-46:H-90)-10;
+  dropCapFlowAroundImage(g,state.body,M,bodyTop,titleMaxW,rightEdge-M,photoBottom,bodyBottom,C.encre);
+
+  if(showFooter){
+    if(state.showSwipe){
+      g.fillStyle=s.sig; g.font="36px 'Saira Condensed'"; g.textBaseline='middle'; g.textAlign='left';
+      g.fillText('SWIPE',M,footY);
+      const sw=g.measureText('SWIPE').width;
+      const circD=76, circX=M+sw+28+circD/2, circY=footY;
+      g.fillStyle=s.sig; g.beginPath(); g.arc(circX,circY,circD/2,0,Math.PI*2); g.fill();
+      roundedArrow(g,circX,circY,C.creme);
+    }
+    g.textAlign='right'; g.textBaseline='middle'; g.font="60px 'Anton'";
+    const totTxt='/'+state.tot; g.fillStyle=C.encre; g.fillText(totTxt,rightEdge,footY);
+    const tw=g.measureText(totTxt).width; g.fillStyle=s.sig; g.fillText(state.cur,rightEdge-tw-4,footY);
+  }
+  g.textAlign='left';
+}
+
+/* ===== TEMPLATE CITATION · ÉCHO — photo à gauche devant un encadré teracota
+   qui reprend la même photo (duoton fort), citation à droite. Inspiré d'une
+   réf externe (carte citation avec sujet net posé devant une réplique
+   colorée en fond) adaptée à la charte L'arrêt de jeu : cadre net traité
+   avec le même virage sépia/rouille que le reste de la série, écho
+   nettement plus saturé en teracota derrière pour bien lire les deux
+   couches (net devant, écho qui dépasse en haut). ===== */
+
+/* couche « écho » : la même photo, désaturée puis noyée sous un aplat
+   teracota fort — pas de source-in/knockout ici (les deux rectangles ne se
+   chevauchent pas), juste un cover-crop classique + duoton */
+function drawEchoPanel(g,x,y,w,h,s){
+  g.save(); g.beginPath(); g.rect(x,y,w,h); g.clip(); g.translate(x,y);
+  if(state.img){
+    const img=state.img, ir=mediaW(img)/mediaH(img), cr=w/h; let dw,dh;
+    if(ir>cr){dh=h*state.zoom;dw=dh*ir;}else{dw=w*state.zoom;dh=dw/ir;}
+    g.drawImage(img,(w-dw)*state.posx,(h-dh)*state.posy,dw,dh);
+    g.save(); g.globalCompositeOperation='saturation'; g.fillStyle='hsl(0,0%,50%)'; g.fillRect(0,0,w,h); g.restore();
+    g.fillStyle='rgba(168,69,43,0.74)'; g.fillRect(0,0,w,h);
+  } else {
+    g.fillStyle=s.sig; g.globalAlpha=0.6; g.fillRect(0,0,w,h); g.globalAlpha=1;
+  }
+  g.restore();
+}
+
+function drawEnqueteEcho(W,H,s){
+  const g=ctx, isVert=state.ratio==='9:16';
+  const M=isVert?96:50, MR=isVert?96:120, rightEdge=W-MR;
+
+  g.fillStyle=C.creme; g.fillRect(0,0,W,H);
+  g.save(); g.strokeStyle='rgba(44,40,35,0.05)'; g.lineWidth=2;
+  for(let i=-H;i<W+H;i+=46){ g.beginPath(); g.moveTo(i,0); g.lineTo(i+H,H); g.stroke(); }
+  g.restore();
+
+  const ringD=92, ringC=66+safeTop()+ringD/2;
+  g.strokeStyle=C.encre; g.lineWidth=4;
+  g.beginPath(); g.arc(M+ringD/2,ringC,ringD/2-2,0,Math.PI*2); g.stroke();
+  g.fillStyle=C.encre; g.textBaseline='middle'; g.textAlign='center'; g.font="38px 'Saira Condensed'";
+  g.fillText('1·2',M+ringD/2,ringC+1);
+  g.textAlign='left'; g.font="58px 'Anton'"; g.fillText('une·deux',M+ringD+26,ringC+2);
+  g.textAlign='right'; g.font="32px 'Saira Condensed'"; g.fillStyle=C.encre;
+  g.fillText('@UNE.DEUX',rightEdge,ringC); g.textAlign='left';
+  g.fillStyle=C.encre; g.fillRect(M,168+safeTop(),rightEdge-M,4);
+
+  const tagY=200+safeTop(), tagH=58;
+  g.font="32px 'Saira Condensed'"; g.textBaseline='middle';
+  const nameTxt=s.label.toUpperCase(), nameW=g.measureText(nameTxt).width+30;
+  g.fillStyle=s.sig; g.fillRect(M,tagY,nameW,tagH);
+  g.fillStyle=s.sigTextColor||C.encre; g.fillText(nameTxt,M+15,tagY+tagH/2+1);
+  g.textBaseline='alphabetic'; g.textAlign='left';
+
+  const footY=H-70-safeBottom();
+  const showFooter=!isVert && paginationShown();
+
+  /* --- panneau gauche : écho teracota plein zone, photo nette en premier
+     plan par-dessus, décalée vers le bas pour laisser l'écho dépasser en
+     haut (point important de la réf : le cadre coloré reprend la photo,
+     le sujet net vient devant) --- */
+  const panelTop=tagY+tagH+34;
+  const panelBottom=(showFooter?footY-46:H-90)-6;
+  const panelRight=M+Math.round(W*0.40);
+  /* écho légèrement décalé vers la droite par rapport à la photo nette
+     ci-dessous (même largeur, juste translaté) — reste dans la marge avant
+     la colonne de citation (padX = panelRight+56), pas de chevauchement */
+  const echoOffsetX=32;
+  drawEchoPanel(g,M+echoOffsetX,panelTop,panelRight-M,panelBottom-panelTop,s);
+
+  /* la photo nette ne doit pas remonter plus haut qu'environ le tiers du
+     panneau (repère validé par Thomas sur un rendu annoté) — l'écho reste
+     largement visible au-dessus, pas juste un mince filet. Aucun liseré
+     entre les deux : elles se touchent directement, sans séparation. */
+  const topInset=Math.round((panelBottom-panelTop)*0.30);
+  const fx=M, fy=panelTop+topInset, fw=panelRight-M, fh=panelBottom-fy;
+  drawPhotoPanel(g,fx,fy,fw,fh,s);
+
+  /* --- colonne droite : gros guillemet ouvrant, citation (même moteur que
+     CITATION · INTERVIEW), gros guillemet fermant en bas — référence :
+     grosses coupures « 66 »/« 99 » encadrant la citation --- */
+  const padX=panelRight+56, rightW=rightEdge-padX;
+  const markSize=600;
+  const numOr=(v,fallback)=> (typeof v==='number' && isFinite(v)) ? v : fallback;
+  const markTop=tagY+tagH+36;
+  g.font=markSize+"px 'Anton'"; g.fillStyle=s.sig; g.textAlign='left'; g.textBaseline='alphabetic';
+  const openBaseline=markTop+markSize*0.72;
+  g.fillText('“', padX-8, openBaseline);
+  /* ce guillemet flotte très au-dessus de sa propre ligne de base (son
+     bas réel est mesuré, pas déduit d'un ratio — sur ce caractère
+     précis, la formule au ratio laissait ~400px de vide avant le texte,
+     personne ne l'avait vu car rien ne s'affichait dans ce vide) */
+  const openMark=g.measureText('“');
+  const openBottomEdge=openBaseline+numOr(openMark.actualBoundingBoxDescent,-markSize*0.6);
+
+  /* le guillemet fermant est ancré par le bas, à distance fixe du filet/
+     footer — indépendant du contenu (contrairement à avant, où il suivait
+     la signature) : les deux guillemets deviennent des repères fixes, la
+     citation peut alors être vraiment centrée dans l'espace entre eux */
+  const closeBottomEdge=(showFooter?footY-46:H-90)-36;
+  g.font=markSize+"px 'Anton'";
+  const closeMark=g.measureText('”');
+  const closeAsc=numOr(closeMark.actualBoundingBoxAscent,markSize*0.72);
+  const closeDesc=numOr(closeMark.actualBoundingBoxDescent,-markSize*0.6);
+  const closeBaseline=closeBottomEdge-closeDesc;
+  const closeTopEdge=closeBaseline-closeAsc;
+
+  /* zone verticale disponible entre les deux guillemets, où la citation
+     (+ signature) sera centrée */
+  const zoneTop=openBottomEdge+40, zoneBottom=closeTopEdge-40;
+  const authorReserve=90; /* gap + hauteur de la ligne de signature */
+  const maxH=Math.max(60,(zoneBottom-authorReserve)-zoneTop);
+
+  function layoutRichWords(size){
+    const plainFull=stripBold(state.quote), mask=boldMask(state.quote);
+    g.font="500 "+size+"px 'Archivo'"; const space=g.measureText(' ').width;
+    const lines=[]; let offset=0;
+    plainFull.split('\n').forEach(paraText=>{
+      if(paraText.trim()===''){ lines.push([]); offset+=paraText.length+1; return; }
+      const words=[]; let m, re=/\S+/g;
+      while((m=re.exec(paraText))!==null){
+        const start=offset+m.index;
+        const o={w:m[0], start, bold:mask[start]||false, accent: state.quoteWords.has(m[0].toLowerCase())};
+        words.push(o);
+      }
+      let cur=[]; let curW=0;
+      words.forEach(o=>{
+        g.font=(o.bold?'700 ':'500 ')+size+"px 'Archivo'";
+        const ww=g.measureText(o.w).width;
+        if(curW+ww>rightW && cur.length){ lines.push(cur); cur=[]; curW=0; }
+        cur.push(o); curW+=ww+space;
+      });
+      if(cur.length) lines.push(cur);
+      offset+=paraText.length+1;
+    });
+    return lines;
+  }
+  const sizes=[54,48,42,38,34,30,27];
+  let qSize=sizes[sizes.length-1], qLines=[];
+  for(let i=0;i<sizes.length;i++){
+    const sz=sizes[i], lh=Math.round(sz*1.32), ls=layoutRichWords(sz);
+    if(ls.length*lh<=maxH || i===sizes.length-1){ qSize=sz; qLines=ls; break; }
+  }
+  const qLineH=Math.round(qSize*1.32);
+  const qSpace=(()=>{ g.font="500 "+qSize+"px 'Archivo'"; return g.measureText(' ').width; })();
+
+  /* citation centrée dans l'espace disponible entre les deux guillemets
+     (demande explicite) : bloc citation + signature centré verticalement
+     dans [zoneTop, zoneBottom], pas collé au guillemet ouvrant */
+  const authorShown=!!(state.quoteAuthor && state.quoteAuthor.trim());
+  const blockH=qLines.length*qLineH + (authorShown?56+38:0);
+  const quoteTop=zoneTop+Math.max(0,(zoneBottom-zoneTop-blockH)/2);
+
+  g.textAlign='left'; g.textBaseline='alphabetic';
+  qLines.forEach((ln,li)=>{
+    let cx=padX; const y=quoteTop+(li+1)*qLineH-qLineH*0.22;
+    ln.forEach(o=>{
+      g.font=(o.bold?'700 ':'500 ')+qSize+"px 'Archivo'";
+      g.fillStyle=o.accent?s.sig:C.encre;
+      g.fillText(o.w,cx,y); cx+=g.measureText(o.w).width+qSpace;
+    });
+  });
+
+  /* signature sous la citation */
+  const qBlockBottom=quoteTop+qLines.length*qLineH;
+  if(authorShown){
+    g.fillStyle=C.encre; g.font="38px 'Saira Condensed'"; g.textAlign='left';
+    g.fillText('— '+state.quoteAuthor.trim().toUpperCase(), padX, qBlockBottom+56);
+  }
+
+  /* guillemet fermant, position fixe calculée plus haut (closeBaseline) */
+  g.font=markSize+"px 'Anton'"; g.fillStyle=s.sig; g.textAlign='right'; g.textBaseline='alphabetic';
+  g.fillText('”', rightEdge, closeBaseline);
+  g.textAlign='left';
+
+  if(showFooter){
+    g.fillStyle=C.encre; g.fillRect(padX, footY-46, rightEdge-padX, 3);
+    g.textAlign='right'; g.textBaseline='middle'; g.font="60px 'Anton'";
+    const totTxt='/'+state.tot; g.fillStyle=C.encre; g.fillText(totTxt, rightEdge, footY);
+    const tw=g.measureText(totTxt).width; g.fillStyle=s.sig; g.fillText(state.cur, rightEdge-tw-4, footY);
+  }
+  g.textAlign='left';
+}
+
 /* ===== MODE BATCH — parse un script de post complet, une image par slide
    (glissée à la main comme aujourd'hui), génère toutes les PNG d'affilée.
    N'existe que pour les séries à structure uniforme (titre seul en cover,
