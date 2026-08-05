@@ -1992,7 +1992,14 @@ function drawEnqueteTemoin(W,H,s){
 
   /* chapô italique, colonne gauche (largeur du titre) */
   let y=ty2+40;
-  const introLines=wrapAtSize(g,state.introText,titleMaxW,30);
+  /* garde-fou dur : le champ est pensé pour un "chapô court" (placeholder),
+     mais rien ne bornait le nombre de lignes — un texte bien plus long (un
+     article entier collé ici par erreur au lieu du corps) poussait tout le
+     bloc suivant hors du cadre visible, le corps se retrouvant dessiné à un
+     y déjà hors canvas (repéré par Thomas sur un rendu réel). Même logique
+     de troncature dure que le reste du fichier (dropCapParagraph, etc.). */
+  const introMaxLines=6;
+  const introLines=wrapAtSize(g,state.introText,titleMaxW,30).slice(0,introMaxLines);
   g.save(); g.beginPath(); g.rect(M,0,titleMaxW,4000); g.clip();
   introLines.forEach(ln=>{ y+=38; drawItalicLine(g,ln,M,y,30,C.encre); });
   g.restore();
@@ -2150,9 +2157,12 @@ function drawEnqueteDuo(W,H,s){
     }
   }
 
-  /* chapô italique */
+  /* chapô italique — même garde-fou dur que témoin (cf. commentaire là-bas) :
+     borne le nombre de lignes pour ne jamais pouvoir pousser le corps sous
+     la photo hors du cadre visible. */
   let y=ty+30;
-  const introLines=wrapAtSize(g,state.introText,colW,30);
+  const introMaxLines=6;
+  const introLines=wrapAtSize(g,state.introText,colW,30).slice(0,introMaxLines);
   g.save(); g.beginPath(); g.rect(colX,0,colW,4000); g.clip();
   introLines.forEach(ln=>{ y+=38; drawItalicLine(g,ln,colX,y,30,C.encre); });
   g.restore();
