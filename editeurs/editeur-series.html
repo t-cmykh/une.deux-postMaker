@@ -2391,27 +2391,33 @@ function drawEnqueteEcho(W,H,s){
      grosses coupures « 66 »/« 99 » encadrant la citation --- */
   const padX=panelRight+56, rightW=rightEdge-padX;
   const markSize=600;
-  const numOr=(v,fallback)=> (typeof v==='number' && isFinite(v)) ? v : fallback;
+  /* Ratios figés de la géométrie réelle du glyphe guillemet en Anton (mesurés
+     une fois via measureText().actualBoundingBox* sous Chrome : ascent
+     ≈0.859375×taille, descent ≈-0.59375×taille — ce caractère flotte très
+     au-dessus de sa propre ligne de base). On les FIGE en constantes plutôt
+     que de rappeler measureText() en direct à chaque rendu : ces valeurs
+     varient d'un moteur de rendu à l'autre (confirmé — Safari/WebKit sur un
+     rendu réel donnait une tout autre géométrie pour ce même glyphe/police,
+     ce qui déplaçait le guillemet fermant jusqu'à chevaucher la citation).
+     Figer les ratios rend le calage identique sur tous les navigateurs. */
+  const QMARK_ASC_RATIO=0.859375, QMARK_DESC_RATIO=-0.59375;
   const markTop=tagY+tagH+36;
   g.font=markSize+"px 'Anton'"; g.fillStyle=s.sig; g.textAlign='left'; g.textBaseline='alphabetic';
   const openBaseline=markTop+markSize*0.72;
   g.fillText('“', padX-8, openBaseline);
-  /* ce guillemet flotte très au-dessus de sa propre ligne de base (son
-     bas réel est mesuré, pas déduit d'un ratio — sur ce caractère
-     précis, la formule au ratio laissait ~400px de vide avant le texte,
-     personne ne l'avait vu car rien ne s'affichait dans ce vide) */
-  const openMark=g.measureText('“');
-  const openBottomEdge=openBaseline+numOr(openMark.actualBoundingBoxDescent,-markSize*0.6);
+  /* ce guillemet flotte très au-dessus de sa propre ligne de base (son bas
+     réel suit le ratio figé ci-dessus, pas une approximation au jugé — sur
+     ce caractère précis, une formule au ratio "normal" laissait ~400px de
+     vide avant le texte, personne ne l'avait vu car rien ne s'affichait
+     dans ce vide) */
+  const openBottomEdge=openBaseline+markSize*QMARK_DESC_RATIO;
 
   /* le guillemet fermant est ancré par le bas, à distance fixe du filet/
      footer — indépendant du contenu (contrairement à avant, où il suivait
      la signature) : les deux guillemets deviennent des repères fixes, la
      citation peut alors être vraiment centrée dans l'espace entre eux */
   const closeBottomEdge=(showFooter?footY-46:H-90)-36;
-  g.font=markSize+"px 'Anton'";
-  const closeMark=g.measureText('”');
-  const closeAsc=numOr(closeMark.actualBoundingBoxAscent,markSize*0.72);
-  const closeDesc=numOr(closeMark.actualBoundingBoxDescent,-markSize*0.6);
+  const closeAsc=markSize*QMARK_ASC_RATIO, closeDesc=markSize*QMARK_DESC_RATIO;
   const closeBaseline=closeBottomEdge-closeDesc;
   const closeTopEdge=closeBaseline-closeAsc;
 
