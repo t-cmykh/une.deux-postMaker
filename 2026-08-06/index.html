@@ -53,9 +53,9 @@
 
       /* titre animé de l'intro — Anton, aligné à gauche, sans ombre
          portée, mots-clés (marqués **entre étoiles** dans le brouillon)
-         encadrés d'un carré ocre. Titre long (7 lignes) : 130px comme le
-         gabarit de référence — chaque ligne tient sous 14 caractères,
-         vérifié par extraction de frame après render. */
+         encadrés d'un carré ocre. 130px comme le gabarit de référence —
+         chaque ligne tient sous 14 caractères, vérifié par extraction de
+         frame après render. */
       .title-zone { position: absolute; inset: 0; z-index: 10; }
       .t-line {
         position: absolute; left: 96px; right: 96px;
@@ -91,7 +91,7 @@
            côté vidéo — seuls les overlays de texte changent) -->
       <video class="video-full" id="fullv" src="assets/full.mp4" data-start="0.0000" data-duration="44.7167" data-track-index="1" muted playsinline></video>
 
-      <audio id="corpsa" src="assets/full-audio.m4a" data-start="5.2400" data-duration="39.4767" data-track-index="20"></audio>
+      <audio id="corpsa" src="assets/full-audio.m4a" data-start="4.0000" data-duration="40.7167" data-track-index="20"></audio>
 
       <div id="hdr">
         <div class="ring">1·2</div>
@@ -103,15 +103,13 @@
 
       <!-- titre du post (champ TITRE du brouillon "POST DU JOUR — 6 août
            2026"), mots-clés marqués **entre étoiles** encadrés : "le
-           joueur qui venait de les humilier" -->
+           joueur qui les a humilié" -->
       <div class="title-zone">
-        <div class="t-line" id="t1" style="top:980px">06 AOÛT 2003 :</div>
-        <div class="t-line" id="t2" style="top:1100px">MANCHESTER</div>
-        <div class="t-line" id="t3" style="top:1220px">UNITED A</div>
-        <div class="t-line" id="t4" style="top:1340px">ACHETÉ</div>
-        <div class="t-line" id="t5" style="top:1460px"><span class="kw-box">LE JOUEUR QUI</span></div>
-        <div class="t-line" id="t6" style="top:1580px"><span class="kw-box">VENAIT DE LES</span></div>
-        <div class="t-line" id="t7" style="top:1700px"><span class="kw-box">HUMILIER</span></div>
+        <div class="t-line" id="t1" style="top:1220px">06 AOÛT 2003 :</div>
+        <div class="t-line" id="t2" style="top:1340px">MAN UNITED</div>
+        <div class="t-line" id="t3" style="top:1460px">A ACHETÉ</div>
+        <div class="t-line" id="t4" style="top:1580px"><span class="kw-box">LE JOUEUR QUI</span></div>
+        <div class="t-line" id="t5" style="top:1700px"><span class="kw-box">LES A HUMILIÉ</span></div>
       </div>
 
       <!-- corps du post (champ CORPS du même brouillon), texte intégral
@@ -139,34 +137,34 @@
       /* titre animé de l'intro — vitesse figée ×1 (§4bis CLAUDE.md) :
          revealMs=620/1=0.62s, fadeMs=clamp(80,220,revealMs*0.6)=0.22s,
          rampe linéaire, léger décalage vertical 8px→0 sur le fondu.
-         7 lignes : introEnd = 0.3 + 6*0.62 + 0.22 + 1.0 = 5.24s */
+         5 lignes : introEnd = 0.3 + 4*0.62 + 0.22 + 1.0 = 4.00s */
       const tStart = 0.3, revealMs = 0.62, fadeMs = 0.22;
-      const tLines = ['#t1', '#t2', '#t3', '#t4', '#t5', '#t6', '#t7'];
+      const tLines = ['#t1', '#t2', '#t3', '#t4', '#t5'];
       tLines.forEach((sel, i) => {
         tl.fromTo(sel, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: fadeMs, ease: 'none' }, tStart + i * revealMs);
       });
-      const introEnd = 5.24;
+      const introEnd = 4.00;
       tl.set('.t-line', { opacity: 0 }, introEnd);
 
       /* corps — 11 blocs de sens (paragraphes du brouillon), rythme
-         calculé sur la durée vidéo disponible (§5 CLAUDE.md) : 109 mots
-         pour 39.18s de fenêtre disponible après l'intro (44.7167 −
-         (introEnd+0.3)) — facteur ≈1.067, pauses de 0.25s entre blocs ;
-         premier bloc démarre à introEnd + 0.3s, dernier bloc se termine
-         quasi exactement à la fin de la vidéo (44.7167s, marge de sécurité
-         ~0.1s prise sur la durée du dernier bloc) */
+         calculé sur la durée vidéo disponible (§5 CLAUDE.md) : fenêtre
+         disponible après l'intro = 44.7167 − (introEnd+0.3) = 40.4167s —
+         pauses de 0.25s entre blocs ; premier bloc démarre à
+         introEnd + 0.3s, dernier bloc se termine quasi exactement à la fin
+         de la vidéo (44.7167s, marge de sécurité ~0.08s prise sur la durée
+         du dernier bloc) */
       const lines = [
-        { id: 'l1',  start: 5.54,  dur: 3.83 },
-        { id: 'l2',  start: 9.62,  dur: 1.53 },
-        { id: 'l3',  start: 11.40, dur: 2.39 },
-        { id: 'l4',  start: 14.04, dur: 3.83 },
-        { id: 'l5',  start: 18.12, dur: 2.10 },
-        { id: 'l6',  start: 20.47, dur: 4.12 },
-        { id: 'l7',  start: 24.84, dur: 4.41 },
-        { id: 'l8',  start: 29.50, dur: 2.97 },
-        { id: 'l9',  start: 32.72, dur: 4.70 },
-        { id: 'l10', start: 37.67, dur: 2.97 },
-        { id: 'l11', start: 40.88, dur: 3.75 },
+        { id: 'l1',  start: 4.30,  dur: 3.96 },
+        { id: 'l2',  start: 8.51,  dur: 1.58 },
+        { id: 'l3',  start: 10.34, dur: 2.47 },
+        { id: 'l4',  start: 13.06, dur: 3.96 },
+        { id: 'l5',  start: 17.27, dur: 2.17 },
+        { id: 'l6',  start: 19.69, dur: 4.26 },
+        { id: 'l7',  start: 24.20, dur: 4.56 },
+        { id: 'l8',  start: 29.01, dur: 3.07 },
+        { id: 'l9',  start: 32.33, dur: 4.86 },
+        { id: 'l10', start: 37.44, dur: 3.07 },
+        { id: 'l11', start: 40.76, dur: 3.88 },
       ];
 
       lines.forEach(({ id, start, dur }) => {
