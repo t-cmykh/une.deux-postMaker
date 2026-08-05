@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 6 août 2003, Sporting humilie Manchester United</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* vidéo du Drive gardée intégrale, telle quelle (pas de sélection de
+         plans, §1bis CLAUDE.md) — un seul composite continu du début à la
+         fin (0 → 44.72s), même géométrie sur toute la durée : fond plein
+         cadre flouté/désaturé + plan net 1080×888 plein cadre horizontal
+         (overlay y=420 — §2 CLAUDE.md). Source zoomée ×1.25 avant le
+         cover-crop pour exclure l'habillage d'origine (bug scoreboard
+         "AN. UTD 0 41" + logo chaîne "EUROSPORT LIVE" en haut, watermark
+         "2002 Football" en bas-gauche, tous des overlays du fichier
+         archive téléchargé, pas de notre habillage) — vérifié par
+         extraction de frames après composite, aucun ne survit au crop.
+         Un seul fichier vidéo pour intro+corps (pas de split en deux
+         composites à géométrie différente). Muté, son porté par un
+         <audio> séparé. */
+      .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+
+      /* header — constantes fixes de la série, persistant du début à la
+         fin du reel (intro et corps), jamais ré-animé ni masqué */
+      #hdr { position: absolute; inset: 0 0 auto 0; z-index: 20; }
+      .ring {
+        position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
+        border: 4px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
+
+      /* --ocre-render : compensation du décalage de teinte du pipeline de
+         render HyperFrames sur --ocre (§3 CLAUDE.md) — ne pas remplacer
+         var(--ocre) dans tokens/colors.css, uniquement une variable locale
+         à la composition. */
+      :root { --ocre-render: #B9A456; }
+      .tag {
+        position: absolute; left: 96px; top: 350px; height: 58px; z-index: 20;
+        display: flex; align-items: center; background: var(--ocre-render); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; padding: 0 15px;
+      }
+
+      /* titre animé de l'intro — Anton, aligné à gauche, sans ombre
+         portée, mots-clés (marqués **entre étoiles** dans le brouillon)
+         encadrés d'un carré ocre. Titre long (7 lignes) : 130px comme le
+         gabarit de référence — chaque ligne tient sous 14 caractères,
+         vérifié par extraction de frame après render. */
+      .title-zone { position: absolute; inset: 0; z-index: 10; }
+      .t-line {
+        position: absolute; left: 96px; right: 96px;
+        font-family: 'Anton', sans-serif; font-size: 130px; line-height: 1;
+        text-transform: uppercase; color: var(--cream); opacity: 0;
+      }
+      .kw-box { background: var(--ocre-render); padding: 10px; margin: -10px; display: inline-block; }
+
+      /* corps de texte animé — centré même sur plusieurs lignes, pas de
+         scrim sombre (lisibilité via l'ombre portée du texte uniquement) */
+      .text-zone { position: absolute; left: 96px; right: 96px; top: 1420px; transform: translateY(-50%); z-index: 10; text-align: center; }
+      .text-chunk {
+        position: absolute; left: 0; right: 0; top: 0; transform: translateY(-50%); opacity: 0;
+        font-family: 'Archivo', sans-serif; font-weight: 500; font-size: 36px; line-height: 1.35;
+        color: var(--cream); text-shadow: 0 2px 16px rgba(0,0,0,.65), 0 1px 4px rgba(0,0,0,.8);
+      }
+      .text-chunk b { font-weight: 800; color: var(--cream); }
+      .text-chunk b.ocre { color: var(--ocre-render); }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="44.7167"
+      data-fps="30"
+    >
+      <!-- vidéo du Drive intégrale, un seul plan continu du début à la fin,
+           composite identique sur toute la durée (pas de split intro/corps
+           côté vidéo — seuls les overlays de texte changent) -->
+      <video class="video-full" id="fullv" src="assets/full.mp4" data-start="0.0000" data-duration="44.7167" data-track-index="1" muted playsinline></video>
+
+      <audio id="corpsa" src="assets/full-audio.m4a" data-start="5.2400" data-duration="39.4767" data-track-index="20"></audio>
+
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+      <div class="tag">CE JOUR LÀ …</div>
+
+      <!-- titre du post (champ TITRE du brouillon "POST DU JOUR — 6 août
+           2026"), mots-clés marqués **entre étoiles** encadrés : "le
+           joueur qui venait de les humilier" -->
+      <div class="title-zone">
+        <div class="t-line" id="t1" style="top:980px">06 AOÛT 2003 :</div>
+        <div class="t-line" id="t2" style="top:1100px">MANCHESTER</div>
+        <div class="t-line" id="t3" style="top:1220px">UNITED A</div>
+        <div class="t-line" id="t4" style="top:1340px">ACHETÉ</div>
+        <div class="t-line" id="t5" style="top:1460px"><span class="kw-box">LE JOUEUR QUI</span></div>
+        <div class="t-line" id="t6" style="top:1580px"><span class="kw-box">VENAIT DE LES</span></div>
+        <div class="t-line" id="t7" style="top:1700px"><span class="kw-box">HUMILIER</span></div>
+      </div>
+
+      <!-- corps du post (champ CORPS du même brouillon), texte intégral
+           repris tel quel (paragraphes du brouillon = unités de sens),
+           mots-clés en gras/ocre -->
+      <div class="text-zone">
+        <div class="text-chunk" id="l1">Ce jour-là, le <b class="ocre">Sporting</b> inaugure l&rsquo;Estádio José Alvalade face à Manchester United.</div>
+        <div class="text-chunk" id="l2"><b class="ocre">3-1</b> pour les Portugais.</div>
+        <div class="text-chunk" id="l3">Mais le vrai match se joue ailleurs.</div>
+        <div class="text-chunk" id="l4">Un ailier de <b class="ocre">18 ans</b> humilie la défense anglaise pendant <b>90 minutes</b>.</div>
+        <div class="text-chunk" id="l5"><b class="ocre">John O&rsquo;Shea</b> en fait les frais.</div>
+        <div class="text-chunk" id="l6">Ferguson confiera plus tard qu&rsquo;O&rsquo;Shea avait une <b class="ocre">« migraine »</b> rien qu&rsquo;à le voir jouer.</div>
+        <div class="text-chunk" id="l7">Dans le bus du retour, les joueurs de <b class="ocre">United</b> ne parlent que de lui.</div>
+        <div class="text-chunk" id="l8">Ils attendent que <b>Ferguson</b> et <b>David Gill</b> bouclent l&rsquo;affaire.</div>
+        <div class="text-chunk" id="l9">Cinq jours plus tard, c&rsquo;est fait. <b class="ocre">12,2 millions de livres</b>, record anglais pour un adolescent.</div>
+        <div class="text-chunk" id="l10"><b class="ocre">Cristiano Ronaldo</b> rejoint le club qu&rsquo;il venait de ridiculiser.</div>
+        <div class="text-chunk" id="l11"><b class="ocre">Cinq Ballons d&rsquo;Or</b> plus tard, personne n&rsquo;a oublié ce soir-là à Lisbonne.</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      /* titre animé de l'intro — vitesse figée ×1 (§4bis CLAUDE.md) :
+         revealMs=620/1=0.62s, fadeMs=clamp(80,220,revealMs*0.6)=0.22s,
+         rampe linéaire, léger décalage vertical 8px→0 sur le fondu.
+         7 lignes : introEnd = 0.3 + 6*0.62 + 0.22 + 1.0 = 5.24s */
+      const tStart = 0.3, revealMs = 0.62, fadeMs = 0.22;
+      const tLines = ['#t1', '#t2', '#t3', '#t4', '#t5', '#t6', '#t7'];
+      tLines.forEach((sel, i) => {
+        tl.fromTo(sel, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: fadeMs, ease: 'none' }, tStart + i * revealMs);
+      });
+      const introEnd = 5.24;
+      tl.set('.t-line', { opacity: 0 }, introEnd);
+
+      /* corps — 11 blocs de sens (paragraphes du brouillon), rythme
+         calculé sur la durée vidéo disponible (§5 CLAUDE.md) : 109 mots
+         pour 39.18s de fenêtre disponible après l'intro (44.7167 −
+         (introEnd+0.3)) — facteur ≈1.067, pauses de 0.25s entre blocs ;
+         premier bloc démarre à introEnd + 0.3s, dernier bloc se termine
+         quasi exactement à la fin de la vidéo (44.7167s, marge de sécurité
+         ~0.1s prise sur la durée du dernier bloc) */
+      const lines = [
+        { id: 'l1',  start: 5.54,  dur: 3.83 },
+        { id: 'l2',  start: 9.62,  dur: 1.53 },
+        { id: 'l3',  start: 11.40, dur: 2.39 },
+        { id: 'l4',  start: 14.04, dur: 3.83 },
+        { id: 'l5',  start: 18.12, dur: 2.10 },
+        { id: 'l6',  start: 20.47, dur: 4.12 },
+        { id: 'l7',  start: 24.84, dur: 4.41 },
+        { id: 'l8',  start: 29.50, dur: 2.97 },
+        { id: 'l9',  start: 32.72, dur: 4.70 },
+        { id: 'l10', start: 37.67, dur: 2.97 },
+        { id: 'l11', start: 40.88, dur: 3.75 },
+      ];
+
+      lines.forEach(({ id, start, dur }) => {
+        tl.fromTo(`#${id}`, { opacity: 0 }, { opacity: 1, duration: 0.3, ease: 'power2.out' }, start);
+        tl.to(`#${id}`, { opacity: 0, duration: 0.24, ease: 'sine.in' }, start + dur - 0.24);
+        tl.set(`#${id}`, { opacity: 0 }, start + dur);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
