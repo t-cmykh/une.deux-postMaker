@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 8 août 1998, Okocha éblouit Bordeaux</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* vidéo du Drive gardée intégrale, telle quelle (pas de sélection de
+         plans, §1bis CLAUDE.md) — un seul composite continu du début à la
+         fin (0 → 41.0s), même géométrie sur toute la durée : fond plein
+         cadre flouté/désaturé + plan net 1080×888 plein cadre horizontal
+         (overlay y=420 — §2 CLAUDE.md). Source zoomée ×1.5 avant le
+         cover-crop pour exclure l'habillage persistant de la chaîne
+         d'origine (logo "KAYVALDO SPORTS" + bouton "SUBSCRIBE" en bas à
+         droite tout du long) et une carte de suggestion YouTube visible en
+         haut à droite dans les 3 dernières secondes (artefact
+         d'enregistrement d'écran) — vérifié par extraction de frames après
+         composite, aucun des deux ne survit au crop. Un seul fichier vidéo
+         pour intro+corps (pas de split en deux composites à géométrie
+         différente). Muté, son porté par un <audio> séparé. */
+      .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+
+      /* header — constantes fixes de la série, persistant du début à la
+         fin du reel (intro et corps), jamais ré-animé ni masqué */
+      #hdr { position: absolute; inset: 0 0 auto 0; z-index: 20; }
+      .ring {
+        position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
+        border: 4px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
+
+      /* --ocre-render : compensation du décalage de teinte du pipeline de
+         render HyperFrames sur --ocre (§3 CLAUDE.md) — ne pas remplacer
+         var(--ocre) dans tokens/colors.css, uniquement une variable locale
+         à la composition. */
+      :root { --ocre-render: #B9A456; }
+      .tag {
+        position: absolute; left: 96px; top: 350px; height: 58px; z-index: 20;
+        display: flex; align-items: center; background: var(--ocre-render); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; padding: 0 15px;
+      }
+
+      /* titre animé de l'intro — Anton, aligné à gauche, sans ombre
+         portée, mot-clé (marqué **entre étoiles** dans le brouillon)
+         encadré d'un carré ocre sur quatre lignes. 130px : lignes ≤14
+         caractères, cohérent avec le gabarit validé les 6-7 août. */
+      .title-zone { position: absolute; inset: 0; z-index: 10; }
+      .t-line {
+        position: absolute; left: 96px; right: 96px;
+        font-family: 'Anton', sans-serif; font-size: 130px; line-height: 1;
+        text-transform: uppercase; color: var(--cream); opacity: 0;
+      }
+      .kw-box { background: var(--ocre-render); padding: 10px; margin: -10px; display: inline-block; }
+
+      /* corps de texte animé — centré même sur plusieurs lignes, pas de
+         scrim sombre (lisibilité via l'ombre portée du texte uniquement) */
+      .text-zone { position: absolute; left: 96px; right: 96px; top: 1420px; transform: translateY(-50%); z-index: 10; text-align: center; }
+      .text-chunk {
+        position: absolute; left: 0; right: 0; top: 0; transform: translateY(-50%); opacity: 0;
+        font-family: 'Archivo', sans-serif; font-weight: 500; font-size: 36px; line-height: 1.35;
+        color: var(--cream); text-shadow: 0 2px 16px rgba(0,0,0,.65), 0 1px 4px rgba(0,0,0,.8);
+      }
+      .text-chunk b { font-weight: 800; color: var(--cream); }
+      .text-chunk b.ocre { color: var(--ocre-render); }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="41.0000"
+      data-fps="30"
+    >
+      <!-- vidéo du Drive intégrale, un seul plan continu du début à la fin,
+           composite identique sur toute la durée (pas de split intro/corps
+           côté vidéo — seuls les overlays de texte changent) -->
+      <video class="video-full" id="fullv" src="assets/full.mp4" data-start="0.0000" data-duration="41.0000" data-track-index="1" muted playsinline></video>
+
+      <audio id="corpsa" src="assets/full-audio.m4a" data-start="4.6200" data-duration="36.3800" data-track-index="20"></audio>
+
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+      <div class="tag">CE JOUR LÀ …</div>
+
+      <!-- titre du post (champ TITRE du brouillon "POST DU JOUR — 8 août
+           2026"), mot-clé marqué **entre étoiles** encadré, réparti sur
+           quatre lignes : "un des plus beau but de l'histoire du PSG" -->
+      <div class="title-zone">
+        <div class="t-line" id="t1" style="top:1100px">08 AOÛT 1998 :</div>
+        <div class="t-line" id="t2" style="top:1220px">OKOCHA MARQUE</div>
+        <div class="t-line" id="t3" style="top:1340px"><span class="kw-box">UN DES PLUS</span></div>
+        <div class="t-line" id="t4" style="top:1460px"><span class="kw-box">BEAU BUT DE</span></div>
+        <div class="t-line" id="t5" style="top:1580px"><span class="kw-box">L&rsquo;HISTOIRE DU</span></div>
+        <div class="t-line" id="t6" style="top:1700px"><span class="kw-box">PSG</span></div>
+      </div>
+
+      <!-- corps du post (champ CORPS du même brouillon), texte intégral
+           repris tel quel (paragraphes du brouillon = unités de sens),
+           mots-clés en gras/ocre -->
+      <div class="text-zone">
+        <div class="text-chunk" id="l1">Ce jour-là, Bordeaux reçoit le PSG au <b class="ocre">Parc Lescure</b>, devant <b class="ocre">38 893</b> spectateurs.</div>
+        <div class="text-chunk" id="l2"><b class="ocre">Laslandes</b> puis <b class="ocre">Wiltord</b> placent les Girondins aux commandes (56e, 58e).</div>
+        <div class="text-chunk" id="l3">Giresse sort Leroy et lance un nouveau venu : <b class="ocre">Jay-Jay Okocha</b>, à la 75e.</div>
+        <div class="text-chunk" id="l4">Deux minutes plus tard, le Nigérian élimine Benarbia et Wiltord d&rsquo;un <b>double crochet</b>.</div>
+        <div class="text-chunk" id="l5">À 25 mètres. Sa frappe se loge dans la <b class="ocre">lucarne</b> de Ramé.</div>
+        <div class="text-chunk" id="l6">Benarbia redonne l&rsquo;avantage à Bordeaux (88e). Les Girondins s&rsquo;imposent <b class="ocre">3-1</b>.</div>
+        <div class="text-chunk" id="l7">Le premier but d&rsquo;Okocha sous le maillot parisien reste l&rsquo;un des plus beaux de <b>Ligue 1</b>.</div>
+        <div class="text-chunk" id="l8">Il a fallu perdre le match pour le voir.</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      /* titre animé de l'intro — vitesse figée ×1 (§4bis CLAUDE.md) :
+         revealMs=620/1=0.62s, fadeMs=clamp(80,220,revealMs*0.6)=0.22s,
+         rampe linéaire, léger décalage vertical 8px→0 sur le fondu.
+         6 lignes : introEnd = 0.3 + 5*0.62 + 0.22 + 1.0 = 4.62s */
+      const tStart = 0.3, revealMs = 0.62, fadeMs = 0.22;
+      const tLines = ['#t1', '#t2', '#t3', '#t4', '#t5', '#t6'];
+      tLines.forEach((sel, i) => {
+        tl.fromTo(sel, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: fadeMs, ease: 'none' }, tStart + i * revealMs);
+      });
+      const introEnd = 4.62;
+      tl.set('.t-line', { opacity: 0 }, introEnd);
+
+      /* corps — 8 blocs de sens (paragraphes du brouillon), rythme calculé
+         sur la durée vidéo disponible (§5 CLAUDE.md) : vidéo totale 41.0s,
+         fenêtre disponible après l'intro = 41.0 − 4.62 = 36.38s ; pauses de
+         0.3s entre blocs, premier bloc démarre à introEnd+0.3s ; facteur =
+         (36.38 − 0.3 − 7×0.3) / Σdurée_brute(28.99) ≈ 1.172 ; dernier bloc
+         se termine exactement à la fin de la vidéo (41.0s). */
+      const lines = [
+        { id: 'l1', start: 4.92,  dur: 4.52 },
+        { id: 'l2', start: 9.74,  dur: 3.57 },
+        { id: 'l3', start: 13.62, dur: 4.84 },
+        { id: 'l4', start: 18.76, dur: 4.52 },
+        { id: 'l5', start: 23.58, dur: 4.21 },
+        { id: 'l6', start: 28.09, dur: 3.57 },
+        { id: 'l7', start: 31.97, dur: 5.47 },
+        { id: 'l8', start: 37.74, dur: 3.26 },
+      ];
+
+      lines.forEach(({ id, start, dur }) => {
+        tl.fromTo(`#${id}`, { opacity: 0 }, { opacity: 1, duration: 0.3, ease: 'power2.out' }, start);
+        tl.to(`#${id}`, { opacity: 0, duration: 0.24, ease: 'sine.in' }, start + dur - 0.24);
+        tl.set(`#${id}`, { opacity: 0 }, start + dur);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
