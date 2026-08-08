@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 9 août 1998, Arsenal humilie Manchester United</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* vidéo du Drive gardée intégrale, telle quelle (pas de sélection de
+         plans, §1bis CLAUDE.md) — un seul composite continu du début à la
+         fin (0 → 49.2667s), même géométrie sur toute la durée : fond plein
+         cadre flouté/désaturé + plan net 1080×888 plein cadre horizontal
+         (overlay y=420 — §2 CLAUDE.md). Source 1120×662, pas de zoom
+         préalable : le bug "SKY SPORTS 1 LIVE" visible par intermittence en
+         haut à droite est un habillage d'époque du direct Sky Sports 1 de
+         1998 (pas un watermark de reupload moderne comme "FA TV" ou
+         "KAYVALDO SPORTS" sur les reels précédents), et il est trop profond
+         dans le cadre (jusqu'à ~30% depuis le bord droit) pour être exclu
+         par un zoom centré sans perdre l'essentiel du sujet — laissé tel
+         quel, comme le tableau de score authentique "ARSENAL 0 MAN U 0".
+         Un seul élément <video> pour intro+corps (pas de split en deux
+         composites à géométrie différente). Muté, son porté par un <audio>
+         séparé. */
+      .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+
+      /* header — constantes fixes de la série, persistant du début à la
+         fin du reel (intro et corps), jamais ré-animé ni masqué */
+      #hdr { position: absolute; inset: 0 0 auto 0; z-index: 20; }
+      .ring {
+        position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
+        border: 4px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
+
+      /* --ocre-render : compensation du décalage de teinte du pipeline de
+         render HyperFrames sur --ocre (§3 CLAUDE.md) — ne pas remplacer
+         var(--ocre) dans tokens/colors.css, uniquement une variable locale
+         à la composition. */
+      :root { --ocre-render: #B9A456; }
+      .tag {
+        position: absolute; left: 96px; top: 350px; height: 58px; z-index: 20;
+        display: flex; align-items: center; background: var(--ocre-render); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; padding: 0 15px;
+      }
+
+      /* titre animé de l'intro — Anton, aligné à gauche, sans ombre
+         portée, mot-clé (marqué **entre étoiles** dans le brouillon)
+         encadré d'un carré ocre. 130px : cohérent avec le gabarit validé
+         les 6-8 août pour des lignes ≤14-15 caractères. */
+      .title-zone { position: absolute; inset: 0; z-index: 10; }
+      .t-line {
+        position: absolute; left: 96px; right: 96px;
+        font-family: 'Anton', sans-serif; font-size: 130px; line-height: 1;
+        text-transform: uppercase; color: var(--cream); opacity: 0;
+      }
+      .kw-box { background: var(--ocre-render); padding: 10px; margin: -10px; display: inline-block; }
+
+      /* corps de texte animé — centré même sur plusieurs lignes, pas de
+         scrim sombre (lisibilité via l'ombre portée du texte uniquement) */
+      .text-zone { position: absolute; left: 96px; right: 96px; top: 1420px; transform: translateY(-50%); z-index: 10; text-align: center; }
+      .text-chunk {
+        position: absolute; left: 0; right: 0; top: 0; transform: translateY(-50%); opacity: 0;
+        font-family: 'Archivo', sans-serif; font-weight: 500; font-size: 36px; line-height: 1.35;
+        color: var(--cream); text-shadow: 0 2px 16px rgba(0,0,0,.65), 0 1px 4px rgba(0,0,0,.8);
+      }
+      .text-chunk b { font-weight: 800; color: var(--cream); }
+      .text-chunk b.ocre { color: var(--ocre-render); }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="49.2667"
+      data-fps="30"
+    >
+      <!-- vidéo du Drive intégrale, un seul plan continu du début à la fin,
+           composite identique sur toute la durée (pas de split intro/corps
+           côté vidéo — seuls les overlays de texte changent) -->
+      <video class="video-full" id="fullv" src="assets/full.mp4" data-start="0.0000" data-duration="49.2667" data-track-index="1" muted playsinline></video>
+
+      <audio id="corpsa" src="assets/full-audio.m4a" data-start="2.7600" data-duration="46.5067" data-track-index="20"></audio>
+
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+      <div class="tag">CE JOUR LÀ …</div>
+
+      <!-- titre du post (champ TITRE du brouillon "POST DU JOUR — 9 août
+           2026"), mot-clé marqué **entre étoiles** encadré, réparti sur
+           trois lignes : "créé un monstre" -->
+      <div class="title-zone">
+        <div class="t-line" id="t1" style="top:1460px">9 AOÛT 1998 :</div>
+        <div class="t-line" id="t2" style="top:1580px">LA GIFLE QUI A</div>
+        <div class="t-line" id="t3" style="top:1700px"><span class="kw-box">CRÉÉ UN MONSTRE</span></div>
+      </div>
+
+      <!-- corps du post (champ CORPS du même brouillon), texte intégral
+           repris tel quel (paragraphes du brouillon = unités de sens),
+           mots-clés en gras/ocre -->
+      <div class="text-zone">
+        <div class="text-chunk" id="l1">Wembley, <b class="ocre">9 août 1998</b>, 67 342 spectateurs.</div>
+        <div class="text-chunk" id="l2"><b>Arsenal</b>, tout juste champion d&rsquo;Angleterre, retrouve son dauphin <b>Manchester United</b>.</div>
+        <div class="text-chunk" id="l3"><b>Marc Overmars</b> ouvre le score à la <b class="ocre">34e</b>.</div>
+        <div class="text-chunk" id="l4"><b>Christopher Wreh</b>, entré à la pause, double la mise à la <b class="ocre">57e</b>.</div>
+        <div class="text-chunk" id="l5"><b>Nicolas Anelka</b> enfonce le clou à la <b class="ocre">72e</b>.</div>
+        <div class="text-chunk" id="l6"><b class="ocre">3-0</b>. Sans appel. Dès le premier trophée de la saison.</div>
+        <div class="text-chunk" id="l7">Neuf mois plus tard, <b>United</b> soulève la <b class="ocre">Ligue des champions</b> face au Bayern.</div>
+        <div class="text-chunk" id="l8">Championnat, FA Cup, LDC. Le premier <b class="ocre">triplé</b> de l&rsquo;histoire du football anglais.</div>
+        <div class="text-chunk" id="l9">La gifle de Wembley n&rsquo;a jamais vraiment cicatrisé.</div>
+        <div class="text-chunk" id="l10">Elle a juste changé de camp.</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      /* titre animé de l'intro — vitesse figée ×1 (§4bis CLAUDE.md) :
+         revealMs=620/1=0.62s, fadeMs=clamp(80,220,revealMs*0.6)=0.22s,
+         rampe linéaire, léger décalage vertical 8px→0 sur le fondu.
+         3 lignes : introEnd = 0.3 + 2*0.62 + 0.22 + 1.0 = 2.76s */
+      const tStart = 0.3, revealMs = 0.62, fadeMs = 0.22;
+      const tLines = ['#t1', '#t2', '#t3'];
+      tLines.forEach((sel, i) => {
+        tl.fromTo(sel, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: fadeMs, ease: 'none' }, tStart + i * revealMs);
+      });
+      const introEnd = 2.76;
+      tl.set('.t-line', { opacity: 0 }, introEnd);
+
+      /* corps — 10 blocs de sens (paragraphes du brouillon), rythme calculé
+         sur la durée vidéo disponible (§5 CLAUDE.md) : vidéo totale
+         49.2667s, fenêtre disponible après l'intro = 49.2667 − 2.76 =
+         46.5067s ; pauses de 0.3s (10 gaps : 1 avant le premier bloc + 9
+         entre blocs) ; facteur = (46.5067 − 10×0.3) / Σdurée_brute(28.88)
+         ≈ 1.5065 ; dernier bloc se termine à la fin de la vidéo (49.2667s). */
+      const lines = [
+        { id: 'l1',  start: 3.06,  dur: 3.37 },
+        { id: 'l2',  start: 6.73,  dur: 4.59 },
+        { id: 'l3',  start: 11.62, dur: 3.78 },
+        { id: 'l4',  start: 15.70, dur: 5.41 },
+        { id: 'l5',  start: 21.41, dur: 3.78 },
+        { id: 'l6',  start: 25.49, dur: 4.59 },
+        { id: 'l7',  start: 30.38, dur: 5.81 },
+        { id: 'l8',  start: 36.49, dur: 5.41 },
+        { id: 'l9',  start: 42.20, dur: 3.78 },
+        { id: 'l10', start: 46.28, dur: 2.97 },
+      ];
+
+      lines.forEach(({ id, start, dur }) => {
+        tl.fromTo(`#${id}`, { opacity: 0 }, { opacity: 1, duration: 0.3, ease: 'power2.out' }, start);
+        tl.to(`#${id}`, { opacity: 0, duration: 0.24, ease: 'sine.in' }, start + dur - 0.24);
+        tl.set(`#${id}`, { opacity: 0 }, start + dur);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
