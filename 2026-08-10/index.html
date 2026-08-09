@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 10 août 1968, Gabriel Hanot invente la Ligue des champions</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* vidéo du Drive gardée intégrale, telle quelle (pas de sélection de
+         plans, §1bis CLAUDE.md) — un seul composite continu du début à la
+         fin (0 → 42.6333s), même géométrie sur toute la durée : fond plein
+         cadre flouté/désaturé + plan net 1080×888 plein cadre horizontal
+         (overlay y=420 — §2 CLAUDE.md). Source 890×496 (archive 1954,
+         Wolverhampton–Honvéd, pillarboxée par des bandes noires ~114px de
+         chaque côté) : aucun zoom préalable nécessaire, le calcul de
+         cover-crop standard (scale 3446×1920 / 1594×888 puis crop centré)
+         exclut déjà nativement les bandes noires du cadrage net comme du
+         fond (vérifié par extraction de frames sur toute la vidéo, aucune
+         bande visible). Aucun logo/watermark de reupload détecté sur cette
+         archive. Un seul élément <video> pour intro+corps. Muté, son porté
+         par un <audio> séparé. */
+      .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+
+      /* header — constantes fixes de la série, persistant du début à la
+         fin du reel (intro et corps), jamais ré-animé ni masqué */
+      #hdr { position: absolute; inset: 0 0 auto 0; z-index: 20; }
+      .ring {
+        position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
+        border: 4px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
+
+      /* --ocre-render : compensation du décalage de teinte du pipeline de
+         render HyperFrames sur --ocre (§3 CLAUDE.md) — ne pas remplacer
+         var(--ocre) dans tokens/colors.css, uniquement une variable locale
+         à la composition. */
+      :root { --ocre-render: #B9A456; }
+      .tag {
+        position: absolute; left: 96px; top: 350px; height: 58px; z-index: 20;
+        display: flex; align-items: center; background: var(--ocre-render); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; padding: 0 15px;
+      }
+
+      /* titre animé de l'intro — Anton, aligné à gauche, sans ombre
+         portée, mot-clé (marqué **entre étoiles** dans le brouillon)
+         encadré d'un carré ocre. 130px : cohérent avec le gabarit validé
+         (lignes ≤14-15 caractères). */
+      .title-zone { position: absolute; inset: 0; z-index: 10; }
+      .t-line {
+        position: absolute; left: 96px; right: 96px;
+        font-family: 'Anton', sans-serif; font-size: 130px; line-height: 1;
+        text-transform: uppercase; color: var(--cream); opacity: 0;
+      }
+      .kw-box { background: var(--ocre-render); padding: 10px; margin: -10px; display: inline-block; }
+
+      /* corps de texte animé — centré même sur plusieurs lignes, pas de
+         scrim sombre (lisibilité via l'ombre portée du texte uniquement) */
+      .text-zone { position: absolute; left: 96px; right: 96px; top: 1420px; transform: translateY(-50%); z-index: 10; text-align: center; }
+      .text-chunk {
+        position: absolute; left: 0; right: 0; top: 0; transform: translateY(-50%); opacity: 0;
+        font-family: 'Archivo', sans-serif; font-weight: 500; font-size: 36px; line-height: 1.35;
+        color: var(--cream); text-shadow: 0 2px 16px rgba(0,0,0,.65), 0 1px 4px rgba(0,0,0,.8);
+      }
+      .text-chunk b { font-weight: 800; color: var(--cream); }
+      .text-chunk b.ocre { color: var(--ocre-render); }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="42.6333"
+      data-fps="30"
+    >
+      <!-- vidéo du Drive intégrale, un seul plan continu du début à la fin,
+           composite identique sur toute la durée (pas de split intro/corps
+           côté vidéo — seuls les overlays de texte changent) -->
+      <video class="video-full" id="fullv" src="assets/full.mp4" data-start="0.0000" data-duration="42.6333" data-track-index="1" muted playsinline></video>
+
+      <audio id="corpsa" src="assets/full-audio.m4a" data-start="5.2400" data-duration="37.3933" data-track-index="20"></audio>
+
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+      <div class="tag">CE JOUR LÀ …</div>
+
+      <!-- titre du post (champ TITRE du brouillon "POST DU JOUR — 10 août
+           2026"), mot-clé marqué **entre étoiles** encadré, réparti sur
+           sept lignes : "la Ligue des champions" (sur 2 lignes, t3+t4) -->
+      <div class="title-zone">
+        <div class="t-line" id="t1" style="top:980px">10 AOÛT 1968 :</div>
+        <div class="t-line" id="t2" style="top:1100px">L&rsquo;INVENTEUR DE</div>
+        <div class="t-line" id="t3" style="top:1220px"><span class="kw-box">LA LIGUE DES</span></div>
+        <div class="t-line" id="t4" style="top:1340px"><span class="kw-box">CHAMPIONS</span></div>
+        <div class="t-line" id="t5" style="top:1460px">MEURT DANS</div>
+        <div class="t-line" id="t6" style="top:1580px">L&rsquo;ANONYMAT</div>
+        <div class="t-line" id="t7" style="top:1700px">TOTAL.</div>
+      </div>
+
+      <!-- corps du post (champ CORPS du même brouillon), texte intégral
+           repris tel quel (paragraphes du brouillon = unités de sens),
+           mots-clés en gras/ocre -->
+      <div class="text-zone">
+        <div class="text-chunk" id="l1"><b>Gabriel Hanot</b> meurt le <b class="ocre">10 août 1968</b>, à 78 ans, dans sa maison d&rsquo;Alsace.</div>
+        <div class="text-chunk" id="l2">Ancien international français, <b class="ocre">douze sélections</b>, capitaine des <b>Bleus</b> lors de son dernier match.</div>
+        <div class="text-chunk" id="l3">Puis journaliste à <b>L&rsquo;Équipe</b>.</div>
+        <div class="text-chunk" id="l4">Le <b class="ocre">13 décembre 1954</b>, il assiste à un simple amical : <b>Wolverhampton</b> contre le <b>Honvéd Budapest</b>.</div>
+        <div class="text-chunk" id="l5">Menés <b class="ocre">2-0</b>, les Anglais l&rsquo;emportent <b class="ocre">3-2</b>. Le lendemain, la presse britannique proclame Wolverhampton <b>champion du monde</b>.</div>
+        <div class="text-chunk" id="l6"><b>Hanot</b> juge l&rsquo;argument absurde. Aucun tournoi n&rsquo;a jamais départagé les clubs d&rsquo;Europe.</div>
+        <div class="text-chunk" id="l7">Il soumet l&rsquo;idée à ses collègues de <b>L&rsquo;Équipe</b>, <b>Jacques Ferran</b> en tête.</div>
+        <div class="text-chunk" id="l8">La <b>Coupe des clubs champions</b> est lancée en <b class="ocre">1955</b>.</div>
+        <div class="text-chunk" id="l9">Elle deviendra la <b class="ocre">Ligue des champions</b>.</div>
+        <div class="text-chunk" id="l10">Deux ans plus tard, il est à l&rsquo;origine du <b class="ocre">Ballon d&rsquo;Or</b> de France Football.</div>
+        <div class="text-chunk" id="l11">La compétition <b>la plus regardée</b> du foot mondial porte son idée.</div>
+        <div class="text-chunk" id="l12"><b>Aucune statue, aucun stade, aucune rue</b> ne porte son nom.</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      /* titre animé de l'intro — vitesse figée ×1 (§4bis CLAUDE.md) :
+         revealMs=620/1=0.62s, fadeMs=clamp(80,220,revealMs*0.6)=0.22s,
+         rampe linéaire, léger décalage vertical 8px→0 sur le fondu.
+         7 lignes : introEnd = 0.3 + 6*0.62 + 0.22 + 1.0 = 5.24s */
+      const tStart = 0.3, revealMs = 0.62, fadeMs = 0.22;
+      const tLines = ['#t1', '#t2', '#t3', '#t4', '#t5', '#t6', '#t7'];
+      tLines.forEach((sel, i) => {
+        tl.fromTo(sel, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: fadeMs, ease: 'none' }, tStart + i * revealMs);
+      });
+      const introEnd = 5.24;
+      tl.set('.t-line', { opacity: 0 }, introEnd);
+
+      /* corps — 12 blocs de sens (paragraphes du brouillon), rythme calculé
+         sur la durée vidéo disponible (§5 CLAUDE.md) : vidéo totale
+         42.6333s, fenêtre disponible après l'intro = 42.6333 − 5.24 =
+         37.3933s ; pauses de 0.15s (12 gaps : 1 avant le premier bloc + 11
+         entre blocs, rythme serré vu la densité du texte) ; facteur =
+         (37.3933 − 12×0.15) / Σdurée_brute(41.19) ≈ 0.8641 (compression,
+         texte plus dense que le rythme naturel — gardé intégral) ; dernier
+         bloc se termine à la fin de la vidéo (42.6333s). */
+      const lines = [
+        { id: 'l1',  start: 5.39,  dur: 3.57 },
+        { id: 'l2',  start: 9.11,  dur: 3.34 },
+        { id: 'l3',  start: 12.59, dur: 1.24 },
+        { id: 'l4',  start: 13.98, dur: 4.04 },
+        { id: 'l5',  start: 18.17, dur: 4.04 },
+        { id: 'l6',  start: 22.35, dur: 3.10 },
+        { id: 'l7',  start: 25.60, dur: 3.10 },
+        { id: 'l8',  start: 28.86, dur: 2.40 },
+        { id: 'l9',  start: 31.41, dur: 1.70 },
+        { id: 'l10', start: 33.26, dur: 3.57 },
+        { id: 'l11', start: 36.98, dur: 2.87 },
+        { id: 'l12', start: 40.00, dur: 2.64 },
+      ];
+
+      lines.forEach(({ id, start, dur }) => {
+        tl.fromTo(`#${id}`, { opacity: 0 }, { opacity: 1, duration: 0.3, ease: 'power2.out' }, start);
+        tl.to(`#${id}`, { opacity: 0, duration: 0.24, ease: 'sine.in' }, start + dur - 0.24);
+        tl.set(`#${id}`, { opacity: 0 }, start + dur);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
