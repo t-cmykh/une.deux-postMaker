@@ -310,17 +310,20 @@ donnés en instruction explicite dans le chat** — la ligne `STYLE
 SOUS-TITRES: …` du brouillon "LANCER REEL" fait foi (absence de la ligne =
 demandes envoyées avant l'ajout de ce champ = traiter comme §4.A). Les deux
 styles partagent tout ce qui n'est pas explicitement dit différent
-ci-dessous : découpage en unités de sens, source du texte, timing (§5),
-position générale de la zone, démarrage après l'intro.
+ci-dessous : source du texte, méthode de calcul du rythme (§5), position
+générale de la zone, démarrage après l'intro. Le **découpage en unités**
+diffère entre les deux styles (phrases/propositions en 4.A, groupes tenant
+sur une seule ligne en 4.B) — voir chaque sous-section.
 
 - Utiliser le texte du **CORPS** du brouillon Gmail tel quel (ne pas le
   réécrire) — chercher le brouillon "POST DU JOUR — <date>" correspondant à
   la date demandée ("le post de demain" etc.) via `search_threads`/
   `list_drafts`, section `CORPS`.
-- Découper en unités de sens (phrases ou propositions), chacune son propre
-  bloc qui apparaît en fondu puis disparaît avant le suivant (même mécanique
-  que les sous-titres établis dans ce projet : `fromTo(opacity 0→1)` puis
-  `to(opacity→0)` + `tl.set(opacity:0)` hard-kill en fin de fenêtre).
+- Découper en unités (phrases/propositions en 4.A, cf. règle propre à 4.B
+  ci-dessous), chacune son propre bloc qui apparaît en fondu puis disparaît
+  avant le suivant (même mécanique que les sous-titres établis dans ce
+  projet : `fromTo(opacity 0→1)` puis `to(opacity→0)` + `tl.set(opacity:0)`
+  hard-kill en fin de fenêtre).
 - **Texte centré**, y compris sur les blocs à plusieurs lignes
   (`text-align:center` sur la zone ET sur chaque bloc) — pas d'alignement à
   gauche.
@@ -349,9 +352,10 @@ position générale de la zone, démarrage après l'intro.
 
 #### 4.B — Style TikTok, gras + karaoké (`STYLE SOUS-TITRES: tiktok`)
 
-Même bloc-par-bloc que 4.A (mêmes unités de sens, mêmes fenêtres de temps
-calculées en §5), mais rendu plus gros/gras et avec surlignage mot par mot
-façon karaoké au lieu d'un fondu uniforme sur tout le bloc.
+Même mécanique de fondu bloc par bloc que 4.A et même formule de rythme
+(§5), mais un découpage en unités différent (ci-dessous) et rendu plus
+gros/gras avec surlignage mot par mot façon karaoké au lieu d'un fondu
+uniforme sur tout le bloc.
 
 - Police **Archivo 700** (gras — pas Anton condensé, pas un poids hors DA :
   700 est le poids le plus lourd déjà chargé dans la police de la DA
@@ -363,13 +367,28 @@ façon karaoké au lieu d'un fondu uniforme sur tout le bloc.
   **`text-transform:uppercase`** — automatique, tout le corps de texte passe
   en capitales quel que soit le texte du CORPS (contrairement à 4.A qui
   respecte la casse d'origine). Comme pour le titre de l'intro (§4bis), 54px
-  est un point de départ, pas une constante figée : avec une police plus
-  grosse **et** des capitales (plus larges que le bas de casse), un bloc de
-  phrase déborde plus vite de la boîte 888px (`left:96px; right:96px`) —
-  vérifier par extraction de frame (§9) et réduire si une ligne revient à la
-  ligne de façon disgracieuse ou si un bloc dépasse 3 lignes (préférer
-  redécouper le bloc en unités plus courtes plutôt que de réduire
-  indéfiniment la taille).
+  est un point de départ, pas une constante figée — vérifier par extraction
+  de frame (§9) et ajuster si besoin (cf. règle une-seule-ligne ci-dessous).
+- **Toujours une seule ligne, jamais de retour à la ligne.** Contrairement à
+  4.A (blocs de phrase qui peuvent tenir sur 2-3 lignes), chaque bloc du
+  style TikTok doit être un groupe de mots assez court pour tenir sur une
+  seule ligne dans la boîte 888px (`left:96px; right:96px`) à ~54px Archivo
+  700 majuscules. Découper le CORPS en conséquence : des groupes plus
+  courts que les phrases/propositions entières de 4.A — au besoin scinder
+  une phrase en plusieurs blocs d'une ligne plutôt que de la laisser
+  déborder ou de réduire la taille de police en dessous du point de départ.
+  Vérifier par extraction de frame (§9) ; si un bloc menace quand même de
+  passer à la ligne, le rescinder en unités plus courtes en priorité —
+  réduire `font-size` seulement en dernier recours (ex. un seul mot très
+  long qui déborderait à lui seul).
+- **Rythme plus accentué que 4.A.** Cette contrainte « une seule ligne »
+  produit plus de blocs, plus courts, pour un même CORPS — la formule de
+  rythme du §5 (durée basée sur le nombre de mots par bloc) s'applique
+  normalement à ces blocs plus courts, donc leurs fenêtres d'affichage sont
+  en moyenne plus brèves : le style TikTok défile visiblement plus vite / de
+  façon plus hachée que le style actuel (4.A) sur le même CORPS et la même
+  durée de vidéo. C'est un effet secondaire attendu de la contrainte
+  une-seule-ligne, pas un rythme à corriger ou à ralentir artificiellement.
 - **Couleur du texte : toujours crème (`var(--cream)`), fixe.** Le texte ne
   change jamais de couleur, y compris sur le mot actif. Le surlignage
   karaoké (ci-dessous) se fait uniquement par un encadré derrière le mot,
