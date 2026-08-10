@@ -14,13 +14,23 @@ match et demande d'y ajouter le texte du post (sous-titres ou corps animé) —
 Outil statique (même DA que `editeur-series.html` : panel sombre, ocre,
 Saira Condensed/Anton/Archivo) où Thomas colle le lien Drive (ou choisit
 directement un fichier vidéo depuis l'appareil — voir ci-dessous) + la date
-du post + des notes optionnelles. **Une seule variante** (voir section
-recette ci-dessous — l'ancien choix "reel complet / intro seule" a été
-fusionné, il n'y a plus de champ VARIANTE). Le bouton « Lancer le montage »
-ouvre un brouillon email pré-rempli (`mailto:` vers t.louisor@gmail.com,
-objet `LANCER REEL — <date>`, corps au format `LIEN DRIVE: … / DATE DU
-POST: … / NOTES: …`) — une page statique ne peut pas appeler Claude Code
-directement, l'email est le pont.
+du post + le style de sous-titres (voir ci-dessous) + des notes optionnelles.
+**Une seule variante de montage** (voir section recette ci-dessous — l'ancien
+choix "reel complet / intro seule" a été fusionné, il n'y a plus de champ
+VARIANTE ; le seul choix qui reste est le style des sous-titres). Le bouton
+« Lancer le montage » ouvre un brouillon email pré-rempli (`mailto:` vers
+t.louisor@gmail.com, objet `LANCER REEL — <date>`, corps au format `LIEN
+DRIVE: … / DATE DU POST: … / STYLE SOUS-TITRES: … / NOTES: …`) — une page
+statique ne peut pas appeler Claude Code directement, l'email est le pont.
+
+**Style des sous-titres** : un sélecteur à deux chips dans le lanceur —
+« STYLE ACTUEL » (par défaut, coché à l'ouverture) ou « STYLE TIKTOK (GRAS,
+KARAOKÉ) ». Le choix est écrit dans le corps de l'email en
+`STYLE SOUS-TITRES: actuel` ou `STYLE SOUS-TITRES: tiktok (gros, gras,
+karaoké)`. Côté traitement, la Routine lit cette ligne et applique la
+variante correspondante du §4 (Corps de texte) ci-dessous — absence de la
+ligne (anciennes demandes envoyées avant cet ajout) = traiter comme
+`actuel`.
 
 **Vidéo directe depuis l'appareil** : un toggle « Lien Drive / Vidéo depuis
 l'appareil » permet de choisir un fichier vidéo directement dans la
@@ -294,6 +304,15 @@ supposer qu'elle reste universelle indéfiniment (le pipeline de render peut
 
 ### 4. Corps de texte — sous-titres animés, découpés en unités de sens
 
+**Deux styles au choix, sélectionnés par Thomas dans le lanceur
+(`editeurs/lanceur-cejourla.html`, champ « Style des sous-titres ») ou
+donnés en instruction explicite dans le chat** — la ligne `STYLE
+SOUS-TITRES: …` du brouillon "LANCER REEL" fait foi (absence de la ligne =
+demandes envoyées avant l'ajout de ce champ = traiter comme §4.A). Les deux
+styles partagent tout ce qui n'est pas explicitement dit différent
+ci-dessous : découpage en unités de sens, source du texte, timing (§5),
+position générale de la zone, démarrage après l'intro.
+
 - Utiliser le texte du **CORPS** du brouillon Gmail tel quel (ne pas le
   réécrire) — chercher le brouillon "POST DU JOUR — <date>" correspondant à
   la date demandée ("le post de demain" etc.) via `search_threads`/
@@ -302,18 +321,9 @@ supposer qu'elle reste universelle indéfiniment (le pipeline de render peut
   bloc qui apparaît en fondu puis disparaît avant le suivant (même mécanique
   que les sous-titres établis dans ce projet : `fromTo(opacity 0→1)` puis
   `to(opacity→0)` + `tl.set(opacity:0)` hard-kill en fin de fenêtre).
-- Mots-clés importants en **gras et/ou ocre** (`<b>` pour gras crème,
-  `<b class="ocre">` pour gras + couleur `var(--ocre-render)`, cf. §3) —
-  chiffres, scores, noms propres, faits marquants. Ne pas surcharger : un ou
-  deux par phrase.
 - **Texte centré**, y compris sur les blocs à plusieurs lignes
   (`text-align:center` sur la zone ET sur chaque bloc) — pas d'alignement à
   gauche.
-- Police Archivo (corps de texte, pas Anton tout-capitales — c'est de la
-  prose, pas un sous-titre condensé), ~38px, line-height 1.38, couleur
-  crème, `text-shadow: 0 2px 16px rgba(0,0,0,.65), 0 1px 4px rgba(0,0,0,.8)`
-  pour la lisibilité (remplace tout scrim, puisque le bas ne doit pas être
-  assombri).
 - Position : `top:1420px` avec `transform:translateY(-50%)`, zone
   `left:96px; right:96px`, dans la bande floutée basse (sous le plan net —
   valeur calibrée pour la géométrie §2, où le plan net s'arrête à `y=1308`).
@@ -321,6 +331,81 @@ supposer qu'elle reste universelle indéfiniment (le pipeline de render peut
 - **Le corps démarre juste après la fin de l'intro** (§4bis) dans la
   timeline globale de la composition — décaler tous les `start` calculés en
   §5 de `introEnd` (durée totale de l'intro, cf. §4bis), pas de `t=0`.
+
+#### 4.A — Style actuel (défaut, `STYLE SOUS-TITRES: actuel`)
+
+- Mots-clés importants en **gras et/ou ocre** (`<b>` pour gras crème,
+  `<b class="ocre">` pour gras + couleur `var(--ocre-render)`, cf. §3) —
+  chiffres, scores, noms propres, faits marquants. Ne pas surcharger : un ou
+  deux par phrase.
+- Police Archivo (corps de texte, pas Anton tout-capitales — c'est de la
+  prose, pas un sous-titre condensé), ~38px, line-height 1.38, couleur
+  crème, `text-shadow: 0 2px 16px rgba(0,0,0,.65), 0 1px 4px rgba(0,0,0,.8)`
+  pour la lisibilité (remplace tout scrim, puisque le bas ne doit pas être
+  assombri).
+- Bloc entier en fondu (fromTo/to opacity, cf. ci-dessus) — pas de
+  surlignage mot par mot, tout le bloc a la même couleur en même temps
+  (hors `<b class="ocre">` ponctuel).
+
+#### 4.B — Style TikTok, gras + karaoké (`STYLE SOUS-TITRES: tiktok`)
+
+Même bloc-par-bloc que 4.A (mêmes unités de sens, mêmes fenêtres de temps
+calculées en §5), mais rendu plus gros/gras et avec surlignage mot par mot
+façon karaoké au lieu d'un fondu uniforme sur tout le bloc.
+
+- Police Archivo **800** (gras prononcé, pas Anton condensé), taille de
+  départ **~54px** (contre 38px en 4.A), line-height 1.25. Comme pour le
+  titre de l'intro (§4bis), 54px est un point de départ, pas une constante
+  figée : avec une police plus grosse, un bloc de phrase déborde plus vite
+  de la boîte 888px (`left:96px; right:96px`) — vérifier par extraction de
+  frame (§9) et réduire si une ligne revient à la ligne de façon disgracieuse
+  ou si un bloc dépasse 3 lignes (préférer redécouper le bloc en unités plus
+  courtes plutôt que de réduire indéfiniment la taille).
+- Couleur de base **crème** (`var(--cream)`) pour les mots pas encore
+  « prononcés », `text-shadow` identique à 4.A (même fond flouté dessous,
+  même besoin de lisibilité).
+- **Mot actif** : au moment où son tour arrive dans le bloc, le mot passe en
+  couleur `var(--ocre-render)` (cf. §3, même compensation vidéo que le tag
+  et les mots-clés du titre) avec un petit pop d'échelle — puis reste ocre
+  jusqu'à la fin du bloc (pas de retour au crème, comme un karaoké classique
+  où les mots déjà chantés restent surlignés). `<b>`/`<b class="ocre">`
+  manuels du CORPS ne s'appliquent pas à ce style (le surlignage karaoké
+  remplace le gras ponctuel — tout le texte est déjà en Archivo 800).
+- **Découpage en mots** : chaque bloc de phrase est éclaté en `<span
+  class="w">mot</span>` individuels (espaces conservés entre spans), un
+  wrapper par mot pour cibler l'animation sans casser le fondu du bloc
+  parent (le fondu d'entrée/sortie du bloc entier reste sur le conteneur,
+  cf. règle commune ci-dessus — seule la couleur/l'échelle est animée par
+  mot).
+- **Timing des mots** : à l'intérieur de la fenêtre `[start, start+dur]`
+  calculée en §5 pour ce bloc, répartir `dur` entre les mots
+  proportionnellement à leur longueur en caractères (mots plus longs =
+  fenêtre un peu plus large, approximation simple d'un rythme de lecture,
+  pas de transcription audio pour caler précisément sur la voix puisqu'il
+  n'y a pas de narration parlée dans ce format) :
+  ```js
+  const totalChars = words.reduce((s, w) => s + w.text.length, 0);
+  let wOffset = 0;
+  words.forEach(w => {
+    const wDur = dur * (w.text.length / totalChars);
+    const pop = Math.min(0.16, wDur * 0.6);
+    tl.to(w.el, {color: 'var(--ocre-render)', scale: 1.1, duration: pop, ease: 'power1.out'}, start + wOffset);
+    tl.to(w.el, {scale: 1.0, duration: 0.1, ease: 'power1.in'}, start + wOffset + pop);
+    wOffset += wDur;
+  });
+  ```
+  (le hard-kill de fin de bloc du fondu commun remet `opacity:0` sur le
+  conteneur à `start+dur` — pas besoin de hard-kill séparé sur `color`
+  puisque le bloc entier disparaît avec lui.)
+- **Piège transform à éviter (cf. §6)** : le conteneur du bloc garde son
+  `transform:translateY(-50%)` statique pour le centrage — ne jamais animer
+  `y` dessus. Le `scale` du pop karaoké s'anime sur le `<span class="w">`
+  enfant, un élément différent sans transform statique propre : pas de
+  conflit avec le centrage du parent.
+- Style validé pour un rendu plus lisible/percutant façon TikTok — reste un
+  choix explicite de Thomas par reel (ou par défaut le style 4.A si rien
+  n'est précisé), ni l'un ni l'autre ne devient le nouveau standard implicite
+  sans qu'il le dise.
 
 ### 4bis. Titre animé de l'intro
 
