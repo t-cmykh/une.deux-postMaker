@@ -354,54 +354,75 @@ calculées en §5), mais rendu plus gros/gras et avec surlignage mot par mot
 façon karaoké au lieu d'un fondu uniforme sur tout le bloc.
 
 - Police Archivo **800** (gras prononcé, pas Anton condensé), taille de
-  départ **~54px** (contre 38px en 4.A), line-height 1.25. Comme pour le
-  titre de l'intro (§4bis), 54px est un point de départ, pas une constante
-  figée : avec une police plus grosse, un bloc de phrase déborde plus vite
-  de la boîte 888px (`left:96px; right:96px`) — vérifier par extraction de
-  frame (§9) et réduire si une ligne revient à la ligne de façon disgracieuse
-  ou si un bloc dépasse 3 lignes (préférer redécouper le bloc en unités plus
-  courtes plutôt que de réduire indéfiniment la taille).
-- Couleur de base **crème** (`var(--cream)`) pour les mots pas encore
-  « prononcés », `text-shadow` identique à 4.A (même fond flouté dessous,
-  même besoin de lisibilité).
-- **Mot actif** : au moment où son tour arrive dans le bloc, le mot passe en
-  couleur `var(--ocre-render)` (cf. §3, même compensation vidéo que le tag
-  et les mots-clés du titre) avec un petit pop d'échelle — puis reste ocre
-  jusqu'à la fin du bloc (pas de retour au crème, comme un karaoké classique
-  où les mots déjà chantés restent surlignés). `<b>`/`<b class="ocre">`
-  manuels du CORPS ne s'appliquent pas à ce style (le surlignage karaoké
-  remplace le gras ponctuel — tout le texte est déjà en Archivo 800).
+  départ **~54px** (contre 38px en 4.A), line-height 1.25,
+  **`text-transform:uppercase`** — automatique, tout le corps de texte passe
+  en capitales quel que soit le texte du CORPS (contrairement à 4.A qui
+  respecte la casse d'origine). Comme pour le titre de l'intro (§4bis), 54px
+  est un point de départ, pas une constante figée : avec une police plus
+  grosse **et** des capitales (plus larges que le bas de casse), un bloc de
+  phrase déborde plus vite de la boîte 888px (`left:96px; right:96px`) —
+  vérifier par extraction de frame (§9) et réduire si une ligne revient à la
+  ligne de façon disgracieuse ou si un bloc dépasse 3 lignes (préférer
+  redécouper le bloc en unités plus courtes plutôt que de réduire
+  indéfiniment la taille).
+- **Couleur du texte : toujours crème (`var(--cream)`), fixe.** Le texte ne
+  change jamais de couleur, y compris sur le mot actif — `text-shadow`
+  identique à 4.A (même fond flouté dessous, même besoin de lisibilité). Le
+  surlignage karaoké (ci-dessous) se fait uniquement par un encadré derrière
+  le mot, jamais par une teinte de texte.
+- **Mot actif : encadré ocre mobile**, même mécanisme que `.kw-box` du titre
+  de l'intro (§4bis — fond `var(--ocre-render)`, texte crème par-dessus,
+  jamais d'inversion de couleur). Au moment où son tour arrive dans le bloc,
+  le mot reçoit ce fond ocre derrière lui ; à l'arrivée du mot suivant,
+  l'encadré du mot précédent disparaît — **un seul mot encadré à la fois**,
+  l'encadré ne reste pas sur les mots déjà lus (contrairement à une
+  ancienne version de cette recette qui faisait persister une couleur — ce
+  mécanisme-là est abandonné, remplacé par cet encadré qui se déplace).
+  `<b>`/`<b class="ocre">` manuels du CORPS ne s'appliquent pas à ce style
+  (l'encadré karaoké remplace le gras ponctuel — tout le texte est déjà en
+  Archivo 800 majuscules).
 - **Découpage en mots** : chaque bloc de phrase est éclaté en `<span
   class="w">mot</span>` individuels (espaces conservés entre spans), un
   wrapper par mot pour cibler l'animation sans casser le fondu du bloc
   parent (le fondu d'entrée/sortie du bloc entier reste sur le conteneur,
-  cf. règle commune ci-dessus — seule la couleur/l'échelle est animée par
-  mot).
+  cf. règle commune ci-dessus — seul le fond de l'encadré est animé par
+  mot, jamais la couleur du texte ni sa position). CSS de base (l'encadré
+  réserve son espace via padding/marge négative en permanence, comme
+  `.kw-box`, pour que son apparition ne décale jamais le texte) :
+  ```css
+  .body-tiktok{ text-transform:uppercase; /* + le reste des règles communes 4.A/4.B ci-dessus */ }
+  .body-tiktok .w{ display:inline-block; color:var(--cream);
+    padding:6px 12px; margin:-6px -12px; background:transparent; }
+  ```
 - **Timing des mots** : à l'intérieur de la fenêtre `[start, start+dur]`
   calculée en §5 pour ce bloc, répartir `dur` entre les mots
   proportionnellement à leur longueur en caractères (mots plus longs =
   fenêtre un peu plus large, approximation simple d'un rythme de lecture,
   pas de transcription audio pour caler précisément sur la voix puisqu'il
-  n'y a pas de narration parlée dans ce format) :
+  n'y a pas de narration parlée dans ce format). Seul le fond (`backgroundColor`)
+  du mot est animé — jamais `color` ni `scale` sur le texte :
   ```js
   const totalChars = words.reduce((s, w) => s + w.text.length, 0);
   let wOffset = 0;
   words.forEach(w => {
     const wDur = dur * (w.text.length / totalChars);
-    const pop = Math.min(0.16, wDur * 0.6);
-    tl.to(w.el, {color: 'var(--ocre-render)', scale: 1.1, duration: pop, ease: 'power1.out'}, start + wOffset);
-    tl.to(w.el, {scale: 1.0, duration: 0.1, ease: 'power1.in'}, start + wOffset + pop);
+    const pop = Math.min(0.14, wDur * 0.5);
+    tl.fromTo(w.el, {backgroundColor: 'rgba(185,164,86,0)'},
+      {backgroundColor: 'rgba(185,164,86,1)', duration: pop, ease: 'power1.out'}, start + wOffset);
+    tl.to(w.el, {backgroundColor: 'rgba(185,164,86,0)', duration: pop, ease: 'power1.in'},
+      start + wOffset + wDur - pop);
     wOffset += wDur;
   });
   ```
-  (le hard-kill de fin de bloc du fondu commun remet `opacity:0` sur le
-  conteneur à `start+dur` — pas besoin de hard-kill séparé sur `color`
-  puisque le bloc entier disparaît avec lui.)
-- **Piège transform à éviter (cf. §6)** : le conteneur du bloc garde son
-  `transform:translateY(-50%)` statique pour le centrage — ne jamais animer
-  `y` dessus. Le `scale` du pop karaoké s'anime sur le `<span class="w">`
-  enfant, un élément différent sans transform statique propre : pas de
-  conflit avec le centrage du parent.
+  (`rgba(185,164,86,…)` = `--ocre-render` en RGB, pour une interpolation
+  propre transparent→ocre→transparent ; le hard-kill de fin de bloc du fondu
+  commun remet `opacity:0` sur le conteneur à `start+dur`, donc pas besoin de
+  hard-kill séparé sur `backgroundColor` puisque le bloc entier disparaît
+  avec lui.)
+- Aucun conflit avec le piège transform du §6 : on n'anime plus ni `color`
+  ni `scale` ni `y` sur les mots, seulement `backgroundColor` — propriété qui
+  n'interagit pas avec le `transform:translateY(-50%)` statique du
+  conteneur.
 - Style validé pour un rendu plus lisible/percutant façon TikTok — reste un
   choix explicite de Thomas par reel (ou par défaut le style 4.A si rien
   n'est précisé), ni l'un ni l'autre ne devient le nouveau standard implicite
