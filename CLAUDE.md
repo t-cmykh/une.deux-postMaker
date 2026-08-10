@@ -393,21 +393,35 @@ uniforme sur tout le bloc.
   change jamais de couleur, y compris sur le mot actif. Le surlignage
   karaoké (ci-dessous) se fait uniquement par un encadré derrière le mot,
   jamais par une teinte de texte.
-- **Aucune ombre portée, aucun contour** — ni sur le texte ni sur
-  l'encadré, contrairement à 4.A qui a un `text-shadow` (nécessaire là-bas
-  faute de fond plein derrière chaque mot). Ici la lisibilité vient du poids
-  Archivo 700 majuscules et de l'aplat ocre plein sur le mot actif : pas de
-  `text-shadow`, pas de `-webkit-text-stroke`, pas de `border` — un aplat de
-  couleur, rien d'autre. Ne pas reprendre par réflexe le `text-shadow` de
-  4.A en copiant sa structure.
+- **Aucune ombre portée** — contrairement à 4.A qui a un `text-shadow`
+  (nécessaire là-bas faute de fond derrière le texte) : pas de
+  `text-shadow`, pas de `border`, et **pas de fond derrière les mots au
+  repos** (piste du fond semi-opaque `rgba(44,40,35,.55)` testée puis
+  écartée par Thomas — ne pas la réintroduire). La lisibilité vient d'un
+  **contour crème sur le texte lui-même**, pas d'un fond :
+  ```css
+  .body-tiktok{ text-transform:uppercase; -webkit-text-stroke: 1.5px var(--cream);
+    /* + le reste des règles communes 4.A/4.B ci-dessus */ }
+  ```
+  Contour **crème** (`var(--cream)`, même teinte que le remplissage — donc
+  pas de liseré de couleur contrastante ni d'effet « contour noir » façon
+  sous-titre générique), ~1.5px à 54px de corps : à cette taille précise le
+  stroke épaissit surtout le tracé des lettres (effet optique proche d'un
+  poids plus lourd) plutôt que de dessiner un liseré visible — recalibrer
+  au jugé si la taille de police change significativement, en vérifiant par
+  extraction de frame (§9) que ça ne ferme pas les contre-formes des lettres
+  (ex. le blanc à l'intérieur d'un O ou d'un A) sur cette police à cette
+  taille.
 - **Mot actif : encadré ocre mobile**, même mécanisme que `.kw-box` du titre
-  de l'intro (§4bis — fond `var(--ocre-render)`, texte crème par-dessus,
-  jamais d'inversion de couleur). Au moment où son tour arrive dans le bloc,
-  le mot reçoit ce fond ocre derrière lui ; à l'arrivée du mot suivant,
-  l'encadré du mot précédent disparaît — **un seul mot encadré à la fois**,
-  l'encadré ne reste pas sur les mots déjà lus (contrairement à une
-  ancienne version de cette recette qui faisait persister une couleur — ce
-  mécanisme-là est abandonné, remplacé par cet encadré qui se déplace).
+  de l'intro (§4bis — fond `var(--ocre-render)`, texte crème (contour
+  compris) par-dessus, jamais d'inversion de couleur). Au moment où son
+  tour arrive dans le bloc, le mot reçoit ce fond ocre derrière lui ; à
+  l'arrivée du mot suivant, l'encadré du mot précédent disparaît (retour à
+  `transparent`, pas au fond semi-opaque écarté ci-dessus) — **un seul mot
+  encadré à la fois**, l'encadré ne reste pas sur les mots déjà lus
+  (contrairement à une ancienne version de cette recette qui faisait
+  persister une couleur de texte — mécanisme abandonné, remplacé par cet
+  encadré qui se déplace).
   `<b>`/`<b class="ocre">` manuels du CORPS ne s'appliquent pas à ce style
   (l'encadré karaoké remplace le gras ponctuel — tout le texte est déjà en
   Archivo 700 majuscules).
@@ -416,11 +430,11 @@ uniforme sur tout le bloc.
   wrapper par mot pour cibler l'animation sans casser le fondu du bloc
   parent (le fondu d'entrée/sortie du bloc entier reste sur le conteneur,
   cf. règle commune ci-dessus — seul le fond de l'encadré est animé par
-  mot, jamais la couleur du texte ni sa position). CSS de base (l'encadré
-  réserve son espace via padding/marge négative en permanence, comme
-  `.kw-box`, pour que son apparition ne décale jamais le texte) :
+  mot, jamais la couleur du texte, le contour, ni sa position). CSS de base
+  (l'encadré réserve son espace via padding/marge négative en permanence,
+  comme `.kw-box`, pour que son apparition ne décale jamais le texte ; fond
+  transparent par défaut) :
   ```css
-  .body-tiktok{ text-transform:uppercase; /* + le reste des règles communes 4.A/4.B ci-dessus */ }
   .body-tiktok .w{ display:inline-block; color:var(--cream);
     padding:6px 12px; margin:-6px -12px; background:transparent; }
   ```
@@ -429,8 +443,9 @@ uniforme sur tout le bloc.
   proportionnellement à leur longueur en caractères (mots plus longs =
   fenêtre un peu plus large, approximation simple d'un rythme de lecture,
   pas de transcription audio pour caler précisément sur la voix puisqu'il
-  n'y a pas de narration parlée dans ce format). Seul le fond (`backgroundColor`)
-  du mot est animé — jamais `color` ni `scale` sur le texte :
+  n'y a pas de narration parlée dans ce format). Seul le fond
+  (`backgroundColor`) du mot est animé — jamais `color`, le contour, ni
+  `scale` sur le texte :
   ```js
   const totalChars = words.reduce((s, w) => s + w.text.length, 0);
   let wOffset = 0;
