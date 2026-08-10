@@ -371,10 +371,16 @@ façon karaoké au lieu d'un fondu uniforme sur tout le bloc.
   redécouper le bloc en unités plus courtes plutôt que de réduire
   indéfiniment la taille).
 - **Couleur du texte : toujours crème (`var(--cream)`), fixe.** Le texte ne
-  change jamais de couleur, y compris sur le mot actif — `text-shadow`
-  identique à 4.A (même fond flouté dessous, même besoin de lisibilité). Le
-  surlignage karaoké (ci-dessous) se fait uniquement par un encadré derrière
-  le mot, jamais par une teinte de texte.
+  change jamais de couleur, y compris sur le mot actif. Le surlignage
+  karaoké (ci-dessous) se fait uniquement par un encadré derrière le mot,
+  jamais par une teinte de texte.
+- **Aucune ombre portée, aucun contour** — ni sur le texte ni sur
+  l'encadré, contrairement à 4.A qui a un `text-shadow` (nécessaire là-bas
+  faute de fond plein derrière chaque mot). Ici la lisibilité vient du poids
+  Archivo 700 majuscules et de l'aplat ocre plein sur le mot actif : pas de
+  `text-shadow`, pas de `-webkit-text-stroke`, pas de `border` — un aplat de
+  couleur, rien d'autre. Ne pas reprendre par réflexe le `text-shadow` de
+  4.A en copiant sa structure.
 - **Mot actif : encadré ocre mobile**, même mécanisme que `.kw-box` du titre
   de l'intro (§4bis — fond `var(--ocre-render)`, texte crème par-dessus,
   jamais d'inversion de couleur). Au moment où son tour arrive dans le bloc,
