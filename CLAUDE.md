@@ -393,21 +393,27 @@ uniforme sur tout le bloc.
   change jamais de couleur, y compris sur le mot actif. Le surlignage
   karaoké (ci-dessous) se fait uniquement par un encadré derrière le mot,
   jamais par une teinte de texte.
-- **Aucune ombre portée, aucun contour** — ni sur le texte ni sur
-  l'encadré, contrairement à 4.A qui a un `text-shadow` (nécessaire là-bas
-  faute de fond plein derrière chaque mot). Ici la lisibilité vient du poids
-  Archivo 700 majuscules et de l'aplat ocre plein sur le mot actif : pas de
-  `text-shadow`, pas de `-webkit-text-stroke`, pas de `border` — un aplat de
-  couleur, rien d'autre. Ne pas reprendre par réflexe le `text-shadow` de
-  4.A en copiant sa structure.
-- **Mot actif : encadré ocre mobile**, même mécanisme que `.kw-box` du titre
-  de l'intro (§4bis — fond `var(--ocre-render)`, texte crème par-dessus,
-  jamais d'inversion de couleur). Au moment où son tour arrive dans le bloc,
-  le mot reçoit ce fond ocre derrière lui ; à l'arrivée du mot suivant,
-  l'encadré du mot précédent disparaît — **un seul mot encadré à la fois**,
-  l'encadré ne reste pas sur les mots déjà lus (contrairement à une
-  ancienne version de cette recette qui faisait persister une couleur — ce
-  mécanisme-là est abandonné, remplacé par cet encadré qui se déplace).
+- **Aucune ombre portée, aucun contour** — ni sur le texte ni sur les
+  encadrés, contrairement à 4.A qui a un `text-shadow` (nécessaire là-bas
+  faute de fond derrière le texte) : pas de `text-shadow`, pas de
+  `-webkit-text-stroke`, pas de `border`. Ici la lisibilité vient d'un
+  **fond plein derrière chaque mot** (pas d'un effet sur le texte
+  lui-même) — voir les deux états ci-dessous.
+- **Deux états de fond par mot, jamais de texte nu sur la vidéo** :
+  - **Au repos** (mot pas encore lu ou déjà lu) : fond encre semi-opaque
+    `rgba(44,40,35,.55)` (~`--ink` à 55%) derrière le mot — un filet de
+    contraste discret contre le fond flouté de la vidéo, sans assombrir la
+    zone comme le ferait un scrim plein cadre (toujours interdit par la
+    règle §3 sur ce format).
+  - **Mot actif** : le même encadré passe en aplat ocre plein
+    `var(--ocre-render)`, même mécanisme que `.kw-box` du titre de l'intro
+    (§4bis — texte crème par-dessus, jamais d'inversion de couleur). Au
+    moment où son tour arrive dans le bloc, le mot reçoit ce fond ocre ; à
+    l'arrivée du mot suivant, l'encadré repasse à l'état de repos —
+    **un seul mot en ocre à la fois**, l'ocre ne reste pas sur les mots
+    déjà lus (contrairement à une ancienne version de cette recette qui
+    faisait persister une couleur de texte — mécanisme abandonné, remplacé
+    par cet encadré qui se déplace).
   `<b>`/`<b class="ocre">` manuels du CORPS ne s'appliquent pas à ce style
   (l'encadré karaoké remplace le gras ponctuel — tout le texte est déjà en
   Archivo 700 majuscules).
@@ -415,14 +421,15 @@ uniforme sur tout le bloc.
   class="w">mot</span>` individuels (espaces conservés entre spans), un
   wrapper par mot pour cibler l'animation sans casser le fondu du bloc
   parent (le fondu d'entrée/sortie du bloc entier reste sur le conteneur,
-  cf. règle commune ci-dessus — seul le fond de l'encadré est animé par
-  mot, jamais la couleur du texte ni sa position). CSS de base (l'encadré
-  réserve son espace via padding/marge négative en permanence, comme
-  `.kw-box`, pour que son apparition ne décale jamais le texte) :
+  cf. règle commune ci-dessus — seul le fond du mot est animé, jamais la
+  couleur du texte ni sa position). CSS de base (l'encadré réserve son
+  espace via padding/marge négative en permanence, comme `.kw-box`, pour
+  que son apparition ne décale jamais le texte ; le fond de repos
+  `rgba(44,40,35,.55)` est la valeur par défaut, pas `transparent`) :
   ```css
   .body-tiktok{ text-transform:uppercase; /* + le reste des règles communes 4.A/4.B ci-dessus */ }
   .body-tiktok .w{ display:inline-block; color:var(--cream);
-    padding:6px 12px; margin:-6px -12px; background:transparent; }
+    padding:6px 12px; margin:-6px -12px; background:rgba(44,40,35,.55); }
   ```
 - **Timing des mots** : à l'intérieur de la fenêtre `[start, start+dur]`
   calculée en §5 pour ce bloc, répartir `dur` entre les mots
@@ -430,22 +437,25 @@ uniforme sur tout le bloc.
   fenêtre un peu plus large, approximation simple d'un rythme de lecture,
   pas de transcription audio pour caler précisément sur la voix puisqu'il
   n'y a pas de narration parlée dans ce format). Seul le fond (`backgroundColor`)
-  du mot est animé — jamais `color` ni `scale` sur le texte :
+  du mot est animé, entre repos et actif — jamais `color` ni `scale` sur le
+  texte :
   ```js
+  const REST = 'rgba(44,40,35,.55)';   // fond de repos (--ink à 55%)
+  const ACTIVE = 'rgba(185,164,86,1)'; // --ocre-render en RGB
   const totalChars = words.reduce((s, w) => s + w.text.length, 0);
   let wOffset = 0;
   words.forEach(w => {
     const wDur = dur * (w.text.length / totalChars);
     const pop = Math.min(0.14, wDur * 0.5);
-    tl.fromTo(w.el, {backgroundColor: 'rgba(185,164,86,0)'},
-      {backgroundColor: 'rgba(185,164,86,1)', duration: pop, ease: 'power1.out'}, start + wOffset);
-    tl.to(w.el, {backgroundColor: 'rgba(185,164,86,0)', duration: pop, ease: 'power1.in'},
+    tl.fromTo(w.el, {backgroundColor: REST},
+      {backgroundColor: ACTIVE, duration: pop, ease: 'power1.out'}, start + wOffset);
+    tl.to(w.el, {backgroundColor: REST, duration: pop, ease: 'power1.in'},
       start + wOffset + wDur - pop);
     wOffset += wDur;
   });
   ```
-  (`rgba(185,164,86,…)` = `--ocre-render` en RGB, pour une interpolation
-  propre transparent→ocre→transparent ; le hard-kill de fin de bloc du fondu
+  (chaque mot repart à l'état de repos `REST`, jamais à `transparent` —
+  cf. règle des deux états ci-dessus ; le hard-kill de fin de bloc du fondu
   commun remet `opacity:0` sur le conteneur à `start+dur`, donc pas besoin de
   hard-kill séparé sur `backgroundColor` puisque le bloc entier disparaît
   avec lui.)
