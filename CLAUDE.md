@@ -353,8 +353,13 @@ Même bloc-par-bloc que 4.A (mêmes unités de sens, mêmes fenêtres de temps
 calculées en §5), mais rendu plus gros/gras et avec surlignage mot par mot
 façon karaoké au lieu d'un fondu uniforme sur tout le bloc.
 
-- Police Archivo **800** (gras prononcé, pas Anton condensé), taille de
-  départ **~54px** (contre 38px en 4.A), line-height 1.25,
+- Police **Archivo 700** (gras — pas Anton condensé, pas un poids hors DA :
+  700 est le poids le plus lourd déjà chargé dans la police de la DA
+  une·deux, cf. `design-system/tokens/fonts.css`
+  `family=Archivo:ital,wght@0,400;0,500;0,600;0,700;1,400` — ne jamais
+  demander un poids Archivo non déclaré là, ex. 800/900, même si Google
+  Fonts peut techniquement le servir), taille de départ **~54px** (contre
+  38px en 4.A), line-height 1.25,
   **`text-transform:uppercase`** — automatique, tout le corps de texte passe
   en capitales quel que soit le texte du CORPS (contrairement à 4.A qui
   respecte la casse d'origine). Comme pour le titre de l'intro (§4bis), 54px
@@ -380,7 +385,7 @@ façon karaoké au lieu d'un fondu uniforme sur tout le bloc.
   mécanisme-là est abandonné, remplacé par cet encadré qui se déplace).
   `<b>`/`<b class="ocre">` manuels du CORPS ne s'appliquent pas à ce style
   (l'encadré karaoké remplace le gras ponctuel — tout le texte est déjà en
-  Archivo 800 majuscules).
+  Archivo 700 majuscules).
 - **Découpage en mots** : chaque bloc de phrase est éclaté en `<span
   class="w">mot</span>` individuels (espaces conservés entre spans), un
   wrapper par mot pour cibler l'animation sans casser le fondu du bloc
