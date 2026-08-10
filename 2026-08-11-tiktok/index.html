@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 11 août 1984, France titre olympique oublié (style TikTok)</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* Même vidéo, même composite que 2026-08-11/ (§2 CLAUDE.md, géométrie
+         y=420/888 identique du début à la fin) — seule la couche de
+         sous-titres du corps change (style TikTok §4.B au lieu du style
+         actuel §4.A) sur cette variante demandée explicitement via le
+         lanceur (STYLE SOUS-TITRES: tiktok). Fichiers assets/ copiés tels
+         quels depuis 2026-08-11/ (même source, même orientation vérifiée,
+         aucun re-encodage nécessaire). */
+      .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+
+      /* header — constantes fixes de la série, identique à 2026-08-11/ */
+      #hdr { position: absolute; inset: 0 0 auto 0; z-index: 20; }
+      .ring {
+        position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
+        border: 4px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
+
+      /* --ocre-render : compensation du décalage de teinte du pipeline de
+         render HyperFrames sur --ocre (§3 CLAUDE.md) — variable locale à
+         la composition, ne touche pas tokens/colors.css. */
+      :root { --ocre-render: #B9A456; }
+      .tag {
+        position: absolute; left: 96px; top: 350px; height: 58px; z-index: 20;
+        display: flex; align-items: center; background: var(--ocre-render); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; padding: 0 15px;
+      }
+
+      /* titre animé de l'intro — identique à 2026-08-11/ (même TITRE, même
+         découpage en 6 lignes, même mots-clés encadrés). */
+      .title-zone { position: absolute; inset: 0; z-index: 10; }
+      .t-line {
+        position: absolute; left: 96px; right: 96px;
+        font-family: 'Anton', sans-serif; font-size: 130px; line-height: 1;
+        text-transform: uppercase; color: var(--cream); opacity: 0;
+      }
+      .kw-box { background: var(--ocre-render); padding: 10px; margin: -10px; display: inline-block; }
+
+      /* corps de texte — style TikTok (§4.B CLAUDE.md) : Archivo 700,
+         majuscules, toujours une seule ligne par bloc, texte crème fixe
+         (aucun changement de couleur), aucune ombre portée / contour —
+         lisibilité assurée par le poids + l'encadré ocre karaoké mobile.
+         Zone identique au style actuel (§4.A) : centrée, top:1420px. */
+      .text-zone { position: absolute; left: 96px; right: 96px; top: 1420px; transform: translateY(-50%); z-index: 10; text-align: center; }
+      .body-tiktok {
+        position: absolute; left: 0; right: 0; top: 0; transform: translateY(-50%); opacity: 0;
+        font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 54px; line-height: 1.25;
+        text-transform: uppercase; color: var(--cream);
+      }
+      /* encadré réserve son espace en permanence (padding + marge négative
+         égale), pour que son apparition ne décale jamais le texte — même
+         mécanique que .kw-box du titre. */
+      .body-tiktok .w { display: inline-block; color: var(--cream); padding: 6px 12px; margin: -6px -12px; background: transparent; }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="47.0333"
+      data-fps="30"
+    >
+      <!-- vidéo intégrale, un seul plan continu du début à la fin, identique
+           à 2026-08-11/ (composite pré-cuit importé tel quel) -->
+      <video class="video-full" id="fullv" src="assets/full.mp4" data-start="0.0000" data-duration="47.0333" data-track-index="1" muted playsinline></video>
+
+      <audio id="corpsa" src="assets/full-audio.m4a" data-start="4.6200" data-duration="42.4133" data-track-index="20"></audio>
+
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+      <div class="tag">CE JOUR LÀ …</div>
+
+      <!-- titre du post — identique à 2026-08-11/ (même TITRE du brouillon
+           "POST DU JOUR — 11 août 2026") -->
+      <div class="title-zone">
+        <div class="t-line" id="t1" style="top:1100px">11 AOÛT 1984 :</div>
+        <div class="t-line" id="t2" style="top:1220px">LA FRANCE</div>
+        <div class="t-line" id="t3" style="top:1340px">GAGNE SON</div>
+        <div class="t-line" id="t4" style="top:1460px"><span class="kw-box">SEUL TITRE</span></div>
+        <div class="t-line" id="t5" style="top:1580px"><span class="kw-box">OLYMPIQUE DE</span></div>
+        <div class="t-line" id="t6" style="top:1700px"><span class="kw-box">FOOT</span></div>
+      </div>
+
+      <!-- corps du post — même CORPS que 2026-08-11/, redécoupé en 35
+           groupes d'une seule ligne (style TikTok §4.B), majuscules
+           automatiques via CSS, aucun <b>/<b class="ocre"> manuel (remplacé
+           par l'encadré karaoké mot par mot). -->
+      <div class="text-zone">
+        <div class="body-tiktok" id="b1"><span class="w">CE</span> <span class="w">JOUR-LÀ,</span> <span class="w">AU</span></div>
+        <div class="body-tiktok" id="b2"><span class="w">ROSE</span> <span class="w">BOWL</span> <span class="w">DE</span> <span class="w">PASADENA,</span></div>
+        <div class="body-tiktok" id="b3"><span class="w">LA</span> <span class="w">FRANCE</span> <span class="w">AFFRONTE</span></div>
+        <div class="body-tiktok" id="b4"><span class="w">LE</span> <span class="w">BRÉSIL</span> <span class="w">EN</span> <span class="w">FINALE</span></div>
+        <div class="body-tiktok" id="b5"><span class="w">DES</span> <span class="w">JEUX</span> <span class="w">DE</span></div>
+        <div class="body-tiktok" id="b6"><span class="w">LOS</span> <span class="w">ANGELES.</span></div>
+        <div class="body-tiktok" id="b7"><span class="w">MUETTE</span> <span class="w">PENDANT</span></div>
+        <div class="body-tiktok" id="b8"><span class="w">45</span> <span class="w">MINUTES,</span></div>
+        <div class="body-tiktok" id="b9"><span class="w">ELLE</span> <span class="w">BASCULE</span> <span class="w">TOUT</span></div>
+        <div class="body-tiktok" id="b10"><span class="w">EN</span> <span class="w">CINQ</span> <span class="w">MINUTES.</span></div>
+        <div class="body-tiktok" id="b11"><span class="w">FRANÇOIS</span> <span class="w">BRISSON</span></div>
+        <div class="body-tiktok" id="b12"><span class="w">OUVRE</span> <span class="w">LE</span> <span class="w">SCORE</span></div>
+        <div class="body-tiktok" id="b13"><span class="w">À</span> <span class="w">LA</span> <span class="w">55E.</span></div>
+        <div class="body-tiktok" id="b14"><span class="w">DANIEL</span> <span class="w">XUEREB</span> <span class="w">DOUBLE</span></div>
+        <div class="body-tiktok" id="b15"><span class="w">LA</span> <span class="w">MISE</span> <span class="w">À</span> <span class="w">LA</span> <span class="w">60E.</span></div>
+        <div class="body-tiktok" id="b16"><span class="w">XUEREB</span> <span class="w">FINIRA</span></div>
+        <div class="body-tiktok" id="b17"><span class="w">CO-MEILLEUR</span> <span class="w">BUTEUR</span></div>
+        <div class="body-tiktok" id="b18"><span class="w">DU</span> <span class="w">TOURNOI.</span></div>
+        <div class="body-tiktok" id="b19"><span class="w">5</span> <span class="w">BUTS.</span></div>
+        <div class="body-tiktok" id="b20"><span class="w">2-0,</span> <span class="w">DEVANT</span></div>
+        <div class="body-tiktok" id="b21"><span class="w">101</span> <span class="w">799</span></div>
+        <div class="body-tiktok" id="b22"><span class="w">SPECTATEURS.</span></div>
+        <div class="body-tiktok" id="b23"><span class="w">UN</span> <span class="w">RECORD</span> <span class="w">POUR</span></div>
+        <div class="body-tiktok" id="b24"><span class="w">UNE</span> <span class="w">FINALE</span> <span class="w">OLYMPIQUE</span></div>
+        <div class="body-tiktok" id="b25"><span class="w">QUI</span> <span class="w">TIENT</span> <span class="w">TOUJOURS</span></div>
+        <div class="body-tiktok" id="b26"><span class="w">AUJOURD&#x27;HUI.</span></div>
+        <div class="body-tiktok" id="b27"><span class="w">SIX</span> <span class="w">SEMAINES</span> <span class="w">APRÈS</span></div>
+        <div class="body-tiktok" id="b28"><span class="w">LE</span> <span class="w">SACRE</span> <span class="w">À</span> <span class="w">L&#x27;EURO</span></div>
+        <div class="body-tiktok" id="b29"><span class="w">DE</span> <span class="w">LA</span> <span class="w">GÉNÉRATION</span></div>
+        <div class="body-tiktok" id="b30"><span class="w">PLATINI.</span></div>
+        <div class="body-tiktok" id="b31"><span class="w">LE</span> <span class="w">SEUL</span> <span class="w">TITRE</span></div>
+        <div class="body-tiktok" id="b32"><span class="w">OLYMPIQUE</span> <span class="w">QUE</span></div>
+        <div class="body-tiktok" id="b33"><span class="w">LA</span> <span class="w">FRANCE</span> <span class="w">AIT</span></div>
+        <div class="body-tiktok" id="b34"><span class="w">JAMAIS</span> <span class="w">REMPORTÉ.</span></div>
+        <div class="body-tiktok" id="b35"><span class="w">JAMAIS</span> <span class="w">ÉGALÉ</span> <span class="w">DEPUIS.</span></div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      /* titre animé de l'intro — identique à 2026-08-11/ : vitesse figée
+         ×1 (§4bis CLAUDE.md), 6 lignes, introEnd = 0.3 + 5*0.62 + 0.22 +
+         1.0 = 4.62s. */
+      const tStart = 0.3, revealMs = 0.62, fadeMs = 0.22;
+      const tLines = ['#t1', '#t2', '#t3', '#t4', '#t5', '#t6'];
+      tLines.forEach((sel, i) => {
+        tl.fromTo(sel, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: fadeMs, ease: 'none' }, tStart + i * revealMs);
+      });
+      const introEnd = 4.62;
+      tl.set('.t-line', { opacity: 0 }, introEnd);
+
+      /* corps — style TikTok (§4.B) : 35 groupes d'une seule ligne (contre
+         9 phrases en style actuel sur le même CORPS de 92 mots), même
+         formule de rythme (§5) appliquée à ces blocs plus courts :
+         durée_brute = mots×0.27+0.35 par bloc, pauses 0.15s (35 pauses,
+         1 avant chaque bloc), facteur = (42.4133 − 35×0.15) / 37.09 ≈
+         1.002 sur la fenêtre disponible après l'intro (47.0333 − 4.62 =
+         42.4133s) — rythme plus accentué / haché qu'en 4.A, effet attendu
+         de la contrainte une-seule-ligne, pas corrigé. Dernier bloc se
+         termine exactement à la fin de la vidéo (47.0333s). */
+      function wordKaraoke(sel, start, dur) {
+        const els = document.querySelectorAll(sel);
+        const words = Array.from(els).map(el => ({ el, len: el.textContent.length }));
+        const totalChars = words.reduce((s, w) => s + w.len, 0);
+        let wOffset = 0;
+        words.forEach(w => {
+          const wDur = dur * (w.len / totalChars);
+          const pop = Math.min(0.14, wDur * 0.5);
+          tl.fromTo(w.el, { backgroundColor: 'rgba(185,164,86,0)' },
+            { backgroundColor: 'rgba(185,164,86,1)', duration: pop, ease: 'power1.out' }, start + wOffset);
+          tl.to(w.el, { backgroundColor: 'rgba(185,164,86,0)', duration: pop, ease: 'power1.in' },
+            start + wOffset + wDur - pop);
+          wOffset += wDur;
+        });
+      }
+
+      // bloc 1: "CE JOUR-LÀ, AU"
+      tl.fromTo('#b1', {opacity:0}, {opacity:1, duration:0.16, ease:'power2.out'}, 4.77);
+      tl.to('#b1', {opacity:0, duration:0.14, ease:'sine.in'}, 5.792);
+      tl.set('#b1', {opacity:0}, 5.932);
+      wordKaraoke('#b1 .w', 4.77, 1.162);
+
+      // bloc 2: "ROSE BOWL DE PASADENA,"
+      tl.fromTo('#b2', {opacity:0}, {opacity:1, duration:0.16, ease:'power2.out'}, 6.082);
+      tl.to('#b2', {opacity:0, duration:0.14, ease:'sine.in'}, 7.375);
+      tl.set('#b2', {opacity:0}, 7.515);
+      wordKaraoke('#b2 .w', 6.082, 1.433);
+
+      // bloc 3: "LA FRANCE AFFRONTE"
+      tl.fromTo('#b3', {opacity:0}, {opacity:1, duration:0.16, ease:'power2.out'}, 7.665);
+      tl.to('#b3', {opacity:0, duration:0.14, ease:'sine.in'}, 8.687);
+      tl.set('#b3', {opacity:0}, 8.827);
+      wordKaraoke('#b3 .w', 7.665, 1.162);
+
+      // bloc 4: "LE BRÉSIL EN FINALE"
+      tl.fromTo('#b4', {opacity:0}, {opacity:1, duration:0.16, ease:'power2.out'}, 8.977);
+      tl.to('#b4', {opacity:0, duration:0.14, ease:'sine.in'}, 10.27);
+      tl.set('#b4', {opacity:0}, 10.41);
+      wordKaraoke('#b4 .w', 8.977, 1.433);
+
+      // bloc 5: "DES JEUX DE"
+      tl.fromTo('#b5', {opacity:0}, {opacity:1, duration:0.16, ease:'power2.out'}, 10.56);
+      tl.to('#b5', {opacity:0, duration:0.14, ease:'sine.in'}, 11.582);
+      tl.set('#b5', {opacity:0}, 11.722);
+      wordKaraoke('#b5 .w', 10.56, 1.162);
+
+      // bloc 6: "LOS ANGELES."
+      tl.fromTo('#b6', {opacity:0}, {opacity:1, duration:0.16, ease:'power2.out'}, 11.873);
+      tl.to('#b6', {opacity:0, duration:0.14, ease:'sine.in'}, 12.625);
+      tl.set('#b6', {opacity:0}, 12.765);
+      wordKaraoke('#b6 .w', 11.873, 0.892);
+
+      // bloc 7: "MUETTE PENDANT"
+      tl.fromTo('#b7', {opacity:0}, {opacity:1, duration:0.16, ease:'power2.out'}, 12.914);
+      tl.to('#b7', {opacity:0, duration:0.14, ease:'sine.in'}, 13.666);
+      tl.set('#b7', {opacity:0}, 13.806);
+      wordKaraoke('#b7 .w', 12.914, 0.892);
+
+      // bloc 8: "45 MINUTES,"
+      tl.fromTo('#b8', {opacity:0}, {opacity:1, duration:0.16, ease:'power2.out'}, 13.956);
+      tl.to('#b8', {opacity:0, duration:0.14, ease:'sine.in'}, 14.708);
+      tl.set('#b8', {opacity:0}, 14.848);
+      wordKaraoke('#b8 .w', 13.956, 0.892);
+
+      // bloc 9: "ELLE BASCULE TOUT"
+      tl.fromTo('#b9', {opacity:0}, {opacity:1, duration:0.16, ease:'power2.out'}, 14.998);
+      tl.to('#b9', {opacity:0, duration:0.14, ease:'sine.in'}, 16.02);
+      tl.set('#b9', {opacity:0}, 16.16);
+      wordKaraoke('#b9 .w', 14.998, 1.162);
+
+      // bloc 10: "EN CINQ MINUTES."
+      tl.fromTo('#b10', {opacity:0}, {opacity:1, duration:0.16, ease:'power2.out'}, 16.31);
+      tl.to('#b10', {opacity:0, duration:0.14, ease:'sine.in'}, 17.332);
+      tl.set('#b10', {opacity:0}, 17.472);
+      wordKaraoke('#b10 .w', 16.31, 1.162);
+
+      // bloc 11: "FRANÇOIS BRISSON"
+      tl.fromTo('#b11', {opacity:0}, {opacity:1, duration:0.16, ease:'power2.out'}, 17.622);
+      tl.to('#b11', {opacity:0, duration:0.14, ease:'sine.in'}, 18.374);
+      tl.set('#b11', {opacity:0}, 18.514);
+      wordKaraoke('#b11 .w', 17.622, 0.892);
+
+      // bloc 12: "OUVRE LE SCORE"
+      tl.fromTo('#b12', {opacity:0}, {opacity:1, duration:0.16, ease:'power2.out'}, 18.664);
+      tl.to('#b12', {opacity:0, duration:0.14, ease:'sine.in'}, 19.686);
+      tl.set('#b12', {opacity:0}, 19.826);
+      wordKaraoke('#b12 .w', 18.664, 1.162);
+
+      // bloc 13: "À LA 55E."
+      tl.fromTo('#b13', {opacity:0}, {opacity:1, duration:0.16, ease:'power2.out'}, 19.976);
+      tl.to('#b13', {opacity:0, duration:0.14, ease:'sine.in'}, 20.998);
+      tl.set('#b13', {opacity:0}, 21.138);
+      wordKaraoke('#b13 .w', 19.976, 1.162);
+
+      // bloc 14: "DANIEL XUEREB DOUBLE"
+      tl.fromTo('#b14', {opacity:0}, {opacity:1, duration:0.16, ease:'power2.out'}, 21.289);
+      tl.to('#b14', {opacity:0, duration:0.14, ease:'sine.in'}, 22.311);
+      tl.set('#b14', {opacity:0}, 22.451);
+      wordKaraoke('#b14 .w', 21.289, 1.162);
+
+      // bloc 15: "LA MISE À LA 60E."
+      tl.fromTo('#b15', {opacity:0}, {opacity:1, duration:0.16, ease:'power2.out'}, 22.601);
+      tl.to('#b15', {opacity:0, duration:0.14, ease:'sine.in'}, 24.164);
+      tl.set('#b15', {opacity:0}, 24.304);
+      wordKaraoke('#b15 .w', 22.601, 1.703);
+
+      // bloc 16: "XUEREB FINIRA"
+      tl.fromTo('#b16', {opacity:0}, {opacity:1, duration:0.16, ease:'power2.out'}, 24.454);
+      tl.to('#b16', {opacity:0, duration:0.14, ease:'sine.in'}, 25.206);
+      tl.set('#b16', {opacity:0}, 25.346);
+      wordKaraoke('#b16 .w', 24.454, 0.892);
+
+      // bloc 17: "CO-MEILLEUR BUTEUR"
+      tl.fromTo('#b17', {opacity:0}, {opacity:1, duration:0.16, ease:'power2.out'}, 25.496);
+      tl.to('#b17', {opacity:0, duration:0.14, ease:'sine.in'}, 26.248);
+      tl.set('#b17', {opacity:0}, 26.388);
+      wordKaraoke('#b17 .w', 25.496, 0.892);
+
+      // bloc 18: "DU TOURNOI."
+      tl.fromTo('#b18', {opacity:0}, {opacity:1, duration:0.16, ease:'power2.out'}, 26.538);
+      tl.to('#b18', {opacity:0, duration:0.14, ease:'sine.in'}, 27.29);
+      tl.set('#b18', {opacity:0}, 27.43);
+      wordKaraoke('#b18 .w', 26.538, 0.892);
+
+      // bloc 19: "5 BUTS."
+      tl.fromTo('#b19', {opacity:0}, {opacity:1, duration:0.16, ease:'power2.out'}, 27.58);
+      tl.to('#b19', {opacity:0, duration:0.14, ease:'sine.in'}, 28.332);
+      tl.set('#b19', {opacity:0}, 28.472);
+      wordKaraoke('#b19 .w', 27.58, 0.892);
+
+      // bloc 20: "2-0, DEVANT"
+      tl.fromTo('#b20', {opacity:0}, {opacity:1, duration:0.16, ease:'power2.out'}, 28.621);
+      tl.to('#b20', {opacity:0, duration:0.14, ease:'sine.in'}, 29.373);
+      tl.set('#b20', {opacity:0}, 29.513);
+      wordKaraoke('#b20 .w', 28.621, 0.892);
+
+      // bloc 21: "101 799"
+      tl.fromTo('#b21', {opacity:0}, {opacity:1, duration:0.16, ease:'power2.out'}, 29.663);
+      tl.to('#b21', {opacity:0, duration:0.14, ease:'sine.in'}, 30.415);
+      tl.set('#b21', {opacity:0}, 30.555);
+      wordKaraoke('#b21 .w', 29.663, 0.892);
+
+      // bloc 22: "SPECTATEURS."
+      tl.fromTo('#b22', {opacity:0}, {opacity:1, duration:0.16, ease:'power2.out'}, 30.705);
+      tl.to('#b22', {opacity:0, duration:0.14, ease:'sine.in'}, 31.186);
+      tl.set('#b22', {opacity:0}, 31.326);
+      wordKaraoke('#b22 .w', 30.705, 0.621);
+
+      // bloc 23: "UN RECORD POUR"
+      tl.fromTo('#b23', {opacity:0}, {opacity:1, duration:0.16, ease:'power2.out'}, 31.476);
+      tl.to('#b23', {opacity:0, duration:0.14, ease:'sine.in'}, 32.498);
+      tl.set('#b23', {opacity:0}, 32.638);
+      wordKaraoke('#b23 .w', 31.476, 1.162);
+
+      // bloc 24: "UNE FINALE OLYMPIQUE"
+      tl.fromTo('#b24', {opacity:0}, {opacity:1, duration:0.16, ease:'power2.out'}, 32.788);
+      tl.to('#b24', {opacity:0, duration:0.14, ease:'sine.in'}, 33.81);
+      tl.set('#b24', {opacity:0}, 33.95);
+      wordKaraoke('#b24 .w', 32.788, 1.162);
+
+      // bloc 25: "QUI TIENT TOUJOURS"
+      tl.fromTo('#b25', {opacity:0}, {opacity:1, duration:0.16, ease:'power2.out'}, 34.101);
+      tl.to('#b25', {opacity:0, duration:0.14, ease:'sine.in'}, 35.123);
+      tl.set('#b25', {opacity:0}, 35.263);
+      wordKaraoke('#b25 .w', 34.101, 1.162);
+
+      // bloc 26: "AUJOURD'HUI."
+      tl.fromTo('#b26', {opacity:0}, {opacity:1, duration:0.16, ease:'power2.out'}, 35.413);
+      tl.to('#b26', {opacity:0, duration:0.14, ease:'sine.in'}, 35.894);
+      tl.set('#b26', {opacity:0}, 36.034);
+      wordKaraoke('#b26 .w', 35.413, 0.621);
+
+      // bloc 27: "SIX SEMAINES APRÈS"
+      tl.fromTo('#b27', {opacity:0}, {opacity:1, duration:0.16, ease:'power2.out'}, 36.184);
+      tl.to('#b27', {opacity:0, duration:0.14, ease:'sine.in'}, 37.206);
+      tl.set('#b27', {opacity:0}, 37.346);
+      wordKaraoke('#b27 .w', 36.184, 1.162);
+
+      // bloc 28: "LE SACRE À L'EURO"
+      tl.fromTo('#b28', {opacity:0}, {opacity:1, duration:0.16, ease:'power2.out'}, 37.497);
+      tl.to('#b28', {opacity:0, duration:0.14, ease:'sine.in'}, 38.79);
+      tl.set('#b28', {opacity:0}, 38.93);
+      wordKaraoke('#b28 .w', 37.497, 1.433);
+
+      // bloc 29: "DE LA GÉNÉRATION"
+      tl.fromTo('#b29', {opacity:0}, {opacity:1, duration:0.16, ease:'power2.out'}, 39.079);
+      tl.to('#b29', {opacity:0, duration:0.14, ease:'sine.in'}, 40.101);
+      tl.set('#b29', {opacity:0}, 40.241);
+      wordKaraoke('#b29 .w', 39.079, 1.162);
+
+      // bloc 30: "PLATINI."
+      tl.fromTo('#b30', {opacity:0}, {opacity:1, duration:0.16, ease:'power2.out'}, 40.392);
+      tl.to('#b30', {opacity:0, duration:0.14, ease:'sine.in'}, 40.873);
+      tl.set('#b30', {opacity:0}, 41.013);
+      wordKaraoke('#b30 .w', 40.392, 0.621);
+
+      // bloc 31: "LE SEUL TITRE"
+      tl.fromTo('#b31', {opacity:0}, {opacity:1, duration:0.16, ease:'power2.out'}, 41.163);
+      tl.to('#b31', {opacity:0, duration:0.14, ease:'sine.in'}, 42.185);
+      tl.set('#b31', {opacity:0}, 42.325);
+      wordKaraoke('#b31 .w', 41.163, 1.162);
+
+      // bloc 32: "OLYMPIQUE QUE"
+      tl.fromTo('#b32', {opacity:0}, {opacity:1, duration:0.16, ease:'power2.out'}, 42.475);
+      tl.to('#b32', {opacity:0, duration:0.14, ease:'sine.in'}, 43.227);
+      tl.set('#b32', {opacity:0}, 43.367);
+      wordKaraoke('#b32 .w', 42.475, 0.892);
+
+      // bloc 33: "LA FRANCE AIT"
+      tl.fromTo('#b33', {opacity:0}, {opacity:1, duration:0.16, ease:'power2.out'}, 43.517);
+      tl.to('#b33', {opacity:0, duration:0.14, ease:'sine.in'}, 44.539);
+      tl.set('#b33', {opacity:0}, 44.679);
+      wordKaraoke('#b33 .w', 43.517, 1.162);
+
+      // bloc 34: "JAMAIS REMPORTÉ."
+      tl.fromTo('#b34', {opacity:0}, {opacity:1, duration:0.16, ease:'power2.out'}, 44.829);
+      tl.to('#b34', {opacity:0, duration:0.14, ease:'sine.in'}, 45.581);
+      tl.set('#b34', {opacity:0}, 45.721);
+      wordKaraoke('#b34 .w', 44.829, 0.892);
+
+      // bloc 35: "JAMAIS ÉGALÉ DEPUIS."
+      tl.fromTo('#b35', {opacity:0}, {opacity:1, duration:0.16, ease:'power2.out'}, 45.871);
+      tl.to('#b35', {opacity:0, duration:0.14, ease:'sine.in'}, 46.893);
+      tl.set('#b35', {opacity:0}, 47.033);
+      wordKaraoke('#b35 .w', 45.871, 1.162);
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
