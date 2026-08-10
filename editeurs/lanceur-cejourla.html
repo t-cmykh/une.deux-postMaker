@@ -143,6 +143,16 @@ html,body{margin:0;padding:0;background:var(--encre);color:var(--newsprint);
       <div class="hint">Le brouillon Gmail « POST DU JOUR — cette date » sera utilisé tel quel : TITRE (mots-clés entre **étoiles**) pour l'intro animée, CORPS pour le reste du reel.</div>
     </div>
 
+    <div class="section-h">Style des sous-titres</div>
+    <div class="field" id="field_style">
+      <label>Habillage du corps de texte</label>
+      <div class="chips" id="style_chips">
+        <div class="chip on" data-s="actuel">STYLE ACTUEL</div>
+        <div class="chip" data-s="tiktok">STYLE TIKTOK (GRAS, KARAOKÉ)</div>
+      </div>
+      <div class="hint">« Style actuel » : sous-titres Archivo posés, un bloc de phrase à la fois (recette par défaut, inchangée). « TikTok » : texte plus gros, en gras et en MAJUSCULES, toujours crème — un encadré ocre se déplace sous le mot en cours de lecture façon karaoké (le texte lui-même ne change jamais de couleur).</div>
+    </div>
+
     <div class="section-h">Notes (optionnel)</div>
     <div class="field">
       <label>Instructions spécifiques pour ce reel</label>
@@ -176,7 +186,7 @@ html,body{margin:0;padding:0;background:var(--encre);color:var(--newsprint);
       <ol>
         <li><b>Lancer le montage</b> ouvre un brouillon email pré-rempli dans ta messagerie (ou, si tu as choisi une vidéo depuis l'appareil et que ton navigateur le permet, le menu de partage natif avec la vidéo déjà jointe) — vérifie et envoie-le (ou laisse-le en brouillon, les deux fonctionnent).</li>
         <li>Une <b>Routine</b> horaire côté Claude Code cherche un email/brouillon « LANCER REEL » non traité — pièce jointe vidéo ou lien Drive, les deux sont pris en charge.</li>
-        <li>Si elle en trouve un : téléchargement de la vidéo, premier plan réel = intro (titre animé), le reste = corps (sous-titres), montage complet + CTA de fin selon la recette figée du <b>CLAUDE.md</b>, rendu, vérification par extraction de frames.</li>
+        <li>Si elle en trouve un : téléchargement de la vidéo, premier plan réel = intro (titre animé), le reste = corps (sous-titres, dans le style choisi à gauche), montage complet + CTA de fin selon la recette figée du <b>CLAUDE.md</b>, rendu, vérification par extraction de frames.</li>
         <li>Dépôt du fichier final sur ton Drive (dossier « Ce jour là… », sous-dossier du jour) + commit/push sur la branche de travail — tu reçois une notification.</li>
         <li>L'email déclencheur est marqué traité pour ne pas être relancé deux fois.</li>
       </ol>
@@ -190,11 +200,13 @@ html,body{margin:0;padding:0;background:var(--encre);color:var(--newsprint);
 const $ = (id) => document.getElementById(id);
 const linkInput = $('f_link'), dateInput = $('f_date'), notesInput = $('f_notes'), fileInput = $('f_file');
 const fieldLink = $('field_link'), fieldFile = $('field_file'), fieldSourceMode = $('field_source_mode');
+const fieldStyle = $('field_style');
 const fileInfo = $('file_info'), fileWarn = $('file_warn');
 const prevSubject = $('prev_subject'), prevBody = $('prev_body'), statusPill = $('status_pill');
 const toast = $('toast');
 
 let sourceMode = 'link'; // 'link' | 'file'
+let subtitleStyle = 'actuel'; // 'actuel' | 'tiktok'
 let selectedFile = null;
 const canShareFiles = !!(navigator.canShare); // vérifié précisément par fichier au moment du choix
 
@@ -216,6 +228,15 @@ document.querySelectorAll('#source_mode_chips .chip').forEach(chip => {
     chip.classList.add('on');
     sourceMode = chip.dataset.m;
     applySourceModeVisibility();
+    render();
+  });
+});
+
+document.querySelectorAll('#style_chips .chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('#style_chips .chip').forEach(c => c.classList.remove('on'));
+    chip.classList.add('on');
+    subtitleStyle = chip.dataset.s;
     render();
   });
 });
@@ -266,9 +287,13 @@ function buildBody(){
   const sourceLine = usingFileMode()
     ? `VIDÉO: en pièce jointe de cet email (${selectedFile ? selectedFile.name : '(à joindre)'})`
     : `LIEN DRIVE: ${linkInput.value.trim() || '(lien à coller)'}`;
+  const styleLine = subtitleStyle === 'tiktok'
+    ? 'STYLE SOUS-TITRES: tiktok (gros, gras, karaoké)'
+    : 'STYLE SOUS-TITRES: actuel';
   return [
     sourceLine,
     `DATE DU POST: ${iso}`,
+    styleLine,
     `NOTES: ${notes || '(aucune)'}`,
     '',
     `— généré depuis le lanceur reels Ce jour-là`
@@ -284,7 +309,7 @@ function render(){
 
   prevSubject.textContent = buildSubject();
   prevBody.innerHTML = buildBody()
-    .replace(/^(LIEN DRIVE:|VIDÉO:|DATE DU POST:|NOTES:)/gm, '<span class="k">$1</span>')
+    .replace(/^(LIEN DRIVE:|VIDÉO:|DATE DU POST:|STYLE SOUS-TITRES:|NOTES:)/gm, '<span class="k">$1</span>')
     .replace(/\n/g, '<br>');
 
   const ready = fileMode ? !!selectedFile : validLink;
