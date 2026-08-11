@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 12 août 1987, Cantona débuts en Bleu (karaoké)</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* vidéo du Drive gardée intégrale, telle quelle (pas de sélection de
+         plans, §1bis CLAUDE.md) — un seul composite continu du début à la
+         fin (0 → 52.3667s), même géométrie sur toute la durée : fond plein
+         cadre flouté/désaturé + plan net 1080×888 plein cadre horizontal
+         (overlay y=420 — §2 CLAUDE.md). Source 1128×654 (archive, France-RFA
+         12 août 1987, amical Berlin) : uniquement des panneaux publicitaires
+         d'époque en bord de terrain (AGFA, Dr Koch's Trink 10, Mainhattan),
+         aucun watermark de reupload moderne — vérifié par extraction de
+         frames sur toute la vidéo. Images filmées réelles uniquement, aucun
+         carton graphique. Un seul élément <video>, pas de titre animé
+         séparé pour ce style (§4bis ne s'applique pas au style karaoké). */
+      .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+
+      /* header — constantes fixes de la série, persistant du début à la fin */
+      #hdr { position: absolute; inset: 0 0 auto 0; z-index: 20; }
+      .ring {
+        position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
+        border: 4px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
+
+      /* --ocre-render : compensation du décalage de teinte du pipeline de
+         render HyperFrames sur --ocre (§3 CLAUDE.md) — ne pas remplacer
+         var(--ocre) dans tokens/colors.css, uniquement une variable locale
+         à la composition. Utilisé ici uniquement sur .tag (le style
+         karaoké n'a pas de mots-clés ocre dans le corps, §4.B). */
+      :root { --ocre-render: #B9A456; }
+      .tag {
+        position: absolute; left: 96px; top: 350px; height: 58px; z-index: 20;
+        display: flex; align-items: center; background: var(--ocre-render); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; padding: 0 15px;
+      }
+
+      /* corps de texte façon karaoké — Anton, centré verticalement dans le
+         cadre, superposé directement sur le plan net (§4.B CLAUDE.md).
+         Aucune ombre portée, aucun contour. .story-line porte un
+         transform:translateY(-50%) STATIQUE pour le centrage — ne jamais
+         animer y dessus avec GSAP (§6), tweens opacity uniquement. */
+      .story-zone { position: absolute; left: 96px; right: 96px; z-index: 20; text-align: center; }
+      .story-line {
+        position: absolute; left: 0; right: 0;
+        top: 50%; transform: translateY(-50%);
+        font-family: 'Anton', sans-serif; font-size: 108px; line-height: 1.05;
+        text-transform: uppercase; color: var(--cream); opacity: 0;
+      }
+      .story-line.tight { font-size: 80px; line-height: 1.1; }
+      /* palier supplémentaire pour les cartes de 19-24 caractères — au-delà
+         de la fourchette 10-18 du gabarit CLAUDE.md, sinon la ligne
+         déborde des 888px utiles à 80px (vérifié par extraction de frame). */
+      .story-line.compact { font-size: 60px; line-height: 1.15; }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="52.3667"
+      data-fps="30"
+    >
+      <!-- vidéo du Drive intégrale, un seul plan continu du début à la fin -->
+      <video class="video-full" id="fullv" src="assets/full.mp4" data-start="0.0000" data-duration="52.3667" data-track-index="1" muted playsinline></video>
+
+      <audio id="fulla" src="assets/full-audio.m4a" data-start="0.0000" data-duration="52.3667" data-track-index="20"></audio>
+
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+      <div class="tag">CE JOUR LÀ …</div>
+
+      <!-- corps du post — champ CORPS (karaoké) du brouillon "POST DU JOUR
+           — 12 août 2026" (PAS le champ CORPS générique, §4.B CLAUDE.md).
+           Une ligne du brouillon = une carte, verbatim, aucun re-découpage.
+           NB : le champ CORPS (karaoké) de ce brouillon contenait un
+           préambule de vérification factuelle ("J'ai vérifié chaque fait…"
+           … "Sources : …") avant les cartons proprement dits — ce préambule
+           n'est manifestement pas du texte destiné à l'écran (commentaire
+           d'assistant à Thomas) et a été exclu ; seules les lignes de
+           storytelling qui suivent (à partir de "Un jeune") sont utilisées
+           ci-dessous. À signaler à Thomas pour nettoyer le brouillon source. -->
+      <div class="story-zone">
+        <div class="story-line" id="c1">UN JEUNE</div>
+        <div class="story-line tight" id="c2">DE 21 ANS,</div>
+        <div class="story-line compact" id="c3">JOUEUR DE L'AJ AUXERRE.</div>
+        <div class="story-line tight" id="c4">CE JOUR-LÀ,</div>
+        <div class="story-line tight" id="c5">12 AOÛT 1987,</div>
+        <div class="story-line tight" id="c6">AU STADE OLYMPIQUE</div>
+        <div class="story-line tight" id="c7">DE BERLIN,</div>
+        <div class="story-line tight" id="c8">LA FRANCE AFFRONTE</div>
+        <div class="story-line compact" id="c9">L'ALLEMAGNE DE L'OUEST,</div>
+        <div class="story-line tight" id="c10">EN AMICAL.</div>
+        <div class="story-line tight" id="c11">RUDI VÖLLER</div>
+        <div class="story-line tight" id="c12">PLANTE UN DOUBLÉ</div>
+        <div class="story-line" id="c13">ÉCLAIR :</div>
+        <div class="story-line tight" id="c14">4E MINUTE,</div>
+        <div class="story-line tight" id="c15">PUIS LA 9E.</div>
+        <div class="story-line" id="c16">2-0</div>
+        <div class="story-line compact" id="c17">AVANT LE QUART D'HEURE.</div>
+        <div class="story-line tight" id="c18">HENRI MICHEL</div>
+        <div class="story-line tight" id="c19">LE TITULARISE,</div>
+        <div class="story-line compact" id="c20">AUX CÔTÉS DE PAPIN.</div>
+        <div class="story-line" id="c21">SON NOM :</div>
+        <div class="story-line tight" id="c22">ÉRIC CANTONA.</div>
+        <div class="story-line" id="c23">À LA 42E,</div>
+        <div class="story-line tight" id="c24">SERVI PAR TOURÉ,</div>
+        <div class="story-line tight" id="c25">CANTONA ÉLIMINE</div>
+        <div class="story-line tight" id="c26">SON VIS-À-VIS</div>
+        <div class="story-line tight" id="c27">ET RÉDUIT L'ÉCART.</div>
+        <div class="story-line" id="c28">LA FRANCE</div>
+        <div class="story-line tight" id="c29">NE RECOLLERA PAS.</div>
+        <div class="story-line tight" id="c30">DÉFAITE 2-1.</div>
+        <div class="story-line tight" id="c31">DIX ANS PLUS TARD,</div>
+        <div class="story-line tight" id="c32">CE MÊME JOUEUR</div>
+        <div class="story-line compact" id="c33">SOULÈVE QUATRE TITRES</div>
+        <div class="story-line compact" id="c34">DE CHAMPION D'ANGLETERRE</div>
+        <div class="story-line compact" id="c35">AVEC MANCHESTER UNITED.</div>
+        <div class="story-line compact" id="c36">SA PREMIÈRE SÉLECTION</div>
+        <div class="story-line compact" id="c37">A FINI DANS L'ANONYMAT.</div>
+        <div class="story-line tight" id="c38">LE KING A DÉBUTÉ<br />PAR UNE DÉFAITE.</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      /* corps façon karaoké — §4.B/§5 CLAUDE.md : zéro pause entre blocs
+         (toujours un sous-titre à l'écran), démarrage à 0.3s absolu (pas
+         d'introEnd, pas de titre animé pour ce style). 38 cartes, formule
+         durée_brute = nb_mots×0.27+0.35 par carte, Σdurée_brute=42.19s,
+         disponible = 52.3667−0.3=52.0667s, facteur≈1.234 ; dernière carte
+         se termine exactement à la fin de la vidéo (52.3667s). */
+      function fadeBlockKaraoke(sel, start, dur) {
+        tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 0.10, ease: 'power2.out' }, start);
+        tl.to(sel, { opacity: 0, duration: 0.08, ease: 'sine.in' }, start + dur - 0.08);
+        tl.set(sel, { opacity: 0 }, start + dur);
+      }
+
+      const cards = [
+        { id: 'c1',  start: 0.300,  dur: 1.098 },
+        { id: 'c2',  start: 1.398,  dur: 1.432 },
+        { id: 'c3',  start: 2.830,  dur: 1.765 },
+        { id: 'c4',  start: 4.595,  dur: 1.098 },
+        { id: 'c5',  start: 5.693,  dur: 1.432 },
+        { id: 'c6',  start: 7.125,  dur: 1.432 },
+        { id: 'c7',  start: 8.556,  dur: 1.098 },
+        { id: 'c8',  start: 9.654,  dur: 1.432 },
+        { id: 'c9',  start: 11.086, dur: 1.432 },
+        { id: 'c10', start: 12.518, dur: 1.098 },
+        { id: 'c11', start: 13.616, dur: 1.098 },
+        { id: 'c12', start: 14.714, dur: 1.432 },
+        { id: 'c13', start: 16.146, dur: 1.098 },
+        { id: 'c14', start: 17.244, dur: 1.098 },
+        { id: 'c15', start: 18.343, dur: 1.432 },
+        { id: 'c16', start: 19.774, dur: 0.765 },
+        { id: 'c17', start: 20.539, dur: 1.765 },
+        { id: 'c18', start: 22.304, dur: 1.098 },
+        { id: 'c19', start: 23.402, dur: 1.098 },
+        { id: 'c20', start: 24.501, dur: 1.765 },
+        { id: 'c21', start: 26.265, dur: 1.432 },
+        { id: 'c22', start: 27.697, dur: 1.098 },
+        { id: 'c23', start: 28.795, dur: 1.432 },
+        { id: 'c24', start: 30.227, dur: 1.432 },
+        { id: 'c25', start: 31.658, dur: 1.098 },
+        { id: 'c26', start: 32.757, dur: 1.098 },
+        { id: 'c27', start: 33.855, dur: 1.432 },
+        { id: 'c28', start: 35.287, dur: 1.098 },
+        { id: 'c29', start: 36.385, dur: 1.432 },
+        { id: 'c30', start: 37.817, dur: 1.098 },
+        { id: 'c31', start: 38.915, dur: 1.765 },
+        { id: 'c32', start: 40.680, dur: 1.432 },
+        { id: 'c33', start: 42.111, dur: 1.432 },
+        { id: 'c34', start: 43.543, dur: 1.432 },
+        { id: 'c35', start: 44.974, dur: 1.432 },
+        { id: 'c36', start: 46.406, dur: 1.432 },
+        { id: 'c37', start: 47.838, dur: 1.765 },
+        { id: 'c38', start: 49.602, dur: 2.764 },
+      ];
+
+      cards.forEach(({ id, start, dur }) => {
+        fadeBlockKaraoke(`#${id}`, start, dur);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
