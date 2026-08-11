@@ -126,31 +126,31 @@ html,body{margin:0;padding:0;background:var(--encre);color:var(--newsprint);
       <label>Lien Drive de la vidéo</label>
       <input id="f_link" type="url" placeholder="https://drive.google.com/file/d/…">
       <div class="err">Colle un lien Google Drive valide.</div>
-      <div class="hint">Le premier plan réel de la vidéo sert d'intro (titre animé), tout le reste devient le corps du reel.</div>
+      <div class="hint">En style Fixe, le premier plan réel de la vidéo sert d'intro (titre animé), tout le reste devient le corps du reel. En style Karaoké, pas de titre animé séparé — le corps couvre tout le reel dès le début.</div>
     </div>
 
     <div class="field" id="field_file" style="display:none">
       <label>Vidéo du match</label>
       <input id="f_file" type="file" accept="video/*">
       <div class="file-info" id="file_info"></div>
-      <div class="hint">Choisis-la directement depuis ta pellicule — pas besoin de l'envoyer sur Drive. Le premier plan réel sert d'intro, tout le reste devient le corps du reel.</div>
+      <div class="hint">Choisis-la directement depuis ta pellicule — pas besoin de l'envoyer sur Drive. En style Fixe le premier plan réel sert d'intro ; en style Karaoké, pas de titre séparé, le corps couvre tout le reel.</div>
       <div class="warn" id="file_warn">Le partage direct n'est pas dispo sur cet appareil/navigateur : quand l'email s'ouvre, joins toi-même le même fichier avant d'envoyer.</div>
     </div>
 
     <div class="field">
       <label>Date du post à utiliser</label>
       <input id="f_date" type="date">
-      <div class="hint">Le brouillon Gmail « POST DU JOUR — cette date » sera utilisé tel quel : TITRE (mots-clés entre **étoiles**) pour l'intro animée, CORPS pour le reste du reel.</div>
+      <div class="hint">Le brouillon Gmail « POST DU JOUR — cette date » sera utilisé tel quel. Style Fixe : TITRE (mots-clés entre **étoiles**) pour l'intro animée, CORPS pour le reste. Style Karaoké : TITRE ignoré, une ligne du CORPS = un carton affiché.</div>
     </div>
 
     <div class="section-h">Style des sous-titres</div>
     <div class="field" id="field_style">
       <label>Habillage du corps de texte</label>
       <div class="chips" id="style_chips">
-        <div class="chip on" data-s="actuel">STYLE ACTUEL</div>
-        <div class="chip" data-s="tiktok">STYLE TIKTOK (GRAS, KARAOKÉ)</div>
+        <div class="chip on" data-s="fixe">FIXE</div>
+        <div class="chip" data-s="karaoke">KARAOKÉ</div>
       </div>
-      <div class="hint">« Style actuel » : sous-titres Archivo posés, un bloc de phrase à la fois (recette par défaut, inchangée). « TikTok » : texte plus gros, en gras et en MAJUSCULES, toujours crème — un encadré ocre se déplace sous le mot en cours de lecture façon karaoké (le texte lui-même ne change jamais de couleur).</div>
+      <div class="hint">« Fixe » : sous-titres Archivo posés, un bloc de phrase à la fois (recette par défaut, inchangée). « Karaoké » : texte Anton très gros, en MAJUSCULES, sans ombre ni contour, centré verticalement dans le cadre — une ligne du CORPS du brouillon = un carton affiché à l'écran, aucune coupure ; pas de titre animé séparé, les cartons couvrent tout le reel en continu dès le début.</div>
     </div>
 
     <div class="section-h">Notes (optionnel)</div>
@@ -186,7 +186,7 @@ html,body{margin:0;padding:0;background:var(--encre);color:var(--newsprint);
       <ol>
         <li><b>Lancer le montage</b> ouvre un brouillon email pré-rempli dans ta messagerie (ou, si tu as choisi une vidéo depuis l'appareil et que ton navigateur le permet, le menu de partage natif avec la vidéo déjà jointe) — vérifie et envoie-le (ou laisse-le en brouillon, les deux fonctionnent).</li>
         <li>Une <b>Routine</b> horaire côté Claude Code cherche un email/brouillon « LANCER REEL » non traité — pièce jointe vidéo ou lien Drive, les deux sont pris en charge.</li>
-        <li>Si elle en trouve un : téléchargement de la vidéo, premier plan réel = intro (titre animé), le reste = corps (sous-titres, dans le style choisi à gauche), montage complet + CTA de fin selon la recette figée du <b>CLAUDE.md</b>, rendu, vérification par extraction de frames.</li>
+        <li>Si elle en trouve un : téléchargement de la vidéo, montage dans le style choisi à gauche (Fixe : premier plan réel = intro titre animé, reste = corps ; Karaoké : pas d'intro séparée, le corps couvre tout le reel) + CTA de fin selon la recette figée du <b>CLAUDE.md</b>, rendu, vérification par extraction de frames.</li>
         <li>Dépôt du fichier final sur ton Drive (dossier « Ce jour là… », sous-dossier du jour) + commit/push sur la branche de travail — tu reçois une notification.</li>
         <li>L'email déclencheur est marqué traité pour ne pas être relancé deux fois.</li>
       </ol>
@@ -206,7 +206,7 @@ const prevSubject = $('prev_subject'), prevBody = $('prev_body'), statusPill = $
 const toast = $('toast');
 
 let sourceMode = 'link'; // 'link' | 'file'
-let subtitleStyle = 'actuel'; // 'actuel' | 'tiktok'
+let subtitleStyle = 'fixe'; // 'fixe' | 'karaoke'
 let selectedFile = null;
 const canShareFiles = !!(navigator.canShare); // vérifié précisément par fichier au moment du choix
 
@@ -287,9 +287,9 @@ function buildBody(){
   const sourceLine = usingFileMode()
     ? `VIDÉO: en pièce jointe de cet email (${selectedFile ? selectedFile.name : '(à joindre)'})`
     : `LIEN DRIVE: ${linkInput.value.trim() || '(lien à coller)'}`;
-  const styleLine = subtitleStyle === 'tiktok'
-    ? 'STYLE SOUS-TITRES: tiktok (gros, gras, karaoké)'
-    : 'STYLE SOUS-TITRES: actuel';
+  const styleLine = subtitleStyle === 'karaoke'
+    ? 'STYLE SOUS-TITRES: karaoké'
+    : 'STYLE SOUS-TITRES: fixe';
   return [
     sourceLine,
     `DATE DU POST: ${iso}`,
