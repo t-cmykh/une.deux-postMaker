@@ -37,8 +37,11 @@
       }
 
       /* ===== vidéo composite (fond flou + plan net), un seul <video>,
-         cf. CLAUDE.md §2 — pré-cuite en amont via ffmpeg, geometry figée ===== */
-      #a-roll { position: absolute; inset: 0; width: 1080px; height: 1920px; object-fit: cover; z-index: 1; }
+         cf. CLAUDE.md §2 — pré-cuite en amont via ffmpeg, geometry figée.
+         opacity:1 explicite : .clip met opacity:0 par défaut (pensé pour
+         les blocs texte/cartes animés), la vidéo doit rester visible en
+         continu du début à la fin, pas de fondu à gérer. ===== */
+      #a-roll { position: absolute; inset: 0; width: 1080px; height: 1920px; object-fit: cover; z-index: 1; opacity: 1; }
 
       /* ===== texte façon Parions Sport (référence) : blocs gras, centrés
          milieu de cadre, superposés directement sur le plan net — pas de
