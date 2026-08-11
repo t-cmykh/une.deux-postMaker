@@ -427,11 +427,32 @@ en vert dans l'éphéméride) contient, **en tête et pour le sujet retenu** :
    (ton une·deux : affirmation, pas de « voici / découvre »).
 2. **Corps** : un paragraphe qui **explique l'événement** (faits vérifiés, règle
    des 3 sources), et dont la **dernière phrase est une punchline sentie** sur
-   l'événement (elle referme, elle marque).
-3. **Lien vidéo** de l'événement si un existe (match, but, reportage — YouTube ou
+   l'événement (elle referme, elle marque). Sert au carrousel, à la légende, et
+   au reel en style Fixe (voir CLAUDE.md §4.A).
+3. **Corps (karaoké)** : la **même histoire, mêmes faits déjà vérifiés du Corps
+   ci-dessus** (pas de nouvelle recherche, juste une réécriture — ne jamais
+   introduire un fait qui n'est pas déjà dans le Corps), mais restructurée en
+   storytelling et reformatée pour le reel en style Karaoké (CLAUDE.md §4.B,
+   « une ligne du CORPS = un carton affiché à l'écran »). Ajouté au workflow le
+   11 août 2026 après validation du format sur le test "11 août 1984" et sa
+   reprise sur l'exemple Cantona. Deux règles à respecter systématiquement :
+   - **Accroche sans spoiler + boucle qui se referme** (piste narrative validée) :
+     ne jamais révéler le résultat/l'identité/la chute dès les premières lignes
+     — ouvrir sur un détail intrigant qui ne nomme/ne dit pas encore l'essentiel
+     (ex. « un inconnu de 21 ans » avant de nommer Éric Cantona), réserver la
+     révélation pour le milieu/la fin, et **terminer sur une ligne qui fait
+     écho à l'accroche d'ouverture** (idéalement une question, pas une
+     affirmation qui referme sèchement — ex. ouvrir sur « personne ne s'en
+     souvient » et fermer sur « et si on s'en souvenait ? »).
+   - **Lignes courtes, ~3 mots, une ligne = un carton** : chaque saut de ligne
+     devient un carton affiché à l'écran verbatim au moment du montage (pas de
+     re-découpage côté traitement, cf. CLAUDE.md §4.B) — donc la brièveté est
+     la responsabilité de cette rédaction-ci, jamais une phrase entière sur une
+     seule ligne.
+4. **Lien vidéo** de l'événement si un existe (match, but, reportage — YouTube ou
    archive vérifiée). Si aucune vidéo fiable n'est trouvée, écrire explicitement :
    **« Pas de lien vidéo disponible. »**
-4. **Légende Instagram** prête à publier, au format de la série (voir
+5. **Légende Instagram** prête à publier, au format de la série (voir
    `exemples/legendes-par-serie.md`).
 
 **Le livrable quotidien s'arrête là : PAS de `script.json`, PAS de prompts photo.**
@@ -448,6 +469,54 @@ sur demande explicite de Thomas (« on fait le post complet »).
 > propre pays l'a effacé.*
 >
 > 🎥 Vidéo : https://www.youtube.com/watch?v=-vqQWrrzNWU
+
+**Même exemple, Corps (karaoké)** — mêmes faits que ci-dessus, reformatés en
+storytelling à lignes courtes, accroche sans spoiler (les États-Unis ne sont
+pas nommés avant l'affrontement, Gaetjens n'est nommé qu'à son but) et boucle
+qui se referme sur l'écho de l'ouverture :
+
+> Un prof.
+> Un chauffeur de corbillard.
+> Un plongeur.
+>
+> Donnés à 500 contre 1.
+>
+> Ce jour-là,
+> à Belo Horizonte,
+> les États-Unis
+> affrontent l'Angleterre.
+>
+> Les rois du foot.
+> Face à des amateurs.
+>
+> À la 37e minute,
+> un but.
+>
+> Joe Gaetjens,
+> né en Haïti.
+>
+> Angleterre 0,
+> États-Unis 1.
+>
+> L'un des plus grands
+> chocs de l'histoire du foot.
+>
+> Gaetjens rentre en Haïti.
+>
+> En 1964,
+> il disparaît.
+>
+> Arrêté par le régime
+> Duvalier.
+>
+> Le héros du but
+> le plus improbable du foot.
+>
+> Son propre pays
+> l'a effacé.
+>
+> Et si, cette fois,
+> on ne l'oubliait pas ?
 
 ## Format légende (4 temps)
 
