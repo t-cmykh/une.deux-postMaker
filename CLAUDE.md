@@ -24,13 +24,13 @@ DRIVE: … / DATE DU POST: … / STYLE SOUS-TITRES: … / NOTES: …`) — une p
 statique ne peut pas appeler Claude Code directement, l'email est le pont.
 
 **Style des sous-titres** : un sélecteur à deux chips dans le lanceur —
-« STYLE ACTUEL » (par défaut, coché à l'ouverture) ou « STYLE TIKTOK (GRAS,
-KARAOKÉ) ». Le choix est écrit dans le corps de l'email en
-`STYLE SOUS-TITRES: actuel` ou `STYLE SOUS-TITRES: tiktok (gros, gras,
-karaoké)`. Côté traitement, la Routine lit cette ligne et applique la
-variante correspondante du §4 (Corps de texte) ci-dessous — absence de la
-ligne (anciennes demandes envoyées avant cet ajout) = traiter comme
-`actuel`.
+« FIXE » (par défaut, coché à l'ouverture) ou « KARAOKÉ ». Le choix est
+écrit dans le corps de l'email en `STYLE SOUS-TITRES: fixe` ou
+`STYLE SOUS-TITRES: karaoké`. Côté traitement, la Routine lit cette ligne
+et applique la variante correspondante du §4 (Corps de texte) ci-dessous —
+absence de la ligne (anciennes demandes envoyées avant cet ajout, ou
+anciennes valeurs `actuel`/`tiktok` d'avant le renommage) = traiter comme
+`fixe`.
 
 **Vidéo directe depuis l'appareil** : un toggle « Lien Drive / Vidéo depuis
 l'appareil » permet de choisir un fichier vidéo directement dans la
@@ -307,35 +307,35 @@ supposer qu'elle reste universelle indéfiniment (le pipeline de render peut
 **Deux styles au choix, sélectionnés par Thomas dans le lanceur
 (`editeurs/lanceur-cejourla.html`, champ « Style des sous-titres ») ou
 donnés en instruction explicite dans le chat** — la ligne `STYLE
-SOUS-TITRES: …` du brouillon "LANCER REEL" fait foi (absence de la ligne =
-demandes envoyées avant l'ajout de ce champ = traiter comme §4.A). Les deux
-styles partagent tout ce qui n'est pas explicitement dit différent
-ci-dessous : source du texte, méthode de calcul du rythme (§5), position
-générale de la zone, démarrage après l'intro. Le **découpage en unités**
-diffère entre les deux styles (phrases/propositions en 4.A, groupes tenant
-sur une seule ligne en 4.B) — voir chaque sous-section.
+SOUS-TITRES: …` du brouillon "LANCER REEL" fait foi (absence de la ligne,
+ou anciennes valeurs `actuel`/`tiktok` d'avant le renommage, = demandes
+envoyées avant l'ajout/le renommage de ce champ = traiter comme §4.A
+Fixe). Les deux styles partagent : la source du texte (CORPS du brouillon,
+utilisé tel quel), la mécanique de fondu par bloc (`fromTo(opacity 0→1)`
+puis `to(opacity→0)` + `tl.set(opacity:0)` hard-kill), et le centrage
+horizontal du texte. **Tout le reste diffère** — découpage en unités,
+position verticale, présence ou non d'un titre animé séparé, démarrage
+dans la timeline — voir chaque sous-section, ne pas supposer qu'une valeur
+d'un style s'applique à l'autre.
 
 - Utiliser le texte du **CORPS** du brouillon Gmail tel quel (ne pas le
   réécrire) — chercher le brouillon "POST DU JOUR — <date>" correspondant à
   la date demandée ("le post de demain" etc.) via `search_threads`/
   `list_drafts`, section `CORPS`.
-- Découper en unités (phrases/propositions en 4.A, cf. règle propre à 4.B
-  ci-dessous), chacune son propre bloc qui apparaît en fondu puis disparaît
-  avant le suivant (même mécanique que les sous-titres établis dans ce
-  projet : `fromTo(opacity 0→1)` puis `to(opacity→0)` + `tl.set(opacity:0)`
-  hard-kill en fin de fenêtre).
-- **Texte centré**, y compris sur les blocs à plusieurs lignes
-  (`text-align:center` sur la zone ET sur chaque bloc) — pas d'alignement à
-  gauche.
+
+#### 4.A — Style fixe (défaut, `STYLE SOUS-TITRES: fixe`)
+
 - Position : `top:1420px` avec `transform:translateY(-50%)`, zone
   `left:96px; right:96px`, dans la bande floutée basse (sous le plan net —
   valeur calibrée pour la géométrie §2, où le plan net s'arrête à `y=1308`).
   Garder une marge d'environ 100-115px entre le bas du plan net et `top`.
-- **Le corps démarre juste après la fin de l'intro** (§4bis) dans la
-  timeline globale de la composition — décaler tous les `start` calculés en
-  §5 de `introEnd` (durée totale de l'intro, cf. §4bis), pas de `t=0`.
-
-#### 4.A — Style actuel (défaut, `STYLE SOUS-TITRES: actuel`)
+- **Le corps démarre juste après la fin de l'intro** (§4bis, titre animé —
+  présent uniquement dans ce style) dans la timeline globale de la
+  composition — décaler tous les `start` calculés en §5 de `introEnd`
+  (durée totale de l'intro, cf. §4bis), pas de `t=0`.
+- **Découpage en unités : phrases/propositions** du CORPS, chacune son
+  propre bloc (peut tenir sur 2-3 lignes, cf. règle una-seule-ligne propre
+  à 4.B ci-dessous qui ne s'applique pas ici).
 
 - Mots-clés importants en **gras et/ou ocre** (`<b>` pour gras crème,
   `<b class="ocre">` pour gras + couleur `var(--ocre-render)`, cf. §3) —
@@ -350,130 +350,114 @@ sur une seule ligne en 4.B) — voir chaque sous-section.
   surlignage mot par mot, tout le bloc a la même couleur en même temps
   (hors `<b class="ocre">` ponctuel).
 
-#### 4.B — Style TikTok, gras + karaoké (`STYLE SOUS-TITRES: tiktok`)
+#### 4.B — Style karaoké (`STYLE SOUS-TITRES: karaoké`)
 
-Même mécanique de fondu bloc par bloc que 4.A et même formule de rythme
-(§5), mais un découpage en unités différent (ci-dessous) et rendu plus
-gros/gras avec surlignage mot par mot façon karaoké au lieu d'un fondu
-uniforme sur tout le bloc.
+Refondu le 11 août 2026 après un test grandeur nature (branche
+`claude/reels-video-storytelling-structure-cdpnoy`, reel 11 août 1984)
+inspiré d'une référence externe (compte paris sportifs) que Thomas a
+validée ("Ok ok pas mal"). **Remplace entièrement l'ancienne mécanique
+"TikTok"** (surlignage mot par mot par encadré ocre mobile, police
+Archivo 700, une ligne assemblée par contrainte de largeur) — cette
+ancienne mécanique est abandonnée, ne pas la réintroduire. Le style
+karaoké n'a **pas** de titre animé séparé (§4bis ne s'applique pas à ce
+style, cf. note en tête de §4bis) : le corps couvre tout le reel, de
+juste après le header jusqu'au CTA.
 
-- Police **Archivo 700** (gras — pas Anton condensé, pas un poids hors DA :
-  700 est le poids le plus lourd déjà chargé dans la police de la DA
-  une·deux, cf. `design-system/tokens/fonts.css`
-  `family=Archivo:ital,wght@0,400;0,500;0,600;0,700;1,400` — ne jamais
-  demander un poids Archivo non déclaré là, ex. 800/900, même si Google
-  Fonts peut techniquement le servir), taille de départ **~54px** (contre
-  38px en 4.A), line-height 1.25,
-  **`text-transform:uppercase`** — automatique, tout le corps de texte passe
-  en capitales quel que soit le texte du CORPS (contrairement à 4.A qui
-  respecte la casse d'origine). Comme pour le titre de l'intro (§4bis), 54px
-  est un point de départ, pas une constante figée — vérifier par extraction
-  de frame (§9) et ajuster si besoin (cf. règle une-seule-ligne ci-dessous).
-- **Toujours une seule ligne, jamais de retour à la ligne.** Contrairement à
-  4.A (blocs de phrase qui peuvent tenir sur 2-3 lignes), chaque bloc du
-  style TikTok doit être un groupe de mots assez court pour tenir sur une
-  seule ligne dans la boîte 888px (`left:96px; right:96px`) à ~54px Archivo
-  700 majuscules. Découper le CORPS en conséquence : des groupes plus
-  courts que les phrases/propositions entières de 4.A — au besoin scinder
-  une phrase en plusieurs blocs d'une ligne plutôt que de la laisser
-  déborder ou de réduire la taille de police en dessous du point de départ.
-  Vérifier par extraction de frame (§9) ; si un bloc menace quand même de
-  passer à la ligne, le rescinder en unités plus courtes en priorité —
-  réduire `font-size` seulement en dernier recours (ex. un seul mot très
-  long qui déborderait à lui seul).
-- **Rythme plus accentué que 4.A.** Cette contrainte « une seule ligne »
-  produit plus de blocs, plus courts, pour un même CORPS — la formule de
-  rythme du §5 (durée basée sur le nombre de mots par bloc) s'applique
-  normalement à ces blocs plus courts, donc leurs fenêtres d'affichage sont
-  en moyenne plus brèves : le style TikTok défile visiblement plus vite / de
-  façon plus hachée que le style actuel (4.A) sur le même CORPS et la même
-  durée de vidéo. C'est un effet secondaire attendu de la contrainte
-  une-seule-ligne, pas un rythme à corriger ou à ralentir artificiellement.
-- **Couleur du texte : toujours crème (`var(--cream)`), fixe.** Le texte ne
-  change jamais de couleur, y compris sur le mot actif. Le surlignage
-  karaoké (ci-dessous) se fait uniquement par un encadré derrière le mot,
-  jamais par une teinte de texte.
-- **Aucune ombre portée** — contrairement à 4.A qui a un `text-shadow`
-  (nécessaire là-bas faute de fond derrière le texte) : pas de
-  `text-shadow`, pas de `border`, et **pas de fond derrière les mots au
-  repos** (piste du fond semi-opaque `rgba(44,40,35,.55)` testée puis
-  écartée par Thomas — ne pas la réintroduire). La lisibilité vient d'un
-  **contour crème sur le texte lui-même**, pas d'un fond :
+- **Source du texte : une ligne du CORPS = un carton affiché à l'écran,
+  verbatim.** Contrairement à 4.A (découpage algorithmique en
+  phrases/propositions) ou à l'ancienne mécanique 4.B (regroupement par
+  contrainte de largeur), ici il n'y a **aucun re-découpage côté
+  traitement** — chaque saut de ligne du champ CORPS du brouillon devient
+  directement un carton, dans l'ordre. La responsabilité de la brièveté
+  (viser ~3 mots par ligne, jamais une phrase entière) revient à qui rédige
+  le CORPS pour ce style, pas à la Routine. Si Thomas déclenche ce style
+  sur un CORPS écrit en phrases longues (format 4.A par défaut), le
+  signaler avant de produire plutôt que de re-découper soi-même en
+  silence — sauf instruction explicite de le faire.
+- **Police Anton** (pas Archivo — contrairement à l'ancienne mécanique
+  4.B), `text-transform:uppercase`, mais **le texte doit être écrit
+  directement en MAJUSCULES dans le HTML source**, jamais compter sur la
+  transformation CSS seule : le compilateur HyperFrames fait du
+  subsetting de police sur les caractères littéraux du HTML, pas sur le
+  résultat visuel de `text-transform` — un mot dont la version minuscule
+  seule apparaît dans le source (ex. `Brisson ouvre le score` avec un `v`
+  minuscule mais jamais de `V` majuscule ailleurs) se retrouve avec un
+  glyphe manquant pour le `V` majuscule affiché (rendu en signe cassé,
+  bug identifié et corrigé sur ce test — toujours écrire le texte des
+  `.story-line` déjà en capitales dans le HTML, `text-transform:uppercase`
+  reste en CSS comme filet de sécurité mais ne doit jamais être la seule
+  source des majuscules).
+- **Taille bien plus grande que 4.A**, deux paliers selon la longueur de
+  la carte (mesurée sur le texte affiché, espaces compris) : **108px**
+  pour les cartes courtes (≤9 caractères, `line-height:1.05`), **80px**
+  (classe `.tight`, `line-height:1.1`) pour les cartes plus longues
+  (10-18 caractères, tient sur une ligne dans les 888px utiles à cette
+  taille). Point de départ validé sur ce test — vérifier par extraction de
+  frame (§9) et ajuster si un cas déborde, jamais laisser une carte passer
+  à la ligne pour un mot isolé très long avant d'avoir essayé de la
+  redécouper en amont (cf. règle "une ligne = un carton" ci-dessus, à
+  ajuster côté rédaction du CORPS plutôt que côté rendu).
+- **Aucune ombre portée, aucun contour** (ni noir, ni crème comme
+  l'ancienne mécanique 4.B) — la lisibilité vient uniquement de la
+  taille/graisse d'Anton, pas d'un effet. Couleur toujours crème
+  (`var(--cream)`), fixe — pas de surlignage mot par mot, tout le carton
+  change d'état en même temps (fondu bloc entier, cf. mécanique commune du
+  §4).
+- **Position : centré verticalement dans le cadre** (pas dans la bande
+  basse comme 4.A) — le texte est superposé directement sur le plan net,
+  au milieu de l'écran, comme sur la référence externe. CSS :
   ```css
-  .body-tiktok{ text-transform:uppercase; -webkit-text-stroke: 1.5px var(--cream);
-    /* + le reste des règles communes 4.A/4.B ci-dessus */ }
+  .story-zone { position:absolute; left:96px; right:96px; z-index:20; text-align:center; }
+  .story-line {
+    position:absolute; left:0; right:0;
+    top:50%; transform:translateY(-50%);
+    font-family:'Anton', sans-serif; font-size:108px; line-height:1.05;
+    color:var(--cream); opacity:0;
+  }
+  .story-line.tight { font-size:80px; line-height:1.1; }
   ```
-  Contour **crème** (`var(--cream)`, même teinte que le remplissage — donc
-  pas de liseré de couleur contrastante ni d'effet « contour noir » façon
-  sous-titre générique), ~1.5px à 54px de corps : à cette taille précise le
-  stroke épaissit surtout le tracé des lettres (effet optique proche d'un
-  poids plus lourd) plutôt que de dessiner un liseré visible — recalibrer
-  au jugé si la taille de police change significativement, en vérifiant par
-  extraction de frame (§9) que ça ne ferme pas les contre-formes des lettres
-  (ex. le blanc à l'intérieur d'un O ou d'un A) sur cette police à cette
-  taille.
-- **Mot actif : encadré ocre mobile**, même mécanisme que `.kw-box` du titre
-  de l'intro (§4bis — fond `var(--ocre-render)`, texte crème (contour
-  compris) par-dessus, jamais d'inversion de couleur). Au moment où son
-  tour arrive dans le bloc, le mot reçoit ce fond ocre derrière lui ; à
-  l'arrivée du mot suivant, l'encadré du mot précédent disparaît (retour à
-  `transparent`, pas au fond semi-opaque écarté ci-dessus) — **un seul mot
-  encadré à la fois**, l'encadré ne reste pas sur les mots déjà lus
-  (contrairement à une ancienne version de cette recette qui faisait
-  persister une couleur de texte — mécanisme abandonné, remplacé par cet
-  encadré qui se déplace).
-  `<b>`/`<b class="ocre">` manuels du CORPS ne s'appliquent pas à ce style
-  (l'encadré karaoké remplace le gras ponctuel — tout le texte est déjà en
-  Archivo 700 majuscules).
-- **Découpage en mots** : chaque bloc de phrase est éclaté en `<span
-  class="w">mot</span>` individuels (espaces conservés entre spans), un
-  wrapper par mot pour cibler l'animation sans casser le fondu du bloc
-  parent (le fondu d'entrée/sortie du bloc entier reste sur le conteneur,
-  cf. règle commune ci-dessus — seul le fond de l'encadré est animé par
-  mot, jamais la couleur du texte, le contour, ni sa position). CSS de base
-  (l'encadré réserve son espace via padding/marge négative en permanence,
-  comme `.kw-box`, pour que son apparition ne décale jamais le texte ; fond
-  transparent par défaut) :
-  ```css
-  .body-tiktok .w{ display:inline-block; color:var(--cream);
-    padding:6px 12px; margin:-6px -12px; background:transparent; }
-  ```
-- **Timing des mots** : à l'intérieur de la fenêtre `[start, start+dur]`
-  calculée en §5 pour ce bloc, répartir `dur` entre les mots
-  proportionnellement à leur longueur en caractères (mots plus longs =
-  fenêtre un peu plus large, approximation simple d'un rythme de lecture,
-  pas de transcription audio pour caler précisément sur la voix puisqu'il
-  n'y a pas de narration parlée dans ce format). Seul le fond
-  (`backgroundColor`) du mot est animé — jamais `color`, le contour, ni
-  `scale` sur le texte :
+  `.story-zone` n'a pas besoin de `top`/`height` explicites si elle est un
+  enfant direct de `#root` (elle hérite de sa hauteur 1920px) — chaque
+  `.story-line` se centre indépendamment via son propre
+  `top:50%; transform:translateY(-50%)`, donc toutes les cartes (1 ou
+  plusieurs lignes) se superposent bien au même centre vertical quel que
+  soit leur nombre de lignes.
+- **Piège §6 applicable ici** : `.story-line` porte un `transform:
+  translateY(-50%)` **statique** pour ce centrage — ne **jamais** animer
+  `y` dessus avec GSAP (contrairement au léger `y:10→0` utilisé par le
+  fondu commun du §4/§5 sur d'autres styles). Pour le style karaoké,
+  utiliser des tweens **opacity uniquement** :
   ```js
-  const totalChars = words.reduce((s, w) => s + w.text.length, 0);
-  let wOffset = 0;
-  words.forEach(w => {
-    const wDur = dur * (w.text.length / totalChars);
-    const pop = Math.min(0.14, wDur * 0.5);
-    tl.fromTo(w.el, {backgroundColor: 'rgba(185,164,86,0)'},
-      {backgroundColor: 'rgba(185,164,86,1)', duration: pop, ease: 'power1.out'}, start + wOffset);
-    tl.to(w.el, {backgroundColor: 'rgba(185,164,86,0)', duration: pop, ease: 'power1.in'},
-      start + wOffset + wDur - pop);
-    wOffset += wDur;
-  });
+  function fadeBlockKaraoke(sel, start, dur) {
+    tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 0.10, ease: 'power2.out' }, start);
+    tl.to(sel, { opacity: 0, duration: 0.08, ease: 'sine.in' }, start + dur - 0.08);
+    tl.set(sel, { opacity: 0 }, start + dur);
+  }
   ```
-  (`rgba(185,164,86,…)` = `--ocre-render` en RGB, pour une interpolation
-  propre transparent→ocre→transparent ; le hard-kill de fin de bloc du fondu
-  commun remet `opacity:0` sur le conteneur à `start+dur`, donc pas besoin de
-  hard-kill séparé sur `backgroundColor` puisque le bloc entier disparaît
-  avec lui.)
-- Aucun conflit avec le piège transform du §6 : on n'anime plus ni `color`
-  ni `scale` ni `y` sur les mots, seulement `backgroundColor` — propriété qui
-  n'interagit pas avec le `transform:translateY(-50%)` statique du
-  conteneur.
-- Style validé pour un rendu plus lisible/percutant façon TikTok — reste un
-  choix explicite de Thomas par reel (ou par défaut le style 4.A si rien
-  n'est précisé), ni l'un ni l'autre ne devient le nouveau standard implicite
-  sans qu'il le dise.
+- **Il doit toujours y avoir un sous-titre à l'écran, sans exception** —
+  aucun trou, y compris pendant les moments forts (but, célébration) :
+  contrairement à 4.A où une pause de 0.15-0.5s sépare les blocs (cf. §5),
+  ici les cartes sont **contiguës** (`start` de la carte N+1 = `start +
+  dur` de la carte N, zéro pause). S'il n'y a plus de ligne de CORPS
+  disponible pour combler un moment fort, répéter/reformuler brièvement un
+  fait déjà énoncé (ex. le score) plutôt que de laisser l'écran sans texte
+  — jamais inventer un fait non sourcé pour combler.
+- **Aucun ralenti sur la vidéo source** — règle générale du pipeline (cf.
+  §2), rappelée ici car explicitement demandée par Thomas sur ce style :
+  le réencodage/rééchantillonnage de frame rate ne doit jamais s'accompagner
+  d'un `setpts`/ralenti, la vidéo doit rester à sa vitesse native du début
+  à la fin.
+- Style validé le 11 août 2026 — reste un choix explicite de Thomas par
+  reel (par défaut le style 4.A Fixe si rien n'est précisé), ni l'un ni
+  l'autre ne devient le nouveau standard implicite sans qu'il le dise.
 
 ### 4bis. Titre animé de l'intro
+
+**Ne s'applique qu'au style Fixe (§4.A).** Le style Karaoké (§4.B) n'a pas
+de titre animé séparé — sauter entièrement cette section pour ce style, le
+champ `TITRE` du brouillon n'est pas utilisé pour l'habillage vidéo (il
+reste utile ailleurs, ex. légende Instagram), et le corps (§4.B) démarre
+directement après le header, cf. §5.
 
 - **Source du titre** : champ `TITRE` du brouillon Gmail "POST DU JOUR —
   <date>" correspondant (pas `CORPS` — c'est le champ court/percutant,
@@ -555,11 +539,13 @@ facteur = (durée_vidéo_disponible − Σ pauses) / Σ durée_brute_toutes_lign
 durée_ligne = durée_brute_ligne × facteur
 ```
 
+Cette formule s'applique aux **deux styles** pour calculer la durée
+d'affichage de chaque carte — ce qui diffère entre les deux, c'est le
+point de départ, la présence de pauses entre blocs, et le fondu :
+
+**Style Fixe (§4.A)** :
 - Pauses entre blocs : 0.15s (vidéo courte, rythme serré) à 0.5s (vidéo
   longue, rythme posé) selon la marge disponible.
-- Si `facteur < 1` (vidéo plus courte que le texte au rythme naturel) :
-  compresser quand même plutôt que couper le texte — ne jamais réduire le
-  contenu du corps sans demande explicite.
 - Démarrer le premier bloc du corps à `introEnd + 0.3s` (§4bis) — pas de
   `t≈0.3s` absolu comme avant la fusion, le corps commence après l'intro.
   `durée_vidéo_disponible` = durée totale de la vidéo moins `introEnd`.
@@ -567,6 +553,17 @@ durée_ligne = durée_brute_ligne × facteur
   puis `tl.to(..., {opacity:0, duration:0.18-0.3, ease:'sine.in'})` puis
   `tl.set(..., {opacity:0}, start+dur)` (hard-kill obligatoire, sinon lint
   `gsap_exit_missing_hard_kill`).
+
+**Style Karaoké (§4.B)** :
+- **Zéro pause entre blocs** — cartes contiguës (`start` de la carte N+1 =
+  `start + dur` de la carte N), cf. règle "toujours un sous-titre à
+  l'écran" du §4.B. Ne pas utiliser la fourchette 0.15-0.5s ci-dessus.
+- Démarrer le premier bloc à `~0.2-0.3s` absolu (pas d'`introEnd`, pas de
+  §4bis pour ce style) — `durée_vidéo_disponible` = durée totale de la
+  vidéo (moins ce petit offset de départ).
+- Fondu plus rapide que le style Fixe (cf. `fadeBlockKaraoke` du §4.B,
+  `inDur:0.10` / `outDur:0.08`) — le rythme resserré des cartes courtes
+  (souvent 1-2s) ne laisse pas la place à un fondu aussi long.
 
 ### 6. Piège GSAP à ne jamais reproduire
 
