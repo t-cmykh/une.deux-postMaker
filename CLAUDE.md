@@ -363,17 +363,31 @@ karaoké n'a **pas** de titre animé séparé (§4bis ne s'applique pas à ce
 style, cf. note en tête de §4bis) : le corps couvre tout le reel, de
 juste après le header jusqu'au CTA.
 
-- **Source du texte : une ligne du CORPS = un carton affiché à l'écran,
+- **Source du texte : le champ `CORPS (karaoké)` du brouillon "POST DU
+  JOUR — <date>" (skill `une-deux-post`, SKILL.md § « Livrable quotidien »)
+  — PAS le champ `CORPS` générique**, qui reste la source du style Fixe
+  (§4.A). Le brouillon quotidien contient les deux champs côte à côte
+  depuis leur ajout au workflow (11 août 2026) : `CORPS` (paragraphes,
+  utilisé aussi par le carrousel et la légende) et `CORPS (karaoké)`
+  (lignes courtes, storytelling, écrit spécifiquement pour ce style — voir
+  SKILL.md pour les règles de rédaction). Ne jamais utiliser `CORPS` pour
+  ce style même si `CORPS (karaoké)` semble absent avant d'avoir relu le
+  brouillon en entier — c'est un champ séparé, pas une section du `CORPS`.
+  **Une ligne de `CORPS (karaoké)` = un carton affiché à l'écran,
   verbatim.** Contrairement à 4.A (découpage algorithmique en
   phrases/propositions) ou à l'ancienne mécanique 4.B (regroupement par
   contrainte de largeur), ici il n'y a **aucun re-découpage côté
-  traitement** — chaque saut de ligne du champ CORPS du brouillon devient
-  directement un carton, dans l'ordre. La responsabilité de la brièveté
-  (viser ~3 mots par ligne, jamais une phrase entière) revient à qui rédige
-  le CORPS pour ce style, pas à la Routine. Si Thomas déclenche ce style
-  sur un CORPS écrit en phrases longues (format 4.A par défaut), le
-  signaler avant de produire plutôt que de re-découper soi-même en
-  silence — sauf instruction explicite de le faire.
+  traitement** — chaque saut de ligne devient directement un carton, dans
+  l'ordre. La responsabilité de la brièveté (viser ~3 mots par ligne,
+  jamais une phrase entière) revient à qui rédige `CORPS (karaoké)`, pas à
+  la Routine.
+  **Si le brouillon ne contient pas de champ `CORPS (karaoké)`** (brouillon
+  produit avant l'ajout de ce champ, ou rédigé à la main sans le suivre) :
+  ne pas re-découper soi-même le `CORPS` générique en silence — signaler le
+  manque à Thomas et proposer soit de réécrire `CORPS (karaoké)` à partir
+  des mêmes faits déjà vérifiés du `CORPS` (mêmes règles que SKILL.md :
+  accroche sans spoiler, boucle qui se referme, ~3 mots/ligne), soit de
+  traiter ce reel en style Fixe à la place.
 - **Police Anton** (pas Archivo — contrairement à l'ancienne mécanique
   4.B), `text-transform:uppercase`, mais **le texte doit être écrit
   directement en MAJUSCULES dans le HTML source**, jamais compter sur la
