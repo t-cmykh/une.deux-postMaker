@@ -14,13 +14,23 @@ match et demande d'y ajouter le texte du post (sous-titres ou corps animé) —
 Outil statique (même DA que `editeur-series.html` : panel sombre, ocre,
 Saira Condensed/Anton/Archivo) où Thomas colle le lien Drive (ou choisit
 directement un fichier vidéo depuis l'appareil — voir ci-dessous) + la date
-du post + des notes optionnelles. **Une seule variante** (voir section
-recette ci-dessous — l'ancien choix "reel complet / intro seule" a été
-fusionné, il n'y a plus de champ VARIANTE). Le bouton « Lancer le montage »
-ouvre un brouillon email pré-rempli (`mailto:` vers t.louisor@gmail.com,
-objet `LANCER REEL — <date>`, corps au format `LIEN DRIVE: … / DATE DU
-POST: … / NOTES: …`) — une page statique ne peut pas appeler Claude Code
-directement, l'email est le pont.
+du post + le style de sous-titres (voir ci-dessous) + des notes optionnelles.
+**Une seule variante de montage** (voir section recette ci-dessous — l'ancien
+choix "reel complet / intro seule" a été fusionné, il n'y a plus de champ
+VARIANTE ; le seul choix qui reste est le style des sous-titres). Le bouton
+« Lancer le montage » ouvre un brouillon email pré-rempli (`mailto:` vers
+t.louisor@gmail.com, objet `LANCER REEL — <date>`, corps au format `LIEN
+DRIVE: … / DATE DU POST: … / STYLE SOUS-TITRES: … / NOTES: …`) — une page
+statique ne peut pas appeler Claude Code directement, l'email est le pont.
+
+**Style des sous-titres** : un sélecteur à deux chips dans le lanceur —
+« FIXE » (par défaut, coché à l'ouverture) ou « KARAOKÉ ». Le choix est
+écrit dans le corps de l'email en `STYLE SOUS-TITRES: fixe` ou
+`STYLE SOUS-TITRES: karaoké`. Côté traitement, la Routine lit cette ligne
+et applique la variante correspondante du §4 (Corps de texte) ci-dessous —
+absence de la ligne (anciennes demandes envoyées avant cet ajout, ou
+anciennes valeurs `actuel`/`tiktok` d'avant le renommage) = traiter comme
+`fixe`.
 
 **Vidéo directe depuis l'appareil** : un toggle « Lien Drive / Vidéo depuis
 l'appareil » permet de choisir un fichier vidéo directement dans la
@@ -294,35 +304,188 @@ supposer qu'elle reste universelle indéfiniment (le pipeline de render peut
 
 ### 4. Corps de texte — sous-titres animés, découpés en unités de sens
 
+**Deux styles au choix, sélectionnés par Thomas dans le lanceur
+(`editeurs/lanceur-cejourla.html`, champ « Style des sous-titres ») ou
+donnés en instruction explicite dans le chat** — la ligne `STYLE
+SOUS-TITRES: …` du brouillon "LANCER REEL" fait foi (absence de la ligne,
+ou anciennes valeurs `actuel`/`tiktok` d'avant le renommage, = demandes
+envoyées avant l'ajout/le renommage de ce champ = traiter comme §4.A
+Fixe). Les deux styles partagent : la source du texte (CORPS du brouillon,
+utilisé tel quel), la mécanique de fondu par bloc (`fromTo(opacity 0→1)`
+puis `to(opacity→0)` + `tl.set(opacity:0)` hard-kill), et le centrage
+horizontal du texte. **Tout le reste diffère** — découpage en unités,
+position verticale, présence ou non d'un titre animé séparé, démarrage
+dans la timeline — voir chaque sous-section, ne pas supposer qu'une valeur
+d'un style s'applique à l'autre.
+
 - Utiliser le texte du **CORPS** du brouillon Gmail tel quel (ne pas le
   réécrire) — chercher le brouillon "POST DU JOUR — <date>" correspondant à
   la date demandée ("le post de demain" etc.) via `search_threads`/
   `list_drafts`, section `CORPS`.
-- Découper en unités de sens (phrases ou propositions), chacune son propre
-  bloc qui apparaît en fondu puis disparaît avant le suivant (même mécanique
-  que les sous-titres établis dans ce projet : `fromTo(opacity 0→1)` puis
-  `to(opacity→0)` + `tl.set(opacity:0)` hard-kill en fin de fenêtre).
+
+#### 4.A — Style fixe (défaut, `STYLE SOUS-TITRES: fixe`)
+
+- Position : `top:1420px` avec `transform:translateY(-50%)`, zone
+  `left:96px; right:96px`, dans la bande floutée basse (sous le plan net —
+  valeur calibrée pour la géométrie §2, où le plan net s'arrête à `y=1308`).
+  Garder une marge d'environ 100-115px entre le bas du plan net et `top`.
+- **Le corps démarre juste après la fin de l'intro** (§4bis, titre animé —
+  présent uniquement dans ce style) dans la timeline globale de la
+  composition — décaler tous les `start` calculés en §5 de `introEnd`
+  (durée totale de l'intro, cf. §4bis), pas de `t=0`.
+- **Découpage en unités : phrases/propositions** du CORPS, chacune son
+  propre bloc (peut tenir sur 2-3 lignes, cf. règle una-seule-ligne propre
+  à 4.B ci-dessous qui ne s'applique pas ici).
+
 - Mots-clés importants en **gras et/ou ocre** (`<b>` pour gras crème,
   `<b class="ocre">` pour gras + couleur `var(--ocre-render)`, cf. §3) —
   chiffres, scores, noms propres, faits marquants. Ne pas surcharger : un ou
   deux par phrase.
-- **Texte centré**, y compris sur les blocs à plusieurs lignes
-  (`text-align:center` sur la zone ET sur chaque bloc) — pas d'alignement à
-  gauche.
 - Police Archivo (corps de texte, pas Anton tout-capitales — c'est de la
   prose, pas un sous-titre condensé), ~38px, line-height 1.38, couleur
   crème, `text-shadow: 0 2px 16px rgba(0,0,0,.65), 0 1px 4px rgba(0,0,0,.8)`
   pour la lisibilité (remplace tout scrim, puisque le bas ne doit pas être
   assombri).
-- Position : `top:1420px` avec `transform:translateY(-50%)`, zone
-  `left:96px; right:96px`, dans la bande floutée basse (sous le plan net —
-  valeur calibrée pour la géométrie §2, où le plan net s'arrête à `y=1308`).
-  Garder une marge d'environ 100-115px entre le bas du plan net et `top`.
-- **Le corps démarre juste après la fin de l'intro** (§4bis) dans la
-  timeline globale de la composition — décaler tous les `start` calculés en
-  §5 de `introEnd` (durée totale de l'intro, cf. §4bis), pas de `t=0`.
+- Bloc entier en fondu (fromTo/to opacity, cf. ci-dessus) — pas de
+  surlignage mot par mot, tout le bloc a la même couleur en même temps
+  (hors `<b class="ocre">` ponctuel).
+
+#### 4.B — Style karaoké (`STYLE SOUS-TITRES: karaoké`)
+
+Refondu le 11 août 2026 après un test grandeur nature (branche
+`claude/reels-video-storytelling-structure-cdpnoy`, reel 11 août 1984)
+inspiré d'une référence externe (compte paris sportifs) que Thomas a
+validée ("Ok ok pas mal"). **Remplace entièrement l'ancienne mécanique
+"TikTok"** (surlignage mot par mot par encadré ocre mobile, police
+Archivo 700, une ligne assemblée par contrainte de largeur) — cette
+ancienne mécanique est abandonnée, ne pas la réintroduire. Le style
+karaoké n'a **pas** de titre animé séparé (§4bis ne s'applique pas à ce
+style, cf. note en tête de §4bis) : le corps couvre tout le reel, de
+juste après le header jusqu'au CTA.
+
+- **Source du texte : le champ `CORPS (karaoké)` du brouillon "POST DU
+  JOUR — <date>" (skill `une-deux-post`, SKILL.md § « Livrable quotidien »)
+  — PAS le champ `CORPS` générique**, qui reste la source du style Fixe
+  (§4.A). Le brouillon quotidien contient les deux champs côte à côte
+  depuis leur ajout au workflow (11 août 2026) : `CORPS` (paragraphes,
+  utilisé aussi par le carrousel et la légende) et `CORPS (karaoké)`
+  (lignes courtes, storytelling, écrit spécifiquement pour ce style — voir
+  SKILL.md pour les règles de rédaction). Ne jamais utiliser `CORPS` pour
+  ce style même si `CORPS (karaoké)` semble absent avant d'avoir relu le
+  brouillon en entier — c'est un champ séparé, pas une section du `CORPS`.
+  **Une ligne de `CORPS (karaoké)` = un carton affiché à l'écran,
+  verbatim.** Contrairement à 4.A (découpage algorithmique en
+  phrases/propositions) ou à l'ancienne mécanique 4.B (regroupement par
+  contrainte de largeur), ici il n'y a **aucun re-découpage côté
+  traitement** — chaque saut de ligne devient directement un carton, dans
+  l'ordre. La responsabilité de la brièveté (viser ~3 mots par ligne,
+  jamais une phrase entière) revient à qui rédige `CORPS (karaoké)`, pas à
+  la Routine.
+  **Si le brouillon ne contient pas de champ `CORPS (karaoké)`** (brouillon
+  produit avant l'ajout de ce champ, ou rédigé à la main sans le suivre) :
+  ne pas re-découper soi-même le `CORPS` générique en silence — signaler le
+  manque à Thomas et proposer soit de réécrire `CORPS (karaoké)` à partir
+  des mêmes faits déjà vérifiés du `CORPS` (mêmes règles que SKILL.md :
+  accroche sans spoiler, boucle qui se referme, ~3 mots/ligne), soit de
+  traiter ce reel en style Fixe à la place.
+- **Police Anton** (pas Archivo — contrairement à l'ancienne mécanique
+  4.B), `text-transform:uppercase`, mais **le texte doit être écrit
+  directement en MAJUSCULES dans le HTML source**, jamais compter sur la
+  transformation CSS seule : le compilateur HyperFrames fait du
+  subsetting de police sur les caractères littéraux du HTML, pas sur le
+  résultat visuel de `text-transform` — un mot dont la version minuscule
+  seule apparaît dans le source (ex. `Brisson ouvre le score` avec un `v`
+  minuscule mais jamais de `V` majuscule ailleurs) se retrouve avec un
+  glyphe manquant pour le `V` majuscule affiché (rendu en signe cassé,
+  bug identifié et corrigé sur ce test — toujours écrire le texte des
+  `.story-line` déjà en capitales dans le HTML, `text-transform:uppercase`
+  reste en CSS comme filet de sécurité mais ne doit jamais être la seule
+  source des majuscules).
+- **Taille bien plus grande que 4.A, mais FIXE — jamais de réduction selon
+  la longueur de la carte.** Corrigé le 12 août 2026 : la première version
+  de ce style avait deux paliers (108px courtes / 80px longues) qui
+  faisaient visiblement "rétrécir" le texte sur les cartes à 2-3 mots —
+  Thomas a explicitement demandé une taille similaire quel que soit le
+  nombre de mots par ligne. **`font-size:80px` fixe** (`line-height:1.1`)
+  pour toutes les cartes, sans exception ni classe de taille alternative —
+  cette taille tient déjà sur une seule ligne dans les 888px utiles pour
+  une carte de ~18 caractères (validé par extraction de frame sur le test
+  du 11 août 1984).
+  Si un cas dépasse malgré la règle "~3 mots/ligne" de SKILL.md, **wrap
+  sur 2 lignes plutôt que de réduire la taille** — ne jamais réintroduire
+  de palier de taille par longueur.
+- **Aucune ombre portée** — la lisibilité vient de la taille/graisse
+  d'Anton, pas d'un effet flou. **Léger contour semi-transparent** sur le
+  texte (ajouté le 12 août 2026, demande explicite de Thomas — l'ancienne
+  consigne "aucun contour" de la version précédente de ce style est
+  remplacée par celle-ci) :
+  ```css
+  -webkit-text-stroke: 1.5px rgba(44,40,35,.35);
+  ```
+  (`rgba(44,40,35,…)` = `--ink` en RGB, à faible opacité — un contour
+  sombre discret pour détacher le texte crème du fond sans reproduire
+  l'effet "contour noir" épais façon sous-titre générique ; ajuster
+  l'opacité/l'épaisseur au jugé si le texte semble flou ou si le contour
+  devient trop visible en extraction de frame, mais rester sur un ink
+  semi-transparent, pas un noir ou un crème plein comme testé et écarté
+  précédemment). Couleur du texte toujours crème (`var(--cream)`), fixe —
+  pas de surlignage mot par mot, tout le carton change d'état en même
+  temps (fondu bloc entier, cf. mécanique commune du §4).
+- **Position : centré verticalement dans le cadre** (pas dans la bande
+  basse comme 4.A) — le texte est superposé directement sur le plan net,
+  au milieu de l'écran, comme sur la référence externe. CSS :
+  ```css
+  .story-zone { position:absolute; left:96px; right:96px; z-index:20; text-align:center; }
+  .story-line {
+    position:absolute; left:0; right:0;
+    top:50%; transform:translateY(-50%);
+    font-family:'Anton', sans-serif; font-size:80px; line-height:1.1;
+    color:var(--cream); opacity:0;
+    -webkit-text-stroke: 1.5px rgba(44,40,35,.35);
+  }
+  ```
+  `.story-zone` n'a pas besoin de `top`/`height` explicites si elle est un
+  enfant direct de `#root` (elle hérite de sa hauteur 1920px) — chaque
+  `.story-line` se centre indépendamment via son propre
+  `top:50%; transform:translateY(-50%)`, donc toutes les cartes (1 ou
+  plusieurs lignes) se superposent bien au même centre vertical quel que
+  soit leur nombre de lignes.
+- **Piège §6 applicable ici** : `.story-line` porte un `transform:
+  translateY(-50%)` **statique** pour ce centrage — ne **jamais** animer
+  `y` dessus avec GSAP (contrairement au léger `y:10→0` utilisé par le
+  fondu commun du §4/§5 sur d'autres styles). Pour le style karaoké,
+  utiliser des tweens **opacity uniquement** :
+  ```js
+  function fadeBlockKaraoke(sel, start, dur) {
+    tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 0.10, ease: 'power2.out' }, start);
+    tl.to(sel, { opacity: 0, duration: 0.08, ease: 'sine.in' }, start + dur - 0.08);
+    tl.set(sel, { opacity: 0 }, start + dur);
+  }
+  ```
+- **Il doit toujours y avoir un sous-titre à l'écran, sans exception** —
+  aucun trou, y compris pendant les moments forts (but, célébration) :
+  contrairement à 4.A où une pause de 0.15-0.5s sépare les blocs (cf. §5),
+  ici les cartes sont **contiguës** (`start` de la carte N+1 = `start +
+  dur` de la carte N, zéro pause). S'il n'y a plus de ligne de CORPS
+  disponible pour combler un moment fort, répéter/reformuler brièvement un
+  fait déjà énoncé (ex. le score) plutôt que de laisser l'écran sans texte
+  — jamais inventer un fait non sourcé pour combler.
+- **Aucun ralenti sur la vidéo source** — règle générale du pipeline (cf.
+  §2), rappelée ici car explicitement demandée par Thomas sur ce style :
+  le réencodage/rééchantillonnage de frame rate ne doit jamais s'accompagner
+  d'un `setpts`/ralenti, la vidéo doit rester à sa vitesse native du début
+  à la fin.
+- Style validé le 11 août 2026 — reste un choix explicite de Thomas par
+  reel (par défaut le style 4.A Fixe si rien n'est précisé), ni l'un ni
+  l'autre ne devient le nouveau standard implicite sans qu'il le dise.
 
 ### 4bis. Titre animé de l'intro
+
+**Ne s'applique qu'au style Fixe (§4.A).** Le style Karaoké (§4.B) n'a pas
+de titre animé séparé — sauter entièrement cette section pour ce style, le
+champ `TITRE` du brouillon n'est pas utilisé pour l'habillage vidéo (il
+reste utile ailleurs, ex. légende Instagram), et le corps (§4.B) démarre
+directement après le header, cf. §5.
 
 - **Source du titre** : champ `TITRE` du brouillon Gmail "POST DU JOUR —
   <date>" correspondant (pas `CORPS` — c'est le champ court/percutant,
@@ -404,11 +567,14 @@ facteur = (durée_vidéo_disponible − Σ pauses) / Σ durée_brute_toutes_lign
 durée_ligne = durée_brute_ligne × facteur
 ```
 
+Cette formule sert de base au **style Fixe**. Le style Karaoké a sa propre
+logique de rythme (mesurée directement sur la vidéo de référence, pas une
+formule proportionnelle au nombre de mots) — voir ci-dessous, ne pas
+appliquer la formule mots×durée à ce style.
+
+**Style Fixe (§4.A)** :
 - Pauses entre blocs : 0.15s (vidéo courte, rythme serré) à 0.5s (vidéo
   longue, rythme posé) selon la marge disponible.
-- Si `facteur < 1` (vidéo plus courte que le texte au rythme naturel) :
-  compresser quand même plutôt que couper le texte — ne jamais réduire le
-  contenu du corps sans demande explicite.
 - Démarrer le premier bloc du corps à `introEnd + 0.3s` (§4bis) — pas de
   `t≈0.3s` absolu comme avant la fusion, le corps commence après l'intro.
   `durée_vidéo_disponible` = durée totale de la vidéo moins `introEnd`.
@@ -416,6 +582,42 @@ durée_ligne = durée_brute_ligne × facteur
   puis `tl.to(..., {opacity:0, duration:0.18-0.3, ease:'sine.in'})` puis
   `tl.set(..., {opacity:0}, start+dur)` (hard-kill obligatoire, sinon lint
   `gsap_exit_missing_hard_kill`).
+
+**Style Karaoké (§4.B)** :
+- **Rythme mesuré directement sur la vidéo de référence** (compte paris
+  sportifs, cf. §4.B), le 12 août 2026 : échantillonnage vidéo à 0.25s sur
+  un segment dense de mots ("L'ANGLETERRE" → "VA GAGNER" → "LA COUPE" →
+  "DU MONDE" → "C'EST" → "UN PRONOSTIC" → "QUI CIRCULE" → "DEPUIS" → "LE
+  DÉBUT" → "DE LA" → "COMPÉTITION"). Durée de tenue observée par carte :
+  **0.25 à 0.75s, moyenne ≈ 0.35-0.4s** — sans corrélation nette au nombre
+  de mots (des cartes à 1 mot et à 2-3 mots tiennent dans la même
+  fourchette). **Ne pas utiliser la formule mots×durée du style Fixe** —
+  une durée de base quasi fixe, pas proportionnelle à la longueur de la
+  carte :
+  ```
+  durée_carte_brute ≈ 0.35s   (fixe, indépendante du nombre de mots)
+  facteur = durée_vidéo_disponible / (n_cartes × 0.35)
+  durée_carte = 0.35 × facteur
+  ```
+  - Si `facteur > 1` (pas assez de lignes de `CORPS (karaoké)` pour
+    couvrir toute la vidéo à 0.35s/carte) : étirer chaque carte par ce
+    facteur plutôt que laisser un trou (règle "toujours un sous-titre à
+    l'écran" du §4.B) — le rythme sera alors un peu plus lent que la
+    référence, compromis acceptable.
+  - Si `facteur < 1` (plus de lignes que la vidéo ne peut en tenir à
+    0.35s/carte) : compresser, mais **ne jamais descendre sous ~0.2s/carte**
+    (proche du rythme le plus rapide observé). En dessous, signaler à
+    Thomas qu'il y a trop de lignes de `CORPS (karaoké)` pour la durée de
+    la vidéo plutôt que de produire un rendu illisible.
+- **Zéro pause entre blocs** — cartes contiguës (`start` de la carte N+1 =
+  `start + dur` de la carte N), cf. règle "toujours un sous-titre à
+  l'écran" du §4.B. Ne pas utiliser la fourchette 0.15-0.5s du style Fixe.
+- Démarrer le premier bloc à `~0.2-0.3s` absolu (pas d'`introEnd`, pas de
+  §4bis pour ce style) — `durée_vidéo_disponible` = durée totale de la
+  vidéo (moins ce petit offset de départ).
+- Fondu plus rapide que le style Fixe (cf. `fadeBlockKaraoke` du §4.B,
+  `inDur:0.10` / `outDur:0.08`) — cohérent avec des cartes de 0.2-0.5s, pas
+  la place pour un fondu plus long.
 
 ### 6. Piège GSAP à ne jamais reproduire
 
@@ -506,42 +708,20 @@ composite, sans header ni texte) — le seul livrable valide est le fichier
 issu de `npm run render` (dans `renders/`) **après concat du CTA**. Si le
 render n'a pas tourné ou a échoué, ne rien livrer et signaler le blocage.
 
-**Livraison : dépôt sur Google Drive, pas `SendUserFile`.** Tous les
-reels finis vont dans le dossier Drive dédié
-`https://drive.google.com/drive/folders/1Dcvt6NhjzG5AjW2rSBxu4nV-SFoTXX6G`
-("Ce jour là…"), dans un **sous-dossier au nom du jour du reel**, format
-`MM/JJ` (ex. `08/05`) — c'est la convention déjà en usage dans ce dossier
-(les sources vidéo de Thomas y arrivent déjà sous ce nom). Avant de créer
-le sous-dossier, vérifier s'il existe déjà (`search_files`, requête
-`parentId = '1Dcvt6NhjzG5AjW2rSBxu4nV-SFoTXX6G' and title = 'MM/JJ'`) —
-le réutiliser si oui (il peut déjà contenir la vidéo source), sinon le
-créer (`create_file`, `mimeType: application/vnd.google-apps.folder`,
-`parentId` = l'ID du dossier "Ce jour là…"). Puis uploader le fichier
-final dans ce sous-dossier (`create_file`, `parentId` = l'ID du
-sous-dossier du jour, `contentMimeType: video/mp4`,
-`disableConversionToGoogleType: true`, contenu en base64).
-
-**Le connecteur Drive a une limite de taille sur ce chemin d'upload**
-(`create_file` encode le contenu en base64 dans l'appel — pas de
-téléversement par morceaux/résumable disponible dans ce connecteur) : un
-reel complet non recompressé (souvent 30-80 Mo) échoue régulièrement.
-Recompresser **avant** le premier essai plutôt que d'attendre l'échec,
-par paliers croissants jusqu'à passer :
-```bash
-ffmpeg -y -i reel-final.mp4 -c:v libx264 -crf 26 -preset medium -pix_fmt yuv420p -c:a aac -b:a 128k drive-upload.mp4   # palier 1
-ffmpeg -y -i reel-final.mp4 -c:v libx264 -crf 30 -preset medium -pix_fmt yuv420p -vf scale=810:1440 -c:a aac -b:a 96k drive-upload.mp4   # palier 2, si le palier 1 échoue encore
-```
-Ce fichier recompressé est **uniquement pour l'upload Drive** — le commit
-Git (ci-dessous) reste la version pleine qualité issue du render, jamais
-la version dégradée.
-
-**Si l'upload Drive échoue encore après le palier 2 (ou pour toute autre
-raison), ne pas bloquer la livraison** : le commit/push sur `ce-jour-là`
-(ci-dessous) reste un canal de livraison valide à lui seul — le signaler
-clairement dans le message de livraison (« Drive a échoué, fichier
-disponible via le commit <chemin> sur la branche ce-jour-là ») plutôt que
-de retenter indéfiniment ou d'abandonner sans rien livrer.
+**Livraison : uniquement par commit/push Git sur `ce-jour-là`, plus de
+Google Drive.** Retiré le 12 août 2026 (demande explicite de Thomas — le
+chemin d'upload Drive échouait de façon récurrente : limite de taille sur
+`create_file` en base64 sans téléversement résumable, puis plus
+récemment des refus d'autorisation systématiques sur le connecteur pour
+cette session). L'ancienne double-livraison Drive + Git (avec Git en
+repli si Drive échouait) est abandonnée — **Git est désormais le seul
+canal, pas un repli** : ne plus tenter d'upload Drive du tout pour ce
+livrable, ne plus recompresser de version dégradée pour l'upload (le
+fichier committé reste la version pleine qualité issue du render).
 
 Committer le dossier du projet (assets compris — seuls `renders/`,
 `node_modules/`, `snapshots/`, `.debug/` sont ignorés) et pousser sur la
-branche `ce-jour-là` (jamais fusionnée dans `main`).
+branche `ce-jour-là` (jamais fusionnée dans `main`). Le message de
+livraison à Thomas doit pointer vers le chemin du fichier sur cette
+branche (ex. « Reel livré : `<date>/reel-final.mp4` sur la branche
+ce-jour-là »).
