@@ -401,22 +401,36 @@ juste après le header jusqu'au CTA.
   `.story-line` déjà en capitales dans le HTML, `text-transform:uppercase`
   reste en CSS comme filet de sécurité mais ne doit jamais être la seule
   source des majuscules).
-- **Taille bien plus grande que 4.A**, deux paliers selon la longueur de
-  la carte (mesurée sur le texte affiché, espaces compris) : **108px**
-  pour les cartes courtes (≤9 caractères, `line-height:1.05`), **80px**
-  (classe `.tight`, `line-height:1.1`) pour les cartes plus longues
-  (10-18 caractères, tient sur une ligne dans les 888px utiles à cette
-  taille). Point de départ validé sur ce test — vérifier par extraction de
-  frame (§9) et ajuster si un cas déborde, jamais laisser une carte passer
-  à la ligne pour un mot isolé très long avant d'avoir essayé de la
-  redécouper en amont (cf. règle "une ligne = un carton" ci-dessus, à
-  ajuster côté rédaction du CORPS plutôt que côté rendu).
-- **Aucune ombre portée, aucun contour** (ni noir, ni crème comme
-  l'ancienne mécanique 4.B) — la lisibilité vient uniquement de la
-  taille/graisse d'Anton, pas d'un effet. Couleur toujours crème
-  (`var(--cream)`), fixe — pas de surlignage mot par mot, tout le carton
-  change d'état en même temps (fondu bloc entier, cf. mécanique commune du
-  §4).
+- **Taille bien plus grande que 4.A, mais FIXE — jamais de réduction selon
+  la longueur de la carte.** Corrigé le 12 août 2026 : la première version
+  de ce style avait deux paliers (108px courtes / 80px longues) qui
+  faisaient visiblement "rétrécir" le texte sur les cartes à 2-3 mots —
+  Thomas a explicitement demandé une taille similaire quel que soit le
+  nombre de mots par ligne. **`font-size:80px` fixe** (`line-height:1.1`)
+  pour toutes les cartes, sans exception ni classe de taille alternative —
+  cette taille tient déjà sur une seule ligne dans les 888px utiles pour
+  une carte de ~18 caractères (validé par extraction de frame sur le test
+  du 11 août 1984).
+  Si un cas dépasse malgré la règle "~3 mots/ligne" de SKILL.md, **wrap
+  sur 2 lignes plutôt que de réduire la taille** — ne jamais réintroduire
+  de palier de taille par longueur.
+- **Aucune ombre portée** — la lisibilité vient de la taille/graisse
+  d'Anton, pas d'un effet flou. **Léger contour semi-transparent** sur le
+  texte (ajouté le 12 août 2026, demande explicite de Thomas — l'ancienne
+  consigne "aucun contour" de la version précédente de ce style est
+  remplacée par celle-ci) :
+  ```css
+  -webkit-text-stroke: 1.5px rgba(44,40,35,.35);
+  ```
+  (`rgba(44,40,35,…)` = `--ink` en RGB, à faible opacité — un contour
+  sombre discret pour détacher le texte crème du fond sans reproduire
+  l'effet "contour noir" épais façon sous-titre générique ; ajuster
+  l'opacité/l'épaisseur au jugé si le texte semble flou ou si le contour
+  devient trop visible en extraction de frame, mais rester sur un ink
+  semi-transparent, pas un noir ou un crème plein comme testé et écarté
+  précédemment). Couleur du texte toujours crème (`var(--cream)`), fixe —
+  pas de surlignage mot par mot, tout le carton change d'état en même
+  temps (fondu bloc entier, cf. mécanique commune du §4).
 - **Position : centré verticalement dans le cadre** (pas dans la bande
   basse comme 4.A) — le texte est superposé directement sur le plan net,
   au milieu de l'écran, comme sur la référence externe. CSS :
@@ -425,10 +439,10 @@ juste après le header jusqu'au CTA.
   .story-line {
     position:absolute; left:0; right:0;
     top:50%; transform:translateY(-50%);
-    font-family:'Anton', sans-serif; font-size:108px; line-height:1.05;
+    font-family:'Anton', sans-serif; font-size:80px; line-height:1.1;
     color:var(--cream); opacity:0;
+    -webkit-text-stroke: 1.5px rgba(44,40,35,.35);
   }
-  .story-line.tight { font-size:80px; line-height:1.1; }
   ```
   `.story-zone` n'a pas besoin de `top`/`height` explicites si elle est un
   enfant direct de `#root` (elle hérite de sa hauteur 1920px) — chaque
@@ -553,9 +567,10 @@ facteur = (durée_vidéo_disponible − Σ pauses) / Σ durée_brute_toutes_lign
 durée_ligne = durée_brute_ligne × facteur
 ```
 
-Cette formule s'applique aux **deux styles** pour calculer la durée
-d'affichage de chaque carte — ce qui diffère entre les deux, c'est le
-point de départ, la présence de pauses entre blocs, et le fondu :
+Cette formule sert de base au **style Fixe**. Le style Karaoké a sa propre
+logique de rythme (mesurée directement sur la vidéo de référence, pas une
+formule proportionnelle au nombre de mots) — voir ci-dessous, ne pas
+appliquer la formule mots×durée à ce style.
 
 **Style Fixe (§4.A)** :
 - Pauses entre blocs : 0.15s (vidéo courte, rythme serré) à 0.5s (vidéo
@@ -569,15 +584,40 @@ point de départ, la présence de pauses entre blocs, et le fondu :
   `gsap_exit_missing_hard_kill`).
 
 **Style Karaoké (§4.B)** :
+- **Rythme mesuré directement sur la vidéo de référence** (compte paris
+  sportifs, cf. §4.B), le 12 août 2026 : échantillonnage vidéo à 0.25s sur
+  un segment dense de mots ("L'ANGLETERRE" → "VA GAGNER" → "LA COUPE" →
+  "DU MONDE" → "C'EST" → "UN PRONOSTIC" → "QUI CIRCULE" → "DEPUIS" → "LE
+  DÉBUT" → "DE LA" → "COMPÉTITION"). Durée de tenue observée par carte :
+  **0.25 à 0.75s, moyenne ≈ 0.35-0.4s** — sans corrélation nette au nombre
+  de mots (des cartes à 1 mot et à 2-3 mots tiennent dans la même
+  fourchette). **Ne pas utiliser la formule mots×durée du style Fixe** —
+  une durée de base quasi fixe, pas proportionnelle à la longueur de la
+  carte :
+  ```
+  durée_carte_brute ≈ 0.35s   (fixe, indépendante du nombre de mots)
+  facteur = durée_vidéo_disponible / (n_cartes × 0.35)
+  durée_carte = 0.35 × facteur
+  ```
+  - Si `facteur > 1` (pas assez de lignes de `CORPS (karaoké)` pour
+    couvrir toute la vidéo à 0.35s/carte) : étirer chaque carte par ce
+    facteur plutôt que laisser un trou (règle "toujours un sous-titre à
+    l'écran" du §4.B) — le rythme sera alors un peu plus lent que la
+    référence, compromis acceptable.
+  - Si `facteur < 1` (plus de lignes que la vidéo ne peut en tenir à
+    0.35s/carte) : compresser, mais **ne jamais descendre sous ~0.2s/carte**
+    (proche du rythme le plus rapide observé). En dessous, signaler à
+    Thomas qu'il y a trop de lignes de `CORPS (karaoké)` pour la durée de
+    la vidéo plutôt que de produire un rendu illisible.
 - **Zéro pause entre blocs** — cartes contiguës (`start` de la carte N+1 =
   `start + dur` de la carte N), cf. règle "toujours un sous-titre à
-  l'écran" du §4.B. Ne pas utiliser la fourchette 0.15-0.5s ci-dessus.
+  l'écran" du §4.B. Ne pas utiliser la fourchette 0.15-0.5s du style Fixe.
 - Démarrer le premier bloc à `~0.2-0.3s` absolu (pas d'`introEnd`, pas de
   §4bis pour ce style) — `durée_vidéo_disponible` = durée totale de la
   vidéo (moins ce petit offset de départ).
 - Fondu plus rapide que le style Fixe (cf. `fadeBlockKaraoke` du §4.B,
-  `inDur:0.10` / `outDur:0.08`) — le rythme resserré des cartes courtes
-  (souvent 1-2s) ne laisse pas la place à un fondu aussi long.
+  `inDur:0.10` / `outDur:0.08`) — cohérent avec des cartes de 0.2-0.5s, pas
+  la place pour un fondu plus long.
 
 ### 6. Piège GSAP à ne jamais reproduire
 
@@ -668,42 +708,20 @@ composite, sans header ni texte) — le seul livrable valide est le fichier
 issu de `npm run render` (dans `renders/`) **après concat du CTA**. Si le
 render n'a pas tourné ou a échoué, ne rien livrer et signaler le blocage.
 
-**Livraison : dépôt sur Google Drive, pas `SendUserFile`.** Tous les
-reels finis vont dans le dossier Drive dédié
-`https://drive.google.com/drive/folders/1Dcvt6NhjzG5AjW2rSBxu4nV-SFoTXX6G`
-("Ce jour là…"), dans un **sous-dossier au nom du jour du reel**, format
-`MM/JJ` (ex. `08/05`) — c'est la convention déjà en usage dans ce dossier
-(les sources vidéo de Thomas y arrivent déjà sous ce nom). Avant de créer
-le sous-dossier, vérifier s'il existe déjà (`search_files`, requête
-`parentId = '1Dcvt6NhjzG5AjW2rSBxu4nV-SFoTXX6G' and title = 'MM/JJ'`) —
-le réutiliser si oui (il peut déjà contenir la vidéo source), sinon le
-créer (`create_file`, `mimeType: application/vnd.google-apps.folder`,
-`parentId` = l'ID du dossier "Ce jour là…"). Puis uploader le fichier
-final dans ce sous-dossier (`create_file`, `parentId` = l'ID du
-sous-dossier du jour, `contentMimeType: video/mp4`,
-`disableConversionToGoogleType: true`, contenu en base64).
-
-**Le connecteur Drive a une limite de taille sur ce chemin d'upload**
-(`create_file` encode le contenu en base64 dans l'appel — pas de
-téléversement par morceaux/résumable disponible dans ce connecteur) : un
-reel complet non recompressé (souvent 30-80 Mo) échoue régulièrement.
-Recompresser **avant** le premier essai plutôt que d'attendre l'échec,
-par paliers croissants jusqu'à passer :
-```bash
-ffmpeg -y -i reel-final.mp4 -c:v libx264 -crf 26 -preset medium -pix_fmt yuv420p -c:a aac -b:a 128k drive-upload.mp4   # palier 1
-ffmpeg -y -i reel-final.mp4 -c:v libx264 -crf 30 -preset medium -pix_fmt yuv420p -vf scale=810:1440 -c:a aac -b:a 96k drive-upload.mp4   # palier 2, si le palier 1 échoue encore
-```
-Ce fichier recompressé est **uniquement pour l'upload Drive** — le commit
-Git (ci-dessous) reste la version pleine qualité issue du render, jamais
-la version dégradée.
-
-**Si l'upload Drive échoue encore après le palier 2 (ou pour toute autre
-raison), ne pas bloquer la livraison** : le commit/push sur `ce-jour-là`
-(ci-dessous) reste un canal de livraison valide à lui seul — le signaler
-clairement dans le message de livraison (« Drive a échoué, fichier
-disponible via le commit <chemin> sur la branche ce-jour-là ») plutôt que
-de retenter indéfiniment ou d'abandonner sans rien livrer.
+**Livraison : uniquement par commit/push Git sur `ce-jour-là`, plus de
+Google Drive.** Retiré le 12 août 2026 (demande explicite de Thomas — le
+chemin d'upload Drive échouait de façon récurrente : limite de taille sur
+`create_file` en base64 sans téléversement résumable, puis plus
+récemment des refus d'autorisation systématiques sur le connecteur pour
+cette session). L'ancienne double-livraison Drive + Git (avec Git en
+repli si Drive échouait) est abandonnée — **Git est désormais le seul
+canal, pas un repli** : ne plus tenter d'upload Drive du tout pour ce
+livrable, ne plus recompresser de version dégradée pour l'upload (le
+fichier committé reste la version pleine qualité issue du render).
 
 Committer le dossier du projet (assets compris — seuls `renders/`,
 `node_modules/`, `snapshots/`, `.debug/` sont ignorés) et pousser sur la
-branche `ce-jour-là` (jamais fusionnée dans `main`).
+branche `ce-jour-là` (jamais fusionnée dans `main`). Le message de
+livraison à Thomas doit pointer vers le chemin du fichier sur cette
+branche (ex. « Reel livré : `<date>/reel-final.mp4` sur la branche
+ce-jour-là »).
