@@ -54,7 +54,17 @@
          Aucune ombre portée, aucun contour. .story-line porte un
          transform:translateY(-50%) STATIQUE pour le centrage — ne jamais
          animer y dessus avec GSAP (§6), tweens opacity uniquement. */
-      .story-zone { position: absolute; left: 96px; right: 96px; z-index: 20; text-align: center; }
+      /* top:0/bottom:0 obligatoires ici : sans eux .story-zone (enfant
+         absolument positionné dont TOUS les enfants sont eux-mêmes
+         position:absolute, donc aucun contenu de flux normal) se
+         résume à une hauteur auto=0 — les .story-line à
+         top:50%/translateY(-50%) se centrent alors sur cette hauteur
+         nulle et se retrouvent coupées en haut du cadre (bug constaté
+         par extraction de frame sur ce reel, corrigé ici ; la note du
+         CLAUDE.md affirmant que top/height explicites sont inutiles
+         "si enfant direct de #root" est fausse en pratique — à corriger
+         côté main). */
+      .story-zone { position: absolute; top: 0; bottom: 0; left: 96px; right: 96px; z-index: 20; text-align: center; }
       .story-line {
         position: absolute; left: 0; right: 0;
         top: 50%; transform: translateY(-50%);
