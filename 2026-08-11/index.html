@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 11 août 1984 (test structure storytelling)</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      /* --ocre-render : compensation couleur pipeline de render vidéo, cf.
+         CLAUDE.md §3 — ne remplace pas --ocre (tokens/colors.css intact). */
+      :root { --ocre-render: #B9A456; }
+
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      .clip { opacity: 0; }
+
+      /* ===== header — identique editeur-series.html (M=MR=96, ringD=92,
+         ringY=216, hairline y=318), persistant tout le reel ===== */
+      #hdr { position: absolute; inset: 0 0 auto 0; z-index: 30; }
+      .ring {
+        position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
+        border: 4px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
+      .tag {
+        position: absolute; left: 96px; top: 350px; height: 58px; z-index: 30;
+        display: flex; align-items: center; background: var(--ocre-render); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; padding: 0 15px;
+      }
+
+      /* ===== vidéo composite (fond flou + plan net), un seul <video>,
+         cf. CLAUDE.md §2 — pré-cuite en amont via ffmpeg, geometry figée ===== */
+      #a-roll { position: absolute; inset: 0; width: 1080px; height: 1920px; object-fit: cover; z-index: 1; }
+
+      /* ===== texte façon Parions Sport (référence) : blocs gras, centrés
+         milieu de cadre, superposés directement sur le plan net — pas de
+         bande basse floutée réservée, pas d'encadré ocre mot-clé (juste le
+         header garde l'ocre, cf. consigne "ne garde que le header"). ===== */
+      .story-zone { position: absolute; left: 96px; right: 96px; top: 760px; z-index: 20; text-align: center; }
+      .story-line {
+        position: absolute; left: 0; right: 0; top: 0;
+        font-family: 'Anton', sans-serif; font-size: 74px; line-height: 1.08;
+        text-transform: uppercase; color: var(--cream);
+        text-shadow: 0 4px 22px rgba(0,0,0,.8), 0 1px 8px rgba(0,0,0,.9);
+        opacity: 0;
+      }
+      .story-line.tight { font-size: 58px; line-height: 1.15; }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="85.00"
+      data-fps="30"
+    >
+      <video
+        id="a-roll"
+        class="clip"
+        src="assets/composite.mp4"
+        muted
+        playsinline
+        data-start="0"
+        data-duration="85.00"
+        data-track-index="0"
+      ></video>
+
+      <!-- ============ HEADER — persistant, seul élément conforme à la
+           recette standard pour ce test (consigne explicite de Thomas) ===== -->
+      <div id="hdr" class="clip" data-start="0" data-duration="85.00">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+      <div class="tag">CE JOUR LÀ ...</div>
+
+      <!-- ============ TEXTE — rythme façon Parions Sport, blocs courts,
+           aucun encadré ocre, aucune coupure de plan pour l'intro/corps :
+           un seul <video> continu du début à la fin ===== -->
+      <div class="story-zone">
+        <div class="story-line clip" id="s01" data-start="0.30" data-duration="1.20">Presque</div>
+        <div class="story-line clip" id="s02" data-start="1.50" data-duration="1.20">Personne</div>
+        <div class="story-line clip" id="s03" data-start="2.70" data-duration="1.30">Ne s'en souvient</div>
+
+        <div class="story-line clip" id="s04" data-start="4.00" data-duration="1.00">Pourtant</div>
+        <div class="story-line clip" id="s05" data-start="5.00" data-duration="1.30">La France</div>
+        <div class="story-line clip" id="s06" data-start="6.30" data-duration="1.30">A un titre</div>
+        <div class="story-line clip" id="s07" data-start="7.60" data-duration="1.40">Olympique de foot</div>
+
+        <div class="story-line clip" id="s08" data-start="9.00" data-duration="1.50">11 août 1984</div>
+        <div class="story-line clip" id="s09" data-start="10.50" data-duration="2.00">Rose Bowl</div>
+        <div class="story-line clip" id="s10" data-start="12.50" data-duration="2.50">De Pasadena</div>
+
+        <div class="story-line clip" id="s11" data-start="15.00" data-duration="2.00">Finale des Jeux</div>
+        <div class="story-line clip" id="s12" data-start="17.00" data-duration="1.50">De Los Angeles</div>
+        <div class="story-line clip" id="s13" data-start="18.50" data-duration="1.50">France — Brésil</div>
+
+        <div class="story-line clip" id="s14" data-start="20.00" data-duration="2.50">Muette</div>
+        <div class="story-line clip" id="s15" data-start="22.50" data-duration="2.50">Pendant 45 minutes</div>
+
+        <div class="story-line clip" id="s16" data-start="25.00" data-duration="2.00">Elle bascule</div>
+        <div class="story-line clip" id="s17" data-start="27.00" data-duration="2.00">Tout en cinq minutes</div>
+        <!-- 29.0–32.0 : le but respire, aucun texte -->
+
+        <div class="story-line clip" id="s18" data-start="32.00" data-duration="2.00">55e</div>
+        <div class="story-line clip" id="s19" data-start="34.00" data-duration="3.00">Brisson ouvre le score</div>
+        <!-- 37.0–41.0 : transition, aucun texte -->
+
+        <div class="story-line clip" id="s20" data-start="41.00" data-duration="2.00">60e</div>
+        <!-- sync avec le carton d'époque "15-DANIEL XUEREB" déjà présent dans la vidéo -->
+        <div class="story-line clip" id="s21" data-start="43.00" data-duration="3.00">Xuereb double la mise</div>
+        <!-- 46.0–51.0 : le but respire, aucun texte -->
+
+        <div class="story-line clip" id="s22" data-start="51.00" data-duration="2.50">Xuereb finira</div>
+        <div class="story-line clip" id="s23" data-start="53.50" data-duration="2.50">Co-meilleur buteur</div>
+        <div class="story-line clip" id="s24" data-start="56.00" data-duration="2.00">5 buts</div>
+
+        <div class="story-line clip" id="s25" data-start="58.00" data-duration="2.00">2-0</div>
+        <div class="story-line clip" id="s26" data-start="60.00" data-duration="2.00">101 799</div>
+        <div class="story-line clip" id="s27" data-start="62.00" data-duration="2.00">Spectateurs</div>
+
+        <div class="story-line clip" id="s28" data-start="64.00" data-duration="2.50">Un record</div>
+        <div class="story-line clip" id="s29" data-start="66.50" data-duration="2.00">Qui tient toujours</div>
+        <div class="story-line clip" id="s30" data-start="68.50" data-duration="1.50">Aujourd'hui</div>
+
+        <div class="story-line tight clip" id="s31" data-start="70.00" data-duration="2.50">Six semaines après le sacre à l'Euro de Platini</div>
+        <div class="story-line tight clip" id="s32" data-start="72.50" data-duration="3.50">Le seul titre olympique que la France ait jamais remporté</div>
+
+        <div class="story-line clip" id="s33" data-start="76.00" data-duration="2.00">Alors,</div>
+        <div class="story-line tight clip" id="s34" data-start="78.00" data-duration="2.30">Un titre oublié,</div>
+        <div class="story-line tight clip" id="s35" data-start="80.30" data-duration="1.70">Ça compte autant qu'un Euro ?</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // Fondu bloc court, façon karaoké Parions Sport : entrée rapide,
+      // tenue, sortie rapide, hard-kill obligatoire (cf. CLAUDE.md §5/§6 —
+      // .story-line n'a pas de transform statique, donc y animable sans
+      // conflit).
+      function fadeBlock(sel, start, dur, opts = {}) {
+        const inDur = opts.inDur ?? 0.18;
+        const outDur = opts.outDur ?? 0.16;
+        const y = opts.y ?? 10;
+        tl.fromTo(sel, { opacity: 0, y }, { opacity: 1, y: 0, duration: inDur, ease: 'power2.out' }, start);
+        tl.to(sel, { opacity: 0, duration: outDur, ease: 'sine.in' }, start + dur - outDur);
+        tl.set(sel, { opacity: 0, y: 0 }, start + dur);
+      }
+
+      tl.fromTo('#hdr', { opacity: 0 }, { opacity: 1, duration: 0.4, ease: 'power2.out' }, 0);
+      tl.set('#hdr', { opacity: 1 }, 0.4);
+
+      const beats = [
+        's01','s02','s03','s04','s05','s06','s07','s08','s09','s10',
+        's11','s12','s13','s14','s15','s16','s17','s18','s19','s20',
+        's21','s22','s23','s24','s25','s26','s27','s28','s29','s30',
+        's31','s32','s33','s34','s35'
+      ];
+      beats.forEach((id) => {
+        const el = document.getElementById(id);
+        const start = parseFloat(el.dataset.start);
+        const dur = parseFloat(el.dataset.duration);
+        fadeBlock('#' + id, start, dur);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
