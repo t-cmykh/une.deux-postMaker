@@ -105,21 +105,25 @@
            RESYNC MANUEL du 12 août 2026 (demande explicite de Thomas, en
            dérogation ponctuelle à la règle "aucun re-découpage" du §4.B —
            qui vise la Routine automatique, pas une session de calage manuel
-           sur la vidéo source) : le calage d'origine (facteur d'étirement
-           uniforme, ~1.152s/carton) ignorait le montage réel — les deux
-           premiers buts adverses tombaient ~12s trop tôt par rapport aux
-           images (buts déjà entrés en boîte avant l'apparition des cartons
-           correspondants), et la séquence de tirs au but/trophée débordait
-           sur des plans qui ne les montraient pas encore. Retimé ici
-           carton par carton contre les repères visuels réels de
-           assets/full.mp4 (scoreboard à l'écran, gros plans joueurs,
-           confettis) — mêmes faits, mêmes lignes sources, juste regroupées
-           différemment par endroits (47 cartons au lieu de 51 : quelques
-           lignes courtes de l'outro fusionnées pour tenir le rythme du
-           plan trophée qui ne dure que ~7s) et retimées pour tomber sur
-           l'image correspondante plutôt que sur un métronome uniforme. Le
-           texte de chaque ligne reste verbatim par rapport au brouillon,
-           seul le découpage en cartons et le calage temporel changent. -->
+           sur la vidéo source), 2e passe après retour de Thomas :
+           1) le carton "OUVRE LE SCORE." tenait 5.0s (repli de tout le
+              temps de battement de la 1ère passe sur un seul carton) — ça
+              viole la règle "les cartons doivent défiler non stop" (§4.B) :
+              raccourci à 1.7s et le battement redistribué sur les cartons
+              voisins (À LA 48E/ROMERO/DOUBLE LA MISE/2-0), qui couvrent en
+              réalité une seule séquence de jeu continue (coup franc défendu
+              → centre → mêlée devant le but) menant au but de Romero, pas
+              des replays du but de Van de Ven comme supposé en 1ère passe.
+           2) "VITINHA RATE LE PREMIER" et "MATHYS TEL MANQUE LE SIEN"
+              retirés (2+2 cartons) — ces deux ratés ne sont pas visibles
+              dans assets/full.mp4, retour explicite de Thomas. Le temps
+              libéré redistribué sur les cartons de tirs au but restants
+              (PUIS CHEVALIER/SORT CELUI/DE VAN DE VEN puis NUNO MENDES/
+              TRANSFORME/LE DERNIER), toujours calés sur les gros plans
+              réels (Chevalier ~46.0s, Nuno Mendes ~51.3s).
+           43 cartons au total (51 → 47 en 1ère passe → 43 ici). Texte
+           source inchangé pour toutes les lignes conservées, seul le
+           découpage et le calage temporel changent. -->
       <div class="story-zone">
         <div class="story-line" id="c1">EN 1996,</div>
         <div class="story-line" id="c2">LE PSG PERDAIT</div>
@@ -150,24 +154,20 @@
         <div class="story-line" id="c27">2-2</div>
         <div class="story-line" id="c28">PLACE MAINTENANT AU</div>
         <div class="story-line" id="c29">TIRS AU BUT.</div>
-        <div class="story-line" id="c30">VITINHA RATE</div>
-        <div class="story-line" id="c31">LE PREMIER</div>
-        <div class="story-line" id="c32">PUIS CHEVALIER</div>
-        <div class="story-line" id="c33">SORT CELUI</div>
-        <div class="story-line" id="c34">DE VAN DE VEN.</div>
-        <div class="story-line" id="c35">MATHYS TEL</div>
-        <div class="story-line" id="c36">MANQUE LE SIEN.</div>
-        <div class="story-line" id="c37">NUNO MENDES</div>
-        <div class="story-line" id="c38">TRANSFORME</div>
-        <div class="story-line" id="c39">LE DERNIER.</div>
-        <div class="story-line" id="c40">4-3 AU TIR AU BUT</div>
-        <div class="story-line" id="c41">PREMIER CLUB FRANÇAIS</div>
-        <div class="story-line" id="c42">À SOULEVER CETTE COUPE.</div>
-        <div class="story-line" id="c43">UN AN PLUS TARD</div>
-        <div class="story-line" id="c44">PARIS RÉCIDIVE</div>
-        <div class="story-line" id="c45">PRESQUE UN AN, JOUR POUR JOUR.</div>
-        <div class="story-line" id="c46">LA FINALE DE 1996</div>
-        <div class="story-line" id="c47">EST MAINTENANT BIEN LOIN.</div>
+        <div class="story-line" id="c30">PUIS CHEVALIER</div>
+        <div class="story-line" id="c31">SORT CELUI</div>
+        <div class="story-line" id="c32">DE VAN DE VEN.</div>
+        <div class="story-line" id="c33">NUNO MENDES</div>
+        <div class="story-line" id="c34">TRANSFORME</div>
+        <div class="story-line" id="c35">LE DERNIER.</div>
+        <div class="story-line" id="c36">4-3 AU TIR AU BUT</div>
+        <div class="story-line" id="c37">PREMIER CLUB FRANÇAIS</div>
+        <div class="story-line" id="c38">À SOULEVER CETTE COUPE.</div>
+        <div class="story-line" id="c39">UN AN PLUS TARD</div>
+        <div class="story-line" id="c40">PARIS RÉCIDIVE</div>
+        <div class="story-line" id="c41">PRESQUE UN AN, JOUR POUR JOUR.</div>
+        <div class="story-line" id="c42">LA FINALE DE 1996</div>
+        <div class="story-line" id="c43">EST MAINTENANT BIEN LOIN.</div>
       </div>
     </div>
 
@@ -175,31 +175,35 @@
       window.__timelines = window.__timelines || {};
       const tl = gsap.timeline({ paused: true });
 
-      /* corps façon karaoké — §4.B/§5 CLAUDE.md, RETIMÉ MANUELLEMENT le 12
-         août 2026 pour caler chaque carton sur l'image réelle de
-         assets/full.mp4 plutôt que sur un métronome uniforme (le calage
-         d'origine, ~1.152s/carte par étirement uniforme, ignorait le
-         montage réel du highlight — cf. commentaire au-dessus de
-         .story-zone). Repères vidéo utilisés (lus sur le bandeau de score
-         à l'écran + gros plans joueurs, cf. session de calage) :
+      /* corps façon karaoké — §4.B/§5 CLAUDE.md, RETIMÉ le 12 août 2026,
+         2e passe après retour de Thomas sur la 1ère passe (cf. commentaire
+         au-dessus de .story-zone pour le détail des deux correctifs :
+         carton "OUVRE LE SCORE." qui tenait 5.0s au lieu de défiler en
+         continu, et cartons Vitinha/Mathys Tel retirés — absents de
+         assets/full.mp4). Repères vidéo utilisés (lus sur le bandeau de
+         score à l'écran + gros plans joueurs) :
            - 0.0–6.5s   archive 1996/97 (Juventus-PSG)
            - 6.5–17.0s  sortie de tunnel 2025 + coup d'envoi + jeu
-           - ~19.9s     but Van de Ven (0-1, tableau à jour ~20.0s)
-           - 20.0–25.5s replays du but 1
-           - ~26.3s     but Romero (0-2, tableau à jour ~28.6s)
-           - ~34.3s     but Lee Kang-in (1-2, tableau à jour ~35.25s)
-           - ~38.8s     tête de Ramos, égalisation (2-2, tableau ~39.4s)
+           - 19.7–21.4s but Van de Ven (contact ~19.9s, tableau 0-1 ~20.0s)
+           - 21.4–27.1s UNE SEULE séquence de jeu continue (coup franc
+                        défendu par le mur PSG → centre → mêlée devant le
+                        but) menant au but de Romero — PAS des replays du
+                        but 1, contrairement à ce que la 1ère passe
+                        supposait à tort
+           - ~26.3s     but Romero (tableau 0-2 à jour ~28.6-28.9s)
+           - ~34.3s     but Lee Kang-in (tableau 1-2 à jour ~35.25s)
+           - ~38.8s     tête de Ramos, égalisation (tableau 2-2 ~39.4s)
            - ~40.0s     transition vers les tirs au but
-           - 41.3–47.0s tirs ratés/arrêtés (Vitinha, Chevalier/Van de Ven)
-           - ~45–47s    gros plan Chevalier
-           - ~49.5–51s  gros plan Nuno Mendes puis tir décisif
+           - ~46.0s     gros plan Chevalier (maillot lisible à l'écran)
+           - ~51.3s     gros plan Nuno Mendes (maillot "N.MENDES 25")
            - ~52.0s     début des célébrations "WINNERS" (jusqu'à 59.0333s)
          Cartons contigus (zéro pause, toujours un sous-titre à l'écran,
-         §4.B) mais durées variables selon le rythme réel de l'action —
-         plus longues sur les temps morts/replays (ex. c13, qui tient
-         pendant les replays du but 1), plus courtes sur les rafales
-         (tirs au but, tête de Ramos). Dernière carte se termine
-         exactement à la fin de la vidéo (59.0333s). */
+         §4.B), durées resserrées pour rester dans un rythme homogène —
+         plus aucun carton ne dépasse ~2.9s (contre 5.0s en 1ère passe),
+         cette borne haute réservée au carton "2-0" qui couvre la mise à
+         jour du tableau de score, un point de pause naturel plutôt qu'un
+         connecteur figé. Dernière carte se termine exactement à la fin de
+         la vidéo (59.0333s). */
       function fadeBlockKaraoke(sel, start, dur) {
         tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 0.10, ease: 'power2.out' }, start);
         tl.to(sel, { opacity: 0, duration: 0.08, ease: 'sine.in' }, start + dur - 0.08);
@@ -217,13 +221,13 @@
         { id: 'c8',  start: 12.500, dur: 1.500 },
         { id: 'c9',  start: 14.000, dur: 1.000 },
         { id: 'c10', start: 15.000, dur: 2.000 },  // tient jusqu'au début de l'action but 1 (~17.0s)
-        { id: 'c11', start: 17.000, dur: 1.400 },  // scramble/corner but 1
-        { id: 'c12', start: 18.400, dur: 1.300 },
-        { id: 'c13', start: 19.700, dur: 5.000 },  // but Van de Ven (~19.9s) + replays jusqu'à ~24.7s
-        { id: 'c14', start: 24.700, dur: 1.500 },  // build-up but 2
-        { id: 'c15', start: 26.200, dur: 1.100 },  // but Romero (~26.3s)
-        { id: 'c16', start: 27.300, dur: 1.400 },  // célébration
-        { id: 'c17', start: 28.700, dur: 1.300 },  // tableau 0-2 (~28.6s)
+        { id: 'c11', start: 17.000, dur: 1.600 },  // scramble/corner but 1
+        { id: 'c12', start: 18.600, dur: 1.100 },
+        { id: 'c13', start: 19.700, dur: 1.700 },  // but Van de Ven (contact ~19.9s, tableau ~20.0s)
+        { id: 'c14', start: 21.400, dur: 1.900 },  // coup franc défendu (mur PSG visible)
+        { id: 'c15', start: 23.300, dur: 1.700 },  // centre + mêlée devant le but
+        { id: 'c16', start: 25.000, dur: 2.100 },  // but Romero (contact ~26.3s)
+        { id: 'c17', start: 27.100, dur: 2.900 },  // tableau 0-2 à jour (~28.6-28.9s) + célébration
         { id: 'c18', start: 30.000, dur: 1.100 },  // pression PSG avant l'entrée de Lee Kang-in
         { id: 'c19', start: 31.100, dur: 1.000 },
         { id: 'c20', start: 32.100, dur: 1.100 },
@@ -234,26 +238,22 @@
         { id: 'c25', start: 37.450, dur: 0.900 },
         { id: 'c26', start: 38.350, dur: 0.650 },  // contact tête Ramos (~38.8s)
         { id: 'c27', start: 39.000, dur: 1.000 },  // tableau 2-2 (~39.4s) + célébration
-        { id: 'c28', start: 40.000, dur: 0.600 },  // transition tirs au but
-        { id: 'c29', start: 40.600, dur: 0.700 },
-        { id: 'c30', start: 41.300, dur: 1.150 },  // séquence tirs au but
-        { id: 'c31', start: 42.450, dur: 1.150 },
-        { id: 'c32', start: 43.600, dur: 1.150 },  // gros plan Chevalier (~45-47s)
-        { id: 'c33', start: 44.750, dur: 1.150 },
-        { id: 'c34', start: 45.900, dur: 1.150 },
-        { id: 'c35', start: 47.050, dur: 1.150 },
-        { id: 'c36', start: 48.200, dur: 1.300 },
-        { id: 'c37', start: 49.500, dur: 0.600 },  // gros plan Nuno Mendes (~49.5-51s)
-        { id: 'c38', start: 50.100, dur: 0.600 },
-        { id: 'c39', start: 50.700, dur: 0.600 },  // tir décisif
-        { id: 'c40', start: 51.300, dur: 0.700 },  // score final, juste avant le trophée
-        { id: 'c41', start: 52.000, dur: 1.000 },  // célébrations "WINNERS" (jusqu'à 59.0333s)
-        { id: 'c42', start: 53.000, dur: 1.050 },
-        { id: 'c43', start: 54.050, dur: 1.000 },
-        { id: 'c44', start: 55.050, dur: 1.000 },
-        { id: 'c45', start: 56.050, dur: 1.050 },
-        { id: 'c46', start: 57.100, dur: 1.000 },
-        { id: 'c47', start: 58.100, dur: 0.933 },
+        { id: 'c28', start: 40.000, dur: 1.000 },  // transition tirs au but
+        { id: 'c29', start: 41.000, dur: 2.600 },  // séquence tirs au but générale
+        { id: 'c30', start: 43.600, dur: 1.200 },  // gros plan Chevalier (~46.0s)
+        { id: 'c31', start: 44.800, dur: 1.500 },
+        { id: 'c32', start: 46.300, dur: 1.400 },
+        { id: 'c33', start: 47.700, dur: 1.400 },  // gros plan Nuno Mendes (~51.3s)
+        { id: 'c34', start: 49.100, dur: 1.400 },
+        { id: 'c35', start: 50.500, dur: 0.900 },
+        { id: 'c36', start: 51.400, dur: 0.600 },  // score final, juste avant le trophée
+        { id: 'c37', start: 52.000, dur: 1.000 },  // célébrations "WINNERS" (jusqu'à 59.0333s)
+        { id: 'c38', start: 53.000, dur: 1.050 },
+        { id: 'c39', start: 54.050, dur: 1.000 },
+        { id: 'c40', start: 55.050, dur: 1.000 },
+        { id: 'c41', start: 56.050, dur: 1.050 },
+        { id: 'c42', start: 57.100, dur: 1.000 },
+        { id: 'c43', start: 58.100, dur: 0.933 },
       ];
 
       cards.forEach(({ id, start, dur }) => {
