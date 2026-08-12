@@ -1,0 +1,11 @@
+{
+  "name": "cejourla-13aout-reel",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "npx --yes hyperframes@0.7.64 preview",
+    "check": "npx --yes hyperframes@0.7.64 check",
+    "render": "npx --yes hyperframes@0.7.64 render -w 4",
+    "publish": "npx --yes hyperframes@0.7.64 publish"
+  }
+}
