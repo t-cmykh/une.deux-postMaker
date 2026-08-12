@@ -77,7 +77,7 @@
       <div class="label">Lanceur</div>
       <div class="desc">Déclencher un montage reel Ce jour-là</div>
     </a>
-    <a href="https://claude.ai/code/routines" target="_blank" rel="noopener" class="card" style="border-color:rgba(194,160,78,0.6);background:rgba(194,160,78,0.08)">
+    <a id="actions-link" href="https://claude.ai/code/routines" target="_blank" rel="noopener" class="card" style="border-color:rgba(194,160,78,0.6);background:rgba(194,160,78,0.08)">
       <div class="icon">&#9881;</div>
       <div class="label">Actions</div>
       <div class="desc">Routines Claude Code — tâches planifiées</div>
@@ -113,5 +113,19 @@
       <div class="desc">Repérer les meilleurs moments et recadrer en 9:16</div>
     </a>
   </div>
+  <script>
+    // Sur iOS, un lien https://claude.ai/... tapé dans Safari est intercepté par
+    // le Universal Link de l'app Claude et ouvre l'app native au lieu du navigateur.
+    // Le préfixe de schéma x-safari-https:// force explicitement Safari à traiter
+    // le lien lui-même, en contournant cette redirection — spécifique à iOS/Safari,
+    // donc seulement appliqué là où c'est nécessaire (Android/desktop restent en
+    // https:// normal, x-safari-https:// n'y étant pas reconnu).
+    if (/iP(hone|od|ad)/.test(navigator.userAgent)) {
+      var actionsLink = document.getElementById('actions-link');
+      if (actionsLink) {
+        actionsLink.href = 'x-safari-' + actionsLink.href;
+      }
+    }
+  </script>
 </body>
 </html>
