@@ -13,16 +13,9 @@
       body { font-family: 'Archivo', system-ui, sans-serif; }
       #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
 
-      /* NOUVELLE SOURCE VIDÉO (12 août 2026, remplace la précédente) — lien
-         Drive fourni par Thomas avec le texte CORPS (karaoké) complet
-         d'origine (51 lignes, Vitinha et Mathys Tel inclus). La source
-         précédente (CBS Sports Golazo, 59.0333s) ne montrait pas ces deux
-         ratés du tir au but ; celle-ci (CANAL+, 77.1667s, 1170×654) montre
-         le match complet avec un chronomètre ET un tracker "PENALTIES"
-         permanents à l'écran (tableau PSG/TOT case par case, vert=marqué,
-         rouge=raté) — lus précisément pour caler chaque carton (cf.
-         commentaire du script ci-dessous). Vidéo intégrale gardée telle
-         quelle, aucun trim (§1bis CLAUDE.md). Un seul composite continu du
+      /* Source vidéo Drive du brouillon "LANCER REEL — 2026-08-13" (CANAL+,
+         77.1667s, 1170×654). Vidéo intégrale gardée telle quelle, aucun trim
+         ni sélection de plans (§1bis CLAUDE.md). Un seul composite continu du
          début à la fin (0 → 77.1667s), même géométrie sur toute la durée :
          fond plein cadre flouté/désaturé + plan net 1080×888 plein cadre
          horizontal (overlay y=420 — §2 CLAUDE.md). Géométrie de cover-crop
@@ -102,14 +95,9 @@
 
       <!-- corps du post — champ CORPS (karaoké) du brouillon "POST DU JOUR
            — 13 août 2026" (PAS le champ CORPS générique, §4.B CLAUDE.md).
-           Texte source à nouveau complet (51 lignes, fourni verbatim par
-           Thomas avec le nouveau lien vidéo). Seule différence avec le
-           texte source : 4 fusions dans l'outro (mêmes lignes, juste
-           regroupées deux par deux) pour tenir le rythme du plan trophée,
-           qui ne dure que ~3.9s dans cette vidéo — 47 cartons au lieu de
-           51. Voir le commentaire du script ci-dessous pour le calage
-           complet, vérifié image par image contre le chronomètre et le
-           tracker "PENALTIES" à l'écran. -->
+           52 lignes, chacune reprise VERBATIM en un carton, dans l'ordre du
+           brouillon, sans fusion ni reformulation (§4.B : "une ligne de
+           CORPS (karaoké) = un carton affiché à l'écran, verbatim"). -->
       <div class="story-zone">
         <div class="story-line" id="c1">EN 1996,</div>
         <div class="story-line" id="c2">LE PSG PERDAIT</div>
@@ -127,37 +115,42 @@
         <div class="story-line" id="c14">À LA 48E</div>
         <div class="story-line" id="c15">ROMERO</div>
         <div class="story-line" id="c16">DOUBLE LA MISE</div>
-        <div class="story-line" id="c17">2-0</div>
-        <div class="story-line" id="c18">PARIS N'EXISTE PAS,</div>
-        <div class="story-line" id="c19">JUSQU'À CE QUE</div>
-        <div class="story-line" id="c20">LEE KANG-IN,</div>
-        <div class="story-line" id="c21">ENTRE EN JEU.</div>
-        <div class="story-line" id="c22">FRAPPE CROISÉE</div>
-        <div class="story-line" id="c23">2-1</div>
-        <div class="story-line" id="c24">À LA 94EME</div>
-        <div class="story-line" id="c25">CENTRE DE DEMBÉLÉ</div>
-        <div class="story-line" id="c26">TÊTE DE RAMOS</div>
-        <div class="story-line" id="c27">2-2</div>
-        <div class="story-line" id="c28">PLACE MAINTENANT AU</div>
-        <div class="story-line" id="c29">TIRS AU BUT.</div>
-        <div class="story-line" id="c30">VITINHA RATE</div>
-        <div class="story-line" id="c31">LE PREMIER</div>
-        <div class="story-line" id="c32">PUIS CHEVALIER</div>
-        <div class="story-line" id="c33">SORT CELUI</div>
-        <div class="story-line" id="c34">DE VAN DE VEN.</div>
-        <div class="story-line" id="c35">MATHYS TEL</div>
-        <div class="story-line" id="c36">MANQUE LE SIEN.</div>
-        <div class="story-line" id="c37">NUNO MENDES</div>
-        <div class="story-line" id="c38">TRANSFORME</div>
-        <div class="story-line" id="c39">LE DERNIER.</div>
-        <div class="story-line" id="c40">4-3 AU TIR AU BUT</div>
-        <div class="story-line" id="c41">PREMIER CLUB FRANÇAIS</div>
-        <div class="story-line" id="c42">À SOULEVER CETTE COUPE.</div>
-        <div class="story-line" id="c43">UN AN PLUS TARD</div>
-        <div class="story-line" id="c44">PARIS RÉCIDIVE</div>
-        <div class="story-line" id="c45">PRESQUE UN AN, JOUR POUR JOUR.</div>
-        <div class="story-line" id="c46">LA FINALE DE 1996</div>
-        <div class="story-line" id="c47">EST MAINTENANT BIEN LOIN.</div>
+        <div class="story-line" id="c17">DEUX COUPS FRANCS</div>
+        <div class="story-line" id="c18">2-0</div>
+        <div class="story-line" id="c19">PARIS N'EXISTE PAS,</div>
+        <div class="story-line" id="c20">JUSQU'À CE QUE</div>
+        <div class="story-line" id="c21">LEE KANG-IN,</div>
+        <div class="story-line" id="c22">ENTRE EN JEU.</div>
+        <div class="story-line" id="c23">FRAPPE CROISÉE</div>
+        <div class="story-line" id="c24">2-1</div>
+        <div class="story-line" id="c25">À LA 94EME</div>
+        <div class="story-line" id="c26">CENTRE DE DEMBÉLÉ</div>
+        <div class="story-line" id="c27">TÊTE DE RAMOS</div>
+        <div class="story-line" id="c28">2-2</div>
+        <div class="story-line" id="c29">PLACE MAINTENANT AU</div>
+        <div class="story-line" id="c30">TIRS AU BUT.</div>
+        <div class="story-line" id="c31">VITINHA RATE</div>
+        <div class="story-line" id="c32">LE PREMIER</div>
+        <div class="story-line" id="c33">PUIS CHEVALIER</div>
+        <div class="story-line" id="c34">SORT CELUI</div>
+        <div class="story-line" id="c35">DE VAN DE VEN.</div>
+        <div class="story-line" id="c36">MATHYS TEL</div>
+        <div class="story-line" id="c37">MANQUE LE SIEN.</div>
+        <div class="story-line" id="c38">NUNO MENDES</div>
+        <div class="story-line" id="c39">TRANSFORME</div>
+        <div class="story-line" id="c40">LE DERNIER.</div>
+        <div class="story-line" id="c41">4-3 AU TIR AU BUT</div>
+        <div class="story-line" id="c42">PREMIER CLUB FRANÇAIS</div>
+        <div class="story-line" id="c43">À SOULEVER</div>
+        <div class="story-line" id="c44">CETTE COUPE.</div>
+        <div class="story-line" id="c45">UN AN</div>
+        <div class="story-line" id="c46">PLUS TARD</div>
+        <div class="story-line" id="c47">PARIS RÉCIDIVE</div>
+        <div class="story-line" id="c48">PRESQUE</div>
+        <div class="story-line" id="c49">JOUR POUR JOUR.</div>
+        <div class="story-line" id="c50">LA FINALE DE 1996</div>
+        <div class="story-line" id="c51">EST MAINTENANT</div>
+        <div class="story-line" id="c52">BIEN LOIN.</div>
       </div>
     </div>
 
@@ -165,47 +158,17 @@
       window.__timelines = window.__timelines || {};
       const tl = gsap.timeline({ paused: true });
 
-      /* corps façon karaoké — §4.B/§5 CLAUDE.md. RECALÉ le 12 août 2026 sur
-         la nouvelle vidéo CANAL+ (77.1667s) — chronomètre + tracker
-         "PENALTIES" lus image par image (pas de la simple lecture du
-         tableau de score comme sur la source précédente). Repères vidéo
-         exacts (video_raw_new.mp4 = assets/full.mp4) :
-           - 0.0–5.7s    archive 1996/97 (Juventus 3-1 PSG, tab)
-           - 5.7–10.1s   sortie de tunnel 2025 (2 trophées + mascotte)
-           - 10.1–21.35s jeu, chrono 38:22→38:33, score 0-0
-           - 21.35s      CUT : chrono saute à 47:18, déjà 0-1 — le but de
-                          Van de Ven (39e) n'est pas montré en direct dans
-                          cette source, seul l'après-but l'est
-           - 21.35–29.3s jeu continu 47:18→47:26 (PAS des replays — une
-                          seule séquence : coup franc défendu par le mur
-                          PSG → mêlée devant le but)
-           - 29.3s       but Romero EN DIRECT (0-1→0-2, chrono reste 47:26)
-           - 29.9s       CUT : chrono saute à 84:22, toujours 0-2
-           - 29.9–36.2s  jeu continu 84:22→84:28
-           - 36.2s       but Lee Kang-in EN DIRECT (0-2→1-2, chrono 84:28)
-           - ~39.0s      CUT : arrêt de jeu, chrono 90:00 (+arrêts de jeu)
-           - 39.0–43.0s  jeu continu en prolongation du temps additionnel
-           - 43.0s       tête de Ramos EN DIRECT (1-2→2-2, chrono 90:00)
-           - 43.0–46s    gros plans célébration (Ramos #9, Dembélé #10)
-           - ~47s        transition tirs au but, graphique "PENALTIES"
-           - 47.6–54.85s 1er tir PSG (Vitinha) PAS montré en direct — CUT
-                          à 54.85s révèle PSG raté/marqué + TOT marqué déjà
-                          résolus (tracker : PSG[X,O] TOT[O,O])
-           - 61.35–61.4s Chevalier arrête le tir de Van de Ven EN DIRECT
-                          (tracker TOT case 3 : cercle→croix animée)
-           - 67.4s       CUT : révèle Mathys Tel raté + PSG marqué + TOT
-                          marqué simultanément (tracker : TOT[O,O,X,X,O])
-           - 72.25–72.3s Nuno Mendes transforme le tir décisif EN DIRECT
-                          (tracker PSG case 5 : teal→cercle vert)
-           - ~73–74s     célébration (accolade Mendes/Chevalier)
-           - 74–77.1667s célébrations "WINNERS" jusqu'à la fin de la vidéo
-         Cartons contigus (zéro pause, toujours un sous-titre à l'écran,
-         §4.B), durées variables selon le rythme réel de la séquence
-         (jusqu'à ~3.1s max sur les cartons sans repère visuel précis —
-         ex. MATHYS TEL/MANQUE LE SIEN, qui n'ont pas de moment filmé en
-         direct à cibler — mais jamais un carton isolé bien au-delà de ses
-         voisins comme le carton à 5.0s de la version précédente). Dernière
-         carte se termine exactement à la fin de la vidéo (77.1667s). */
+      /* corps façon karaoké — réglages de BASE §4.B/§5 CLAUDE.md, sans
+         calage manuel image par image sur le contenu vidéo. Rythme uniforme
+         calculé par la formule §5 : durée_carte_brute = 0.35s (fixe,
+         indépendante du nombre de mots) ; facteur = durée_vidéo_disponible /
+         (n_cartes × 0.35) ; durée_carte = 0.35 × facteur. Ici : 52 cartons
+         (une ligne du CORPS (karaoké) du brouillon = un carton, verbatim,
+         dans l'ordre — §4.B, aucun re-découpage/fusion), vidéo 77.1667s,
+         départ à 0.3s → facteur ≈ 4.2234, durée_carte ≈ 1.4782s pour
+         chaque carton. Cartons contigus (zéro pause, toujours un sous-titre
+         à l'écran, §4.B) — dernière carte se termine exactement à la fin
+         de la vidéo (77.1667s). */
       function fadeBlockKaraoke(sel, start, dur) {
         tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 0.10, ease: 'power2.out' }, start);
         tl.to(sel, { opacity: 0, duration: 0.08, ease: 'sine.in' }, start + dur - 0.08);
@@ -213,53 +176,58 @@
       }
 
       const cards = [
-        { id: 'c1',  start: 0.300,  dur: 1.700 },  // archive 1996/97
-        { id: 'c2',  start: 2.000,  dur: 1.700 },
-        { id: 'c3',  start: 3.700,  dur: 2.000 },  // tient jusqu'à la fin de l'archive (~5.7s)
-        { id: 'c4',  start: 5.700,  dur: 1.500 },  // sortie de tunnel 2025
-        { id: 'c5',  start: 7.200,  dur: 1.450 },
-        { id: 'c6',  start: 8.650,  dur: 1.450 },  // tient jusqu'au coup d'envoi (~10.1s)
-        { id: 'c7',  start: 10.100, dur: 2.800 },  // jeu, chrono 38:2x, 0-0
-        { id: 'c8',  start: 12.900, dur: 2.800 },
-        { id: 'c9',  start: 15.700, dur: 2.800 },
-        { id: 'c10', start: 18.500, dur: 2.850 },  // tient jusqu'au CUT vers 47:18/0-1 (~21.35s)
-        { id: 'c11', start: 21.350, dur: 1.500 },  // après-but Van de Ven (déjà 0-1)
-        { id: 'c12', start: 22.850, dur: 1.200 },
-        { id: 'c13', start: 24.050, dur: 1.500 },
-        { id: 'c14', start: 25.550, dur: 1.200 },  // coup franc défendu (mur PSG)
-        { id: 'c15', start: 26.750, dur: 1.150 },
-        { id: 'c16', start: 27.900, dur: 1.400 },  // but Romero EN DIRECT (~29.3s)
-        { id: 'c17', start: 29.300, dur: 1.500 },  // 0-2, célébration → CUT vers 84:22 (~29.9s)
-        { id: 'c18', start: 30.800, dur: 1.300 },  // pression PSG, chrono 84:2x
-        { id: 'c19', start: 32.100, dur: 1.300 },
-        { id: 'c20', start: 33.400, dur: 1.400 },
-        { id: 'c21', start: 34.800, dur: 1.400 },  // tient jusqu'au but Kang-in (~36.2s)
-        { id: 'c22', start: 36.200, dur: 1.300 },  // but Lee Kang-in EN DIRECT
-        { id: 'c23', start: 37.500, dur: 1.500 },  // 1-2, célébration → CUT vers 90:00 (~39.0s)
-        { id: 'c24', start: 39.000, dur: 1.300 },  // arrêts de jeu, chrono 90:00
-        { id: 'c25', start: 40.300, dur: 1.300 },
-        { id: 'c26', start: 41.600, dur: 1.400 },  // tête de Ramos EN DIRECT (~43.0s)
-        { id: 'c27', start: 43.000, dur: 2.200 },  // 2-2, gros plans célébration
-        { id: 'c28', start: 45.200, dur: 1.100 },  // transition tirs au but
-        { id: 'c29', start: 46.300, dur: 1.300 },  // graphique "PENALTIES" apparaît
-        { id: 'c30', start: 47.600, dur: 2.760 },  // 1er tir PSG (Vitinha, pas montré en direct)
-        { id: 'c31', start: 50.360, dur: 2.760 },
-        { id: 'c32', start: 53.120, dur: 2.760 },
-        { id: 'c33', start: 55.880, dur: 2.760 },
-        { id: 'c34', start: 58.640, dur: 2.760 },  // arrêt de Chevalier EN DIRECT (~61.4s)
-        { id: 'c35', start: 61.400, dur: 2.900 },  // tir raté Mathys Tel (révélé au CUT ~67.4s)
-        { id: 'c36', start: 64.300, dur: 3.100 },
-        { id: 'c37', start: 67.400, dur: 1.900 },  // Nuno Mendes s'avance
-        { id: 'c38', start: 69.300, dur: 1.500 },
-        { id: 'c39', start: 70.800, dur: 1.500 },  // tir décisif EN DIRECT (~72.3s)
-        { id: 'c40', start: 72.300, dur: 1.000 },  // score final, célébration → trophée
-        { id: 'c41', start: 73.300, dur: 0.550 },  // célébrations "WINNERS" (jusqu'à 77.1667s)
-        { id: 'c42', start: 73.850, dur: 0.550 },
-        { id: 'c43', start: 74.400, dur: 0.550 },
-        { id: 'c44', start: 74.950, dur: 0.550 },
-        { id: 'c45', start: 75.500, dur: 0.550 },
-        { id: 'c46', start: 76.050, dur: 0.550 },
-        { id: 'c47', start: 76.600, dur: 0.5667 },
+        { id: 'c1', start: 0.3000, dur: 1.4782 },
+        { id: 'c2', start: 1.7782, dur: 1.4782 },
+        { id: 'c3', start: 3.2564, dur: 1.4782 },
+        { id: 'c4', start: 4.7346, dur: 1.4782 },
+        { id: 'c5', start: 6.2128, dur: 1.4782 },
+        { id: 'c6', start: 7.6910, dur: 1.4782 },
+        { id: 'c7', start: 9.1692, dur: 1.4782 },
+        { id: 'c8', start: 10.6474, dur: 1.4782 },
+        { id: 'c9', start: 12.1256, dur: 1.4782 },
+        { id: 'c10', start: 13.6039, dur: 1.4782 },
+        { id: 'c11', start: 15.0821, dur: 1.4782 },
+        { id: 'c12', start: 16.5603, dur: 1.4782 },
+        { id: 'c13', start: 18.0385, dur: 1.4782 },
+        { id: 'c14', start: 19.5167, dur: 1.4782 },
+        { id: 'c15', start: 20.9949, dur: 1.4782 },
+        { id: 'c16', start: 22.4731, dur: 1.4782 },
+        { id: 'c17', start: 23.9513, dur: 1.4782 },
+        { id: 'c18', start: 25.4295, dur: 1.4782 },
+        { id: 'c19', start: 26.9077, dur: 1.4782 },
+        { id: 'c20', start: 28.3859, dur: 1.4782 },
+        { id: 'c21', start: 29.8641, dur: 1.4782 },
+        { id: 'c22', start: 31.3423, dur: 1.4782 },
+        { id: 'c23', start: 32.8205, dur: 1.4782 },
+        { id: 'c24', start: 34.2987, dur: 1.4782 },
+        { id: 'c25', start: 35.7769, dur: 1.4782 },
+        { id: 'c26', start: 37.2551, dur: 1.4782 },
+        { id: 'c27', start: 38.7333, dur: 1.4782 },
+        { id: 'c28', start: 40.2116, dur: 1.4782 },
+        { id: 'c29', start: 41.6898, dur: 1.4782 },
+        { id: 'c30', start: 43.1680, dur: 1.4782 },
+        { id: 'c31', start: 44.6462, dur: 1.4782 },
+        { id: 'c32', start: 46.1244, dur: 1.4782 },
+        { id: 'c33', start: 47.6026, dur: 1.4782 },
+        { id: 'c34', start: 49.0808, dur: 1.4782 },
+        { id: 'c35', start: 50.5590, dur: 1.4782 },
+        { id: 'c36', start: 52.0372, dur: 1.4782 },
+        { id: 'c37', start: 53.5154, dur: 1.4782 },
+        { id: 'c38', start: 54.9936, dur: 1.4782 },
+        { id: 'c39', start: 56.4718, dur: 1.4782 },
+        { id: 'c40', start: 57.9500, dur: 1.4782 },
+        { id: 'c41', start: 59.4282, dur: 1.4782 },
+        { id: 'c42', start: 60.9064, dur: 1.4782 },
+        { id: 'c43', start: 62.3846, dur: 1.4782 },
+        { id: 'c44', start: 63.8628, dur: 1.4782 },
+        { id: 'c45', start: 65.3411, dur: 1.4782 },
+        { id: 'c46', start: 66.8193, dur: 1.4782 },
+        { id: 'c47', start: 68.2975, dur: 1.4782 },
+        { id: 'c48', start: 69.7757, dur: 1.4782 },
+        { id: 'c49', start: 71.2539, dur: 1.4782 },
+        { id: 'c50', start: 72.7321, dur: 1.4782 },
+        { id: 'c51', start: 74.2103, dur: 1.4782 },
+        { id: 'c52', start: 75.6885, dur: 1.4782 },
       ];
 
       cards.forEach(({ id, start, dur }) => {
