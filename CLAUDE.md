@@ -634,10 +634,22 @@ Chaque reel = un nouveau dossier `<date-ISO>/` (ex. `2026-08-05/`) **à la
 racine de la branche `ce-jour-là`** — pas de préfixe `hyperframes/`, pas de
 slug descriptif — avec `hyperframes.json`, `meta.json`, `package.json`
 (copier depuis un projet existant et adapter `name`/`id`), `.gitignore`
-(`node_modules/`, `renders/`, `snapshots/`, `.debug/`), `tokens/fonts.css` +
+(`node_modules/`, `renders/`, `snapshots/`, `.debug/`, `assets/` — ajouté le
+12 août 2026, voir §9 pour la justification), `tokens/fonts.css` +
 `tokens/colors.css` copiés tels quels (source de vérité : palette
 `--ocre`/`--ink`/`--cream`/`--muted-cream` de `editeurs/editeur-series.html`
 — `--ocre-render`, lui, se déclare localement dans `index.html`, cf. §3).
+
+**Paralléliser le scaffold avec le bake ffmpeg §2** (optimisation du
+12 août 2026) : écrire `index.html` (header, textes, timeline GSAP) et
+copier les fichiers de scaffold ci-dessus ne dépend que de la **durée** de
+la vidéo, connue dès l'inspection d'orientation du §1 — pas du fichier
+`composite.mp4` fini. Lancer le composite ffmpeg du §2 en tâche de fond
+(`run_in_background`) et rédiger le scaffold + `index.html` pendant qu'il
+tourne, plutôt que d'attendre la fin de l'encodage pour commencer à écrire
+la composition — ça sort ce poste du chemin critique séquentiel.
+`npm run check` (§9), lui, doit attendre que `composite.mp4`/`audio.m4a`
+existent réellement sur disque avant de tourner.
 
 Toujours un projet HyperFrames (le titre animé de l'intro est désormais
 systématique — il n'y a plus de cas "composite ffmpeg seul, sans
@@ -672,8 +684,22 @@ peut en avoir une) :
 ```bash
 ffmpeg -y -i reel-intro-corps.mp4 -i templates/rdvdemain-intro/cta-final.mp4 -filter_complex \
 "[0:v]setpts=PTS-STARTPTS[v0];[1:v]setpts=PTS-STARTPTS[v1];[v0][v1]concat=n=2:v=1:a=0[outv]" \
--map "[outv]" -map 0:a? -c:v libx264 -crf 20 -preset fast -pix_fmt yuv420p -c:a aac reel-final.mp4
+-map "[outv]" -map 0:a? -c:v libx264 -crf 20 -preset veryfast -pix_fmt yuv420p -c:a aac reel-final.mp4
 ```
+
+**`-preset veryfast` (pas `fast`) sur ce ré-encodage précis** — optimisation
+du 12 août 2026. Ce concat est déjà le **3ᵉ encodage complet** de la même
+vidéo (bake §2 → capture/encodage interne du render HyperFrames → ce
+ré-encodage de raccord) : la qualité perçue est verrouillée par les deux
+passages précédents, ce raccord ne fait que recoller deux fichiers déjà
+définitifs au même CRF — un preset plus rapide n'introduit pas de perte
+visible supplémentaire à CRF constant. **Ne pas confondre avec les presets
+du §2** (bake principal du composite) ni ceux internes au render
+HyperFrames, qui restent `fast` et inchangés — cette optimisation ne
+s'applique qu'à cette seule commande de raccord CTA. Le contrôle visuel du
+§9 (extraction de frames à la coupe reel→CTA) reste obligatoire et
+suffirait de toute façon à détecter un problème d'encodage si ce
+raisonnement s'avérait faux sur un cas réel.
 
 Le CTA s'ajoute donc en coupe franche (pas de fondu-enchaîné) — c'est
 attendu, c'est une carte de fin sur fond clair complètement différente du
@@ -698,10 +724,14 @@ Puis concaténer le CTA (§8) sur le fichier obtenu dans `renders/`.
 Après concat : extraire des frames à quelques instants clés (titre de
 l'intro à mi-révélation et pleinement révélé, coupe intro→corps — **vérifier
 qu'il n'y a aucun saut de cadrage visible à cette coupe, cf. §2**, quelques
-plans du corps, carte CTA finale) via `ffmpeg -ss <t> -frames:v 1` et les
-lire avec l'outil Read pour vérifier visuellement le calage texte/image, la
-lisibilité, le header, la couleur ocre (cf. §3) et la coupe propre vers le
-CTA — ne jamais livrer sans ce contrôle.
+plans du corps, carte CTA finale) via `ffmpeg -ss <t> -frames:v 1` — **lancer
+ces extractions en parallèle** (optimisation du 12 août 2026 : chaque
+commande en tâche de fond avec `&`, puis `wait` — chacune ré-ouvre/décode le
+fichier indépendamment, donc les paralléliser ne coûte rien et évite
+d'attendre N fois le coût de décodage d'un enchaînement séquentiel) — puis
+les lire avec l'outil Read pour vérifier visuellement le calage texte/image,
+la lisibilité, le header, la couleur ocre (cf. §3) et la coupe propre vers
+le CTA — ne jamais livrer sans ce contrôle.
 
 **INTERDIT de livrer un fichier depuis `assets/`** (sources brutes du
 composite, sans header ni texte) — le seul livrable valide est le fichier
@@ -719,9 +749,23 @@ canal, pas un repli** : ne plus tenter d'upload Drive du tout pour ce
 livrable, ne plus recompresser de version dégradée pour l'upload (le
 fichier committé reste la version pleine qualité issue du render).
 
-Committer le dossier du projet (assets compris — seuls `renders/`,
-`node_modules/`, `snapshots/`, `.debug/` sont ignorés) et pousser sur la
-branche `ce-jour-là` (jamais fusionnée dans `main`). Le message de
-livraison à Thomas doit pointer vers le chemin du fichier sur cette
-branche (ex. « Reel livré : `<date>/reel-final.mp4` sur la branche
-ce-jour-là »).
+Committer le dossier du projet — **`assets/` exclu depuis le 12 août
+2026** (seuls `assets/`, `renders/`, `node_modules/`, `snapshots/`,
+`.debug/` sont ignorés, cf. §7) — et pousser sur la branche `ce-jour-là`
+(jamais fusionnée dans `main`). Le message de livraison à Thomas doit
+pointer vers le chemin du fichier sur cette branche (ex. « Reel livré :
+`<date>/reel-final.mp4` sur la branche ce-jour-là »).
+
+**Pourquoi exclure `assets/`** : `composite.mp4`/`audio.m4a` (§2) sont des
+fichiers intermédiaires reproductibles, jamais le livrable (rappel
+ci-dessus) — ils pesaient à eux seuls autant que `reel-final.mp4` (~30 Mo
+chacun sur les reels déjà livrés), doublant le poids poussé chaque jour
+sur une branche qui n'est jamais purgée ni fusionnée : ce poids ne fait
+que s'accumuler indéfiniment et ralentit chaque `git fetch`/`push`/`pull`
+que la Routine fait sur cette branche, jour après jour.
+**Contrepartie à connaître** : si Thomas redemande une retouche sur un
+reel déjà livré (texte, timing), la vidéo source n'est plus dans le
+dossier une fois committé — retélécharger depuis le lien Drive ou la
+pièce jointe d'origine (§1) avant de pouvoir relancer le bake §2 ; si le
+lien Drive a expiré entre-temps, le signaler à Thomas plutôt que
+d'improviser une source de remplacement.
