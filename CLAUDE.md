@@ -428,9 +428,34 @@ juste après le header jusqu'au CTA.
   l'opacité/l'épaisseur au jugé si le texte semble flou ou si le contour
   devient trop visible en extraction de frame, mais rester sur un ink
   semi-transparent, pas un noir ou un crème plein comme testé et écarté
-  précédemment). Couleur du texte toujours crème (`var(--cream)`), fixe —
-  pas de surlignage mot par mot, tout le carton change d'état en même
-  temps (fondu bloc entier, cf. mécanique commune du §4).
+  précédemment). Couleur du texte crème (`var(--cream)`) par défaut, tout
+  le carton change d'état en même temps (fondu bloc entier, cf. mécanique
+  commune du §4) — **pas de surlignage mot par mot animé dans le temps**
+  (l'ancienne mécanique "TikTok" à encadré ocre mobile reste abandonnée,
+  cf. tête de §4.B) ; la seule exception à la couleur crème par défaut est
+  statique, cf. règle ci-dessous.
+- **Mot-clé en ocre via `**mot**`** (ajoutée le 13 août 2026, demande
+  explicite de Thomas) : si une ligne de `CORPS (karaoké)` contient un ou
+  plusieurs mots encadrés par des astérisques doubles (`**mot**`), retirer
+  les `**` et afficher ce(s) mot(s) en couleur ocre (`var(--ocre-render)`,
+  cf. §3) au lieu du crème par défaut — même principe d'extraction par
+  position que les mots-clés du titre animé (§4bis, `extractGreenWords`) :
+  pas de sélection "au jugé" côté traitement, uniquement les mots que la
+  rédaction de `CORPS (karaoké)` a explicitement marqués (voir SKILL.md §
+  « Livrable quotidien », champ `Corps (karaoké)`). Implémentation : envelopper
+  chaque mot marqué dans `<b class="ocre">` (même convention que le
+  `<b class="ocre">` du corps en style Fixe, §4.A) à l'intérieur du
+  `.story-line`, avec :
+  ```css
+  .story-line b.ocre { color:var(--ocre-render); font-weight:inherit; }
+  ```
+  Contrairement au `kw-box` du §4bis (carré ocre plein derrière le mot),
+  ici pas de fond ni de padding — seule la couleur du texte change, tout le
+  reste du carton (police, taille, contour) reste identique. Une ligne peut
+  mélanger mots crème et mots ocre ; le fondu du bloc entier (§4/§4.B) reste
+  la seule animation, aucun tween supplémentaire par mot. Si une ligne de
+  `CORPS (karaoké)` ne contient aucun `**…**`, elle reste entièrement crème
+  comme avant cette règle.
 - **Position : centré verticalement dans le cadre** (pas dans la bande
   basse comme 4.A) — le texte est superposé directement sur le plan net,
   au milieu de l'écran, comme sur la référence externe. CSS :

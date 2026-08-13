@@ -435,7 +435,7 @@ en vert dans l'éphéméride) contient, **en tête et pour le sujet retenu** :
    storytelling et reformatée pour le reel en style Karaoké (CLAUDE.md §4.B,
    « une ligne du CORPS = un carton affiché à l'écran »). Ajouté au workflow le
    11 août 2026 après validation du format sur le test "11 août 1984" et sa
-   reprise sur l'exemple Cantona. Deux règles à respecter systématiquement :
+   reprise sur l'exemple Cantona. Trois règles à respecter systématiquement :
    - **Accroche sans spoiler + boucle qui se referme** (piste narrative validée) :
      ne jamais révéler le résultat/l'identité/la chute dès les premières lignes
      — ouvrir sur un détail intrigant qui ne nomme/ne dit pas encore l'essentiel
@@ -449,6 +449,13 @@ en vert dans l'éphéméride) contient, **en tête et pour le sujet retenu** :
      re-découpage côté traitement, cf. CLAUDE.md §4.B) — donc la brièveté est
      la responsabilité de cette rédaction-ci, jamais une phrase entière sur une
      seule ligne.
+   - **Mot-clé en ocre : `**mot**`** (ajouté le 13 août 2026) — encadrer d'un
+     double astérisque le ou les mots à faire ressortir en couleur ocre au
+     montage (chiffres, scores, noms propres, faits marquants, comme pour le
+     `<b class="ocre">` du Corps en style Fixe), même mécanisme que les mots
+     encadrés du champ Titre (§ ci-dessus). Optionnel — une ligne sans `**`
+     reste entièrement crème. Ne pas surcharger : un ou deux mots par ligne,
+     jamais toute la ligne. Voir CLAUDE.md §4.B pour le rendu.
 4. **Lien vidéo** de l'événement si un existe (match, but, reportage — YouTube ou
    archive vérifiée). Si aucune vidéo fiable n'est trouvée, écrire explicitement :
    **« Pas de lien vidéo disponible. »**
@@ -473,13 +480,15 @@ sur demande explicite de Thomas (« on fait le post complet »).
 **Même exemple, Corps (karaoké)** — mêmes faits que ci-dessus, reformatés en
 storytelling à lignes courtes, accroche sans spoiler (les États-Unis ne sont
 pas nommés avant l'affrontement, Gaetjens n'est nommé qu'à son but) et boucle
-qui se referme sur l'écho de l'ouverture :
+qui se referme sur l'écho de l'ouverture. Les mots encadrés par `**…**`
+(« 500 contre 1 », « 37e minute », « Duvalier ») ressortiront en ocre au
+montage :
 
 > Un prof.
 > Un chauffeur de corbillard.
 > Un plongeur.
 >
-> Donnés à 500 contre 1.
+> Donnés à **500 contre 1**.
 >
 > Ce jour-là,
 > à Belo Horizonte,
@@ -489,7 +498,7 @@ qui se referme sur l'écho de l'ouverture :
 > Les rois du foot.
 > Face à des amateurs.
 >
-> À la 37e minute,
+> À la **37e minute**,
 > un but.
 >
 > Joe Gaetjens,
@@ -507,7 +516,7 @@ qui se referme sur l'écho de l'ouverture :
 > il disparaît.
 >
 > Arrêté par le régime
-> Duvalier.
+> **Duvalier**.
 >
 > Le héros du but
 > le plus improbable du foot.
