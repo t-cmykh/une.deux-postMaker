@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 14 août 1977, Pelé et le record d'affluence des Cosmos (karaoké)</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* Source vidéo du brouillon "LANCER REEL — 2026-08-14" (LIEN DRIVE id
+         1MI51VXDDJeJQMn5jaQFwOPtiNLdglo-C, STYLE SOUS-TITRES: karaoké).
+         Archive "New York Cosmos vs. Fort Lauderdale Strikers, 1977
+         Playoffs" (HEVC 1440×658, 59.2333s) — correspond au VIDÉO du
+         brouillon "POST DU JOUR — 14 août 2026" (Pelé, record d'affluence
+         NASL du 14 août 1977). Vidéo intégrale gardée telle quelle, aucun
+         trim ni sélection de plans (§1bis CLAUDE.md).
+         Bandeau d'identification "New York Cosmos vs. Fort Lauderdale
+         Strikers / 1977 Playoffs" persistant en bas-gauche du cadre
+         (ajout moderne de l'uploader, pas un habillage broadcast
+         d'époque) — pré-crop de la source à 1440×540 (bandeau logé dans
+         les 118px du bas, hors de cette zone) AVANT le calcul de
+         cover-crop standard, sur le fond ET le plan net (précédent §2 :
+         zoom/pré-crop pour exclure un habillage à la source). Vérifié par
+         extraction de frames sur toute la durée : bandeau absent partout,
+         cadrage joueurs/ballon conservé. Un seul composite continu du
+         début à la fin, même géométrie sur toute la durée : fond plein
+         cadre flouté/désaturé (scale=5121:1920 crop_x=2020) + plan net
+         1080×888 plein cadre horizontal (scale=2368:888 crop_x=644,
+         overlay y=420 — §2 CLAUDE.md). Un seul élément <video>, pas de
+         titre animé séparé pour ce style (§4bis ne s'applique pas au
+         karaoké). */
+      .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+
+      /* header — constantes fixes de la série, persistant du début à la fin */
+      #hdr { position: absolute; inset: 0 0 auto 0; z-index: 20; }
+      .ring {
+        position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
+        border: 4px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
+
+      /* --ocre-render : compensation du décalage de teinte du pipeline de
+         render HyperFrames sur --ocre (§3 CLAUDE.md) — ne pas remplacer
+         var(--ocre) dans tokens/colors.css, uniquement une variable locale
+         à la composition. Utilisé ici uniquement sur .tag (le style
+         karaoké n'a pas de mots-clés ocre dans le corps, §4.B). */
+      :root { --ocre-render: #B9A456; }
+      .tag {
+        position: absolute; left: 96px; top: 350px; height: 58px; z-index: 20;
+        display: flex; align-items: center; background: var(--ocre-render); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; padding: 0 15px;
+      }
+
+      /* corps de texte façon karaoké — Anton, centré verticalement dans le
+         cadre, superposé directement sur le plan net (§4.B CLAUDE.md).
+         Taille FIXE 80px pour toutes les cartes, pas de paliers par
+         longueur — wrap naturel du navigateur sur 2 lignes en dernier
+         recours plutôt que de réduire la taille ; aucune ombre portée ;
+         léger contour semi-transparent ink. .story-line porte un
+         transform:translateY(-50%) STATIQUE pour le centrage — ne jamais
+         animer y dessus avec GSAP (§6), tweens opacity uniquement.
+         top:0/bottom:0 obligatoires sur .story-zone. */
+      .story-zone { position: absolute; top: 0; bottom: 0; left: 96px; right: 96px; z-index: 20; text-align: center; }
+      .story-line {
+        position: absolute; left: 0; right: 0;
+        top: 50%; transform: translateY(-50%);
+        font-family: 'Anton', sans-serif; font-size: 80px; line-height: 1.1;
+        text-transform: uppercase; color: var(--cream); opacity: 0;
+        -webkit-text-stroke: 1.5px rgba(44,40,35,.35);
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="59.2333"
+      data-fps="30"
+    >
+      <!-- vidéo Drive intégrale, un seul plan continu du début à la fin
+           (aucun trim, cf. commentaire CSS ci-dessus) -->
+      <video class="video-full" id="fullv" src="assets/full.mp4" data-start="0.0000" data-duration="59.2333" data-track-index="1" muted playsinline></video>
+
+      <audio id="fulla" src="assets/full-audio.m4a" data-start="0.0000" data-duration="59.2333" data-track-index="20"></audio>
+
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+      <div class="tag">CE JOUR LÀ …</div>
+
+      <!-- corps du post — champ CORPS (karaoké) du brouillon "POST DU JOUR
+           — 14 août 2026" (PAS le champ CORPS générique, §4.B CLAUDE.md).
+           50 lignes, chacune reprise VERBATIM en un carton, dans l'ordre du
+           brouillon, sans fusion ni reformulation (§4.B : "une ligne de
+           CORPS (karaoké) = un carton affiché à l'écran, verbatim"). -->
+      <div class="story-zone">
+        <div class="story-line" id="c1">LE DERNIER TROPHÉE</div>
+        <div class="story-line" id="c2">DE PELÉ,</div>
+        <div class="story-line" id="c3">IL L'A GAGNÉ</div>
+        <div class="story-line" id="c4">DANS UNE LIGUE</div>
+        <div class="story-line" id="c5">DONT TU N'AS</div>
+        <div class="story-line" id="c6">JAMAIS ENTENDU PARLER.</div>
+        <div class="story-line" id="c7">IL A 36 ANS.</div>
+        <div class="story-line" id="c8">IL JOUE</div>
+        <div class="story-line" id="c9">AUX ÉTATS-UNIS,</div>
+        <div class="story-line" id="c10">EN NASL,</div>
+        <div class="story-line" id="c11">UN CHAMPIONNAT</div>
+        <div class="story-line" id="c12">QUE TOUTE L'EUROPE</div>
+        <div class="story-line" id="c13">TROUVE RIDICULE.</div>
+        <div class="story-line" id="c14">LE 14 AOÛT 1977,</div>
+        <div class="story-line" id="c15">LES COSMOS JOUENT</div>
+        <div class="story-line" id="c16">UN MATCH DE PLAYOFFS.</div>
+        <div class="story-line" id="c17">LE STADE EST COMPLET</div>
+        <div class="story-line" id="c18">TROIS JOURS AVANT.</div>
+        <div class="story-line" id="c19">ALORS ILS VENDENT</div>
+        <div class="story-line" id="c20">2000 PLACES DEBOUT,</div>
+        <div class="story-line" id="c21">LE MATIN MÊME.</div>
+        <div class="story-line" id="c22">77 691</div>
+        <div class="story-line" id="c23">PERSONNES.</div>
+        <div class="story-line" id="c24">IL FAUDRA ATTENDRE</div>
+        <div class="story-line" id="c25">2009</div>
+        <div class="story-line" id="c26">POUR QU'UN MATCH</div>
+        <div class="story-line" id="c27">DE CHAMPIONNAT DE FRANCE</div>
+        <div class="story-line" id="c28">FASSE MIEUX.</div>
+        <div class="story-line" id="c29">CE SOIR-LÀ,</div>
+        <div class="story-line" id="c30">PELÉ NE MARQUE PAS.</div>
+        <div class="story-line" id="c31">IL SORT AVANT LA FIN,</div>
+        <div class="story-line" id="c32">SOUS UNE OVATION</div>
+        <div class="story-line" id="c33">QUI NE S'ARRÊTE PLUS.</div>
+        <div class="story-line" id="c34">DEUX SEMAINES PLUS TARD,</div>
+        <div class="story-line" id="c35">IL SOULÈVE LE TITRE</div>
+        <div class="story-line" id="c36">ET IL ARRÊTE.</div>
+        <div class="story-line" id="c37">LA NASL,</div>
+        <div class="story-line" id="c38">ELLE,</div>
+        <div class="story-line" id="c39">S'EFFONDRE</div>
+        <div class="story-line" id="c40">HUIT ANS PLUS TARD.</div>
+        <div class="story-line" id="c41">MAIS ELLE A PLANTÉ</div>
+        <div class="story-line" id="c42">LA GRAINE</div>
+        <div class="story-line" id="c43">DU FOOT PRO</div>
+        <div class="story-line" id="c44">AUX ÉTATS-UNIS.</div>
+        <div class="story-line" id="c45">LA LIGUE</div>
+        <div class="story-line" id="c46">DONT TOUT LE MONDE</div>
+        <div class="story-line" id="c47">SE MOQUAIT</div>
+        <div class="story-line" id="c48">A AUJOURD'HUI UN NOM</div>
+        <div class="story-line" id="c49">QUE TU CONNAIS BIEN.</div>
+        <div class="story-line" id="c50">LA MLS.</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      /* corps façon karaoké — réglages de BASE §4.B/§5 CLAUDE.md, sans
+         calage manuel image par image sur le contenu vidéo. Rythme uniforme
+         calculé par la formule §5 : durée_carte_brute = 0.35s (fixe,
+         indépendante du nombre de mots) ; facteur = durée_vidéo_disponible /
+         (n_cartes × 0.35) ; durée_carte = 0.35 × facteur. Ici : 50 cartons
+         (une ligne du CORPS (karaoké) du brouillon = un carton, verbatim,
+         dans l'ordre — §4.B, aucun re-découpage/fusion), vidéo 59.2333s,
+         départ à 0.3s → facteur ≈ 3.3676, durée_carte ≈ 1.1787s pour chaque
+         carton. Cartons contigus (zéro pause, toujours un sous-titre à
+         l'écran, §4.B) — dernière carte se termine à la fin de la vidéo
+         (59.2350s ≈ 59.2333s, écart d'arrondi négligeable). */
+      function fadeBlockKaraoke(sel, start, dur) {
+        tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 0.10, ease: 'power2.out' }, start);
+        tl.to(sel, { opacity: 0, duration: 0.08, ease: 'sine.in' }, start + dur - 0.08);
+        tl.set(sel, { opacity: 0 }, start + dur);
+      }
+
+      const cards = [
+        { id: 'c1', start: 0.3000, dur: 1.1787 },
+        { id: 'c2', start: 1.4787, dur: 1.1787 },
+        { id: 'c3', start: 2.6574, dur: 1.1787 },
+        { id: 'c4', start: 3.8361, dur: 1.1787 },
+        { id: 'c5', start: 5.0148, dur: 1.1787 },
+        { id: 'c6', start: 6.1935, dur: 1.1787 },
+        { id: 'c7', start: 7.3722, dur: 1.1787 },
+        { id: 'c8', start: 8.5509, dur: 1.1787 },
+        { id: 'c9', start: 9.7296, dur: 1.1787 },
+        { id: 'c10', start: 10.9083, dur: 1.1787 },
+        { id: 'c11', start: 12.0870, dur: 1.1787 },
+        { id: 'c12', start: 13.2657, dur: 1.1787 },
+        { id: 'c13', start: 14.4444, dur: 1.1787 },
+        { id: 'c14', start: 15.6231, dur: 1.1787 },
+        { id: 'c15', start: 16.8018, dur: 1.1787 },
+        { id: 'c16', start: 17.9805, dur: 1.1787 },
+        { id: 'c17', start: 19.1592, dur: 1.1787 },
+        { id: 'c18', start: 20.3379, dur: 1.1787 },
+        { id: 'c19', start: 21.5166, dur: 1.1787 },
+        { id: 'c20', start: 22.6953, dur: 1.1787 },
+        { id: 'c21', start: 23.8740, dur: 1.1787 },
+        { id: 'c22', start: 25.0527, dur: 1.1787 },
+        { id: 'c23', start: 26.2314, dur: 1.1787 },
+        { id: 'c24', start: 27.4101, dur: 1.1787 },
+        { id: 'c25', start: 28.5888, dur: 1.1787 },
+        { id: 'c26', start: 29.7675, dur: 1.1787 },
+        { id: 'c27', start: 30.9462, dur: 1.1787 },
+        { id: 'c28', start: 32.1249, dur: 1.1787 },
+        { id: 'c29', start: 33.3036, dur: 1.1787 },
+        { id: 'c30', start: 34.4823, dur: 1.1787 },
+        { id: 'c31', start: 35.6610, dur: 1.1787 },
+        { id: 'c32', start: 36.8397, dur: 1.1787 },
+        { id: 'c33', start: 38.0184, dur: 1.1787 },
+        { id: 'c34', start: 39.1971, dur: 1.1787 },
+        { id: 'c35', start: 40.3758, dur: 1.1787 },
+        { id: 'c36', start: 41.5545, dur: 1.1787 },
+        { id: 'c37', start: 42.7332, dur: 1.1787 },
+        { id: 'c38', start: 43.9119, dur: 1.1787 },
+        { id: 'c39', start: 45.0906, dur: 1.1787 },
+        { id: 'c40', start: 46.2693, dur: 1.1787 },
+        { id: 'c41', start: 47.4480, dur: 1.1787 },
+        { id: 'c42', start: 48.6267, dur: 1.1787 },
+        { id: 'c43', start: 49.8054, dur: 1.1787 },
+        { id: 'c44', start: 50.9841, dur: 1.1787 },
+        { id: 'c45', start: 52.1628, dur: 1.1787 },
+        { id: 'c46', start: 53.3415, dur: 1.1787 },
+        { id: 'c47', start: 54.5202, dur: 1.1787 },
+        { id: 'c48', start: 55.6989, dur: 1.1787 },
+        { id: 'c49', start: 56.8776, dur: 1.1787 },
+        { id: 'c50', start: 58.0563, dur: 1.1787 },
+      ];
+
+      cards.forEach(({ id, start, dur }) => {
+        fadeBlockKaraoke(`#${id}`, start, dur);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
