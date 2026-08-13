@@ -794,3 +794,24 @@ dossier une fois committé — retélécharger depuis le lien Drive ou la
 pièce jointe d'origine (§1) avant de pouvoir relancer le bake §2 ; si le
 lien Drive a expiré entre-temps, le signaler à Thomas plutôt que
 d'improviser une source de remplacement.
+
+**Ne jamais se fier à la seule présence de `assets/` dans `.gitignore` —
+vérifier explicitement avant chaque commit.** Incident du 13 août 2026 :
+la règle d'exclusion ci-dessus existait dans `.gitignore` depuis le
+12 août mais n'a en pratique **jamais fonctionné sur aucun des 10 dossiers
+livrés entre le 5 et le 13 août** — `assets/` (composite.mp4 + audio.m4a)
+s'est retrouvé committé à chaque fois malgré la règle, faisant grossir la
+branche à plus d'1,3 Go et provoquant des `git fetch` en timeout (jusqu'à
+11 minutes avant même de commencer le pipeline sur un run mesuré). Purgé
+rétroactivement par réécriture d'historique (`git filter-repo`, branche
+retombée à ~360 Mo) — mais la cause n'a pas été identifiée avec certitude
+(probablement `git add` sur des fichiers déjà indexés avant l'écriture du
+`.gitignore` du jour, ou un ordre d'opérations qui contourne l'exclusion),
+donc rien ne garantit que ça ne se reproduise pas silencieusement.
+**Avant tout commit du dossier de projet, vérifier explicitement les
+fichiers réellement mis en index** (`git status --short` ou
+`git add -n .` sur le dossier du jour) et confirmer qu'aucun chemin
+`assets/` n'apparaît dans la liste — si c'en est un, `git reset` ce
+chemin avant de committer plutôt que de faire confiance au `.gitignore`
+seul. Ce contrôle est obligatoire à chaque livraison, pas seulement en cas
+de doute.
