@@ -123,11 +123,13 @@ explicite — pas de complexité de découpe auto à maintenir).
 ```bash
 ffprobe -v error -show_entries stream=width,height:format=duration -of default=noprint_wrappers=1 video_raw.mp4
 ffprobe -v error -show_entries stream_side_data -of default=noprint_wrappers=1 video_raw.mp4
-ffmpeg -y -ss 3 -i video_raw.mp4 -frames:v 1 /tmp/check.jpg -loglevel error   # inspection visuelle via Read
 ```
 Les vidéos fournies jusqu'ici sont horizontales (~16:9, ratio ≈1.77), avec ou
-sans métadonnée de rotation trompeuse — se fier à l'image extraite, pas
-seulement aux nombres.
+sans métadonnée de rotation trompeuse — se fier aux métadonnées ffprobe
+(dimensions + `stream_side_data` pour une éventuelle rotation), pas de frame
+extraite ni d'inspection visuelle à ce stade (retiré le 14 août 2026, demande
+explicite de Thomas — plus de check de frames en début de fabrication, cf.
+§9 pour le même retrait en fin de fabrication).
 
 ### 1bis. Vidéo intégrale par défaut — pas de sélection de plans
 
@@ -198,9 +200,14 @@ texte (§4), plein cadre horizontalement :
 ffmpeg -y -i video_raw.mp4 -filter_complex \
 "[0:v]fps=30,scale=3400:1920,crop=1080:1920,gblur=sigma=36,eq=saturation=0.4[bg];[0:v]fps=30,scale=<cover_w2>:888,crop=1080:888:<centerX>:0[fg];[bg][fg]overlay=x=0:y=420:shortest=1[outv]" \
 -map "[outv]" -c:v libx264 -crf 20 -preset fast -pix_fmt yuv420p -g 30 -keyint_min 30 -sc_threshold 0 -an composite.mp4
-
-ffmpeg -y -i video_raw.mp4 -vn -c:a aac -b:a 160k audio.m4a   # si la source a du son
 ```
+
+**Le son de la vidéo source n'est jamais repris** (retiré le 14 août 2026,
+demande explicite de Thomas) : pas d'extraction `audio.m4a`, pas d'élément
+`<audio>` dans la composition (cf. §7) — le reel final n'a de piste audio
+que si le concat CTA en ajoute une (il n'en a pas), donc il est muet de bout
+en bout. Ancienne étape d'extraction audio abandonnée, ne pas la
+réintroduire.
 
 - `gblur=sigma=36` (flou fort — a été doublé une fois depuis sigma=18, la
   valeur 36 est celle validée) / `eq=saturation=0.4` (fond nettement
@@ -526,9 +533,10 @@ directement après le header, cf. §5.
   couleur `var(--ocre-render)` (cf. §3), texte toujours crème (pas
   d'inversion de couleur).
 - **Découpage en lignes** : à la main (pas d'auto-wrap côté HTML/HyperFrames
-  contrairement au canvas de l'éditeur) — composer au jugé puis corriger
-  après vérification par extraction de frame (§9) si une ligne déborde des
-  marges (`left:96px; right:96px`, soit 888px de large utile).
+  contrairement au canvas de l'éditeur) — composer au jugé, en gardant une
+  marge de sécurité sur la largeur utile (`left:96px; right:96px`, soit
+  888px) plutôt que de viser au plus juste, puisqu'il n'y a plus de check de
+  frames pour repérer un débordement après coup (§9, retiré le 14 août 2026).
 - **CSS/HTML/GSAP à reproduire à l'identique** (`Anton`, aligné à **gauche**
   — pas centré, contrairement au corps de texte du §4, et **sans ombre
   portée** — contrairement au corps de texte du §4 qui en a besoin faute de
@@ -673,16 +681,15 @@ la vidéo, connue dès l'inspection d'orientation du §1 — pas du fichier
 (`run_in_background`) et rédiger le scaffold + `index.html` pendant qu'il
 tourne, plutôt que d'attendre la fin de l'encodage pour commencer à écrire
 la composition — ça sort ce poste du chemin critique séquentiel.
-`npm run check` (§9), lui, doit attendre que `composite.mp4`/`audio.m4a`
-existent réellement sur disque avant de tourner.
+`npm run check` (§9), lui, doit attendre que `composite.mp4` existe
+réellement sur disque avant de tourner.
 
 Toujours un projet HyperFrames (le titre animé de l'intro est désormais
 systématique — il n'y a plus de cas "composite ffmpeg seul, sans
 HyperFrames", sauf le cas à part §2 "juste le composite, sans habillage").
 
-Vidéo et audio en enfants directs de `#root`, vidéo mutée
-(`muted playsinline`), son porté par un `<audio>` séparé avec sa propre
-`data-duration` (contrainte HyperFrames — jamais de son sur `<video>`).
+Vidéo en enfant direct de `#root`, toujours mutée (`muted playsinline`) —
+**pas d'élément `<audio>`, le son de la source n'est jamais repris** (§2).
 **Un seul élément `<video>`** pour toute la composition (le composite
 continu de §2) — pas d'élément par plan/segment sauf si le mode curé
 (§1bis, opt-in) a explicitement recomposé la vidéo à partir de plusieurs
@@ -721,16 +728,22 @@ définitifs au même CRF — un preset plus rapide n'introduit pas de perte
 visible supplémentaire à CRF constant. **Ne pas confondre avec les presets
 du §2** (bake principal du composite) ni ceux internes au render
 HyperFrames, qui restent `fast` et inchangés — cette optimisation ne
-s'applique qu'à cette seule commande de raccord CTA. Le contrôle visuel du
-§9 (extraction de frames à la coupe reel→CTA) reste obligatoire et
-suffirait de toute façon à détecter un problème d'encodage si ce
-raisonnement s'avérait faux sur un cas réel.
+s'applique qu'à cette seule commande de raccord CTA.
 
 Le CTA s'ajoute donc en coupe franche (pas de fondu-enchaîné) — c'est
 attendu, c'est une carte de fin sur fond clair complètement différente du
 composite sombre du reel, pas une continuité visuelle.
 
-### 9. Check → render → concat CTA → vérif → livraison
+### 9. Check → render → concat CTA → livraison
+
+**Pas de check de frames, ni en début ni en fin de fabrication** (retiré le
+14 août 2026, demande explicite de Thomas — cf. §1 pour le même retrait côté
+orientation). Le pipeline se résume à : vidéo source → composite/habillage
+(§2-§3) → sous-titres (§4/§4bis) → CTA de fin (§8), sans étape d'extraction
+de frames ni d'inspection visuelle par l'outil Read entre ces étapes ou
+avant livraison. `npm run check` (le lint/validation HyperFrames ci-dessous)
+reste en revanche obligatoire — ce n'est pas un « check de frames », c'est
+la validation de la composition avant de lancer le render.
 
 ```bash
 npm run check     # 0 erreur attendu ; le warning StaticGuard "data-end
@@ -744,19 +757,9 @@ npm run render     # tourne en tâche de fond (>2 min) — laisser tourner,
 
 **`package.json` doit passer `-w 4`** (`"render": "npx --yes hyperframes@0.7.64 render -w 4"`, à reprendre dans tous les nouveaux scaffolds §7) — le mode par défaut (`-w auto`) sous-estime souvent les workers disponibles (mesuré : 2 workers choisis sur une machine à 4 cœurs). Passer explicitement à 4 workers a réduit le temps de rendu de 43% sur un test contrôlé (67s → 38s, même composition, même machine) sans rien changer d'autre. Adapter le chiffre au nombre de cœurs réels si la machine de rendu diffère, mais ne jamais laisser `auto` deviner sans l'avoir vérifié au moins une fois.
 
-Puis concaténer le CTA (§8) sur le fichier obtenu dans `renders/`.
-
-Après concat : extraire des frames à quelques instants clés (titre de
-l'intro à mi-révélation et pleinement révélé, coupe intro→corps — **vérifier
-qu'il n'y a aucun saut de cadrage visible à cette coupe, cf. §2**, quelques
-plans du corps, carte CTA finale) via `ffmpeg -ss <t> -frames:v 1` — **lancer
-ces extractions en parallèle** (optimisation du 12 août 2026 : chaque
-commande en tâche de fond avec `&`, puis `wait` — chacune ré-ouvre/décode le
-fichier indépendamment, donc les paralléliser ne coûte rien et évite
-d'attendre N fois le coût de décodage d'un enchaînement séquentiel) — puis
-les lire avec l'outil Read pour vérifier visuellement le calage texte/image,
-la lisibilité, le header, la couleur ocre (cf. §3) et la coupe propre vers
-le CTA — ne jamais livrer sans ce contrôle.
+Puis concaténer le CTA (§8) sur le fichier obtenu dans `renders/`. Une fois
+le concat terminé, c'est le livrable — pas de contrôle par extraction de
+frames avant de le committer/livrer (cf. ci-dessus).
 
 **INTERDIT de livrer un fichier depuis `assets/`** (sources brutes du
 composite, sans header ni texte) — le seul livrable valide est le fichier
