@@ -21,14 +21,12 @@
          Vélodrome (5e journée D1 93-94), pillarboxée 1172x654 (bandes
          noires ~132px à gauche / ~134px à droite, cropdetect) — crop
          pillarbox 906x654@132,0 avant le calcul de cover-crop. Aucun logo
-         de chaîne persistant repéré sur plusieurs frames échantillonnées
-         (panneaux publicitaires visibles = décor du stade filmé, pas un
-         habillage d'émission) — pas de zoom d'exclusion nécessaire pour
-         cette source. Aucun carton graphique, images filmées réelles
-         uniquement. Un seul élément <video>, pas de titre animé séparé
-         pour ce style (§4bis ne s'applique pas au style karaoké). Source
-         avec piste audio (vérifié ffprobe, AAC) — <audio> séparé, vidéo
-         mutée. */
+         de chaîne persistant repéré. Aucun carton graphique, images
+         filmées réelles uniquement. Un seul élément <video>, pas de titre
+         animé séparé pour ce style (§4bis ne s'applique pas au style
+         karaoké). Son de la source ignoré (§2 CLAUDE.md, retiré le
+         14 août 2026) — vidéo mutée, pas d'élément <audio>, reel final
+         muet. */
       .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
 
       /* header — constantes fixes de la série, persistant du début à la fin */
@@ -88,9 +86,8 @@
       data-duration="41.3333"
       data-fps="30"
     >
-      <!-- vidéo du Drive intégrale, un seul plan continu du début à la fin -->
+      <!-- vidéo du Drive intégrale, un seul plan continu du début à la fin, mutée -->
       <video class="video-full" id="fullv" src="assets/full.mp4" data-start="0.0000" data-duration="41.3333" data-track-index="1" muted playsinline></video>
-      <audio id="fulla" src="assets/audio.m4a" data-start="0.0000" data-duration="41.3530" data-track-index="2"></audio>
 
       <div id="hdr">
         <div class="ring">1·2</div>
@@ -101,61 +98,62 @@
       <div class="tag">CE JOUR LÀ …</div>
 
       <!-- corps du post — texte karaoké validé par Thomas dans le chat
-           (OM 1-0 PSG, 15 août 1993). Une ligne = une carte, verbatim,
-           aucun re-découpage ni réordonnancement — reprise dans l'ordre
-           exact du texte final (48 lignes). Mots marqués **entre
-           étoiles** dans le texte source → <b class="ocre"> (§4.B règle
-           du 13 août 2026) : "87e minute", "Alen Bokšić", "l'UEFA bannit
-           Marseille", "D2". -->
+           (OM 1-0 PSG, 15 août 1993), version réordonnée du 14 août 2026 :
+           contexte (champion d'Europe / affaire VA-OM / bannissement UEFA)
+           avant l'action du match, puis retrait du titre / refus PSG /
+           relégation. Une ligne = une carte, verbatim, aucun re-découpage
+           ni réordonnancement supplémentaire (47 lignes). Mots marqués
+           **entre étoiles** → <b class="ocre"> (§4.B règle du 13 août
+           2026) : "15 août 1993", "l'UEFA bannit Marseille", "87e minute",
+           "Alen Bokšić", "D2". -->
       <div class="story-zone">
         <div class="story-line" id="c1">CE JOUR-LÀ,</div>
-        <div class="story-line" id="c2">LE 15 AOÛT 1993,</div>
+        <div class="story-line" id="c2">LE <b class="ocre">15 AOÛT 1993</b></div>
         <div class="story-line" id="c3">L'OM REÇOIT LE PSG.</div>
         <div class="story-line" id="c4">5E JOURNÉE</div>
         <div class="story-line" id="c5">DE LIGUE 1.</div>
-        <div class="story-line" id="c6">LE MATCH EST FERMÉ.</div>
-        <div class="story-line" id="c7">PERSONNE NE CÈDE.</div>
-        <div class="story-line" id="c8">JUSQU'À LA <b class="ocre">87E MINUTE</b>.</div>
-        <div class="story-line" id="c9">PAUL LE GUEN,</div>
-        <div class="story-line" id="c10">PERD LE BALLON,</div>
-        <div class="story-line" id="c11">DANS SON PROPRE CAMP.</div>
-        <div class="story-line" id="c12"><b class="ocre">ALEN BOKŠIĆ</b></div>
-        <div class="story-line" id="c13">EN PROFITE.</div>
-        <div class="story-line" id="c14">IL MARQUE.</div>
-        <div class="story-line" id="c15">MARSEILLE 1,</div>
-        <div class="story-line" id="c16">PARIS 0.</div>
-        <div class="story-line" id="c17">LE SEUL BUT</div>
-        <div class="story-line" id="c18">DU MATCH.</div>
-        <div class="story-line" id="c19">CE SOIR-LÀ,</div>
-        <div class="story-line" id="c20">L'OM EST ENCORE</div>
-        <div class="story-line" id="c21">CHAMPION D'EUROPE.</div>
-        <div class="story-line" id="c22">SACRÉ UN MOIS PLUS TÔT,</div>
-        <div class="story-line" id="c23">CONTRE L'AC MILAN.</div>
-        <div class="story-line" id="c24">MAIS UNE AFFAIRE</div>
-        <div class="story-line" id="c25">A ÉCLATÉ,</div>
-        <div class="story-line" id="c26">FIN MAI.</div>
-        <div class="story-line" id="c27">TROIS SEMAINES PLUS TARD,</div>
-        <div class="story-line" id="c28"><b class="ocre">L'UEFA BANNIT MARSEILLE</b></div>
-        <div class="story-line" id="c29">D'EUROPE,</div>
-        <div class="story-line" id="c30">À TITRE PRÉVENTIF.</div>
+        <div class="story-line" id="c6">CE SOIR-LÀ,</div>
+        <div class="story-line" id="c7">L'OM EST ENCORE</div>
+        <div class="story-line" id="c8">CHAMPION D'EUROPE.</div>
+        <div class="story-line" id="c9">SACRÉ UN MOIS PLUS TÔT,</div>
+        <div class="story-line" id="c10">CONTRE L'AC MILAN.</div>
+        <div class="story-line" id="c11">MAIS UNE AFFAIRE</div>
+        <div class="story-line" id="c12">A ÉCLATÉ,</div>
+        <div class="story-line" id="c13">FIN MAI.</div>
+        <div class="story-line" id="c14">TROIS SEMAINES PLUS TARD,</div>
+        <div class="story-line" id="c15"><b class="ocre">L'UEFA BANNIT MARSEILLE</b></div>
+        <div class="story-line" id="c16">D'EUROPE,</div>
+        <div class="story-line" id="c17">À TITRE PRÉVENTIF.</div>
+        <div class="story-line" id="c18">LE MATCH LUI, EST FERMÉ.</div>
+        <div class="story-line" id="c19">PERSONNE NE CÈDE.</div>
+        <div class="story-line" id="c20">JUSQU'À LA <b class="ocre">87E MINUTE</b>.</div>
+        <div class="story-line" id="c21">PAUL LE GUEN,</div>
+        <div class="story-line" id="c22">PERD LE BALLON,</div>
+        <div class="story-line" id="c23">DANS SON PROPRE CAMP.</div>
+        <div class="story-line" id="c24"><b class="ocre">ALEN BOKŠIĆ</b></div>
+        <div class="story-line" id="c25">EN PROFITE.</div>
+        <div class="story-line" id="c26">IL MARQUE.</div>
+        <div class="story-line" id="c27">MARSEILLE 1,</div>
+        <div class="story-line" id="c28">PARIS 0.</div>
+        <div class="story-line" id="c29">LE SEUL BUT</div>
+        <div class="story-line" id="c30">DU MATCH.</div>
         <div class="story-line" id="c31">LE MÊME MOIS,</div>
         <div class="story-line" id="c32">LA FFF</div>
-        <div class="story-line" id="c33">LUI RETIRE SON TITRE.</div>
-        <div class="story-line" id="c34">IL EST PROPOSÉ</div>
-        <div class="story-line" id="c35">AU PSG.</div>
-        <div class="story-line" id="c36">LE PSG</div>
-        <div class="story-line" id="c37">LE REFUSE.</div>
-        <div class="story-line" id="c38">CE TITRE,</div>
-        <div class="story-line" id="c39">PERSONNE NE LE PORTERA.</div>
-        <div class="story-line" id="c40">HUIT MOIS PLUS TARD,</div>
-        <div class="story-line" id="c41">L'OM EST RELÉGUÉ</div>
-        <div class="story-line" id="c42">EN <b class="ocre">D2</b>.</div>
-        <div class="story-line" id="c43">PAS POUR UNE MAUVAISE SAISON.</div>
-        <div class="story-line" id="c44">L'OM FINIRA 2E</div>
-        <div class="story-line" id="c45">CETTE ANNÉE-LÀ.</div>
-        <div class="story-line" id="c46">MAIS</div>
-        <div class="story-line" id="c47">LA SANCTION TOMBERA</div>
-        <div class="story-line" id="c48">QUAND MÊME.</div>
+        <div class="story-line" id="c33">LUI RETIRE LE TITRE</div>
+        <div class="story-line" id="c34">DE LA SAISON 92-93.</div>
+        <div class="story-line" id="c35">IL EST PROPOSÉ</div>
+        <div class="story-line" id="c36">AU PSG.</div>
+        <div class="story-line" id="c37">LE PSG</div>
+        <div class="story-line" id="c38">LE REFUSE.</div>
+        <div class="story-line" id="c39">CE TITRE,</div>
+        <div class="story-line" id="c40">PERSONNE NE LE PORTERA.</div>
+        <div class="story-line" id="c41">HUIT MOIS PLUS TARD,</div>
+        <div class="story-line" id="c42">L'OM EST RELÉGUÉ</div>
+        <div class="story-line" id="c43">EN <b class="ocre">D2</b>.</div>
+        <div class="story-line" id="c44">PAS POUR UNE MAUVAISE SAISON.</div>
+        <div class="story-line" id="c45">MAIS</div>
+        <div class="story-line" id="c46">LA SANCTION TOMBERA</div>
+        <div class="story-line" id="c47">QUAND MÊME.</div>
       </div>
     </div>
 
@@ -166,12 +164,10 @@
       /* corps façon karaoké — §4.B/§5 CLAUDE.md : durée de base FIXE
          0.35s/carte (pas de formule mots×durée), zéro pause entre blocs
          (toujours un sous-titre à l'écran), démarrage à 0.3s absolu (pas
-         d'introEnd, pas de titre animé pour ce style). 48 cartes, facteur
-         d'étirement = (41.3333−0.3)/(48×0.35) ≈ 2.442 (peu de cartons pour
-         une vidéo assez longue → chaque carte tenue ≈0.855s ; le plancher
-         0.2s/carte est sans objet ici car on étire, pas on compresse).
-         Dernière carte se termine exactement à la fin de la vidéo
-         (41.3333s). */
+         d'introEnd, pas de titre animé pour ce style). 47 cartes, facteur
+         d'étirement = (41.3333−0.3)/(47×0.35) ≈ 2.494 (chaque carte tenue
+         ≈0.873s). Dernière carte se termine exactement à la fin de la
+         vidéo (41.3333s). */
       function fadeBlockKaraoke(sel, start, dur) {
         tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 0.10, ease: 'power2.out' }, start);
         tl.to(sel, { opacity: 0, duration: 0.08, ease: 'sine.in' }, start + dur - 0.08);
@@ -179,54 +175,53 @@
       }
 
       const cards = [
-        { id: 'c1',  start: 0.300,  dur: 0.855 },
-        { id: 'c2',  start: 1.155,  dur: 0.855 },
-        { id: 'c3',  start: 2.010,  dur: 0.855 },
-        { id: 'c4',  start: 2.865,  dur: 0.855 },
-        { id: 'c5',  start: 3.719,  dur: 0.855 },
-        { id: 'c6',  start: 4.574,  dur: 0.855 },
-        { id: 'c7',  start: 5.429,  dur: 0.855 },
-        { id: 'c8',  start: 6.284,  dur: 0.855 },
-        { id: 'c9',  start: 7.139,  dur: 0.855 },
-        { id: 'c10', start: 7.994,  dur: 0.855 },
-        { id: 'c11', start: 8.849,  dur: 0.855 },
-        { id: 'c12', start: 9.703,  dur: 0.855 },
-        { id: 'c13', start: 10.558, dur: 0.855 },
-        { id: 'c14', start: 11.413, dur: 0.855 },
-        { id: 'c15', start: 12.268, dur: 0.855 },
-        { id: 'c16', start: 13.123, dur: 0.855 },
-        { id: 'c17', start: 13.978, dur: 0.855 },
-        { id: 'c18', start: 14.833, dur: 0.855 },
-        { id: 'c19', start: 15.687, dur: 0.855 },
-        { id: 'c20', start: 16.542, dur: 0.855 },
-        { id: 'c21', start: 17.397, dur: 0.855 },
-        { id: 'c22', start: 18.252, dur: 0.855 },
-        { id: 'c23', start: 19.107, dur: 0.855 },
-        { id: 'c24', start: 19.962, dur: 0.855 },
-        { id: 'c25', start: 20.817, dur: 0.855 },
-        { id: 'c26', start: 21.672, dur: 0.855 },
-        { id: 'c27', start: 22.526, dur: 0.855 },
-        { id: 'c28', start: 23.381, dur: 0.855 },
-        { id: 'c29', start: 24.236, dur: 0.855 },
-        { id: 'c30', start: 25.091, dur: 0.855 },
-        { id: 'c31', start: 25.946, dur: 0.855 },
-        { id: 'c32', start: 26.801, dur: 0.855 },
-        { id: 'c33', start: 27.656, dur: 0.855 },
-        { id: 'c34', start: 28.510, dur: 0.855 },
-        { id: 'c35', start: 29.365, dur: 0.855 },
-        { id: 'c36', start: 30.220, dur: 0.855 },
-        { id: 'c37', start: 31.075, dur: 0.855 },
-        { id: 'c38', start: 31.930, dur: 0.855 },
-        { id: 'c39', start: 32.785, dur: 0.855 },
-        { id: 'c40', start: 33.640, dur: 0.855 },
-        { id: 'c41', start: 34.494, dur: 0.855 },
-        { id: 'c42', start: 35.349, dur: 0.855 },
-        { id: 'c43', start: 36.204, dur: 0.855 },
-        { id: 'c44', start: 37.059, dur: 0.855 },
-        { id: 'c45', start: 37.914, dur: 0.855 },
-        { id: 'c46', start: 38.769, dur: 0.855 },
-        { id: 'c47', start: 39.624, dur: 0.855 },
-        { id: 'c48', start: 40.478, dur: 0.855 },
+        { id: 'c1',  start: 0.300,  dur: 0.873 },
+        { id: 'c2',  start: 1.173,  dur: 0.873 },
+        { id: 'c3',  start: 2.046,  dur: 0.873 },
+        { id: 'c4',  start: 2.919,  dur: 0.873 },
+        { id: 'c5',  start: 3.792,  dur: 0.873 },
+        { id: 'c6',  start: 4.665,  dur: 0.873 },
+        { id: 'c7',  start: 5.538,  dur: 0.873 },
+        { id: 'c8',  start: 6.411,  dur: 0.873 },
+        { id: 'c9',  start: 7.284,  dur: 0.873 },
+        { id: 'c10', start: 8.157,  dur: 0.873 },
+        { id: 'c11', start: 9.030,  dur: 0.873 },
+        { id: 'c12', start: 9.904,  dur: 0.873 },
+        { id: 'c13', start: 10.777, dur: 0.873 },
+        { id: 'c14', start: 11.650, dur: 0.873 },
+        { id: 'c15', start: 12.523, dur: 0.873 },
+        { id: 'c16', start: 13.396, dur: 0.873 },
+        { id: 'c17', start: 14.269, dur: 0.873 },
+        { id: 'c18', start: 15.142, dur: 0.873 },
+        { id: 'c19', start: 16.015, dur: 0.873 },
+        { id: 'c20', start: 16.888, dur: 0.873 },
+        { id: 'c21', start: 17.761, dur: 0.873 },
+        { id: 'c22', start: 18.634, dur: 0.873 },
+        { id: 'c23', start: 19.507, dur: 0.873 },
+        { id: 'c24', start: 20.380, dur: 0.873 },
+        { id: 'c25', start: 21.253, dur: 0.873 },
+        { id: 'c26', start: 22.126, dur: 0.873 },
+        { id: 'c27', start: 22.999, dur: 0.873 },
+        { id: 'c28', start: 23.872, dur: 0.873 },
+        { id: 'c29', start: 24.745, dur: 0.873 },
+        { id: 'c30', start: 25.618, dur: 0.873 },
+        { id: 'c31', start: 26.491, dur: 0.873 },
+        { id: 'c32', start: 27.365, dur: 0.873 },
+        { id: 'c33', start: 28.238, dur: 0.873 },
+        { id: 'c34', start: 29.111, dur: 0.873 },
+        { id: 'c35', start: 29.984, dur: 0.873 },
+        { id: 'c36', start: 30.857, dur: 0.873 },
+        { id: 'c37', start: 31.730, dur: 0.873 },
+        { id: 'c38', start: 32.603, dur: 0.873 },
+        { id: 'c39', start: 33.476, dur: 0.873 },
+        { id: 'c40', start: 34.349, dur: 0.873 },
+        { id: 'c41', start: 35.222, dur: 0.873 },
+        { id: 'c42', start: 36.095, dur: 0.873 },
+        { id: 'c43', start: 36.968, dur: 0.873 },
+        { id: 'c44', start: 37.841, dur: 0.873 },
+        { id: 'c45', start: 38.714, dur: 0.873 },
+        { id: 'c46', start: 39.587, dur: 0.873 },
+        { id: 'c47', start: 40.460, dur: 0.873 },
       ];
 
       cards.forEach(({ id, start, dur }) => {
