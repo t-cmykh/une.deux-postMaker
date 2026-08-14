@@ -1,0 +1,63 @@
+[
+  {
+    "template": "A",
+    "tag": "30 MAI 2026",
+    "title": "LA DERNIÈRE FINALE DE LIGUE DES CHAMPIONS, C'ÉTAIT L'ESPAGNE CONTRE L'ESPAGNE.",
+    "greenWord": "L'ESPAGNE CONTRE L'ESPAGNE",
+    "body": "PSG. Arsenal. Aucun des deux n'est espagnol. Leurs entraîneurs, si.",
+    "media": "espagne_01.PNG"
+  },
+  {
+    "template": "A",
+    "tag": "L'ÉTÉ 2026",
+    "title": "EN DEUX ANS, L'ESPAGNE A RAFLÉ TROIS TITRES MAJEURS.",
+    "greenWord": "TROIS TITRES MAJEURS",
+    "body": "Euro 2024. Or olympique la même année. Coupe du monde 2026. Sur le terrain, ce n'est plus une coïncidence.",
+    "media": "espagne_02.PNG"
+  },
+  {
+    "template": "H",
+    "quote": "Et il y a un précédent.",
+    "quoteAccent": "un précédent.",
+    "quoteAuthor": "",
+    "caption": ""
+  },
+  {
+    "template": "A",
+    "tag": "2008-2012",
+    "title": "LA DERNIÈRE FOIS, ÇA AVAIT PRIS QUATRE ANS.",
+    "greenWord": "QUATRE ANS",
+    "body": "Euro 2008, Mondial 2010, Euro 2012 : le seul autre triplé de l'histoire espagnole. Une génération entière pour le boucler. Celle-ci l'a fait en deux ans.",
+    "media": "espagne_04.PNG"
+  },
+  {
+    "template": "G",
+    "quote": "Il a toujours été une référence. On retrouve sa patte partout : l'identité, la mentalité, la façon dont les joueurs se comportent.",
+    "quoteAccent": "sa patte partout",
+    "quoteAuthor": "Mikel Arteta, entraîneur d'Arsenal, à propos de Luis Enrique",
+    "caption": "LE MENTOR"
+  },
+  {
+    "template": "A",
+    "tag": "CÔTÉ FÉMININ",
+    "title": "LA ROJA AVAIT FAIT LE MÊME CHEMIN, EN AVANCE.",
+    "greenWord": "EN AVANCE",
+    "body": "Championnes du monde en 2023. Ligue des Nations en 2024. Finalistes de l'Euro en 2025. L'Espagne dominait déjà, avant que les hommes ne s'y mettent.",
+    "media": "espagne_06.PNG"
+  },
+  {
+    "template": "A",
+    "tag": "2026",
+    "title": "16 ANS APRÈS L'AFRIQUE DU SUD, L'ESPAGNE A REGAGNÉ LE MONDIAL.",
+    "greenWord": "16 ANS APRÈS",
+    "body": "1-0 après prolongation face à l'Argentine. But de Ferran Torres à la 106e. Lamine Yamal, 19 ans, déjà champion du monde. Le sommet ne se gagne jamais sur un seul front. L'Espagne vient de le prouver, deux fois plus vite qu'en 2010.",
+    "media": "espagne_07.PNG"
+  },
+  {
+    "template": "D",
+    "tag": "LE RECAP",
+    "title": "RESTE DANS LE JEU",
+    "body": "Le foot en deux touches, tous les jours.",
+    "btnlabel": "FOLLOW"
+  }
+]
