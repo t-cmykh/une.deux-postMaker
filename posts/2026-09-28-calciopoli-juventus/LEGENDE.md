@@ -1,14 +1,14 @@
-une.deux ARRÊT DE JEU - 🇮🇹 En 2006, la Juventus perd deux titres et descend en Serie B après des écoutes téléphoniques sur les désignations d'arbitres. Milan, cité dans les mêmes écoutes, perd quelques points et gagne la Ligue des champions quelques mois après. L'occasion parfaite pour un « Arrêt de jeu » : la Juventus est-elle l'éternelle coupable du foot italien ?
+une.deux ARRÊT DE JEU - 🇮🇹 Au printemps 2006, l'Italie découvre que son championnat de foot était piloté en coulisses. La Juventus perd deux titres et descend en Serie B pour la première fois de son histoire. Le plus fou : au départ, personne n'enquêtait sur le foot. L'occasion parfaite pour un « Arrêt de jeu » : retour sur Calciopoli, vingt ans après.
 
-Le scandale Calciopoli part d'une enquête sur des agents, pas sur des arbitres. Les écoutes révèlent Luciano Moggi orientant les désignations en faveur de la Juve. Sanction : deux titres retirés, relégation en Serie B. Milan, menacé du même sort en première instance, s'en sort avec 8 points de pénalité et remporte la C1 en mai 2007. Dix-sept ans plus tard, en 2023, rebelote : la Juve perd 10 points pour des plus-values comptables truquées, exclue d'Europe, pendant que huit autres clubs enquêtés pour les mêmes pratiques sont blanchis.
+Le mot vient de « calcio » et du suffixe « -poli », calqué sur Tangentopoli, le scandale politique des années 1990. Tout part d'une enquête du parquet de Naples sur une société d'agents, en 2004. Les écoutes autorisées dans ce dossier révèlent la voix de Luciano Moggi, directeur général de la Juventus, en train d'orienter les désignations d'arbitres. Deux ans plus tard, la presse italienne publie les transcriptions. Verdict : deux titres retirés à la Juventus, une relégation en Serie B, pendant que l'AC Milan, cité dans les mêmes écoutes, écope d'une simple pénalité de points et remporte la Ligue des champions quelques mois plus tard.
 
-Et le plus fou ? Dans les écoutes de 2006, les dirigeants de la Juventus se plaignaient eux-mêmes d'un traitement qu'ils jugeaient favorable à Milan.
+Et le plus fou ? Le titre 2005-06 retiré à la Juventus a été réattribué à l'Inter Milan, qui avait pourtant fini troisième cette saison-là.
 
-Alors dis-nous : la sévérité répétée envers la Juventus, c'est un acharnement, ou la conséquence d'un club qui a occupé deux fois une position centrale dans le système qu'il a aidé à truquer ?
+Alors dis-nous : vingt ans après, ce titre aurait-il dû rester vacant, ou revenir à l'Inter comme cela a été tranché à l'époque ?
 
 @une.deux
 
 .
 .
 
-#arretdejeu #juventus #calciopoli #footballhistoire #unedeux
+#arretdejeu #calciopoli #juventus #footballhistoire #unedeux
