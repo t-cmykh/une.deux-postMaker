@@ -592,10 +592,10 @@ facteur = (durée_vidéo_disponible − Σ pauses) / Σ durée_brute_toutes_lign
 durée_ligne = durée_brute_ligne × facteur
 ```
 
-Cette formule sert de base au **style Fixe**. Le style Karaoké a sa propre
-logique de rythme (mesurée directement sur la vidéo de référence, pas une
-formule proportionnelle au nombre de mots) — voir ci-dessous, ne pas
-appliquer la formule mots×durée à ce style.
+Cette formule sert de base au **style Fixe**. Le style Karaoké a lui aussi
+une logique proportionnelle au nombre de mots (révisé le 15 août 2026, cf.
+ci-dessous), mais avec ses propres constantes, bien plus rapides — ne pas
+reprendre les constantes `0.27`/`0.35` du style Fixe pour ce style.
 
 **Style Fixe (§4.A)** :
 - Pauses entre blocs : 0.15s (vidéo courte, rythme serré) à 0.5s (vidéo
@@ -609,31 +609,41 @@ appliquer la formule mots×durée à ce style.
   `gsap_exit_missing_hard_kill`).
 
 **Style Karaoké (§4.B)** :
-- **Rythme mesuré directement sur la vidéo de référence** (compte paris
-  sportifs, cf. §4.B), le 12 août 2026 : échantillonnage vidéo à 0.25s sur
-  un segment dense de mots ("L'ANGLETERRE" → "VA GAGNER" → "LA COUPE" →
-  "DU MONDE" → "C'EST" → "UN PRONOSTIC" → "QUI CIRCULE" → "DEPUIS" → "LE
-  DÉBUT" → "DE LA" → "COMPÉTITION"). Durée de tenue observée par carte :
-  **0.25 à 0.75s, moyenne ≈ 0.35-0.4s** — sans corrélation nette au nombre
-  de mots (des cartes à 1 mot et à 2-3 mots tiennent dans la même
-  fourchette). **Ne pas utiliser la formule mots×durée du style Fixe** —
-  une durée de base quasi fixe, pas proportionnelle à la longueur de la
-  carte :
+- **Rythme proportionnel au nombre de mots par carte** (révisé le
+  15 août 2026, demande explicite de Thomas — remplace l'ancienne durée
+  quasi fixe ≈0.35s indépendante de la longueur, qui faisait tenir un
+  carton à 1 mot aussi longtemps qu'un carton à 3 mots). Constantes
+  calibrées sur la mesure de référence du 12 août 2026 (compte paris
+  sportifs, échantillonnage vidéo à 0.25s sur un segment dense de mots :
+  "L'ANGLETERRE" → "VA GAGNER" → "LA COUPE" → "DU MONDE" → "C'EST" → "UN
+  PRONOSTIC" → "QUI CIRCULE" → "DEPUIS" → "LE DÉBUT" → "DE LA" →
+  "COMPÉTITION" — durée de tenue observée alors 0.25 à 0.75s selon la
+  carte, désormais réinterprétée comme allant du carton le plus court au
+  plus long plutôt que comme un bruit sans corrélation) :
   ```
-  durée_carte_brute ≈ 0.35s   (fixe, indépendante du nombre de mots)
-  facteur = durée_vidéo_disponible / (n_cartes × 0.35)
-  durée_carte = 0.35 × facteur
+  durée_carte_brute = 0.15 + nombre_de_mots × 0.20   (secondes)
+  facteur = durée_vidéo_disponible / Σ durée_carte_brute (toutes les cartes)
+  durée_carte = durée_carte_brute × facteur
   ```
-  - Si `facteur > 1` (pas assez de lignes de `CORPS (karaoké)` pour
-    couvrir toute la vidéo à 0.35s/carte) : étirer chaque carte par ce
-    facteur plutôt que laisser un trou (règle "toujours un sous-titre à
-    l'écran" du §4.B) — le rythme sera alors un peu plus lent que la
-    référence, compromis acceptable.
-  - Si `facteur < 1` (plus de lignes que la vidéo ne peut en tenir à
-    0.35s/carte) : compresser, mais **ne jamais descendre sous ~0.2s/carte**
-    (proche du rythme le plus rapide observé). En dessous, signaler à
-    Thomas qu'il y a trop de lignes de `CORPS (karaoké)` pour la durée de
-    la vidéo plutôt que de produire un rendu illisible.
+  `0.15s` = socle minimal (temps de perception incompressible, même pour un
+  carton à un seul mot) ; `0.20s` = durée de lecture ajoutée par mot
+  supplémentaire. Résultat avant mise à l'échelle : un carton à 1 mot tient
+  ≈0.35s, à 2 mots ≈0.55s, à 3 mots ≈0.75s — les bornes de la fourchette
+  observée sur la référence du 12 août.
+  - Si `facteur > 1` (le total des cartes de `CORPS (karaoké)` ne couvre
+    pas toute la durée de la vidéo à ce rythme de base) : étirer chaque
+    carte par ce facteur plutôt que laisser un trou (règle "toujours un
+    sous-titre à l'écran" du §4.B) — le rythme sera alors un peu plus lent
+    que la référence, compromis acceptable.
+  - Si `facteur < 1` (le total dépasse la durée de la vidéo) : compresser,
+    mais **ne jamais descendre sous ~0.2s pour la carte la plus courte
+    après mise à l'échelle** (proche du rythme le plus rapide observé). En
+    dessous, signaler à Thomas qu'il y a trop de lignes de `CORPS
+    (karaoké)` pour la durée de la vidéo plutôt que de produire un rendu
+    illisible.
+  - Le nombre de mots d'une carte se compte sur le texte affiché
+    (`.story-line`, mots séparés par des espaces) — un mot marqué
+    `**ocre**` (§4.B) compte comme un seul mot, comme n'importe quel autre.
 - **Zéro pause entre blocs** — cartes contiguës (`start` de la carte N+1 =
   `start + dur` de la carte N), cf. règle "toujours un sous-titre à
   l'écran" du §4.B. Ne pas utiliser la fourchette 0.15-0.5s du style Fixe.
