@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 16 août 2000, France 5-1 Sélection FIFA (karaoké)</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* vidéo du Drive gardée intégrale, telle quelle (pas de sélection de
+         plans, §1bis CLAUDE.md) — un seul composite continu du début à la
+         fin (0 → 46.4833s), même géométrie sur toute la durée : fond plein
+         cadre flouté/désaturé + plan net 1080×888 plein cadre horizontal
+         (overlay y=420 — §2 CLAUDE.md). Source : France 5-1 Sélection FIFA,
+         16 août 2000, Vélodrome (match caritatif SOS Villages d'Enfants),
+         820x464 (~16:9), aucune rotation. Aucun carton graphique repéré,
+         images filmées réelles uniquement. Un seul élément <video>, pas de
+         titre animé séparé pour ce style (§4bis ne s'applique pas au style
+         karaoké). Son de la source ignoré (§2 CLAUDE.md, retiré le
+         14 août 2026) — vidéo mutée, pas d'élément <audio>, reel final
+         muet. */
+      .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+
+      /* header — constantes fixes de la série, persistant du début à la fin */
+      #hdr { position: absolute; inset: 0 0 auto 0; z-index: 20; }
+      .ring {
+        position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
+        border: 4px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
+
+      /* --ocre-render : compensation du décalage de teinte du pipeline de
+         render HyperFrames sur --ocre (§3 CLAUDE.md) — ne pas remplacer
+         var(--ocre) dans tokens/colors.css, uniquement une variable locale
+         à la composition. Utilisé sur .tag et sur les mots-clés .story-line
+         b.ocre (§4.B, règle du 13 août 2026). */
+      :root { --ocre-render: #B9A456; }
+      .tag {
+        position: absolute; left: 96px; top: 350px; height: 58px; z-index: 20;
+        display: flex; align-items: center; background: var(--ocre-render); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; padding: 0 15px;
+      }
+
+      /* corps de texte façon karaoké — Anton, centré verticalement dans le
+         cadre, superposé directement sur le plan net (§4.B CLAUDE.md).
+         Taille FIXE 80px pour toutes les cartes, aucun palier par
+         longueur ; aucune ombre portée ; léger contour semi-transparent
+         ink. Texte déjà écrit en MAJUSCULES dans le HTML (pas seulement
+         via text-transform, cf. bug de subsetting de police documenté au
+         §4.B CLAUDE.md). .story-line porte un transform:translateY(-50%)
+         STATIQUE — ne jamais animer y dessus avec GSAP (§6), opacity
+         uniquement. top:0/bottom:0 sur .story-zone obligatoires pour que
+         le centrage vertical ait une hauteur de référence. */
+      .story-zone { position: absolute; top: 0; bottom: 0; left: 96px; right: 96px; z-index: 20; text-align: center; }
+      .story-line {
+        position: absolute; left: 0; right: 0;
+        top: 50%; transform: translateY(-50%);
+        font-family: 'Anton', sans-serif; font-size: 80px; line-height: 1.1;
+        text-transform: uppercase; color: var(--cream); opacity: 0;
+        -webkit-text-stroke: 1.5px rgba(44,40,35,.35);
+      }
+      /* mot-clé en ocre via **mot** dans CORPS (karaoké) — §4.B règle du
+         13 août 2026 : couleur seule, pas de fond/padding (contrairement
+         au kw-box du titre animé §4bis, sans objet pour ce style). */
+      .story-line b.ocre { color: var(--ocre-render); font-weight: inherit; }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="46.4833"
+      data-fps="30"
+    >
+      <!-- vidéo du Drive intégrale, un seul plan continu du début à la fin, mutée -->
+      <video class="video-full" id="fullv" src="assets/full.mp4" data-start="0.0000" data-duration="46.4833" data-track-index="1" muted playsinline></video>
+
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+      <div class="tag">CE JOUR LÀ …</div>
+
+      <!-- corps du post — CORPS (karaoké) verbatim du brouillon "POST DU JOUR
+           — 16 août 2026" (France 5-1 Sélection FIFA, Vélodrome, 16 août
+           2000). Une ligne du brouillon = une carte, aucun re-découpage
+           côté traitement (§4.B CLAUDE.md). 36 cartes. Mots marqués
+           **entre étoiles** → <b class="ocre"> (§4.B règle du 13 août
+           2026) : "16 août 2000", "Les champions d'Europe", "Au reste du
+           monde.", "SOS Villages d'Enfants.", "Un triplé.", « France
+           contre la sélection FIFA », -->
+      <div class="story-zone">
+        <div class="story-line" id="c1">IL Y A DES SOIRS</div>
+        <div class="story-line" id="c2">QUI N’EXISTENT</div>
+        <div class="story-line" id="c3">QU’UNE FOIS.</div>
+        <div class="story-line" id="c4">CE JOUR LÀ,</div>
+        <div class="story-line" id="c5">LE <b class="ocre">16 AOÛT 2000</b></div>
+        <div class="story-line" id="c6">LE VÉLODROME</div>
+        <div class="story-line" id="c7">ACCUEILLE</div>
+        <div class="story-line" id="c8"><b class="ocre">LES CHAMPIONS D’EUROPE</b></div>
+        <div class="story-line" id="c9">FACE</div>
+        <div class="story-line" id="c10"><b class="ocre">AU RESTE DU MONDE.</b></div>
+        <div class="story-line" id="c11">AVEC</div>
+        <div class="story-line" id="c12">BAGGIO.</div>
+        <div class="story-line" id="c13">DUNGA.</div>
+        <div class="story-line" id="c14">NAKATA.</div>
+        <div class="story-line" id="c15">UNE SEULE CAUSE :</div>
+        <div class="story-line" id="c16"><b class="ocre">SOS VILLAGES D’ENFANTS.</b></div>
+        <div class="story-line" id="c17">CE SOIR-LÀ,</div>
+        <div class="story-line" id="c18">TRÉZÉGUET</div>
+        <div class="story-line" id="c19">MARQUE UNE FOIS.</div>
+        <div class="story-line" id="c20">PUIS DEUX.</div>
+        <div class="story-line" id="c21">PUIS TROIS.</div>
+        <div class="story-line" id="c22"><b class="ocre">UN TRIPLÉ.</b></div>
+        <div class="story-line" id="c23">LE SEUL</div>
+        <div class="story-line" id="c24">QU’IL INSCRIRA JAMAIS</div>
+        <div class="story-line" id="c25">EN BLEU.</div>
+        <div class="story-line" id="c26">LES BLEUS S’ENVOLENT :</div>
+        <div class="story-line" id="c27">5-1.</div>
+        <div class="story-line" id="c28">CE CONCEPT,</div>
+        <div class="story-line" id="c29"><b class="ocre">« FRANCE CONTRE LA SÉLECTION FIFA »,</b></div>
+        <div class="story-line" id="c30">N’A PLUS JAMAIS EXISTÉ</div>
+        <div class="story-line" id="c31">DEPUIS CE SOIR-LÀ.</div>
+        <div class="story-line" id="c32">UN SOIR</div>
+        <div class="story-line" id="c33">QUI N’EXISTE</div>
+        <div class="story-line" id="c34">QU’UNE FOIS.</div>
+        <div class="story-line" id="c35">ET SI ÇA</div>
+        <div class="story-line" id="c36">RECOMMENÇAIT ?</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      /* corps façon karaoké — §4.B/§5 CLAUDE.md : durée de base FIXE
+         0.35s/carte (pas de formule mots×durée), zéro pause entre blocs
+         (toujours un sous-titre à l'écran), démarrage à 0.3s absolu (pas
+         d'introEnd, pas de titre animé pour ce style). 36 cartes, facteur
+         d'étirement = (46.4833−0.3)/(36×0.35) ≈ 3.665 (chaque carte tenue
+         ≈1.283s). Dernière carte se termine à ≈46.488s, quasi exactement
+         la fin de la vidéo (46.4833s). */
+      function fadeBlockKaraoke(sel, start, dur) {
+        tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 0.10, ease: 'power2.out' }, start);
+        tl.to(sel, { opacity: 0, duration: 0.08, ease: 'sine.in' }, start + dur - 0.08);
+        tl.set(sel, { opacity: 0 }, start + dur);
+      }
+
+      const cards = [
+        { id: 'c1', start: 0.300, dur: 1.283 },
+        { id: 'c2', start: 1.583, dur: 1.283 },
+        { id: 'c3', start: 2.866, dur: 1.283 },
+        { id: 'c4', start: 4.149, dur: 1.283 },
+        { id: 'c5', start: 5.432, dur: 1.283 },
+        { id: 'c6', start: 6.715, dur: 1.283 },
+        { id: 'c7', start: 7.998, dur: 1.283 },
+        { id: 'c8', start: 9.281, dur: 1.283 },
+        { id: 'c9', start: 10.564, dur: 1.283 },
+        { id: 'c10', start: 11.847, dur: 1.283 },
+        { id: 'c11', start: 13.130, dur: 1.283 },
+        { id: 'c12', start: 14.413, dur: 1.283 },
+        { id: 'c13', start: 15.696, dur: 1.283 },
+        { id: 'c14', start: 16.979, dur: 1.283 },
+        { id: 'c15', start: 18.262, dur: 1.283 },
+        { id: 'c16', start: 19.545, dur: 1.283 },
+        { id: 'c17', start: 20.828, dur: 1.283 },
+        { id: 'c18', start: 22.111, dur: 1.283 },
+        { id: 'c19', start: 23.394, dur: 1.283 },
+        { id: 'c20', start: 24.677, dur: 1.283 },
+        { id: 'c21', start: 25.960, dur: 1.283 },
+        { id: 'c22', start: 27.243, dur: 1.283 },
+        { id: 'c23', start: 28.526, dur: 1.283 },
+        { id: 'c24', start: 29.809, dur: 1.283 },
+        { id: 'c25', start: 31.092, dur: 1.283 },
+        { id: 'c26', start: 32.375, dur: 1.283 },
+        { id: 'c27', start: 33.658, dur: 1.283 },
+        { id: 'c28', start: 34.941, dur: 1.283 },
+        { id: 'c29', start: 36.224, dur: 1.283 },
+        { id: 'c30', start: 37.507, dur: 1.283 },
+        { id: 'c31', start: 38.790, dur: 1.283 },
+        { id: 'c32', start: 40.073, dur: 1.283 },
+        { id: 'c33', start: 41.356, dur: 1.283 },
+        { id: 'c34', start: 42.639, dur: 1.283 },
+        { id: 'c35', start: 43.922, dur: 1.283 },
+        { id: 'c36', start: 45.205, dur: 1.283 },
+      ];
+
+      cards.forEach(({ id, start, dur }) => {
+        fadeBlockKaraoke(`#${id}`, start, dur);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
