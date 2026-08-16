@@ -23,47 +23,138 @@ reine : carrousel narratif exporté en vidéo via l'éditeur HTML de Thomas
 citations, dates, palmarès — tout fait cité doit être vérifié. La citation de la
 slide G doit être une vraie déclaration sourcée.
 
-### Règle des 3 sources (éphémérides & faits) — OBLIGATOIRE
+## Vérification factuelle — méthodologie journalistique (OBLIGATOIRE, toutes séries, toutes routines)
 
-Tout fait proposé — en particulier chaque entrée d'éphéméride *Ce jour-là* — doit
-être **confirmé par au moins 3 sources indépendantes** : trois origines
-distinctes (p. ex. Wikipédia + un média + une base type RSSSF / FBref /
-Britannica), pas trois reprises du même article ni trois miroirs de Wikipédia.
+**S'applique sans exception à tout brouillon livré, quelle que soit la série**
+(Ce jour-là, Les oubliés, Portraits, L'arrêt de jeu) **et quel que soit le
+canal** — demande directe dans le chat, routine quotidienne « post du jour »
+(brouillon éphéméride *Ce jour-là*), routine « Lanceur reels Ce jour-là »
+(voir `CLAUDE.md`), ou toute future routine de renfort qui produirait un
+brouillon pour une autre série. Une routine qui se contente de reformuler un
+texte déjà vérifié en amont (ex. le style karaoké du reel, qui reformule le
+Corps sans faire de nouvelle recherche, cf. `CLAUDE.md` §4.B) hérite de cette
+vérification mais ne doit **jamais introduire un fait qui n'y figurait pas
+déjà** — la reformulation n'est pas une occasion de relâcher la rigueur.
+
+Ce n'est pas une vérification "au jugé" : c'est la procédure standard d'une
+cellule de fact-checking de rédaction, appliquée au foot.
+
+### 1. Isoler chaque claim
+
+Lister à part chaque chiffre, date, citation, palmarès ou fait précis que le
+post s'apprête à utiliser — un par un, pas en bloc. Un post = plusieurs
+claims à vérifier séparément, pas un seul "sujet" vérifié globalement.
+
+### 2. Hiérarchie et autorité des sources (réflexe journalistique)
+
+Toutes les sources ne se valent pas — un fact-checker professionnel remonte
+toujours vers le haut de cette hiérarchie avant de se satisfaire du bas :
+
+1. **Source primaire** : feuille de match officielle, communiqué de
+   fédération/club, archives officielles (FIFA, RSSSF), déclaration directe
+   de la personne concernée (interview, autobiographie, témoignage d'époque).
+2. **Source de référence secondaire** : base stats spécialisée (FBref,
+   Transfermarkt, Britannica), média sportif reconnu pratiquant un vrai
+   travail de vérification (L'Équipe, France Football, The Athletic, BBC
+   Sport, RMC).
+3. **Source tertiaire** : Wikipédia, presse généraliste qui recopie une
+   dépêche sans apport propre — utile pour trianguler ou dégrossir, jamais
+   suffisante seule.
+
+Ne jamais s'arrêter à une source tertiaire si une source primaire ou de
+référence existe et est accessible : la chercher activement avant de conclure
+qu'un fait est "vérifié". Au moins une des 3 sources de la règle ci-dessous
+doit, autant que possible, être une source primaire ou de référence — pas
+trois sources tertiaires qui se recopient.
+
+### 3. Règle des 3 sources indépendantes — OBLIGATOIRE
+
+Tout fait proposé doit être **confirmé par au moins 3 sources indépendantes** :
+trois origines distinctes (p. ex. une base type RSSSF/FBref + un média + une
+source primaire ou Britannica), pas trois reprises du même article ni trois
+miroirs de Wikipédia.
 
 - Si un fait **ne peut pas** être corroboré par 3 sources différentes, il est
   **écarté** : on ne le propose pas dans le brouillon, on ne l'utilise pas dans
   un post.
 - Préférer un fait moins spectaculaire mais solidement triple-sourcé à un fait
   fort mais douteux. La fiabilité prime sur le punch.
-- Conserver les **liens des 3 sources** pour chaque entrée livrée (traçabilité).
+- Conserver les **liens des 3 sources** pour chaque entrée livrée (traçabilité
+  — un fact-checker doit pouvoir remonter au dossier de sourcing après coup).
 
-### Méthode de vérification (pipeline claim par claim)
+### 4. Reformuler la recherche à chaque source
 
-La règle des 3 sources précise le *nombre* de sources ; ceci précise la
-*méthode* — pour éviter les faux ou les points qui auraient dû être nuancés.
-À appliquer avant toute rédaction finale, sur le brouillon de faits collectés :
+Ne pas relancer la même requête et lire 3 résultats différents de la même
+recherche — reformuler (angle, langue, terme) pour éviter de ne trouver que
+des pages qui se recopient entre elles.
 
-1. **Isoler chaque claim.** Lister à part chaque chiffre, date, citation,
-   palmarès ou fait précis que le post s'apprête à utiliser — un par un, pas
-   en bloc. Un post = plusieurs claims à vérifier séparément, pas un seul
-   "sujet" vérifié globalement.
-2. **Reformuler la recherche à chaque source.** Ne pas relancer la même
-   requête et lire 3 résultats différents de la même recherche — reformuler
-   (angle, langue, terme) pour éviter de ne trouver que des pages qui se
-   recopient entre elles.
-3. **Vérifier l'indépendance réelle des sources.** Deux articles qui se
-   citent l'un l'autre, ou reprennent la même dépêche (AFP, Reuters) sans
-   apport propre, comptent pour **une seule** source, pas deux — remonter à
-   l'origine commune si besoin pour trouver une vraie 3e source distincte.
-4. **En cas de désaccord entre sources** (chiffre différent, date différente,
-   version différente des faits) : ne jamais trancher arbitrairement au
-   profit du chiffre le plus spectaculaire. Chercher une source faisant
-   autorité pour arbitrer (fédération, base stats de référence) ; à défaut,
-   **nuancer explicitement** dans le texte livré ("selon les sources, entre
-   X et Y" / "autour de…") plutôt que d'asséner un chiffre non tranché comme
-   un fait certain.
-5. **Un claim non confirmé est écarté**, pas arrondi ni approximé pour passer
-   quand même (cf. règle des 3 sources ci-dessus).
+### 5. Vérifier l'indépendance réelle des sources
+
+Deux articles qui se citent l'un l'autre, ou reprennent la même dépêche (AFP,
+Reuters) sans apport propre, comptent pour **une seule** source, pas deux —
+remonter à l'origine commune si besoin pour trouver une vraie 3e source
+distincte.
+
+### 6. Se méfier du fait "trop beau" (réflexe anti-légende urbaine)
+
+Un fait spectaculaire, un chiffre rond, ou une anecdote qui semble taillée
+sur mesure pour un post viral est précisément celui qui mérite le plus de
+scepticisme — c'est le biais qui piège le plus souvent les comptes sportifs.
+Avant de le retenir : chercher explicitement un démenti ou une mise au point
+(recherches type "mythe", "légende urbaine", "intox", "debunk"/"myth" +
+le fait, en français **et** en anglais si le fait ou le joueur est
+international). Si un débunk crédible existe et n'est pas lui-même contesté
+par des sources d'autorité, **écarter le fait**, même si c'est le plus fort
+de la sélection.
+
+### 7. Distinguer fait établi / rapporté / contesté
+
+Un fact-checker ne présente jamais un fait "rapporté" comme un fait
+"établi". Trois statuts possibles pour chaque claim retenu :
+- **Établi** : confirmé par 3 sources indépendantes convergentes (dont au
+  moins une primaire/de référence si possible) → s'écrit comme un fait, sans
+  guillemets de prudence.
+- **Rapporté mais non tranché** : les sources convergent sur l'essentiel mais
+  divergent sur un détail (chiffre, date exacte) → nuancer explicitement
+  dans le texte livré (cf. règle 8), jamais présenté comme certain.
+- **Non confirmé** : écarté, cf. règle 10 — ne jamais le glisser "au cas où"
+  sous une formulation vague qui laisserait croire qu'il est vérifié.
+
+### 8. En cas de désaccord entre sources
+
+(chiffre différent, date différente, version différente des faits) : ne
+jamais trancher arbitrairement au profit du chiffre le plus spectaculaire.
+Chercher une source faisant autorité pour arbitrer (fédération, base stats
+de référence) ; à défaut, **nuancer explicitement** dans le texte livré
+("selon les sources, entre X et Y" / "autour de…") plutôt que d'asséner un
+chiffre non tranché comme un fait certain.
+
+### 9. Cohérence interne du texte
+
+Avant livraison, relire l'ensemble du texte produit (titre, corps, corps
+karaoké, citation, légende) et vérifier que les chiffres/dates/noms ne se
+contredisent pas d'une phrase ou d'une slide à l'autre — une incohérence
+interne (ex. un score qui change entre le corps et la légende) est aussi
+disqualifiante qu'un fait faux, même si chaque version prise isolément était
+sourcée.
+
+### 10. Un claim non confirmé est écarté
+
+Pas arrondi ni approximé pour passer quand même (cf. règle des 3 sources
+ci-dessus) — une approximation non signalée comme telle est traitée comme
+une fausse information, pas comme un compromis acceptable.
+
+### Checklist fact-check — avant toute livraison de brouillon (toute série, toute routine)
+- [ ] Chaque claim isolé et vérifié séparément, pas le sujet vérifié en bloc
+- [ ] Au moins 3 sources indépendantes par claim retenu
+- [ ] Au moins une source primaire ou de référence recherchée avant de se
+      satisfaire de sources tertiaires
+- [ ] Aucun fait "trop beau" retenu sans recherche active d'un démenti
+- [ ] Statut de chaque claim clair (établi / nuancé / écarté) et reflété
+      dans la formulation du texte livré
+- [ ] Cohérence interne relue sur l'ensemble du texte (titre/corps/corps
+      karaoké/légende)
+- [ ] Liens des sources conservés pour traçabilité
 
 ## Éditeur principal : `editeurs/editeur-series.html`
 
@@ -300,6 +391,8 @@ plaqué. Une seule leçon par post. Ne pas moraliser ni sur-jouer ; rester dans
 la posture archiviste (on constate, on ne sermonne pas).
 
 ### Checklist avant livraison du script
+- [ ] La checklist fact-check journalistique (§ Vérification factuelle en
+      tête de ce fichier) est passée sur tous les claims du post
 - [ ] Le HOOK promet une curiosité précise (pas un titre vague)
 - [ ] Le HOOK s'appuie sur une des 6 familles de la banque de hooks
 - [ ] La boucle ouverte en S1 n'est refermée qu'au CLIMAX
@@ -420,13 +513,16 @@ donc **risquées à republier** sur le compte.
 ## Livrable quotidien de la routine « post du jour »
 
 Le brouillon Gmail produit chaque jour par la routine (à partir du sujet validé
-en vert dans l'éphéméride) contient, **en tête et pour le sujet retenu** :
+en vert dans l'éphéméride) contient, **en tête et pour le sujet retenu**, et
+seulement après passage complet par la méthodologie de vérification
+journalistique en tête de ce fichier (§ Vérification factuelle) :
 
 1. **Titre** au format EXACT : `JJ MOIS AAAA : <phrase percutante>`
    — la date de l'événement, deux-points, puis **une phrase courte qui claque**
    (ton une·deux : affirmation, pas de « voici / découvre »).
-2. **Corps** : un paragraphe qui **explique l'événement** (faits vérifiés, règle
-   des 3 sources), et dont la **dernière phrase est une punchline sentie** sur
+2. **Corps** : un paragraphe qui **explique l'événement** (faits vérifiés,
+   méthodologie de fact-checking journalistique ci-dessus), et dont la
+   **dernière phrase est une punchline sentie** sur
    l'événement (elle referme, elle marque). Sert au carrousel, à la légende, et
    au reel en style Fixe (voir CLAUDE.md §4.A).
 3. **Corps (karaoké)** : la **même histoire, mêmes faits déjà vérifiés du Corps

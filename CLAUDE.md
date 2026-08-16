@@ -9,6 +9,20 @@ match et demande d'y ajouter le texte du post (sous-titres ou corps animé) —
 **ou** dépose une demande via le lanceur `editeurs/lanceur-cejourla.html`
 (voir ci-dessous), traitée automatiquement par une Routine.
 
+**Fact-checking — vaut pour toute Routine, pas seulement celle-ci.** Toute
+Routine qui livre un brouillon ou un texte destiné à publication (quelle que
+soit la série) applique la méthodologie de vérification journalistique
+décrite dans `SKILL.md` (§ « Vérification factuelle — méthodologie
+journalistique ») avant livraison — aucune exception, aucun raccourci parce
+que c'est une tâche de fond non supervisée en direct par Thomas. Pour cette
+Routine-ci : le texte du reel (§4 ci-dessous) n'est jamais rédigé à neuf, il
+est repris **tel quel** du brouillon "POST DU JOUR — <date>" déjà produit et
+vérifié par la routine « post du jour » (`SKILL.md` § « Livrable quotidien »)
+— donc pas de nouvelle recherche factuelle à faire ici, mais l'interdiction
+absolue d'introduire un fait qui n'y figurait pas déjà (reformulation
+karaoké comprise, cf. §4.B) reste une obligation de fact-checking à part
+entière, pas un détail de mise en forme.
+
 ## Lanceur automatique (`editeurs/lanceur-cejourla.html`)
 
 Outil statique (même DA que `editeur-series.html` : panel sombre, ocre,
