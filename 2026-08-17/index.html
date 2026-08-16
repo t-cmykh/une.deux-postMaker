@@ -15,17 +15,17 @@
 
       /* vidéo du Drive gardée intégrale, telle quelle (pas de sélection de
          plans, §1bis CLAUDE.md) — un seul composite continu du début à la
-         fin (0 → 41.53s), même géométrie sur toute la durée : fond plein
+         fin (0 → 43.633s), même géométrie sur toute la durée : fond plein
          cadre flouté/désaturé + plan net 1080×888 plein cadre horizontal
          (overlay y=420 — §2 CLAUDE.md). Source : Wimbledon 0-3 Manchester
          United (Selhurst Park, 17 août 1996) — but de Beckham depuis son
-         propre camp. Source 1320x2342 avec rotation=90 (métadonnée),
-         affichage effectif 2342x1320 ~16:9 (ffprobe, pas d'inspection
-         visuelle — retirée du pipeline le 14 août 2026). Aucun zoom
-         préalable (pas d'habillage de chaîne connu sur cette source).
-         Un seul élément <video>, pas de titre animé séparé pour ce style
-         (§4bis ne s'applique pas au style karaoké). Pas de piste audio
-         reprise (retiré du pipeline le 14 août 2026, cf. CLAUDE.md §2). */
+         propre camp. Source 880x494 (~16:9), aucune rotation (ffprobe, pas
+         d'inspection visuelle — retirée du pipeline le 14 août 2026). Aucun
+         zoom préalable (pas d'habillage de chaîne signalé sur cette
+         source). Un seul élément <video>, pas de titre animé séparé pour ce
+         style (§4bis ne s'applique pas au style karaoké). Pas de piste
+         audio reprise (retiré du pipeline le 14 août 2026, cf. CLAUDE.md
+         §2). */
       .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
 
       /* header — constantes fixes de la série, persistant du début à la fin */
@@ -43,7 +43,8 @@
          render HyperFrames sur --ocre (§3 CLAUDE.md) — ne pas remplacer
          var(--ocre) dans tokens/colors.css, uniquement une variable locale
          à la composition. Utilisé sur .tag et sur les mots-clés .story-line
-         b.ocre (§4.B, règle du 13 août 2026). */
+         b.ocre (§4.B, règle du 13 août 2026) — sans objet sur ce reel, cf.
+         plus bas (aucun mot marqué **...** dans ce brouillon). */
       :root { --ocre-render: #B9A456; }
       .tag {
         position: absolute; left: 96px; top: 350px; height: 58px; z-index: 20;
@@ -71,7 +72,8 @@
       }
       /* mot-clé en ocre via **mot** dans CORPS (karaoké) — §4.B règle du
          13 août 2026 : couleur seule, pas de fond/padding (contrairement
-         au kw-box du titre animé §4bis, sans objet pour ce style). */
+         au kw-box du titre animé §4bis, sans objet pour ce style). Règle
+         déclarée même si non utilisée sur ce reel (aucun mot marqué). */
       .story-line b.ocre { color: var(--ocre-render); font-weight: inherit; }
     </style>
   </head>
@@ -82,11 +84,11 @@
       data-start="0"
       data-width="1080"
       data-height="1920"
-      data-duration="41.5300"
+      data-duration="43.6333"
       data-fps="30"
     >
       <!-- vidéo du Drive intégrale, un seul plan continu du début à la fin -->
-      <video class="video-full" id="fullv" src="assets/full.mp4" data-start="0.0000" data-duration="41.5300" data-track-index="1" muted playsinline></video>
+      <video class="video-full" id="fullv" src="assets/full.mp4" data-start="0.0000" data-duration="43.6333" data-track-index="1" muted playsinline></video>
 
       <div id="hdr">
         <div class="ring">1·2</div>
@@ -97,55 +99,71 @@
       <div class="tag">CE JOUR LÀ …</div>
 
       <!-- corps du post — champ CORPS (karaoké) du brouillon "POST DU JOUR
-           — 17 août 2026 · Beckham depuis son propre camp (1996)" — PAS le
-           champ CORPS générique (§4.B CLAUDE.md). Une ligne du brouillon =
-           une carte, verbatim, AUCUN re-découpage NI réordonnancement —
-           reprise dans l'ordre exact du brouillon (42 lignes). La ligne 2
-           porte un marquage **entre étoiles** ("17 août 1996") : mot-clé en
-           ocre via <b class="ocre"> (§4.B règle du 13 août 2026). -->
+           — 17 août 2026 · Beckham depuis son propre camp (1996)" (édité
+           16:50 UTC le 16 août 2026, APRÈS le premier build de ce reel à
+           09:34 UTC — texte substantiellement réécrit/étoffé, 53 cartes
+           contre 42 précédemment) — PAS le champ CORPS générique
+           (§4.B CLAUDE.md). Une ligne du brouillon = une carte, verbatim,
+           AUCUN re-découpage ni réordonnancement — reprise dans l'ordre
+           exact du brouillon. Aucune ligne ne porte de marquage
+           **entre étoiles** dans cette version du brouillon → aucun mot en
+           ocre sur ce reel (contrairement au premier build, qui marquait
+           "17 août 1996" — la nouvelle version du brouillon ne marque
+           plus aucun mot). -->
       <div class="story-zone">
-        <div class="story-line" id="c1">CE JOUR-LÀ,</div>
-        <div class="story-line" id="c2">LE <b class="ocre">17 AOÛT 1996</b></div>
-        <div class="story-line" id="c3">WIMBLEDON REÇOIT</div>
-        <div class="story-line" id="c4">MANCHESTER UNITED.</div>
-        <div class="story-line" id="c5">1ÈRE JOURNÉE</div>
-        <div class="story-line" id="c6">DE LA SAISON.</div>
-        <div class="story-line" id="c7">LES REDS</div>
-        <div class="story-line" id="c8">MÈNENT DÉJÀ</div>
-        <div class="story-line" id="c9">2-0.</div>
-        <div class="story-line" id="c10">ALORS,</div>
-        <div class="story-line" id="c11">BECKHAM</div>
-        <div class="story-line" id="c12">RÉCUPÈRE</div>
-        <div class="story-line" id="c13">LE BALLON,</div>
-        <div class="story-line" id="c14">PRÈS DU</div>
-        <div class="story-line" id="c15">ROND CENTRAL.</div>
-        <div class="story-line" id="c16">IL LÈVE</div>
-        <div class="story-line" id="c17">LA TÊTE.</div>
-        <div class="story-line" id="c18">LE GARDIEN</div>
-        <div class="story-line" id="c19">EST TROP AVANCÉ.</div>
-        <div class="story-line" id="c20">IL TENTE</div>
-        <div class="story-line" id="c21">SA CHANCE,</div>
-        <div class="story-line" id="c22">DEPUIS</div>
-        <div class="story-line" id="c23">SON PROPRE CAMP.</div>
-        <div class="story-line" id="c24">LE BALLON</div>
-        <div class="story-line" id="c25">RETOMBE</div>
-        <div class="story-line" id="c26">DANS LA LUCARNE.</div>
-        <div class="story-line" id="c27">3-0.</div>
-        <div class="story-line" id="c28">BECKHAM</div>
-        <div class="story-line" id="c29">A 21 ANS.</div>
-        <div class="story-line" id="c30">IL N'A ENCORE</div>
-        <div class="story-line" id="c31">JAMAIS PORTÉ</div>
-        <div class="story-line" id="c32">LE MAILLOT ANGLAIS.</div>
-        <div class="story-line" id="c33">SON PREMIER CAP</div>
-        <div class="story-line" id="c34">ARRIVERA</div>
-        <div class="story-line" id="c35">2 SEMAINES</div>
-        <div class="story-line" id="c36">PLUS TARD.</div>
-        <div class="story-line" id="c37">DES ANNÉES APRÈS,</div>
-        <div class="story-line" id="c38">IL DIRA</div>
-        <div class="story-line" id="c39">QUE CEST</div>
-        <div class="story-line" id="c40">LE BUT</div>
-        <div class="story-line" id="c41">QUI A CHANGÉ</div>
-        <div class="story-line" id="c42">SA VIE.</div>
+        <div class="story-line" id="c1">CERTAINS BUTS</div>
+        <div class="story-line" id="c2">FONT GAGNER</div>
+        <div class="story-line" id="c3">DES MATCHS,</div>
+        <div class="story-line" id="c4">D'AUTRES MARQUENT</div>
+        <div class="story-line" id="c5">L'HISTOIRE.</div>
+        <div class="story-line" id="c6">LE 17 AOÛT 1996</div>
+        <div class="story-line" id="c7">WIMBLEDON REÇOIT</div>
+        <div class="story-line" id="c8">MANCHESTER UNITED.</div>
+        <div class="story-line" id="c9">POUR LA</div>
+        <div class="story-line" id="c10">1ÈRE JOURNÉE</div>
+        <div class="story-line" id="c11">DE LA SAISON.</div>
+        <div class="story-line" id="c12">À LA 25E MINUTE,</div>
+        <div class="story-line" id="c13">CANTONA</div>
+        <div class="story-line" id="c14">OUVRE LE SCORE.</div>
+        <div class="story-line" id="c15">1-0</div>
+        <div class="story-line" id="c16">EN 2NDE PÉRIODE,</div>
+        <div class="story-line" id="c17">DENIS IRWIN</div>
+        <div class="story-line" id="c18">DOUBLE LA MISE.</div>
+        <div class="story-line" id="c19">2-0</div>
+        <div class="story-line" id="c20">UNITED</div>
+        <div class="story-line" id="c21">PEUT LEVER</div>
+        <div class="story-line" id="c22">LE PIED.</div>
+        <div class="story-line" id="c23">LE MATCH</div>
+        <div class="story-line" id="c24">SEMBLE PLIÉ.</div>
+        <div class="story-line" id="c25">MAIS À 3 MINUTES</div>
+        <div class="story-line" id="c26">DE LA FIN,</div>
+        <div class="story-line" id="c27">BRIAN MCCLAIR</div>
+        <div class="story-line" id="c28">RÉCUPÈRE</div>
+        <div class="story-line" id="c29">ET SERT</div>
+        <div class="story-line" id="c30">UN JEUNE MILIEU.</div>
+        <div class="story-line" id="c31">LE GARDIEN</div>
+        <div class="story-line" id="c32">EST TROP AVANCÉ.</div>
+        <div class="story-line" id="c33">ALORS,</div>
+        <div class="story-line" id="c34">IL TENTE</div>
+        <div class="story-line" id="c35">SA CHANCE</div>
+        <div class="story-line" id="c36">À PLUS DE</div>
+        <div class="story-line" id="c37">50 MÈTRES</div>
+        <div class="story-line" id="c38">DU BUT.</div>
+        <div class="story-line" id="c39">LE BALLON</div>
+        <div class="story-line" id="c40">S'ENVOLE</div>
+        <div class="story-line" id="c41">ET FINIT</div>
+        <div class="story-line" id="c42">DANS LES FILETS.</div>
+        <div class="story-line" id="c43">3-0</div>
+        <div class="story-line" id="c44">BUT DE</div>
+        <div class="story-line" id="c45">DAVID BECKHAM.</div>
+        <div class="story-line" id="c46">CANTONA ET IRWIN</div>
+        <div class="story-line" id="c47">ONT MARQUÉ.</div>
+        <div class="story-line" id="c48">MAIS LE HÉROS</div>
+        <div class="story-line" id="c49">DE CE MATCH</div>
+        <div class="story-line" id="c50">RESTERA BECKHAM.</div>
+        <div class="story-line" id="c51">ET CE BUT-LÀ,</div>
+        <div class="story-line" id="c52">QUI POURRAIT</div>
+        <div class="story-line" id="c53">L'OUBLIER ?</div>
       </div>
     </div>
 
@@ -156,11 +174,11 @@
       /* corps façon karaoké — §4.B/§5 CLAUDE.md : durée de base FIXE
          0.35s/carte (pas de formule mots×durée), zéro pause entre blocs
          (toujours un sous-titre à l'écran), démarrage à 0.3s absolu (pas
-         d'introEnd, pas de titre animé pour ce style). 42 cartes, facteur
-         d'étirement = (41.53−0.3)/(42×0.35) ≈ 2.805 (peu de cartons pour
-         une vidéo de 41.53s → chaque carte tenue ≈0.982s ; le plancher
+         d'introEnd, pas de titre animé pour ce style). 53 cartes, facteur
+         d'étirement = (43.633−0.3)/(53×0.35) ≈ 2.336 (peu de cartons pour
+         une vidéo de 43.633s → chaque carte tenue ≈0.818s ; le plancher
          0.2s/carte est sans objet ici car on étire, pas on compresse).
-         Dernière carte se termine à 41.530s, exactement la fin de la vidéo. */
+         Dernière carte se termine exactement à 43.633s, la fin de la vidéo. */
       function fadeBlockKaraoke(sel, start, dur) {
         tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 0.10, ease: 'power2.out' }, start);
         tl.to(sel, { opacity: 0, duration: 0.08, ease: 'sine.in' }, start + dur - 0.08);
@@ -168,48 +186,59 @@
       }
 
       const cards = [
-        { id: 'c1',  start: 0.300,  dur: 0.982 },
-        { id: 'c2',  start: 1.282,  dur: 0.982 },
-        { id: 'c3',  start: 2.263,  dur: 0.982 },
-        { id: 'c4',  start: 3.245,  dur: 0.982 },
-        { id: 'c5',  start: 4.227,  dur: 0.982 },
-        { id: 'c6',  start: 5.208,  dur: 0.982 },
-        { id: 'c7',  start: 6.190,  dur: 0.982 },
-        { id: 'c8',  start: 7.172,  dur: 0.982 },
-        { id: 'c9',  start: 8.153,  dur: 0.982 },
-        { id: 'c10', start: 9.135,  dur: 0.982 },
-        { id: 'c11', start: 10.117, dur: 0.982 },
-        { id: 'c12', start: 11.098, dur: 0.982 },
-        { id: 'c13', start: 12.080, dur: 0.982 },
-        { id: 'c14', start: 13.062, dur: 0.982 },
-        { id: 'c15', start: 14.043, dur: 0.982 },
-        { id: 'c16', start: 15.025, dur: 0.982 },
-        { id: 'c17', start: 16.007, dur: 0.982 },
-        { id: 'c18', start: 16.988, dur: 0.982 },
-        { id: 'c19', start: 17.970, dur: 0.982 },
-        { id: 'c20', start: 18.952, dur: 0.982 },
-        { id: 'c21', start: 19.933, dur: 0.982 },
-        { id: 'c22', start: 20.915, dur: 0.982 },
-        { id: 'c23', start: 21.897, dur: 0.982 },
-        { id: 'c24', start: 22.878, dur: 0.982 },
-        { id: 'c25', start: 23.860, dur: 0.982 },
-        { id: 'c26', start: 24.842, dur: 0.982 },
-        { id: 'c27', start: 25.823, dur: 0.982 },
-        { id: 'c28', start: 26.805, dur: 0.982 },
-        { id: 'c29', start: 27.787, dur: 0.982 },
-        { id: 'c30', start: 28.768, dur: 0.982 },
-        { id: 'c31', start: 29.750, dur: 0.982 },
-        { id: 'c32', start: 30.732, dur: 0.982 },
-        { id: 'c33', start: 31.713, dur: 0.982 },
-        { id: 'c34', start: 32.695, dur: 0.982 },
-        { id: 'c35', start: 33.677, dur: 0.982 },
-        { id: 'c36', start: 34.658, dur: 0.982 },
-        { id: 'c37', start: 35.640, dur: 0.982 },
-        { id: 'c38', start: 36.622, dur: 0.982 },
-        { id: 'c39', start: 37.603, dur: 0.982 },
-        { id: 'c40', start: 38.585, dur: 0.982 },
-        { id: 'c41', start: 39.567, dur: 0.982 },
-        { id: 'c42', start: 40.548, dur: 0.982 },
+        { id: 'c1', start: 0.300, dur: 0.818 },
+        { id: 'c2', start: 1.118, dur: 0.818 },
+        { id: 'c3', start: 1.935, dur: 0.818 },
+        { id: 'c4', start: 2.753, dur: 0.818 },
+        { id: 'c5', start: 3.570, dur: 0.818 },
+        { id: 'c6', start: 4.388, dur: 0.818 },
+        { id: 'c7', start: 5.206, dur: 0.818 },
+        { id: 'c8', start: 6.023, dur: 0.818 },
+        { id: 'c9', start: 6.841, dur: 0.818 },
+        { id: 'c10', start: 7.658, dur: 0.818 },
+        { id: 'c11', start: 8.476, dur: 0.818 },
+        { id: 'c12', start: 9.294, dur: 0.818 },
+        { id: 'c13', start: 10.111, dur: 0.818 },
+        { id: 'c14', start: 10.929, dur: 0.818 },
+        { id: 'c15', start: 11.747, dur: 0.818 },
+        { id: 'c16', start: 12.564, dur: 0.818 },
+        { id: 'c17', start: 13.382, dur: 0.818 },
+        { id: 'c18', start: 14.199, dur: 0.818 },
+        { id: 'c19', start: 15.017, dur: 0.818 },
+        { id: 'c20', start: 15.835, dur: 0.818 },
+        { id: 'c21', start: 16.652, dur: 0.818 },
+        { id: 'c22', start: 17.470, dur: 0.818 },
+        { id: 'c23', start: 18.287, dur: 0.818 },
+        { id: 'c24', start: 19.105, dur: 0.818 },
+        { id: 'c25', start: 19.923, dur: 0.818 },
+        { id: 'c26', start: 20.740, dur: 0.818 },
+        { id: 'c27', start: 21.558, dur: 0.818 },
+        { id: 'c28', start: 22.375, dur: 0.818 },
+        { id: 'c29', start: 23.193, dur: 0.818 },
+        { id: 'c30', start: 24.011, dur: 0.818 },
+        { id: 'c31', start: 24.828, dur: 0.818 },
+        { id: 'c32', start: 25.646, dur: 0.818 },
+        { id: 'c33', start: 26.464, dur: 0.818 },
+        { id: 'c34', start: 27.281, dur: 0.818 },
+        { id: 'c35', start: 28.099, dur: 0.818 },
+        { id: 'c36', start: 28.916, dur: 0.818 },
+        { id: 'c37', start: 29.734, dur: 0.818 },
+        { id: 'c38', start: 30.552, dur: 0.818 },
+        { id: 'c39', start: 31.369, dur: 0.818 },
+        { id: 'c40', start: 32.187, dur: 0.818 },
+        { id: 'c41', start: 33.004, dur: 0.818 },
+        { id: 'c42', start: 33.822, dur: 0.818 },
+        { id: 'c43', start: 34.640, dur: 0.818 },
+        { id: 'c44', start: 35.457, dur: 0.818 },
+        { id: 'c45', start: 36.275, dur: 0.818 },
+        { id: 'c46', start: 37.092, dur: 0.818 },
+        { id: 'c47', start: 37.910, dur: 0.818 },
+        { id: 'c48', start: 38.728, dur: 0.818 },
+        { id: 'c49', start: 39.545, dur: 0.818 },
+        { id: 'c50', start: 40.363, dur: 0.818 },
+        { id: 'c51', start: 41.181, dur: 0.818 },
+        { id: 'c52', start: 41.998, dur: 0.818 },
+        { id: 'c53', start: 42.816, dur: 0.818 },
       ];
 
       cards.forEach(({ id, start, dur }) => {
