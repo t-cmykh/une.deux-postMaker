@@ -1255,9 +1255,22 @@ function drawPortraitCover(g,W,H,M,footY,s){
   const bodyTxt=String(state.body||'').trim();
   let bodyLines=[];
   if(bodyTxt){
-    g.font="500 36px 'Archivo'";
-    bodyLines=wrapBody(g,state.body,maxW,8);
-    const bLH=46, bH=bodyLines.length*bLH;
+    /* comme le template cover (cf. draw()) : le corps ne doit jamais être
+       tronqué — on part de 36px habituel, mais si le texte dépasse la place
+       normalement prévue (8 lignes), on continue de réduire (mesuré à la
+       vraie taille via wrapAtSize, sans limite de lignes) plutôt que de
+       couper le texte en silence. En dernier recours, on affiche quand même
+       tout le texte (léger débordement possible) au lieu d'en perdre. */
+    const bMaxLines=8;
+    const bSizes=[36,32,28,25,22,20,18,16];
+    let bSize=bSizes[bSizes.length-1], bLH=Math.round(bSize*1.28);
+    for(let i=0;i<bSizes.length;i++){
+      const sz=bSizes[i], lh=Math.round(sz*1.28);
+      const ls=wrapAtSize(g,state.body,maxW,sz);
+      if(ls.length<=bMaxLines || i===bSizes.length-1){ bSize=sz; bLH=lh; bodyLines=ls; break; }
+    }
+    g.font="500 "+bSize+"px 'Archivo'";
+    const bH=bodyLines.length*bLH;
     const bBottom=footY-70;        /* au-dessus de la mention reel */
     const bTop=bBottom-bH;
     /* fond semi-transparent */
@@ -1268,7 +1281,8 @@ function drawPortraitCover(g,W,H,M,footY,s){
       g.fillRect(baseX-padX, bTop-padY, maxLineW+padX*2, bH+padY*2); g.restore();
     }
     g.fillStyle=C.creme; g.textBaseline='alphabetic';
-    bodyLines.forEach((ln,i)=>drawBodyRich(g,ln,baseX,bTop+(i+1)*bLH-10,36));
+    const bNudge=Math.round(bSize*0.28);
+    bodyLines.forEach((ln,i)=>drawBodyRich(g,ln,baseX,bTop+(i+1)*bLH-bNudge,bSize));
     bodyBlockTop=bTop;
   }
 
