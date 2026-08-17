@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 18 août 2020, PSG en finale de C1 dans un stade vide (karaoké)</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* vidéo du Drive gardée intégrale, telle quelle (pas de sélection de
+         plans, §1bis CLAUDE.md) — un seul composite continu du début à la
+         fin (0 → 52.8167s), même géométrie sur toute la durée : fond plein
+         cadre flouté/désaturé + plan net 1080×888 plein cadre horizontal
+         (overlay y=420 — §2 CLAUDE.md). Source : PSG-RB Leipzig, demi-finale
+         Final 8 LDC (18 août 2020), 882x458 (~1.93:1), aucune rotation
+         (ffprobe). Aucun habillage de chaîne signalé dans NOTES — pas de
+         zoom préalable. Un seul élément <video>, pas de titre animé séparé
+         pour ce style (§4bis ne s'applique pas au style karaoké). Pas de
+         piste audio reprise (retiré du pipeline le 14 août 2026, cf.
+         CLAUDE.md §2). */
+      .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+
+      /* header — constantes fixes de la série, persistant du début à la fin */
+      #hdr { position: absolute; inset: 0 0 auto 0; z-index: 20; }
+      .ring {
+        position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
+        border: 4px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
+
+      /* --ocre-render : compensation du décalage de teinte du pipeline de
+         render HyperFrames sur --ocre (§3 CLAUDE.md) — ne pas remplacer
+         var(--ocre) dans tokens/colors.css, uniquement une variable locale
+         à la composition. Utilisé sur .tag et sur les mots-clés .story-line
+         b.ocre (§4.B, règle du 13 août 2026). */
+      :root { --ocre-render: #B9A456; }
+      .tag {
+        position: absolute; left: 96px; top: 350px; height: 58px; z-index: 20;
+        display: flex; align-items: center; background: var(--ocre-render); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; padding: 0 15px;
+      }
+
+      /* corps de texte façon karaoké — Anton, centré verticalement dans le
+         cadre, superposé directement sur le plan net (§4.B CLAUDE.md).
+         Taille FIXE 80px pour toutes les cartes, aucun palier par
+         longueur ; aucune ombre portée ; léger contour semi-transparent
+         ink. Texte déjà écrit en MAJUSCULES dans le HTML (pas seulement
+         via text-transform, cf. bug de subsetting de police documenté au
+         §4.B CLAUDE.md). .story-line porte un transform:translateY(-50%)
+         STATIQUE — ne jamais animer y dessus avec GSAP (§6), opacity
+         uniquement. top:0/bottom:0 sur .story-zone obligatoires pour que
+         le centrage vertical ait une hauteur de référence. */
+      .story-zone { position: absolute; top: 0; bottom: 0; left: 96px; right: 96px; z-index: 20; text-align: center; }
+      .story-line {
+        position: absolute; left: 0; right: 0;
+        top: 50%; transform: translateY(-50%);
+        font-family: 'Anton', sans-serif; font-size: 80px; line-height: 1.1;
+        text-transform: uppercase; color: var(--cream); opacity: 0;
+        -webkit-text-stroke: 1.5px rgba(44,40,35,.35);
+      }
+      /* mot-clé en ocre via **mot** dans CORPS (karaoké) — §4.B règle du
+         13 août 2026 : couleur seule, pas de fond/padding (contrairement
+         au kw-box du titre animé §4bis, sans objet pour ce style). */
+      .story-line b.ocre { color: var(--ocre-render); font-weight: inherit; }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="52.8167"
+      data-fps="30"
+    >
+      <!-- vidéo du Drive intégrale, un seul plan continu du début à la fin -->
+      <video class="video-full" id="fullv" src="assets/full.mp4" data-start="0.0000" data-duration="52.8167" data-track-index="1" muted playsinline></video>
+
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+      <div class="tag">CE JOUR LÀ …</div>
+
+      <!-- corps du post — champ CORPS (karaoké) du brouillon "POST DU JOUR
+           — 18 août 2026 · PSG en finale de C1 dans un stade vide (2020)" —
+           PAS le champ CORPS générique (§4.B CLAUDE.md). Une ligne du
+           brouillon = une carte, verbatim, AUCUN re-découpage NI
+           réordonnancement — reprise dans l'ordre exact du brouillon (39
+           lignes). La ligne 7 porte un marquage **entre étoiles** ("18 août
+           2020,") : mot-clé en ocre via <b class="ocre"> (§4.B règle du 13
+           août 2026). -->
+      <div class="story-zone">
+        <div class="story-line" id="c1">IL Y A</div>
+        <div class="story-line" id="c2">DES RÊVES</div>
+        <div class="story-line" id="c3">QUI SEMBLENT</div>
+        <div class="story-line" id="c4">IMPOSSIBLE</div>
+        <div class="story-line" id="c5">À ATTEINDRE…</div>
+        <div class="story-line" id="c6">CE JOUR-LÀ</div>
+        <div class="story-line" id="c7">LE <b class="ocre">18 AOÛT 2020,</b></div>
+        <div class="story-line" id="c8">FACE À LEIPZIG,</div>
+        <div class="story-line" id="c9">LE PSG JOUE</div>
+        <div class="story-line" id="c10">UNE DEMI-FINALE</div>
+        <div class="story-line" id="c11">DE LDC</div>
+        <div class="story-line" id="c12">À LISBONNE</div>
+        <div class="story-line" id="c13">DANS UN</div>
+        <div class="story-line" id="c14">STADE VIDE.</div>
+        <div class="story-line" id="c15">MAIS CE SOIR-LÀ,</div>
+        <div class="story-line" id="c16">IL JOUE</div>
+        <div class="story-line" id="c17">POUR L’HISTOIRE.</div>
+        <div class="story-line" id="c18">À LA 13E MINUTE,</div>
+        <div class="story-line" id="c19">MARQUINHOS</div>
+        <div class="story-line" id="c20">MARQUE</div>
+        <div class="story-line" id="c21">DE LA TÊTE.</div>
+        <div class="story-line" id="c22">À LA 42E MINUTE,</div>
+        <div class="story-line" id="c23">NEYMAR TROUVE</div>
+        <div class="story-line" id="c24">DI MARIA.</div>
+        <div class="story-line" id="c25">À LA 56E MINUTE,</div>
+        <div class="story-line" id="c26">BERNAT SURGIT.</div>
+        <div class="story-line" id="c27">POUR LA 1ÈRE FOIS,</div>
+        <div class="story-line" id="c28">LE PSG SE QUALIFIE</div>
+        <div class="story-line" id="c29">EN FINALE DE LDC.</div>
+        <div class="story-line" id="c30">LES JOUEURS</div>
+        <div class="story-line" id="c31">PENSENT ÉCRIRE</div>
+        <div class="story-line" id="c32">L’HISTOIRE</div>
+        <div class="story-line" id="c33">DU CLUB.</div>
+        <div class="story-line" id="c34">ILS IGNORENT QUE</div>
+        <div class="story-line" id="c35">DANS QUELQUES</div>
+        <div class="story-line" id="c36">ANNÉES</div>
+        <div class="story-line" id="c37">ILS MARQUERONT</div>
+        <div class="story-line" id="c38">L’HISTOIRE</div>
+        <div class="story-line" id="c39">DU FOOTBALL.</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      /* corps façon karaoké — §4.B/§5 CLAUDE.md : durée de base FIXE
+         0.35s/carte (pas de formule mots×durée), zéro pause entre blocs
+         (toujours un sous-titre à l'écran), démarrage à 0.3s absolu (pas
+         d'introEnd, pas de titre animé pour ce style). 39 cartes, durée
+         disponible = 52.8167−0.3 = 52.5167s -> 52.5167/39 ≈ 1.347s/carte
+         (facteur d'étirement ≈3.848 par rapport à la base 0.35s — peu de
+         cartons pour une vidéo de 52.8s). Dernière carte se termine
+         quasi exactement à la fin de la vidéo (52.8167s). */
+      function fadeBlockKaraoke(sel, start, dur) {
+        tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 0.10, ease: 'power2.out' }, start);
+        tl.to(sel, { opacity: 0, duration: 0.08, ease: 'sine.in' }, start + dur - 0.08);
+        tl.set(sel, { opacity: 0 }, start + dur);
+      }
+
+      const cards = [
+        { id: 'c1',  start: 0.300,  dur: 1.347 },
+        { id: 'c2',  start: 1.647,  dur: 1.347 },
+        { id: 'c3',  start: 2.993,  dur: 1.347 },
+        { id: 'c4',  start: 4.340,  dur: 1.347 },
+        { id: 'c5',  start: 5.686,  dur: 1.347 },
+        { id: 'c6',  start: 7.033,  dur: 1.347 },
+        { id: 'c7',  start: 8.379,  dur: 1.347 },
+        { id: 'c8',  start: 9.726,  dur: 1.347 },
+        { id: 'c9',  start: 11.073, dur: 1.347 },
+        { id: 'c10', start: 12.419, dur: 1.347 },
+        { id: 'c11', start: 13.766, dur: 1.347 },
+        { id: 'c12', start: 15.112, dur: 1.347 },
+        { id: 'c13', start: 16.459, dur: 1.347 },
+        { id: 'c14', start: 17.806, dur: 1.347 },
+        { id: 'c15', start: 19.152, dur: 1.347 },
+        { id: 'c16', start: 20.499, dur: 1.347 },
+        { id: 'c17', start: 21.845, dur: 1.347 },
+        { id: 'c18', start: 23.192, dur: 1.347 },
+        { id: 'c19', start: 24.538, dur: 1.347 },
+        { id: 'c20', start: 25.885, dur: 1.347 },
+        { id: 'c21', start: 27.232, dur: 1.347 },
+        { id: 'c22', start: 28.578, dur: 1.347 },
+        { id: 'c23', start: 29.925, dur: 1.347 },
+        { id: 'c24', start: 31.271, dur: 1.347 },
+        { id: 'c25', start: 32.618, dur: 1.347 },
+        { id: 'c26', start: 33.965, dur: 1.347 },
+        { id: 'c27', start: 35.311, dur: 1.347 },
+        { id: 'c28', start: 36.658, dur: 1.347 },
+        { id: 'c29', start: 38.004, dur: 1.347 },
+        { id: 'c30', start: 39.351, dur: 1.347 },
+        { id: 'c31', start: 40.697, dur: 1.347 },
+        { id: 'c32', start: 42.044, dur: 1.347 },
+        { id: 'c33', start: 43.391, dur: 1.347 },
+        { id: 'c34', start: 44.737, dur: 1.347 },
+        { id: 'c35', start: 46.084, dur: 1.347 },
+        { id: 'c36', start: 47.430, dur: 1.347 },
+        { id: 'c37', start: 48.777, dur: 1.347 },
+        { id: 'c38', start: 50.124, dur: 1.347 },
+        { id: 'c39', start: 51.470, dur: 1.347 },
+      ];
+
+      cards.forEach(({ id, start, dur }) => {
+        fadeBlockKaraoke(`#${id}`, start, dur);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
