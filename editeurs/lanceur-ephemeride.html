@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>une·deux — lanceur éphéméride Ce jour-là</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600&family=Saira+Condensed:wght@600;700&display=swap');
+
+:root{
+  --newsprint:#F1ECE1; --encre:#2C2823; --vert:#27543C; --vert-d:#1F4430;
+  --ocre:#C2A04E; --creme:#EDDCB2; --soustitre:#D1C1A3; --line:#4a463e;
+  --panel:#26221d; --sig:#C2A04E;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--encre);color:var(--newsprint);
+  font-family:'Archivo',system-ui,sans-serif;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
+.wrap{display:flex;min-height:100vh}
+@media(max-width:900px){.wrap{flex-direction:column}}
+
+.panel{width:420px;flex:0 0 420px;padding:22px 22px 60px;border-right:1px solid var(--line);
+  overflow-y:auto;max-height:100vh}
+@media(max-width:900px){.panel{width:100%;flex:none;max-height:none;border-right:none;border-bottom:1px solid var(--line)}}
+
+.topbar{display:flex;align-items:center;gap:11px;padding-bottom:16px;margin-bottom:18px;border-bottom:1px solid var(--line)}
+.mono{width:30px;height:30px;border:2px solid var(--creme);border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-family:'Saira Condensed';font-weight:700;font-size:14px;color:var(--creme);flex:0 0 auto}
+.brand{font-family:'Anton';font-size:22px;letter-spacing:.5px;color:var(--creme)}
+.brand .dot{color:var(--vert)}
+.subbrand{margin-left:auto;font-family:'Saira Condensed';font-weight:700;font-size:11px;
+  letter-spacing:2px;color:var(--sig)}
+
+.section-h{font-family:'Saira Condensed';font-weight:700;font-size:12px;letter-spacing:2px;
+  color:var(--sig);margin:22px 0 12px;text-transform:uppercase}
+
+.field{margin-bottom:13px}
+.field label{display:block;font-family:'Saira Condensed';font-weight:700;font-size:12px;letter-spacing:1.5px;
+  color:#9a968c;margin-bottom:6px;text-transform:uppercase}
+.field input{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:8px;
+  color:var(--newsprint);font-family:'Archivo';font-size:15px;padding:11px 13px;outline:none;transition:border-color .15s}
+.field input:focus{border-color:var(--sig)}
+.field .hint{font-size:11px;color:#776f60;margin-top:5px;line-height:1.45}
+
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{font-family:'Saira Condensed';font-weight:700;font-size:12.5px;letter-spacing:1px;padding:7px 13px;
+  border-radius:20px;border:1px solid var(--line);background:var(--panel);color:var(--newsprint);
+  cursor:pointer;text-transform:uppercase;transition:all .15s}
+.chip:hover{border-color:#6a635a}
+.chip.on{background:var(--sig);border-color:var(--sig);color:var(--encre)}
+
+.btns{display:flex;gap:10px;margin-top:22px}
+.btn{flex:1;font-family:'Saira Condensed';font-weight:700;font-size:14px;letter-spacing:1.5px;padding:13px;
+  border-radius:9px;border:none;cursor:pointer;text-transform:uppercase;transition:filter .15s}
+.btn:hover{filter:brightness(1.08)}
+.btn-sig{background:var(--sig);color:var(--encre)}
+.btn-ghost{background:transparent;color:#9a9588;border:1px solid var(--line)}
+.btn:disabled{opacity:.4;cursor:not-allowed;filter:none}
+
+.toast{margin-top:12px;font-family:'Saira Condensed';font-weight:700;font-size:12px;letter-spacing:1px;
+  color:var(--sig);text-align:center;opacity:0;transition:opacity .2s;text-transform:uppercase}
+.toast.show{opacity:1}
+
+.legend{font-size:11.5px;color:#776f60;line-height:1.55;text-align:left;margin-bottom:6px}
+.legend b{color:var(--sig)}
+
+.stage{flex:1;display:flex;flex-direction:column;align-items:center;padding:28px 22px;gap:16px}
+.stage-head{width:100%;max-width:560px;display:flex;align-items:center;justify-content:space-between}
+.stage-title{font-family:'Saira Condensed';font-weight:700;font-size:13px;letter-spacing:2px;color:#8b8678}
+.status-pill{font-family:'Saira Condensed';font-weight:700;font-size:11px;letter-spacing:1.5px;
+  padding:5px 12px;border-radius:20px;text-transform:uppercase}
+.status-pill.ready{background:rgba(194,160,78,.16);color:var(--sig);border:1px solid var(--sig)}
+.status-pill.wait{background:rgba(255,255,255,.06);color:#776f60;border:1px solid var(--line)}
+
+.mail-shell{border-radius:10px;overflow:hidden;box-shadow:0 14px 50px rgba(0,0,0,.45);
+  background:#1a1714;max-width:560px;width:100%;border:1px solid var(--line)}
+.mail-head{padding:16px 20px;border-bottom:1px solid var(--line);background:var(--panel)}
+.mail-head .to{font-size:12px;color:#776f60;margin-bottom:4px}
+.mail-head .to b{color:#9a968c}
+.mail-head .subject{font-family:'Saira Condensed';font-weight:700;font-size:17px;color:var(--newsprint)}
+.mail-body{padding:20px;font-size:14px;line-height:1.7;white-space:pre-wrap;color:var(--soustitre);
+  min-height:140px}
+.mail-body b{color:var(--newsprint)}
+.mail-body .k{color:var(--sig);font-weight:600}
+
+.pipeline{width:100%;max-width:560px}
+.pipeline ol{margin:0;padding-left:20px;font-size:13px;line-height:1.9;color:var(--soustitre)}
+.pipeline li b{color:var(--newsprint)}
+.pipeline .cadence{margin-top:10px;font-size:12px;color:#776f60;padding:11px 14px;background:var(--panel);
+  border-radius:8px;border:1px solid var(--line)}
+.pipeline .cadence b{color:var(--sig)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="panel">
+    <div class="topbar">
+      <div class="mono">1·2</div>
+      <div class="brand">une<span class="dot">·</span>deux</div>
+      <div class="subbrand">ÉPHÉMÉRIDE</div>
+    </div>
+
+    <div class="legend">
+      Demande une <b>éphéméride</b> (liste d'options « Ce jour-là » à valider par
+      ✅) pour une date précise, ou pour plusieurs jours consécutifs d'un coup —
+      un seul email, un seul brouillon d'options en retour avec une section par
+      jour à valider indépendamment.
+    </div>
+
+    <div class="section-h">Combien de jours ?</div>
+    <div class="field" id="field_mode">
+      <div class="chips" id="mode_chips">
+        <div class="chip on" data-m="one">1 JOUR</div>
+        <div class="chip" data-m="multi">PLUSIEURS JOURS</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Date de début</label>
+      <input id="f_start" type="date">
+      <div class="hint">Par défaut demain — modifiable si tu vises une autre date.</div>
+    </div>
+
+    <div class="field" id="field_count" style="display:none">
+      <label>Nombre de jours consécutifs</label>
+      <input id="f_count" type="number" min="2" max="31" value="3">
+      <div class="hint">À partir de la date de début, inclusivement (ex. 5 jours à partir du 20 août = 20→24 août).</div>
+    </div>
+
+    <div class="btns">
+      <button class="btn btn-sig" id="b_launch">Lancer l'éphéméride</button>
+      <button class="btn btn-ghost" id="b_copy">Copier</button>
+    </div>
+    <div class="toast" id="toast"></div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-head">
+      <div class="stage-title">APERÇU DU DÉCLENCHEUR</div>
+      <div class="status-pill ready" id="status_pill">PRÊT À LANCER</div>
+    </div>
+
+    <div class="mail-shell">
+      <div class="mail-head">
+        <div class="to">À : <b>toi-même</b> (t.louisor@gmail.com)</div>
+        <div class="subject" id="prev_subject">LANCER ÉPHÉMÉRIDE — …</div>
+      </div>
+      <div class="mail-body" id="prev_body"></div>
+    </div>
+
+    <div class="pipeline">
+      <div class="section-h" style="margin-top:0">Ce qui se passe ensuite</div>
+      <ol>
+        <li><b>Lancer l'éphéméride</b> ouvre un brouillon email pré-rempli dans ta messagerie — vérifie et envoie-le (ou laisse-le en brouillon, les deux fonctionnent).</li>
+        <li>Une <b>Routine</b> horaire côté Claude Code cherche un email/brouillon « LANCER ÉPHÉMÉRIDE » non traité.</li>
+        <li>Si elle en trouve un : recherche web des événements foot pour chaque date demandée, vérification par 3 sources indépendantes, puis production d'un brouillon « ⚽ Éphéméride foot une·deux » — une section « JOUR N » par date si plusieurs jours, options numérotées à valider par ✅ dans chacune.</li>
+        <li>Tu valides ensuite normalement (✅ devant l'option choisie, par jour) — la routine quotidienne « Post du jour » prend le relais pour produire un « POST DU JOUR » par date validée.</li>
+        <li>L'email déclencheur est marqué traité pour ne pas être relancé deux fois.</li>
+      </ol>
+      <div class="cadence">⏱ La vérification se fait <b>une fois par heure</b> — pas de génération instantanée. Pour une éphéméride immédiate, demande-la directement dans le chat Claude Code comme d'habitude.</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const startInput = $('f_start'), countInput = $('f_count'), fieldCount = $('field_count');
+const prevSubject = $('prev_subject'), prevBody = $('prev_body'), statusPill = $('status_pill');
+const toast = $('toast');
+
+let mode = 'one'; // 'one' | 'multi'
+
+// date par défaut = demain
+(function initDate(){
+  const d = new Date(); d.setDate(d.getDate() + 1);
+  startInput.value = d.toISOString().slice(0, 10);
+})();
+
+document.querySelectorAll('#mode_chips .chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('#mode_chips .chip').forEach(c => c.classList.remove('on'));
+    chip.classList.add('on');
+    mode = chip.dataset.m;
+    fieldCount.style.display = mode === 'multi' ? '' : 'none';
+    render();
+  });
+});
+
+function isoPlusDays(iso, n){
+  const d = new Date(iso+'T00:00:00');
+  d.setDate(d.getDate()+n);
+  return d.toISOString().slice(0,10);
+}
+
+function frDate(iso){
+  if(!iso) return '…';
+  const [y,m,d] = iso.split('-');
+  const mois = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+  return `${parseInt(d,10)} ${mois[parseInt(m,10)-1]} ${y}`;
+}
+
+function dateList(){
+  const start = startInput.value;
+  if(!start) return [];
+  if(mode === 'one') return [start];
+  const n = Math.max(2, Math.min(31, parseInt(countInput.value,10) || 2));
+  const out = [];
+  for(let i=0;i<n;i++) out.push(isoPlusDays(start,i));
+  return out;
+}
+
+function buildSubject(){
+  const dates = dateList();
+  if(mode === 'one'){
+    return `LANCER ÉPHÉMÉRIDE — ${dates[0] || '(date à définir)'}`;
+  }
+  return `LANCER ÉPHÉMÉRIDE — MULTI (${dates.length} jours)`;
+}
+
+function buildBody(){
+  const dates = dateList();
+  if(mode === 'one'){
+    return [
+      `DATE: ${dates[0] || '(date à définir)'}`,
+      '',
+      `— généré depuis le lanceur éphéméride Ce jour-là`
+    ].join('\n');
+  }
+  return [
+    `DATE DE DÉBUT: ${dates[0] || '(date à définir)'}`,
+    `NOMBRE DE JOURS: ${dates.length}`,
+    `DATES: ${dates.join(', ')}`,
+    '',
+    `— généré depuis le lanceur éphéméride Ce jour-là (${dates.length} jours)`
+  ].join('\n');
+}
+
+function render(){
+  const dates = dateList();
+  prevSubject.textContent = buildSubject();
+  prevBody.innerHTML = buildBody()
+    .replace(/^(DATE:|DATE DE DÉBUT:|NOMBRE DE JOURS:|DATES:)/gm, '<span class="k">$1</span>')
+    .replace(/\n/g, '<br>');
+
+  const ready = dates.length > 0 && !!startInput.value;
+  statusPill.textContent = ready
+    ? (mode === 'one' ? `PRÊT — ${frDate(dates[0])}` : `PRÊT — ${dates.length} JOURS`)
+    : 'DATE MANQUANTE';
+  statusPill.className = 'status-pill ' + (ready ? 'ready' : 'wait');
+  $('b_launch').disabled = !ready;
+}
+
+[startInput, countInput].forEach(el => el.addEventListener('input', render));
+
+function showToast(msg){
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2600);
+}
+
+$('b_copy').addEventListener('click', () => {
+  const text = `À: t.louisor@gmail.com\nObjet: ${buildSubject()}\n\n${buildBody()}`;
+  navigator.clipboard.writeText(text).then(() => showToast('Consigne copiée'));
+});
+
+$('b_launch').addEventListener('click', () => {
+  if($('b_launch').disabled) return;
+  const subject = buildSubject();
+  const bodyText = buildBody();
+  showToast('Brouillon email ouvert — vérifie et envoie');
+  window.location.href = `mailto:t.louisor@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyText)}`;
+});
+
+render();
+</script>
+</body>
+</html>
