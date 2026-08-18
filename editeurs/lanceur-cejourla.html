@@ -38,7 +38,7 @@ html,body{margin:0;padding:0;background:var(--encre);color:var(--newsprint);
   color:#9a968c;margin-bottom:6px;text-transform:uppercase}
 .field input,.field textarea{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:8px;
   color:var(--newsprint);font-family:'Archivo';font-size:15px;padding:11px 13px;outline:none;transition:border-color .15s}
-.field textarea{resize:vertical;min-height:60px;line-height:1.4;font-family:'Archivo'}
+.field textarea{resize:vertical;min-height:52px;line-height:1.4;font-family:'Archivo'}
 .field input:focus,.field textarea:focus{border-color:var(--sig)}
 .field .hint{font-size:11px;color:#776f60;margin-top:5px;line-height:1.45}
 .field .err{font-size:11.5px;color:#c9705a;margin-top:5px;display:none}
@@ -72,6 +72,19 @@ html,body{margin:0;padding:0;background:var(--encre);color:var(--newsprint);
   color:var(--sig);text-align:center;opacity:0;transition:opacity .2s;text-transform:uppercase}
 .toast.show{opacity:1}
 
+.legend{font-size:11.5px;color:#776f60;line-height:1.55;text-align:left;margin-bottom:6px}
+.legend b{color:var(--sig)}
+
+.day-card{border:1px solid var(--line);border-radius:10px;padding:14px 14px 4px;margin-bottom:14px;
+  background:rgba(255,255,255,.02)}
+.day-card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.day-card-head .lbl{font-family:'Saira Condensed';font-weight:700;font-size:13px;letter-spacing:1.5px;
+  color:var(--sig);text-transform:uppercase}
+.day-remove{background:none;border:none;color:#776f60;font-family:'Saira Condensed';font-weight:700;
+  font-size:11.5px;letter-spacing:1px;cursor:pointer;padding:2px 6px;text-transform:uppercase}
+.day-remove:hover{color:#c9705a}
+.b-add-day{width:100%;margin-bottom:18px}
+
 .stage{flex:1;display:flex;flex-direction:column;align-items:center;padding:28px 22px;gap:16px}
 .stage-head{width:100%;max-width:560px;display:flex;align-items:center;justify-content:space-between}
 .stage-title{font-family:'Saira Condensed';font-weight:700;font-size:13px;letter-spacing:2px;color:#8b8678}
@@ -87,7 +100,7 @@ html,body{margin:0;padding:0;background:var(--encre);color:var(--newsprint);
 .mail-head .to b{color:#9a968c}
 .mail-head .subject{font-family:'Saira Condensed';font-weight:700;font-size:17px;color:var(--newsprint)}
 .mail-body{padding:20px;font-size:14px;line-height:1.7;white-space:pre-wrap;color:var(--soustitre);
-  min-height:180px}
+  min-height:180px;max-height:420px;overflow-y:auto}
 .mail-body b{color:var(--newsprint)}
 .mail-body .k{color:var(--sig);font-weight:600}
 
@@ -97,9 +110,6 @@ html,body{margin:0;padding:0;background:var(--encre);color:var(--newsprint);
 .pipeline .cadence{margin-top:10px;font-size:12px;color:#776f60;padding:11px 14px;background:var(--panel);
   border-radius:8px;border:1px solid var(--line)}
 .pipeline .cadence b{color:var(--sig)}
-
-.legend{width:100%;max-width:560px;font-size:11.5px;color:#776f60;line-height:1.55;text-align:left}
-.legend b{color:var(--sig)}
 </style>
 </head>
 <body>
@@ -112,53 +122,18 @@ html,body{margin:0;padding:0;background:var(--encre);color:var(--newsprint);
       <div class="subbrand">CE JOUR LÀ</div>
     </div>
 
-    <div class="section-h">Source</div>
-
-    <div class="field" id="field_source_mode">
-      <label>Vidéo fournie via</label>
-      <div class="chips" id="source_mode_chips">
-        <div class="chip on" data-m="link">LIEN DRIVE</div>
-        <div class="chip" data-m="file">VIDÉO DEPUIS L'APPAREIL</div>
-      </div>
+    <div class="legend">
+      <b>Lien Drive</b> ou <b>vidéo depuis l'appareil</b> : choisis la source par jour.
+      <b>Style Fixe</b> : le premier plan réel de la vidéo sert d'intro (titre animé,
+      champ TITRE du brouillon avec mots-clés entre **étoiles**), le reste devient le
+      corps (champ CORPS). <b>Style Karaoké</b> : pas de titre séparé, cartons plein
+      écran dès le début, source = champ CORPS (karaoké) du brouillon — pas le CORPS
+      classique. Chaque jour utilise le brouillon Gmail « POST DU JOUR — sa date ».
     </div>
 
-    <div class="field" id="field_link">
-      <label>Lien Drive de la vidéo</label>
-      <input id="f_link" type="url" placeholder="https://drive.google.com/file/d/…">
-      <div class="err">Colle un lien Google Drive valide.</div>
-      <div class="hint">En style Fixe, le premier plan réel de la vidéo sert d'intro (titre animé), tout le reste devient le corps du reel. En style Karaoké, pas de titre animé séparé — le corps couvre tout le reel dès le début.</div>
-    </div>
-
-    <div class="field" id="field_file" style="display:none">
-      <label>Vidéo du match</label>
-      <input id="f_file" type="file" accept="video/*">
-      <div class="file-info" id="file_info"></div>
-      <div class="hint">Choisis-la directement depuis ta pellicule — pas besoin de l'envoyer sur Drive. En style Fixe le premier plan réel sert d'intro ; en style Karaoké, pas de titre séparé, le corps couvre tout le reel.</div>
-      <div class="warn" id="file_warn">Le partage direct n'est pas dispo sur cet appareil/navigateur : quand l'email s'ouvre, joins toi-même le même fichier avant d'envoyer.</div>
-    </div>
-
-    <div class="field">
-      <label>Date du post à utiliser</label>
-      <input id="f_date" type="date">
-      <div class="hint">Le brouillon Gmail « POST DU JOUR — cette date » sera utilisé tel quel. Style Fixe : TITRE (mots-clés entre **étoiles**) pour l'intro animée, champ CORPS pour le reste. Style Karaoké : TITRE ignoré, champ CORPS (karaoké) — pas le CORPS classique — une ligne = un carton affiché.</div>
-    </div>
-
-    <div class="section-h">Style des sous-titres</div>
-    <div class="field" id="field_style">
-      <label>Habillage du corps de texte</label>
-      <div class="chips" id="style_chips">
-        <div class="chip on" data-s="fixe">FIXE</div>
-        <div class="chip" data-s="karaoke">KARAOKÉ</div>
-      </div>
-      <div class="hint">« Fixe » : sous-titres Archivo posés, un bloc de phrase à la fois, source = champ CORPS du brouillon (recette par défaut, inchangée). « Karaoké » : texte Anton très gros, en MAJUSCULES, sans ombre portée mais avec un léger contour semi-transparent, centré verticalement dans le cadre, source = champ CORPS (karaoké) du brouillon (pas le CORPS classique) — une ligne = un carton affiché à l'écran, aucune coupure ; pas de titre animé séparé, les cartons couvrent tout le reel en continu dès le début. Un mot encadré par **étoiles** dans une ligne ressort en ocre au montage.</div>
-    </div>
-
-    <div class="section-h">Notes (optionnel)</div>
-    <div class="field">
-      <label>Instructions spécifiques pour ce reel</label>
-      <textarea id="f_notes" placeholder="Ex : zoomer 25% la source pour exclure un logo, plan X à éviter…"></textarea>
-      <div class="hint">Laisse vide pour appliquer la recette par défaut sans déviation.</div>
-    </div>
+    <div class="section-h">Jour(s) à lancer</div>
+    <div id="days_list"></div>
+    <button class="btn btn-ghost b-add-day" id="b_add_day">+ Ajouter un jour</button>
 
     <div class="btns">
       <button class="btn btn-sig" id="b_launch">Lancer le montage</button>
@@ -184,11 +159,11 @@ html,body{margin:0;padding:0;background:var(--encre);color:var(--newsprint);
     <div class="pipeline">
       <div class="section-h" style="margin-top:0">Ce qui se passe ensuite</div>
       <ol>
-        <li><b>Lancer le montage</b> ouvre un brouillon email pré-rempli dans ta messagerie (ou, si tu as choisi une vidéo depuis l'appareil et que ton navigateur le permet, le menu de partage natif avec la vidéo déjà jointe) — vérifie et envoie-le (ou laisse-le en brouillon, les deux fonctionnent).</li>
-        <li>Une <b>Routine</b> horaire côté Claude Code cherche un email/brouillon « LANCER REEL » non traité — pièce jointe vidéo ou lien Drive, les deux sont pris en charge.</li>
-        <li>Si elle en trouve un : téléchargement de la vidéo, montage dans le style choisi à gauche (Fixe : premier plan réel = intro titre animé, reste = corps ; Karaoké : pas d'intro séparée, le corps couvre tout le reel) + CTA de fin selon la recette figée du <b>CLAUDE.md</b>, rendu, vérification par extraction de frames.</li>
-        <li>Commit/push du fichier final sur la branche <b>ce-jour-là</b> — tu reçois une notification avec le chemin du fichier (plus de dépôt sur Drive, ça n'était pas fiable).</li>
-        <li>L'email déclencheur est marqué traité pour ne pas être relancé deux fois.</li>
+        <li><b>Lancer le montage</b> ouvre un brouillon email pré-rempli dans ta messagerie (ou, si au moins une vidéo vient de l'appareil et que ton navigateur le permet, le menu de partage natif avec les vidéos déjà jointes) — vérifie et envoie-le (ou laisse-le en brouillon, les deux fonctionnent).</li>
+        <li>Une <b>Routine</b> horaire côté Claude Code cherche un email/brouillon « LANCER REEL » non traité — pièce jointe vidéo ou lien Drive, un seul jour ou plusieurs listés dans le même email, tout est pris en charge.</li>
+        <li>Si l'email liste plusieurs jours (<b>JOUR 1</b>, <b>JOUR 2</b>…), chacun est traité comme un reel séparé dans la même passe : téléchargement de la vidéo, montage dans le style choisi pour ce jour-là (Fixe : premier plan réel = intro titre animé, reste = corps ; Karaoké : pas d'intro séparée, le corps couvre tout le reel) + CTA de fin selon la recette figée du <b>CLAUDE.md</b>, rendu, vérification par extraction de frames.</li>
+        <li>Commit/push de chaque fichier final sur la branche <b>ce-jour-là</b> — tu reçois une notification listant le chemin de chaque reel produit.</li>
+        <li>L'email déclencheur est marqué traité (tous les jours qu'il contenait) pour ne pas être relancé deux fois.</li>
       </ol>
       <div class="cadence">⏱ La vérification se fait <b>une fois par heure</b> (limite technique des Routines programmées) — pas de lancement instantané. Pour un montage immédiat, demande-le directement dans le chat Claude Code comme d'habitude.</div>
     </div>
@@ -198,128 +173,236 @@ html,body{margin:0;padding:0;background:var(--encre);color:var(--newsprint);
 
 <script>
 const $ = (id) => document.getElementById(id);
-const linkInput = $('f_link'), dateInput = $('f_date'), notesInput = $('f_notes'), fileInput = $('f_file');
-const fieldLink = $('field_link'), fieldFile = $('field_file'), fieldSourceMode = $('field_source_mode');
-const fieldStyle = $('field_style');
-const fileInfo = $('file_info'), fileWarn = $('file_warn');
+const daysList = $('days_list');
 const prevSubject = $('prev_subject'), prevBody = $('prev_body'), statusPill = $('status_pill');
 const toast = $('toast');
 
-let sourceMode = 'link'; // 'link' | 'file'
-let subtitleStyle = 'fixe'; // 'fixe' | 'karaoke'
-let selectedFile = null;
-const canShareFiles = !!(navigator.canShare); // vérifié précisément par fichier au moment du choix
+const canShareFiles = !!(navigator.canShare); // vérifié précisément par fichier au moment du partage
 
-// date par défaut = demain
-(function initDate(){
-  const d = new Date(); d.setDate(d.getDate() + 1);
-  dateInput.value = d.toISOString().slice(0, 10);
-})();
+function escapeHtml(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escapeAttr(s){ return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;'); }
 
-function applySourceModeVisibility(){
-  const fileActive = (sourceMode === 'file');
-  fieldFile.style.display = fileActive ? '' : 'none';
-  fieldLink.style.display = fileActive ? 'none' : '';
+function isoPlusDays(iso, n){
+  const d = iso ? new Date(iso+'T00:00:00') : new Date();
+  if(isNaN(d.getTime())) return '';
+  d.setDate(d.getDate()+n);
+  return d.toISOString().slice(0,10);
 }
 
-document.querySelectorAll('#source_mode_chips .chip').forEach(chip => {
-  chip.addEventListener('click', () => {
-    document.querySelectorAll('#source_mode_chips .chip').forEach(c => c.classList.remove('on'));
-    chip.classList.add('on');
-    sourceMode = chip.dataset.m;
-    applySourceModeVisibility();
-    render();
-  });
-});
+let days = []; // initialisée avant makeDay() : évite d'accéder à `days` avant
+                // son initialisation (TDZ du `let`) dès le tout premier appel
 
-document.querySelectorAll('#style_chips .chip').forEach(chip => {
-  chip.addEventListener('click', () => {
-    document.querySelectorAll('#style_chips .chip').forEach(c => c.classList.remove('on'));
-    chip.classList.add('on');
-    subtitleStyle = chip.dataset.s;
-    render();
-  });
-});
+function makeDay(){
+  const last = days.length ? days[days.length-1] : null;
+  const date = last && last.date ? isoPlusDays(last.date, 1) : isoPlusDays('', 1); // défaut = demain, ou +1 jour après le précédent
+  return { mode:'link', link:'', file:null, date, style:'fixe', notes:'' };
+}
 
-function fmtMo(bytes){ return (bytes / (1024*1024)).toFixed(1); }
-
-fileInput.addEventListener('change', () => {
-  selectedFile = fileInput.files && fileInput.files[0] || null;
-  if(selectedFile){
-    fileInfo.textContent = `${selectedFile.name} — ${fmtMo(selectedFile.size)} Mo`;
-    fileInfo.classList.add('show');
-    if(selectedFile.size > 24 * 1024 * 1024){
-      fileInfo.innerHTML += ' <b>⚠ plus de 24 Mo, risque de dépasser la limite pièce jointe Gmail — préfère un lien Drive.</b>';
-    }
-    // le vrai test de compatibilité se fait sur CE fichier (canShare accepte un tableau de File)
-    const shareable = canShareFiles && navigator.canShare({ files: [selectedFile] });
-    fileWarn.classList.toggle('show', !shareable);
-  } else {
-    fileInfo.classList.remove('show');
-    fileWarn.classList.remove('show');
-  }
-  render();
-});
+days.push(makeDay());
 
 function frDate(iso){
   if(!iso) return '…';
   const [y,m,d] = iso.split('-');
   const mois = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+  if(!y||!m||!d) return '…';
   return `${parseInt(d,10)} ${mois[parseInt(m,10)-1]} ${y}`;
 }
 
 function isValidDriveLink(v){
-  return /drive\.google\.com\/(file\/d\/|open\?id=|uc\?)/i.test(v.trim());
+  return /drive\.google\.com\/(file\/d\/|open\?id=|uc\?)/i.test((v||'').trim());
 }
+
+function fmtMo(bytes){ return (bytes / (1024*1024)).toFixed(1); }
+
+function dayValid(day){
+  const sourceOk = day.mode === 'file' ? !!day.file : isValidDriveLink(day.link);
+  return sourceOk && !!day.date;
+}
+
+function dayCardHtml(day, idx, total){
+  const linkDisplay = day.mode === 'file' ? 'none' : '';
+  const fileDisplay = day.mode === 'file' ? '' : 'none';
+  return `
+  <div class="day-card" data-idx="${idx}">
+    <div class="day-card-head">
+      <span class="lbl">Jour ${idx+1}${day.date? ' — '+frDate(day.date):''}</span>
+      ${total>1 ? `<button class="day-remove" data-remove="${idx}">✕ retirer</button>` : ''}
+    </div>
+
+    <div class="field">
+      <label>Vidéo fournie via</label>
+      <div class="chips" data-chips="mode">
+        <div class="chip ${day.mode==='link'?'on':''}" data-m="link">LIEN DRIVE</div>
+        <div class="chip ${day.mode==='file'?'on':''}" data-m="file">VIDÉO DEPUIS L'APPAREIL</div>
+      </div>
+    </div>
+
+    <div class="field" data-field="link" style="display:${linkDisplay}">
+      <label>Lien Drive de la vidéo</label>
+      <input data-in="link" type="url" placeholder="https://drive.google.com/file/d/…" value="${escapeAttr(day.link)}">
+      <div class="err">Colle un lien Google Drive valide.</div>
+    </div>
+
+    <div class="field" data-field="file" style="display:${fileDisplay}">
+      <label>Vidéo du match</label>
+      <input data-in="file" type="file" accept="video/*">
+      <div class="file-info" data-fileinfo></div>
+      <div class="warn" data-filewarn>Le partage direct n'est pas dispo sur cet appareil/navigateur : quand l'email s'ouvre, joins toi-même le même fichier avant d'envoyer.</div>
+    </div>
+
+    <div class="field">
+      <label>Date du post à utiliser</label>
+      <input data-in="date" type="date" value="${day.date||''}">
+    </div>
+
+    <div class="field">
+      <label>Style des sous-titres</label>
+      <div class="chips" data-chips="style">
+        <div class="chip ${day.style==='fixe'?'on':''}" data-s="fixe">FIXE</div>
+        <div class="chip ${day.style==='karaoke'?'on':''}" data-s="karaoke">KARAOKÉ</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Notes (optionnel)</label>
+      <textarea data-in="notes" placeholder="Ex : zoomer 25% la source pour exclure un logo…">${escapeHtml(day.notes)}</textarea>
+    </div>
+  </div>`;
+}
+
+function renderDays(){
+  daysList.innerHTML = days.map((d,i)=>dayCardHtml(d,i,days.length)).join('');
+
+  daysList.querySelectorAll('.day-card').forEach(card=>{
+    const idx = +card.dataset.idx;
+    const day = days[idx];
+
+    card.querySelectorAll('[data-chips="mode"] .chip').forEach(chip=>{
+      chip.addEventListener('click', ()=>{
+        day.mode = chip.dataset.m;
+        renderDays();
+      });
+    });
+    card.querySelectorAll('[data-chips="style"] .chip').forEach(chip=>{
+      chip.addEventListener('click', ()=>{
+        day.style = chip.dataset.s;
+        card.querySelectorAll('[data-chips="style"] .chip').forEach(c=>c.classList.remove('on'));
+        chip.classList.add('on');
+        render();
+      });
+    });
+
+    const linkIn = card.querySelector('[data-in="link"]');
+    if(linkIn) linkIn.addEventListener('input', ()=>{ day.link = linkIn.value; render(); });
+
+    const dateIn = card.querySelector('[data-in="date"]');
+    if(dateIn) dateIn.addEventListener('input', ()=>{ day.date = dateIn.value; render(); });
+
+    const notesIn = card.querySelector('[data-in="notes"]');
+    if(notesIn) notesIn.addEventListener('input', ()=>{ day.notes = notesIn.value; render(); });
+
+    const fileIn = card.querySelector('[data-in="file"]');
+    if(fileIn) fileIn.addEventListener('change', ()=>{
+      day.file = fileIn.files && fileIn.files[0] || null;
+      const fileInfo = card.querySelector('[data-fileinfo]'), fileWarn = card.querySelector('[data-filewarn]');
+      if(day.file){
+        fileInfo.textContent = `${day.file.name} — ${fmtMo(day.file.size)} Mo`;
+        fileInfo.classList.add('show');
+        if(day.file.size > 24 * 1024 * 1024){
+          fileInfo.innerHTML += ' <b>⚠ plus de 24 Mo, risque de dépasser la limite pièce jointe Gmail — préfère un lien Drive.</b>';
+        }
+        const shareable = canShareFiles && navigator.canShare({ files: [day.file] });
+        fileWarn.classList.toggle('show', !shareable);
+      } else {
+        fileInfo.classList.remove('show');
+        fileWarn.classList.remove('show');
+      }
+      render();
+    });
+
+    const removeBtn = card.querySelector('[data-remove]');
+    if(removeBtn) removeBtn.addEventListener('click', ()=>{
+      days.splice(idx,1);
+      renderDays();
+      render();
+    });
+  });
+
+  render();
+}
+
+$('b_add_day').addEventListener('click', ()=>{
+  days.push(makeDay());
+  renderDays();
+});
 
 function buildSubject(){
-  const iso = dateInput.value || '';
-  return `LANCER REEL — ${iso || '(date à définir)'}`;
+  if(days.length <= 1){
+    const iso = (days[0] && days[0].date) || '';
+    return `LANCER REEL — ${iso || '(date à définir)'}`;
+  }
+  return `LANCER REEL — MULTI (${days.length} jours)`;
 }
 
-function usingFileMode(){
-  return sourceMode === 'file';
+/* un bloc par jour, identique en forme au format mono-jour historique — la
+   Routine parse chaque bloc de la même façon, qu'il y en ait un ou plusieurs.
+   Sur un seul jour, sortie strictement identique à l'ancien format (pas
+   d'en-tête "JOUR 1") pour rester compatible avec les emails déjà envoyés
+   avant l'ajout du multi-jours. */
+function dayBlockLines(day, showHeader, idx){
+  const iso = day.date || '(date à définir)';
+  const notes = (day.notes||'').trim();
+  const sourceLine = day.mode === 'file'
+    ? `VIDÉO: en pièce jointe de cet email (${day.file ? day.file.name : '(à joindre)'})`
+    : `LIEN DRIVE: ${(day.link||'').trim() || '(lien à coller)'}`;
+  const styleLine = day.style === 'karaoke' ? 'STYLE SOUS-TITRES: karaoké' : 'STYLE SOUS-TITRES: fixe';
+  const lines = [];
+  if(showHeader) lines.push(`JOUR ${idx+1}`);
+  lines.push(sourceLine, `DATE DU POST: ${iso}`, styleLine, `NOTES: ${notes || '(aucune)'}`);
+  return lines.join('\n');
 }
 
 function buildBody(){
-  const iso = dateInput.value || '(date à définir)';
-  const notes = notesInput.value.trim();
-  const sourceLine = usingFileMode()
-    ? `VIDÉO: en pièce jointe de cet email (${selectedFile ? selectedFile.name : '(à joindre)'})`
-    : `LIEN DRIVE: ${linkInput.value.trim() || '(lien à coller)'}`;
-  const styleLine = subtitleStyle === 'karaoke'
-    ? 'STYLE SOUS-TITRES: karaoké'
-    : 'STYLE SOUS-TITRES: fixe';
-  return [
-    sourceLine,
-    `DATE DU POST: ${iso}`,
-    styleLine,
-    `NOTES: ${notes || '(aucune)'}`,
-    '',
-    `— généré depuis le lanceur reels Ce jour-là`
-  ].join('\n');
+  const multi = days.length > 1;
+  const blocks = days.map((d,i)=>dayBlockLines(d, multi, i));
+  const footer = multi
+    ? `— généré depuis le lanceur reels Ce jour-là (${days.length} jours)`
+    : `— généré depuis le lanceur reels Ce jour-là`;
+  return blocks.join('\n\n') + '\n\n' + footer;
 }
 
 function render(){
-  const fileMode = usingFileMode();
-  const link = linkInput.value.trim();
-  const validLink = isValidDriveLink(link);
-
-  fieldLink.classList.toggle('invalid', !fileMode && link.length > 0 && !validLink);
+  days.forEach((day,i)=>{
+    const card = daysList.querySelector(`.day-card[data-idx="${i}"]`);
+    if(!card) return;
+    const fieldLink = card.querySelector('[data-field="link"]');
+    const link = (day.link||'').trim();
+    if(day.mode==='link') fieldLink.classList.toggle('invalid', link.length>0 && !isValidDriveLink(link));
+    const lbl = card.querySelector('.day-card-head .lbl');
+    if(lbl) lbl.textContent = `Jour ${i+1}${day.date? ' — '+frDate(day.date):''}`;
+  });
 
   prevSubject.textContent = buildSubject();
   prevBody.innerHTML = buildBody()
-    .replace(/^(LIEN DRIVE:|VIDÉO:|DATE DU POST:|STYLE SOUS-TITRES:|NOTES:)/gm, '<span class="k">$1</span>')
+    .replace(/^(LIEN DRIVE:|VIDÉO:|DATE DU POST:|STYLE SOUS-TITRES:|NOTES:|JOUR \d+)/gm, '<span class="k">$1</span>')
     .replace(/\n/g, '<br>');
 
-  const ready = fileMode ? !!selectedFile : validLink;
-  const readyFull = ready && !!dateInput.value;
-  statusPill.textContent = readyFull ? 'PRÊT À LANCER' : (fileMode ? (selectedFile ? 'DATE MANQUANTE' : 'EN ATTENTE DE VIDÉO') : (link ? 'LIEN INVALIDE' : 'EN ATTENTE DE LIEN'));
+  const validCount = days.filter(dayValid).length;
+  const readyFull = days.length>0 && validCount===days.length;
+  if(readyFull){
+    statusPill.textContent = days.length>1 ? `PRÊT (${days.length} JOURS)` : 'PRÊT À LANCER';
+  } else if(days.length>1){
+    statusPill.textContent = `${validCount}/${days.length} JOURS PRÊTS`;
+  } else {
+    const day = days[0];
+    const link = (day.link||'').trim();
+    statusPill.textContent = day.mode==='file'
+      ? (day.file ? 'DATE MANQUANTE' : 'EN ATTENTE DE VIDÉO')
+      : (link ? 'LIEN INVALIDE' : 'EN ATTENTE DE LIEN');
+  }
   statusPill.className = 'status-pill ' + (readyFull ? 'ready' : 'wait');
   $('b_launch').disabled = !readyFull;
 }
-
-[linkInput, dateInput, notesInput].forEach(el => el.addEventListener('input', render));
 
 function showToast(msg){
   toast.textContent = msg;
@@ -336,23 +419,25 @@ $('b_launch').addEventListener('click', async () => {
   if($('b_launch').disabled) return;
   const subject = buildSubject();
   const bodyText = buildBody();
+  const allFiles = days.filter(d=>d.mode==='file' && d.file).map(d=>d.file);
 
-  if(usingFileMode() && selectedFile){
-    // chemin idéal (mobile surtout) : partage natif avec la vidéo déjà jointe,
-    // Thomas choisit Gmail/Mail dans le menu — mailto: seul ne peut jamais
-    // attacher un fichier, c'est une limitation du navigateur, pas de ce code
-    const shareable = canShareFiles && navigator.canShare({ files: [selectedFile] });
+  if(allFiles.length>0){
+    // chemin idéal (mobile surtout) : partage natif avec toutes les vidéos du
+    // batch déjà jointes, Thomas choisit Gmail/Mail dans le menu — mailto:
+    // seul ne peut jamais attacher de fichier, limitation du navigateur
+    const shareable = canShareFiles && navigator.canShare({ files: allFiles });
     if(shareable){
       try{
-        await navigator.share({ files: [selectedFile], title: subject, text: bodyText });
-        showToast('Partagé — choisis Gmail/Mail pour envoyer');
+        await navigator.share({ files: allFiles, title: subject, text: bodyText });
+        showToast(allFiles.length>1 ? 'Partagé — choisis Gmail/Mail pour envoyer' : 'Partagé — choisis Gmail/Mail pour envoyer');
         return;
       }catch(e){
         if(e && e.name === 'AbortError') return; // annulé par Thomas, on ne fait rien de plus
         // sinon on retombe sur le mailto ci-dessous
       }
     }
-    showToast('Brouillon ouvert — joins la vidéo toi-même avant d\'envoyer');
+    const names = allFiles.map(f=>f.name).join(', ');
+    showToast(`Brouillon ouvert — joins toi-même : ${names}`);
   } else {
     showToast('Brouillon email ouvert — vérifie et envoie');
   }
@@ -360,8 +445,7 @@ $('b_launch').addEventListener('click', async () => {
   window.location.href = `mailto:t.louisor@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyText)}`;
 });
 
-applySourceModeVisibility();
-render();
+renderDays();
 </script>
 </body>
 </html>

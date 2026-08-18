@@ -51,6 +51,56 @@ corps de l'email contient `VIDÉO: en pièce jointe …` (pas de `LIEN DRIVE:`),
 récupérer la vidéo depuis la pièce jointe Gmail du message plutôt que
 tenter un téléchargement Drive.
 
+**Plusieurs jours en un seul email** : le lanceur permet d'ajouter des
+« jours » répétables (bouton « + Ajouter un jour », un jour = source vidéo +
+date + style sous-titres + notes, chacun indépendant) avant de cliquer
+« Lancer le montage » — un seul email part, avec un bloc par jour. Format du
+corps sur un seul jour (identique à l'historique, sans en-tête) :
+
+```
+LIEN DRIVE: …
+DATE DU POST: …
+STYLE SOUS-TITRES: …
+NOTES: …
+```
+
+Sur plusieurs jours, chaque bloc est précédé d'un en-tête `JOUR N` et les
+blocs sont séparés par une ligne vide :
+
+```
+JOUR 1
+LIEN DRIVE: …
+DATE DU POST: …
+STYLE SOUS-TITRES: …
+NOTES: …
+
+JOUR 2
+VIDÉO: en pièce jointe de cet email (nom-du-fichier.mp4)
+DATE DU POST: …
+STYLE SOUS-TITRES: …
+NOTES: …
+```
+
+L'objet passe de `LANCER REEL — <date>` (un seul jour, inchangé) à
+`LANCER REEL — MULTI (<n> jours)` (plusieurs jours) — dans les deux cas
+l'objet contient toujours `LANCER REEL`, donc la recherche Gmail
+`subject:LANCER REEL` de la Routine (ci-dessous) n'a pas besoin de changer.
+Si des vidéos par pièce jointe sont mêlées à des liens Drive dans le même
+lot, le partage natif (`navigator.share`) joint toutes les vidéos-fichiers
+du lot en une fois ; si l'appareil ne le supporte pas, repli mailto habituel
+avec la liste des fichiers à joindre soi-même.
+
+**Côté traitement d'un email multi-jours** : découper le corps sur les
+lignes `^JOUR \d+` ; l'absence de tout marqueur `JOUR N` (anciens emails,
+ou nouveaux emails à un seul jour) veut dire un unique bloc implicite —
+comportement inchangé. Traiter chaque bloc comme un reel indépendant, dans
+l'ordre, selon la recette figée ci-dessous ; livrer (commit/push) chaque
+reel séparément sur la branche `ce-jour-là`, puis ne marquer l'email/thread
+entier comme traité qu'une fois **tous** les blocs livrés (un échec sur un
+seul jour ne doit pas faire perdre le suivi des autres — livrer ce qui
+fonctionne, signaler explicitement le(s) jour(s) en échec plutôt que de
+marquer l'email traité en silence).
+
 Une **Routine** ("Lanceur reels Ce jour-là", trig_01CJMco7Azm8WwCSEpM8dhvX)
 tourne une fois par jour à 14h heure de Paris (créée via l'interface Routines
 de claude.ai, connecteurs Gmail + Google Drive attachés explicitement — la
@@ -59,9 +109,10 @@ les connecteurs pour cette organisation, toujours passer par l'interface web
 pour ce genre de Routine). Liée à une session existante (pas une session
 fraîche : le connecteur Gmail ne s'y transmet pas de façon fiable sur cette
 org). Elle cherche un brouillon/thread Gmail `subject:LANCER REEL` non marqué
-`[TRAITÉ]`/label `reel-traite`, construit le reel selon la recette figée de
-ce fichier, livre, committe/pousse, puis marque la demande traitée. Si rien
-n'est en attente, elle ne fait rien.
+`[TRAITÉ]`/label `reel-traite`, construit le ou les reels selon la recette
+figée de ce fichier (un par jour listé dans l'email, cf. ci-dessus), livre,
+committe/pousse, puis marque la demande traitée. Si rien n'est en attente,
+elle ne fait rien.
 
 **Important — cette Routine travaille sur la branche `ce-jour-là`, qui n'est
 jamais fusionnée dans `main` : toute correction qu'elle découvre en cours de
