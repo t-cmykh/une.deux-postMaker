@@ -182,11 +182,21 @@ const canShareFiles = !!(navigator.canShare); // vérifié précisément par fic
 function escapeHtml(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function escapeAttr(s){ return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;'); }
 
+/* toISOString() convertit en UTC avant de trancher — sur un fuseau en
+   avance sur UTC (Europe/Paris, UTC+1/+2), minuit local tombe la VEILLE en
+   UTC, donc .toISOString().slice(0,10) rendait un jour de moins que prévu.
+   On reste en date locale de bout en bout : jamais de conversion UTC pour
+   une valeur qui n'est qu'une date (pas un instant précis). */
+function toLocalISO(d){
+  const y = d.getFullYear(), m = String(d.getMonth()+1).padStart(2,'0'), day = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+
 function isoPlusDays(iso, n){
   const d = iso ? new Date(iso+'T00:00:00') : new Date();
   if(isNaN(d.getTime())) return '';
   d.setDate(d.getDate()+n);
-  return d.toISOString().slice(0,10);
+  return toLocalISO(d);
 }
 
 let days = []; // initialisée avant makeDay() : évite d'accéder à `days` avant
