@@ -417,6 +417,58 @@ donc **risquées à republier** sur le compte.
   davantage de sources visuelles disponibles, mais la même règle de droits
   s'applique.
 
+## Lanceur automatique de l'éphéméride (`editeurs/lanceur-ephemeride.html`)
+
+La routine **« Éphéméride foot une·deux »** tourne automatiquement chaque
+jour à 7h (Paris) et ne traite que **demain** — comportement par défaut,
+non modifiable depuis le chat, pensé pour rester simple et sans surprise.
+
+Pour demander une éphéméride pour une autre date, ou pour **plusieurs
+jours d'un coup** (sans passer par une session Claude Code), Thomas utilise
+le lanceur statique `editeurs/lanceur-ephemeride.html` — même DA que les
+autres lanceurs (panel sombre, ocre, Saira Condensed/Anton/Archivo). Il
+choisit « 1 JOUR » (avec une date de début, par défaut demain) ou
+« PLUSIEURS JOURS » (date de début + nombre de jours consécutifs, 2 à 31).
+Le bouton « Lancer l'éphéméride » ouvre un brouillon email pré-rempli
+(`mailto:` vers t.louisor@gmail.com, objet `LANCER ÉPHÉMÉRIDE — <date>` ou
+`LANCER ÉPHÉMÉRIDE — MULTI (<n> jours)`) au corps :
+
+```
+DATE: <date>
+
+— généré depuis le lanceur éphéméride Ce jour-là
+```
+ou, plusieurs jours :
+```
+DATE DE DÉBUT: <date>
+NOMBRE DE JOURS: <n>
+DATES: <date1>, <date2>, …, <dateN>
+
+— généré depuis le lanceur éphéméride Ce jour-là (<n> jours)
+```
+
+La liste `DATES:` est explicite (calculée côté lanceur) — la routine qui
+traite la demande n'a aucun calcul de date à faire, juste à la lire.
+
+Une **Routine dédiée** ("Lanceur éphémérides Ce jour-là"), distincte de la
+routine automatique 7h, tourne environ une fois par heure et cherche un
+brouillon/thread Gmail `subject:LANCER ÉPHÉMÉRIDE` non traité. Si elle en
+trouve un : recherche web + vérification 3 sources pour chaque date de la
+demande, puis produit **un seul brouillon** « ⚽ Éphéméride foot une·deux »
+au même format que la routine automatique (options numérotées à valider
+par ✅ ; plusieurs jours = une section `JOUR N — <date>` par jour, chacune
+avec ses propres options, validées indépendamment). Marque ensuite la
+demande traitée. Aucun commit/push pour ce livrable — uniquement le
+brouillon Gmail.
+
+La routine « post du jour » (ci-dessous) lit ensuite ce brouillon éphéméride
+exactement de la même façon, que ses options viennent de la routine
+automatique 7h ou du lanceur — elle ne fait pas de distinction.
+
+Pour une éphéméride immédiate, demander directement dans le chat reste plus
+rapide (pas d'attente jusqu'à l'heure de vérification) — le lanceur sert
+pour poser une demande à traiter en tâche de fond.
+
 ## Livrable quotidien de la routine « post du jour »
 
 Le brouillon Gmail produit chaque jour par la routine (à partir du sujet validé
