@@ -25,10 +25,11 @@
   }
   h1 span { font-weight: 700; }
   .cards {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 2rem;
-    flex-wrap: wrap;
-    justify-content: center;
+    max-width: 860px;
+    margin: 0 auto;
     padding: 0 1rem;
   }
   .card {
@@ -36,7 +37,6 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 260px;
     height: 320px;
     border: 1px solid rgba(255,255,255,0.15);
     border-radius: 1rem;
@@ -87,35 +87,15 @@
       <div class="label">Actions</div>
       <div class="desc">Routines Claude Code — tâches planifiées</div>
     </a>
-    <a href="reel.html" class="card">
-      <div class="icon">&#9638;</div>
-      <div class="label">Reel</div>
-      <div class="desc">Créer un reel scrapbook</div>
-    </a>
     <a href="reel-fullbleed.html" class="card">
       <div class="icon">&#9640;</div>
       <div class="label">Reel Full</div>
       <div class="desc">Créer un reel plein cadre</div>
     </a>
-    <a href="post.html" class="card">
-      <div class="icon">&#9654;</div>
-      <div class="label">Post</div>
-      <div class="desc">Créer un post scrapbook</div>
-    </a>
-    <a href="monteur-mobile.html" class="card">
-      <div class="icon">&#9998;</div>
-      <div class="label">Monteur</div>
-      <div class="desc">Monteur mobile</div>
-    </a>
     <a href="crop-focus.html" class="card">
       <div class="icon">&#8862;</div>
       <div class="label">Cadrage auto</div>
       <div class="desc">Recadrer 16:9 → 9:16 en suivant l'action</div>
-    </a>
-    <a href="montage-auto.html" class="card">
-      <div class="icon">&#9889;</div>
-      <div class="label">Montage auto</div>
-      <div class="desc">Repérer les meilleurs moments et recadrer en 9:16</div>
     </a>
   </div>
   <script>
