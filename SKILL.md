@@ -422,6 +422,19 @@ donc **risquées à republier** sur le compte.
 Le brouillon Gmail produit chaque jour par la routine (à partir du sujet validé
 en vert dans l'éphéméride) contient, **en tête et pour le sujet retenu** :
 
+**Demande sur plusieurs jours à la fois** : la routine, ou une invocation
+directe en chat (« prépare les posts des 5 prochains jours », « fais les
+brouillons du 20 au 24 août »), peut aussi traiter une **plage de dates** en
+une seule passe plutôt qu'un jour à la fois — **un brouillon Gmail distinct
+par date** (même titre `POST DU JOUR — <date>`, même contenu détaillé
+ci-dessous), tous produits dans la même exécution. Un brouillon = un jour =
+un sujet : la plage ne change que le nombre de brouillons produits d'un
+coup, jamais leur format — ne jamais fusionner plusieurs jours dans un seul
+brouillon. Si un jour de la plage n'a aucun sujet validé en vert dans
+l'éphéméride, le signaler explicitement pour ce jour-là (ne jamais
+improviser un sujet non vérifié, ne jamais le sauter en silence) plutôt que
+de bloquer la production des autres jours de la plage.
+
 1. **Titre** au format EXACT : `JJ MOIS AAAA : <phrase percutante>`
    — la date de l'événement, deux-points, puis **une phrase courte qui claque**
    (ton une·deux : affirmation, pas de « voici / découvre »).

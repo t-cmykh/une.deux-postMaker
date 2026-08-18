@@ -2646,10 +2646,45 @@ function loadFixedCta(serie){
 
 function loadBatchImage(idx, file, nameEl, zone){
   if(!file) return;
+  const name=(file.name||'').toLowerCase(), t=(file.type||'').toLowerCase();
+  const isImage = t.startsWith('image/') || /\.(jpe?g|png|gif|webp|heic|heif|bmp)$/.test(name);
+  const isVideo = t.startsWith('video/') || /\.(mp4|mov|m4v|webm|avi|mkv|3gp|qt)$/.test(name);
+  if(isVideo && !isImage){ loadBatchVideoFrame(idx,file,nameEl,zone); return; }
   const img = new Image();
   img.onload=()=>{ batchSlides[idx].img=img; nameEl.textContent=file.name; zone.style.borderColor=SERIES[state.serie].sig; };
   img.onerror=()=>alert('Image non chargée. Essaie un JPG ou PNG.');
   img.src = URL.createObjectURL(file);
+}
+
+/* import vidéo en mode batch : chaque slide reste une image STATIQUE (l'export
+   batch produit un ZIP de PNG, pas de vidéo) — on capture donc une frame de
+   la vidéo dans un canvas hors-écran et on l'utilise ensuite exactement comme
+   une image importée. Un <canvas> est un source drawImage valide et mediaW/
+   mediaH (ligne ~413) lit déjà .width/.height en repli, donc aucun autre
+   endroit du fichier n'a besoin de savoir que la slide vient d'une vidéo.
+   Frame choisie au milieu de la vidéo (jamais le tout premier/dernier
+   photogramme, souvent noir ou en fondu) — pas de scrub manuel, même
+   simplicité "dépose et ça marche" que l'import image. */
+function loadBatchVideoFrame(idx,file,nameEl,zone){
+  let url; try{url=URL.createObjectURL(file);}catch(e){alert("Impossible de charger la vidéo.");return;}
+  const v=document.createElement('video');
+  v.muted=true; v.playsInline=true; v.preload='auto';
+  let settled=false;
+  const fail=()=>{ if(settled)return; settled=true; try{URL.revokeObjectURL(url);}catch(e){} alert('Vidéo non chargée. Essaie un MP4 ou MOV.'); };
+  v.onerror=fail;
+  v.onloadedmetadata=()=>{
+    if(!(v.videoWidth>0)){ fail(); return; }
+    const d = v.duration>0 && isFinite(v.duration) ? v.duration : 0.2;
+    v.currentTime = Math.min(Math.max(d*0.5,0.1), Math.max(d-0.05,0.1));
+  };
+  v.onseeked=()=>{
+    if(settled) return; settled=true;
+    const c=document.createElement('canvas'); c.width=v.videoWidth; c.height=v.videoHeight;
+    c.getContext('2d').drawImage(v,0,0);
+    batchSlides[idx].img=c; nameEl.textContent=file.name+' (frame vidéo)'; zone.style.borderColor=SERIES[state.serie].sig;
+    try{URL.revokeObjectURL(url);}catch(e){}
+  };
+  v.src=url;
 }
 
 function renderBatchSlideList(){
@@ -2661,10 +2696,10 @@ function renderBatchSlideList(){
     row.innerHTML =
       '<label>Slide '+(i+1)+(i===0?' (cover, titre seul)':'')+' — '+escapeHtml(sl.title)+'</label>'+
       '<div class="media-zone" data-idx="'+i+'" style="padding:12px;margin-bottom:2px">'+
-        '<div class="mt">CLIQUE OU GLISSE LA PHOTO</div>'+
+        '<div class="mt">CLIQUE OU GLISSE PHOTO / VIDÉO</div>'+
         '<div class="ms" data-name>aucune image</div>'+
       '</div>'+
-      '<input type="file" accept="image/*" style="display:none" data-fileinput>';
+      '<input type="file" accept="image/*,video/*" style="display:none" data-fileinput>';
     wrap.appendChild(row);
     const zone=row.querySelector('.media-zone'), input=row.querySelector('[data-fileinput]'), nameEl=row.querySelector('[data-name]');
     zone.onclick=()=>input.click();
