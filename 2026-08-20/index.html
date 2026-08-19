@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 20 août 2023, Espagne championne du monde, fête gâchée (karaoké)</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* vidéo du Drive gardée intégrale, telle quelle (pas de sélection de
+         plans, §1bis CLAUDE.md) — un seul composite continu du début à la
+         fin (0 → 47.00s), même géométrie sur toute la durée : fond plein
+         cadre flouté/désaturé + plan net 1080×888 plein cadre horizontal
+         (overlay y=420 — §2 CLAUDE.md). Source : finale Espagne-Angleterre,
+         Coupe du monde féminine 2023 (but de Carmona), 878x498 (~1.76:1),
+         aucune rotation (ffprobe). Aucun habillage de chaîne signalé — pas de
+         zoom préalable. Un seul élément <video>, pas de titre animé séparé
+         pour ce style (§4bis ne s'applique pas au style karaoké). Pas de
+         piste audio reprise (retiré du pipeline le 14 août 2026, cf.
+         CLAUDE.md §2). */
+      .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+
+      /* header — constantes fixes de la série, persistant du début à la fin */
+      #hdr { position: absolute; inset: 0 0 auto 0; z-index: 20; }
+      .ring {
+        position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
+        border: 4px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
+
+      /* --ocre-render : compensation du décalage de teinte du pipeline de
+         render HyperFrames sur --ocre (§3 CLAUDE.md) — ne pas remplacer
+         var(--ocre) dans tokens/colors.css, uniquement une variable locale
+         à la composition. Utilisé sur .tag (aucun mot-clé **marqué** dans le
+         CORPS (karaoké) de ce reel, donc pas de b.ocre à l'écran ici). */
+      :root { --ocre-render: #B9A456; }
+      .tag {
+        position: absolute; left: 96px; top: 350px; height: 58px; z-index: 20;
+        display: flex; align-items: center; background: var(--ocre-render); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; padding: 0 15px;
+      }
+
+      /* corps de texte façon karaoké — Anton, centré verticalement dans le
+         cadre, superposé directement sur le plan net (§4.B CLAUDE.md).
+         Taille FIXE 80px pour toutes les cartes, aucun palier par
+         longueur ; aucune ombre portée ; léger contour semi-transparent
+         ink. Texte déjà écrit en MAJUSCULES dans le HTML (pas seulement
+         via text-transform, cf. bug de subsetting de police documenté au
+         §4.B CLAUDE.md). .story-line porte un transform:translateY(-50%)
+         STATIQUE — ne jamais animer y dessus avec GSAP (§6), opacity
+         uniquement. top:0/bottom:0 sur .story-zone obligatoires pour que
+         le centrage vertical ait une hauteur de référence. */
+      .story-zone { position: absolute; top: 0; bottom: 0; left: 96px; right: 96px; z-index: 20; text-align: center; }
+      .story-line {
+        position: absolute; left: 0; right: 0;
+        top: 50%; transform: translateY(-50%);
+        font-family: 'Anton', sans-serif; font-size: 80px; line-height: 1.1;
+        text-transform: uppercase; color: var(--cream); opacity: 0;
+        -webkit-text-stroke: 1.5px rgba(44,40,35,.35);
+      }
+      /* mot-clé en ocre via **mot** dans CORPS (karaoké) — §4.B règle du
+         13 août 2026 : couleur seule, pas de fond/padding. Aucune ligne de
+         ce reel ne porte de marquage **...**, cette règle CSS reste inerte
+         mais présente pour cohérence avec le gabarit. */
+      .story-line b.ocre { color: var(--ocre-render); font-weight: inherit; }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="47.00"
+      data-fps="30"
+    >
+      <!-- vidéo du Drive intégrale, un seul plan continu du début à la fin -->
+      <video class="video-full" id="fullv" src="assets/full.mp4" data-start="0.0000" data-duration="47.00" data-track-index="1" muted playsinline></video>
+
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+      <div class="tag">CE JOUR LÀ …</div>
+
+      <!-- corps du post — champ CORPS (karaoké) du brouillon "POST DU JOUR
+           — 20 août 2026 · Championne du monde, fête gâchée en quelques
+           minutes" — PAS le champ CORPS générique (§4.B CLAUDE.md). Une
+           ligne du brouillon = une carte, verbatim, AUCUN re-découpage NI
+           réordonnancement — reprise dans l'ordre exact du brouillon
+           (68 lignes). Aucune ligne ne porte de marquage **entre étoiles**
+           dans ce brouillon → aucun mot-clé ocre sur ce reel (à la
+           différence du reel du 19 août). -->
+      <div class="story-zone">
+        <div class="story-line" id="c1">CE JOUR-LÀ,</div>
+        <div class="story-line" id="c2">L’ESPAGNE PENSAIT</div>
+        <div class="story-line" id="c3">VIVRE</div>
+        <div class="story-line" id="c4">L’UN DES</div>
+        <div class="story-line" id="c5">PLUS BEAUX</div>
+        <div class="story-line" id="c6">MOMENTS</div>
+        <div class="story-line" id="c7">DE SON HISTOIRE.</div>
+        <div class="story-line" id="c8">LE 20 AOÛT 2023,</div>
+        <div class="story-line" id="c9">À SYDNEY,</div>
+        <div class="story-line" id="c10">EN FINALE</div>
+        <div class="story-line" id="c11">DE COUPE DU MONDE</div>
+        <div class="story-line" id="c12">FÉMININE,</div>
+        <div class="story-line" id="c13">L’ESPAGNE AFFRONTE</div>
+        <div class="story-line" id="c14">L’ANGLETERRE.</div>
+        <div class="story-line" id="c15">À LA 29E MINUTE.</div>
+        <div class="story-line" id="c16">OLGA CARMONA</div>
+        <div class="story-line" id="c17">PREND SA CHANCE.</div>
+        <div class="story-line" id="c18">LE BALLON</div>
+        <div class="story-line" id="c19">FINIT AU FOND</div>
+        <div class="story-line" id="c20">DES FILETS.</div>
+        <div class="story-line" id="c21">1-0.</div>
+        <div class="story-line" id="c22">PUIS LE TEMPS</div>
+        <div class="story-line" id="c23">S’ÉTIRE.</div>
+        <div class="story-line" id="c24">L’ANGLETERRE POUSSE.</div>
+        <div class="story-line" id="c25">L’ESPAGNE RÉSISTE.</div>
+        <div class="story-line" id="c26">ET ENFIN…</div>
+        <div class="story-line" id="c27">LE COUP DE SIFFLET</div>
+        <div class="story-line" id="c28">FINAL RETENTIT.</div>
+        <div class="story-line" id="c29">C’EST FAIT.</div>
+        <div class="story-line" id="c30">L’ESPAGNE EST</div>
+        <div class="story-line" id="c31">CHAMPIONNE DU MONDE</div>
+        <div class="story-line" id="c32">POUR LA 1ERE FOIS</div>
+        <div class="story-line" id="c33">DE SON HISTOIRE.</div>
+        <div class="story-line" id="c34">MAIS…</div>
+        <div class="story-line" id="c35">QUELQUES MINUTES</div>
+        <div class="story-line" id="c36">PLUS TARD,</div>
+        <div class="story-line" id="c37">SUR LE PODIUM…</div>
+        <div class="story-line" id="c38">L’AMBIANCE BASCULE.</div>
+        <div class="story-line" id="c39">LUIS RUBIALES,</div>
+        <div class="story-line" id="c40">PRÉSIDENT DE LA FÉDÉRATION</div>
+        <div class="story-line" id="c41">ESPAGNOLE,</div>
+        <div class="story-line" id="c42">EMBRASSE</div>
+        <div class="story-line" id="c43">DE FORCE</div>
+        <div class="story-line" id="c44">JENNI HERMOSO</div>
+        <div class="story-line" id="c45">DEVANT LES CAMÉRAS.</div>
+        <div class="story-line" id="c46">EN QUELQUES SECONDES,</div>
+        <div class="story-line" id="c47">LA FÊTE CHANGE</div>
+        <div class="story-line" id="c48">DE VISAGE.</div>
+        <div class="story-line" id="c49">CE QUI DEVAIT ÊTRE</div>
+        <div class="story-line" id="c50">LE PLUS BEAU JOUR</div>
+        <div class="story-line" id="c51">DU FOOTBALL ESPAGNOL</div>
+        <div class="story-line" id="c52">DEVIENT LE DÉBUT</div>
+        <div class="story-line" id="c53">D’UN SCANDALE MONDIAL.</div>
+        <div class="story-line" id="c54">L’ESPAGNE</div>
+        <div class="story-line" id="c55">A BIEN REMPORTÉ</div>
+        <div class="story-line" id="c56">SON PREMIER</div>
+        <div class="story-line" id="c57">MONDIAL.</div>
+        <div class="story-line" id="c58">MAIS…</div>
+        <div class="story-line" id="c59">AUJOURD’HUI,</div>
+        <div class="story-line" id="c60">QUAND ON</div>
+        <div class="story-line" id="c61">Y REPENSE</div>
+        <div class="story-line" id="c62">CE N’EST PAS</div>
+        <div class="story-line" id="c63">TOUJOURS</div>
+        <div class="story-line" id="c64">LE BUT D’OLGA CARMONA</div>
+        <div class="story-line" id="c65">QUI REVIENT EN PREMIER.</div>
+        <div class="story-line" id="c66">ET C’EST</div>
+        <div class="story-line" id="c67">PEUT-ÊTRE ÇA</div>
+        <div class="story-line" id="c68">LE PLUS TRISTE…</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      /* corps façon karaoké — §4.B/§5 CLAUDE.md : durée de base FIXE
+         0.35s/carte (pas de formule mots×durée), zéro pause entre blocs
+         (toujours un sous-titre à l'écran), démarrage à 0.3s absolu (pas
+         d'introEnd, pas de titre animé pour ce style). 68 cartes, durée
+         disponible = 47.00−0.3 = 46.70s -> 46.70/68 = 0.687s/carte
+         (facteur d'étirement ≈1.9622 par rapport à la base 0.35s). Dernière
+         carte se termine à la fin de la vidéo (47.00s). */
+      function fadeBlockKaraoke(sel, start, dur) {
+        tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 0.10, ease: 'power2.out' }, start);
+        tl.to(sel, { opacity: 0, duration: 0.08, ease: 'sine.in' }, start + dur - 0.08);
+        tl.set(sel, { opacity: 0 }, start + dur);
+      }
+
+      const cards = [
+        { id: 'c1', start: 0.300, dur: 0.687 },
+        { id: 'c2', start: 0.987, dur: 0.687 },
+        { id: 'c3', start: 1.674, dur: 0.687 },
+        { id: 'c4', start: 2.360, dur: 0.687 },
+        { id: 'c5', start: 3.047, dur: 0.687 },
+        { id: 'c6', start: 3.734, dur: 0.687 },
+        { id: 'c7', start: 4.421, dur: 0.687 },
+        { id: 'c8', start: 5.107, dur: 0.687 },
+        { id: 'c9', start: 5.794, dur: 0.687 },
+        { id: 'c10', start: 6.481, dur: 0.687 },
+        { id: 'c11', start: 7.168, dur: 0.687 },
+        { id: 'c12', start: 7.854, dur: 0.687 },
+        { id: 'c13', start: 8.541, dur: 0.687 },
+        { id: 'c14', start: 9.228, dur: 0.687 },
+        { id: 'c15', start: 9.915, dur: 0.687 },
+        { id: 'c16', start: 10.601, dur: 0.687 },
+        { id: 'c17', start: 11.288, dur: 0.687 },
+        { id: 'c18', start: 11.975, dur: 0.687 },
+        { id: 'c19', start: 12.662, dur: 0.687 },
+        { id: 'c20', start: 13.349, dur: 0.687 },
+        { id: 'c21', start: 14.035, dur: 0.687 },
+        { id: 'c22', start: 14.722, dur: 0.687 },
+        { id: 'c23', start: 15.409, dur: 0.687 },
+        { id: 'c24', start: 16.096, dur: 0.687 },
+        { id: 'c25', start: 16.782, dur: 0.687 },
+        { id: 'c26', start: 17.469, dur: 0.687 },
+        { id: 'c27', start: 18.156, dur: 0.687 },
+        { id: 'c28', start: 18.843, dur: 0.687 },
+        { id: 'c29', start: 19.529, dur: 0.687 },
+        { id: 'c30', start: 20.216, dur: 0.687 },
+        { id: 'c31', start: 20.903, dur: 0.687 },
+        { id: 'c32', start: 21.590, dur: 0.687 },
+        { id: 'c33', start: 22.276, dur: 0.687 },
+        { id: 'c34', start: 22.963, dur: 0.687 },
+        { id: 'c35', start: 23.650, dur: 0.687 },
+        { id: 'c36', start: 24.337, dur: 0.687 },
+        { id: 'c37', start: 25.024, dur: 0.687 },
+        { id: 'c38', start: 25.710, dur: 0.687 },
+        { id: 'c39', start: 26.397, dur: 0.687 },
+        { id: 'c40', start: 27.084, dur: 0.687 },
+        { id: 'c41', start: 27.771, dur: 0.687 },
+        { id: 'c42', start: 28.457, dur: 0.687 },
+        { id: 'c43', start: 29.144, dur: 0.687 },
+        { id: 'c44', start: 29.831, dur: 0.687 },
+        { id: 'c45', start: 30.518, dur: 0.687 },
+        { id: 'c46', start: 31.204, dur: 0.687 },
+        { id: 'c47', start: 31.891, dur: 0.687 },
+        { id: 'c48', start: 32.578, dur: 0.687 },
+        { id: 'c49', start: 33.265, dur: 0.687 },
+        { id: 'c50', start: 33.951, dur: 0.687 },
+        { id: 'c51', start: 34.638, dur: 0.687 },
+        { id: 'c52', start: 35.325, dur: 0.687 },
+        { id: 'c53', start: 36.012, dur: 0.687 },
+        { id: 'c54', start: 36.699, dur: 0.687 },
+        { id: 'c55', start: 37.385, dur: 0.687 },
+        { id: 'c56', start: 38.072, dur: 0.687 },
+        { id: 'c57', start: 38.759, dur: 0.687 },
+        { id: 'c58', start: 39.446, dur: 0.687 },
+        { id: 'c59', start: 40.132, dur: 0.687 },
+        { id: 'c60', start: 40.819, dur: 0.687 },
+        { id: 'c61', start: 41.506, dur: 0.687 },
+        { id: 'c62', start: 42.193, dur: 0.687 },
+        { id: 'c63', start: 42.879, dur: 0.687 },
+        { id: 'c64', start: 43.566, dur: 0.687 },
+        { id: 'c65', start: 44.253, dur: 0.687 },
+        { id: 'c66', start: 44.940, dur: 0.687 },
+        { id: 'c67', start: 45.626, dur: 0.687 },
+        { id: 'c68', start: 46.313, dur: 0.687 },
+      ];
+
+      cards.forEach(({ id, start, dur }) => {
+        fadeBlockKaraoke(`#${id}`, start, dur);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
