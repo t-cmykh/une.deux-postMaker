@@ -600,10 +600,9 @@ facteur = (durée_vidéo_disponible − Σ pauses) / Σ durée_brute_toutes_lign
 durée_ligne = durée_brute_ligne × facteur
 ```
 
-Cette formule sert de base au **style Fixe**. Le style Karaoké a sa propre
-logique de rythme (mesurée directement sur la vidéo de référence, pas une
-formule proportionnelle au nombre de mots) — voir ci-dessous, ne pas
-appliquer la formule mots×durée à ce style.
+Cette formule sert de base au **style Fixe**. Le style Karaoké utilise une
+formule différente, basée sur la vitesse de lecture en caractères par
+seconde (CPS) plutôt que sur le nombre de mots — voir ci-dessous.
 
 **Style Fixe (§4.A)** :
 - Pauses entre blocs : 0.15s (vidéo courte, rythme serré) à 0.5s (vidéo
@@ -617,31 +616,47 @@ appliquer la formule mots×durée à ce style.
   `gsap_exit_missing_hard_kill`).
 
 **Style Karaoké (§4.B)** :
-- **Rythme mesuré directement sur la vidéo de référence** (compte paris
-  sportifs, cf. §4.B), le 12 août 2026 : échantillonnage vidéo à 0.25s sur
-  un segment dense de mots ("L'ANGLETERRE" → "VA GAGNER" → "LA COUPE" →
-  "DU MONDE" → "C'EST" → "UN PRONOSTIC" → "QUI CIRCULE" → "DEPUIS" → "LE
-  DÉBUT" → "DE LA" → "COMPÉTITION"). Durée de tenue observée par carte :
-  **0.25 à 0.75s, moyenne ≈ 0.35-0.4s** — sans corrélation nette au nombre
-  de mots (des cartes à 1 mot et à 2-3 mots tiennent dans la même
-  fourchette). **Ne pas utiliser la formule mots×durée du style Fixe** —
-  une durée de base quasi fixe, pas proportionnelle à la longueur de la
-  carte :
+- **Rythme basé sur la vitesse de lecture (CPS — caractères par seconde),
+  la norme professionnelle du sous-titrage** (remplace le 19 août 2026 la
+  formule mots×durée qui datait de quelques heures — cf. historique
+  ci-dessous). Le nombre de mots est un mauvais indicateur de la charge de
+  lecture réelle (« UN » et « PRÉSIDENT » comptent tous les deux pour 1 mot
+  mais pas le même effort) ; le CPS compte directement les caractères
+  affichés, comme le font Netflix (~20 CPS pour du contenu adulte, ~17 CPS
+  pour du contenu enfants) ou la BBC/Ofcom (~15-17 CPS). Choix retenu pour
+  une·deux : **20 CPS** (norme Netflix adulte, cohérente avec le rythme
+  punchy attendu sur un Reel plutôt qu'un sous-titrage broadcast classique
+  — validé par Thomas le 19 août 2026).
   ```
-  durée_carte_brute ≈ 0.35s   (fixe, indépendante du nombre de mots)
-  facteur = durée_vidéo_disponible / (n_cartes × 0.35)
-  durée_carte = 0.35 × facteur
+  durée_brute_carte = max(0.8, nombre_de_caractères_du_carton / 20)   (secondes — CPS = 20, plancher 0.8s)
+  facteur = durée_vidéo_disponible / Σ durée_brute_tous_les_cartons
+  durée_carte = durée_brute_carte × facteur
   ```
-  - Si `facteur > 1` (pas assez de lignes de `CORPS (karaoké)` pour
-    couvrir toute la vidéo à 0.35s/carte) : étirer chaque carte par ce
-    facteur plutôt que laisser un trou (règle "toujours un sous-titre à
-    l'écran" du §4.B) — le rythme sera alors un peu plus lent que la
-    référence, compromis acceptable.
-  - Si `facteur < 1` (plus de lignes que la vidéo ne peut en tenir à
-    0.35s/carte) : compresser, mais **ne jamais descendre sous ~0.2s/carte**
-    (proche du rythme le plus rapide observé). En dessous, signaler à
-    Thomas qu'il y a trop de lignes de `CORPS (karaoké)` pour la durée de
-    la vidéo plutôt que de produire un rendu illisible.
+  - `nombre_de_caractères_du_carton` : compter le texte affiché tel quel
+    (espaces et ponctuation compris) — c'est ce que l'œil doit parcourir.
+  - `0.8` s = plancher usuel en sous-titrage pour éviter un carton "flash"
+    illisible même sur un mot très court (ex. « BUT. »).
+  - Pas de terme de pauses dans `facteur`, contrairement au style Fixe —
+    les cartons restent contigus, cf. règle "toujours un sous-titre à
+    l'écran" ci-dessous, donc `Σ pauses = 0` ici.
+  - **Après application du facteur, ne jamais redescendre sous ~0.5s/carte**
+    (le plancher `0.8` ci-dessus protège le calcul brut, mais un `facteur`
+    de compression fort peut quand même écraser un carton en dessous du
+    lisible — si ça arrive, signaler à Thomas qu'il y a trop de cartons
+    pour la durée de la vidéo plutôt que de produire un rendu illisible).
+  - Si le facteur est très supérieur à 1 (peu de cartons pour une vidéo
+    longue), le rythme obtenu sera plus lent que 20 CPS — compromis
+    acceptable, cf. règle "toujours un sous-titre à l'écran" ci-dessous
+    plutôt que de laisser un trou.
+  - Historique : l'ancienne mécanique "TikTok" d'avant le 11 août, puis la
+    refonte du 19 août plus tôt le même jour, utilisaient une formule
+    mots×durée (`mots × 0.27 + 0.35`, identique au style Fixe) — abandonnée
+    au profit du CPS ci-dessus car elle ignorait la longueur réelle des
+    mots. La version à durée fixe (~0.35s/carton, mesurée le 12 août sur
+    une vidéo de référence, sans corrélation au nombre de mots ni aux
+    caractères) avait déjà été abandonnée le 19 août au profit de mots×durée
+    avant ce second changement — ne réintroduire aucune des deux anciennes
+    méthodes.
 - **Zéro pause entre blocs** — cartes contiguës (`start` de la carte N+1 =
   `start + dur` de la carte N), cf. règle "toujours un sous-titre à
   l'écran" du §4.B. Ne pas utiliser la fourchette 0.15-0.5s du style Fixe.
@@ -649,8 +664,9 @@ appliquer la formule mots×durée à ce style.
   §4bis pour ce style) — `durée_vidéo_disponible` = durée totale de la
   vidéo (moins ce petit offset de départ).
 - Fondu plus rapide que le style Fixe (cf. `fadeBlockKaraoke` du §4.B,
-  `inDur:0.10` / `outDur:0.08`) — cohérent avec des cartes de 0.2-0.5s, pas
-  la place pour un fondu plus long.
+  `inDur:0.10` / `outDur:0.08`) — reste pertinent même avec des cartes plus
+  longues qu'avant (typiquement ≥0.8s avec le calcul CPS) : un fondu court
+  garde le rythme punchy sans grignoter le temps de lecture utile du texte.
 
 ### 6. Piège GSAP à ne jamais reproduire
 
