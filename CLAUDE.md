@@ -643,10 +643,9 @@ facteur = (durée_vidéo_disponible − Σ pauses) / Σ durée_brute_toutes_lign
 durée_ligne = durée_brute_ligne × facteur
 ```
 
-Cette formule sert de base au **style Fixe**. Le style Karaoké a sa propre
-logique de rythme (mesurée directement sur la vidéo de référence, pas une
-formule proportionnelle au nombre de mots) — voir ci-dessous, ne pas
-appliquer la formule mots×durée à ce style.
+Cette formule sert de base aux **deux styles**. Le style Karaoké applique
+les mêmes constantes mais sans terme de pauses dans `facteur` (cartons
+contigus, cf. ci-dessous) — voir la variante karaoké de `facteur` plus bas.
 
 **Style Fixe (§4.A)** :
 - Pauses entre blocs : 0.15s (vidéo courte, rythme serré) à 0.5s (vidéo
@@ -660,31 +659,30 @@ appliquer la formule mots×durée à ce style.
   `gsap_exit_missing_hard_kill`).
 
 **Style Karaoké (§4.B)** :
-- **Rythme mesuré directement sur la vidéo de référence** (compte paris
-  sportifs, cf. §4.B), le 12 août 2026 : échantillonnage vidéo à 0.25s sur
-  un segment dense de mots ("L'ANGLETERRE" → "VA GAGNER" → "LA COUPE" →
-  "DU MONDE" → "C'EST" → "UN PRONOSTIC" → "QUI CIRCULE" → "DEPUIS" → "LE
-  DÉBUT" → "DE LA" → "COMPÉTITION"). Durée de tenue observée par carte :
-  **0.25 à 0.75s, moyenne ≈ 0.35-0.4s** — sans corrélation nette au nombre
-  de mots (des cartes à 1 mot et à 2-3 mots tiennent dans la même
-  fourchette). **Ne pas utiliser la formule mots×durée du style Fixe** —
-  une durée de base quasi fixe, pas proportionnelle à la longueur de la
-  carte :
+- **Rythme basé sur le nombre de mots par carton, même formule que le style
+  Fixe** (remis en place le 19 août 2026, demande explicite de Thomas).
+  Historique : l'ancienne mécanique "TikTok" d'avant le 11 août utilisait
+  déjà cette formule mots×durée ; la refonte du 11-12 août l'avait
+  remplacée par une durée de base fixe (~0.35s/carton) mesurée sur une
+  vidéo de référence, sans corrélation au nombre de mots. Cette mesure sur
+  la vidéo de référence (0.25 à 0.75s observés, moyenne ≈0.35-0.4s) reste
+  une donnée utile de calibration mais n'est plus la méthode de calcul :
   ```
-  durée_carte_brute ≈ 0.35s   (fixe, indépendante du nombre de mots)
-  facteur = durée_vidéo_disponible / (n_cartes × 0.35)
-  durée_carte = 0.35 × facteur
+  durée_brute_carte = nombre_de_mots × 0.27 + 0.35   (secondes — mêmes constantes que le style Fixe)
+  facteur = durée_vidéo_disponible / Σ durée_brute_tous_les_cartons
+  durée_carte = durée_brute_carte × facteur
   ```
-  - Si `facteur > 1` (pas assez de lignes de `CORPS (karaoké)` pour
-    couvrir toute la vidéo à 0.35s/carte) : étirer chaque carte par ce
-    facteur plutôt que laisser un trou (règle "toujours un sous-titre à
-    l'écran" du §4.B) — le rythme sera alors un peu plus lent que la
-    référence, compromis acceptable.
-  - Si `facteur < 1` (plus de lignes que la vidéo ne peut en tenir à
-    0.35s/carte) : compresser, mais **ne jamais descendre sous ~0.2s/carte**
-    (proche du rythme le plus rapide observé). En dessous, signaler à
-    Thomas qu'il y a trop de lignes de `CORPS (karaoké)` pour la durée de
-    la vidéo plutôt que de produire un rendu illisible.
+  (pas de terme de pauses dans `facteur`, contrairement au style Fixe — les
+  cartons restent contigus, cf. règle "toujours un sous-titre à l'écran"
+  ci-dessous, donc `Σ pauses = 0` ici)
+  - **Ne jamais descendre sous ~0.2s/carte** même après application du
+    facteur (plancher de lisibilité, cf. mesure du 12 août). En dessous,
+    signaler à Thomas qu'il y a trop de lignes de `CORPS (karaoké)` pour la
+    durée de la vidéo plutôt que de produire un rendu illisible.
+  - Si le facteur est très supérieur à 1 (peu de cartons pour une vidéo
+    longue), le rythme obtenu sera plus lent que la fourchette de référence
+    du 12 août — compromis acceptable, cf. règle "toujours un sous-titre à
+    l'écran" ci-dessous plutôt que de laisser un trou.
 - **Zéro pause entre blocs** — cartes contiguës (`start` de la carte N+1 =
   `start + dur` de la carte N), cf. règle "toujours un sous-titre à
   l'écran" du §4.B. Ne pas utiliser la fourchette 0.15-0.5s du style Fixe.
