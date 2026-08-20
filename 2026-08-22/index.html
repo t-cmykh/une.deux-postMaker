@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 22 août 2008, le Brésil décroche le bronze olympique (karaoké)</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* vidéo du Drive gardée intégrale, telle quelle (pas de sélection de
+         plans, §1bis CLAUDE.md) — un seul composite continu du début à la
+         fin (0 → 51.500s), même géométrie sur toute la durée : fond plein
+         cadre flouté/désaturé + plan net 1080×888 plein cadre horizontal
+         (overlay y=420 — §2 CLAUDE.md). Source : Brésil-Belgique, petite
+         finale du tournoi olympique de Pékin (Shanghai, 22 août 2008),
+         830×492 60fps (pillarbox : image utile 658×488 à x=86,y=4), aucune
+         rotation (ffprobe). Habillage de diffusion en haut de l'image
+         (bandeau score BEL/BRA + horloge à gauche, logo chaîne + pastille
+         "LIVE" à droite) : crop source recalé sur 658×386 à partir de
+         y=106, ce qui sort entièrement cet habillage du cadre avant le
+         cover-crop (bg ET fg, §2 CLAUDE.md) — pas de zoom centré ici, un
+         zoom symétrique suffisant pour effacer le bandeau aurait rogné
+         inutilement le bas de l'image, où se joue l'action. Un seul
+         élément <video>, pas de titre animé séparé pour ce style (§4bis ne
+         s'applique pas au style karaoké). Pas de piste audio reprise
+         (retiré du pipeline le 14 août 2026, cf. CLAUDE.md §2). */
+      .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+
+      /* header — constantes fixes de la série, persistant du début à la fin */
+      #hdr { position: absolute; inset: 0 0 auto 0; z-index: 20; }
+      .ring {
+        position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
+        border: 4px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
+
+      /* --ocre-render : compensation du décalage de teinte du pipeline de
+         render HyperFrames sur --ocre (§3 CLAUDE.md) — ne pas remplacer
+         var(--ocre) dans tokens/colors.css, uniquement une variable locale
+         à la composition. Utilisé sur .tag (aucun mot-clé **…** dans le
+         CORPS (karaoké) de ce brouillon, donc b.ocre n'est pas utilisé ici
+         mais la règle CSS reste déclarée pour cohérence/réutilisation). */
+      :root { --ocre-render: #B9A456; }
+      .tag {
+        position: absolute; left: 96px; top: 350px; height: 58px; z-index: 20;
+        display: flex; align-items: center; background: var(--ocre-render); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; padding: 0 15px;
+      }
+
+      /* corps de texte façon karaoké — Anton, centré verticalement dans le
+         cadre, superposé directement sur le plan net (§4.B CLAUDE.md).
+         Taille FIXE 80px pour toutes les cartes, aucun palier par
+         longueur ; aucune ombre portée ; léger contour semi-transparent
+         ink. Texte déjà écrit en MAJUSCULES dans le HTML (pas seulement
+         via text-transform, cf. bug de subsetting de police documenté au
+         §4.B CLAUDE.md). .story-line porte un transform:translateY(-50%)
+         STATIQUE — ne jamais animer y dessus avec GSAP (§6), opacity
+         uniquement. top:0/bottom:0 sur .story-zone obligatoires pour que
+         le centrage vertical ait une hauteur de référence. */
+      .story-zone { position: absolute; top: 0; bottom: 0; left: 96px; right: 96px; z-index: 20; text-align: center; }
+      .story-line {
+        position: absolute; left: 0; right: 0;
+        top: 50%; transform: translateY(-50%);
+        font-family: 'Anton', sans-serif; font-size: 80px; line-height: 1.1;
+        text-transform: uppercase; color: var(--cream); opacity: 0;
+        -webkit-text-stroke: 1.5px rgba(44,40,35,.35);
+      }
+      /* mot-clé en ocre via **mot** dans CORPS (karaoké) — §4.B règle du
+         13 août 2026 : couleur seule, pas de fond/padding. Aucun mot-clé
+         marqué dans le CORPS (karaoké) de ce brouillon, règle non utilisée
+         ici. */
+      .story-line b.ocre { color: var(--ocre-render); font-weight: inherit; }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="51.500"
+      data-fps="30"
+    >
+      <!-- vidéo du Drive intégrale, un seul plan continu du début à la fin -->
+      <video class="video-full" id="fullv" src="assets/full.mp4" data-start="0.0000" data-duration="51.500" data-track-index="1" muted playsinline></video>
+
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+      <div class="tag">CE JOUR LÀ …</div>
+
+      <!-- corps du post — champ CORPS (KARAOKE) du brouillon Gmail
+           "📲 POST DU JOUR — 22 août 2026 · Brésil, bronze olympique, or
+           introuvable" (révisé le 20 août 2026 à 18:50 UTC). La demande
+           "LANCER REEL" annonçait DATE DU POST: 2026-08-21, mais la vidéo
+           jointe est sans ambiguïté Brésil-Belgique (bandeau BEL/BRA,
+           habillage olympique de Pékin, 3-0) : c'est le sujet du post du
+           22 août, pas celui du 21 (Séville-Inter, déjà livré dans
+           2026-08-21/). Reel construit sur le texte cohérent avec la
+           vidéo, écart de date signalé à Thomas plutôt que traité en
+           silence. Une ligne du brouillon = une carte, verbatim, aucun
+           re-découpage (§4.B) — 42 cartes, mises en capitales pour
+           l'affichage (le brouillon alterne majuscules et minuscules ;
+           "3ème" → "3ÈME", "A t'il" → "A T'IL", coquille du brouillon
+           conservée verbatim et signalée). Aucun mot marqué **entre
+           astérisques** dans ce brouillon → aucun <b class="ocre"> utilisé. -->
+      <div class="story-zone">
+        <div class="story-line" id="c1">LE BRÉSIL,</div>
+        <div class="story-line" id="c2">CINQ FOIS</div>
+        <div class="story-line" id="c3">CHAMPION DU MONDE.</div>
+        <div class="story-line" id="c4">MAIS UNE MÉDAILLE</div>
+        <div class="story-line" id="c5">MANQUE</div>
+        <div class="story-line" id="c6">A LEUR PALMARÈS.</div>
+        <div class="story-line" id="c7">CE JOUR-LÀ,</div>
+        <div class="story-line" id="c8">LE 22 AOÛT 2008,</div>
+        <div class="story-line" id="c9">À SHANGHAI</div>
+        <div class="story-line" id="c10">C&#x27;EST LA</div>
+        <div class="story-line" id="c11">PETITE FINALE</div>
+        <div class="story-line" id="c12">DES JEUX OLYMPIQUES.</div>
+        <div class="story-line" id="c13">LE BRÉSIL</div>
+        <div class="story-line" id="c14">FACE À LA BELGIQUE.</div>
+        <div class="story-line" id="c15">DIEGO</div>
+        <div class="story-line" id="c16">OUVRE LE SCORE</div>
+        <div class="story-line" id="c17">À LA 28E MINUTE.</div>
+        <div class="story-line" id="c18">PUIS JÔ</div>
+        <div class="story-line" id="c19">MARQUE</div>
+        <div class="story-line" id="c20">UN DOUBLÉ.</div>
+        <div class="story-line" id="c21">45E ET 90E+2.</div>
+        <div class="story-line" id="c22">BRÉSIL 3</div>
+        <div class="story-line" id="c23">BELGIQUE 0</div>
+        <div class="story-line" id="c24">ILS FINISSENT</div>
+        <div class="story-line" id="c25">3ÈME</div>
+        <div class="story-line" id="c26">LE BRONZE</div>
+        <div class="story-line" id="c27">AUTOUR DU COU</div>
+        <div class="story-line" id="c28">MAIS PAS L&#x27;OR</div>
+        <div class="story-line" id="c29">MÊME PELÉ</div>
+        <div class="story-line" id="c30">NE L&#x27;A JAMAIS EU.</div>
+        <div class="story-line" id="c31">IL FAUDRA</div>
+        <div class="story-line" id="c32">HUIT ANS DE PLUS</div>
+        <div class="story-line" id="c33">AU MARACANÃ</div>
+        <div class="story-line" id="c34">EN 2016</div>
+        <div class="story-line" id="c35">POUR QUE</div>
+        <div class="story-line" id="c36">LA SÉLECTION</div>
+        <div class="story-line" id="c37">DÉCROCHE L&#x27;OR</div>
+        <div class="story-line" id="c38">ALORS,</div>
+        <div class="story-line" id="c39">LE BRÉSIL</div>
+        <div class="story-line" id="c40">A T&#x27;IL</div>
+        <div class="story-line" id="c41">VRAIMENT</div>
+        <div class="story-line" id="c42">TOUT GAGNÉ ?</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      /* corps façon karaoké — §4.B/§5 CLAUDE.md : rythme calculé au CPS
+         (13 caractères/seconde, plancher 0.8s/carte), zéro pause entre
+         blocs (toujours un sous-titre à l'écran), démarrage à 0.25s absolu
+         (pas d'introEnd, pas de titre animé pour ce style). 42 cartes,
+         466 caractères, durée disponible = 51.500−0.25 = 51.250s ->
+         facteur d'étirement ×1.2768 sur les durées brutes CPS
+         (durées finales de 1.021s à 1.964s, aucune sous
+         le plancher de lisibilité ~0.5s du §5). Dernière carte se termine
+         exactement à la fin de la vidéo (51.500s). Calcul fait via script
+         (gen_timeline.py), pas à la main, pour éviter une erreur d'arrondi
+         cumulée. */
+      function fadeBlockKaraoke(sel, start, dur) {
+        tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 0.10, ease: 'power2.out' }, start);
+        tl.to(sel, { opacity: 0, duration: 0.08, ease: 'sine.in' }, start + dur - 0.08);
+        tl.set(sel, { opacity: 0 }, start + dur);
+      }
+
+      const cards = [
+        { id: 'c1', start: 0.250, dur: 1.021 },
+        { id: 'c2', start: 1.271, dur: 1.021 },
+        { id: 'c3', start: 2.293, dur: 1.768 },
+        { id: 'c4', start: 4.061, dur: 1.670 },
+        { id: 'c5', start: 5.731, dur: 1.021 },
+        { id: 'c6', start: 6.752, dur: 1.571 },
+        { id: 'c7', start: 8.323, dur: 1.080 },
+        { id: 'c8', start: 9.404, dur: 1.571 },
+        { id: 'c9', start: 10.975, dur: 1.021 },
+        { id: 'c10', start: 11.997, dur: 1.021 },
+        { id: 'c11', start: 13.018, dur: 1.277 },
+        { id: 'c12', start: 14.295, dur: 1.964 },
+        { id: 'c13', start: 16.259, dur: 1.021 },
+        { id: 'c14', start: 17.281, dur: 1.866 },
+        { id: 'c15', start: 19.147, dur: 1.021 },
+        { id: 'c16', start: 20.169, dur: 1.375 },
+        { id: 'c17', start: 21.544, dur: 1.571 },
+        { id: 'c18', start: 23.115, dur: 1.021 },
+        { id: 'c19', start: 24.137, dur: 1.021 },
+        { id: 'c20', start: 25.158, dur: 1.021 },
+        { id: 'c21', start: 26.179, dur: 1.277 },
+        { id: 'c22', start: 27.456, dur: 1.021 },
+        { id: 'c23', start: 28.478, dur: 1.021 },
+        { id: 'c24', start: 29.499, dur: 1.277 },
+        { id: 'c25', start: 30.776, dur: 1.021 },
+        { id: 'c26', start: 31.798, dur: 1.021 },
+        { id: 'c27', start: 32.819, dur: 1.277 },
+        { id: 'c28', start: 34.096, dur: 1.277 },
+        { id: 'c29', start: 35.373, dur: 1.021 },
+        { id: 'c30', start: 36.394, dur: 1.670 },
+        { id: 'c31', start: 38.064, dur: 1.021 },
+        { id: 'c32', start: 39.085, dur: 1.571 },
+        { id: 'c33', start: 40.657, dur: 1.080 },
+        { id: 'c34', start: 41.737, dur: 1.021 },
+        { id: 'c35', start: 42.759, dur: 1.021 },
+        { id: 'c36', start: 43.780, dur: 1.179 },
+        { id: 'c37', start: 44.959, dur: 1.277 },
+        { id: 'c38', start: 46.236, dur: 1.021 },
+        { id: 'c39', start: 47.257, dur: 1.021 },
+        { id: 'c40', start: 48.278, dur: 1.021 },
+        { id: 'c41', start: 49.300, dur: 1.021 },
+        { id: 'c42', start: 50.321, dur: 1.179 },
+      ];
+
+      cards.forEach(({ id, start, dur }) => {
+        fadeBlockKaraoke(`#${id}`, start, dur);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
