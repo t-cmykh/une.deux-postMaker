@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 21 août 2020, Séville-Inter en finale de Ligue Europa à huis clos (karaoké)</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* vidéo du Drive gardée intégrale, telle quelle (pas de sélection de
+         plans, §1bis CLAUDE.md) — un seul composite continu du début à la
+         fin (0 → 47.93s), même géométrie sur toute la durée : fond plein
+         cadre flouté/désaturé + plan net 1080×888 plein cadre horizontal
+         (overlay y=420 — §2 CLAUDE.md). Source : finale de la Ligue Europa
+         2019-20 (Séville-Inter, RheinEnergieStadion de Cologne, 21 août
+         2020), 1760x982 (~1.79:1), aucune rotation (ffprobe). Habillage de
+         diffusion (bandeau score, logo "SFCMedia", menu audio transitoire)
+         repéré aux marges gauche/haut de la source — zoom anti-habillage
+         ×1.4 appliqué avant le cover-crop (bg ET fg, §2 CLAUDE.md) pour le
+         réduire ; un fin résidu du logo "…dia" et, dans les toutes
+         premières secondes seulement, du menu "AUDIOS DISPONIBLES" reste
+         visible en bord de cadre — un zoom suffisant pour l'effacer
+         entièrement (≈×2.3) aurait perdu une bonne partie du jeu sur les
+         côtés, jugé pire que le résidu (signalé à Thomas). Un seul élément
+         <video>, pas de titre animé séparé pour ce style (§4bis ne
+         s'applique pas au style karaoké). Pas de piste audio reprise
+         (retiré du pipeline le 14 août 2026, cf. CLAUDE.md §2). */
+      .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+
+      /* header — constantes fixes de la série, persistant du début à la fin */
+      #hdr { position: absolute; inset: 0 0 auto 0; z-index: 20; }
+      .ring {
+        position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
+        border: 4px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
+
+      /* --ocre-render : compensation du décalage de teinte du pipeline de
+         render HyperFrames sur --ocre (§3 CLAUDE.md) — ne pas remplacer
+         var(--ocre) dans tokens/colors.css, uniquement une variable locale
+         à la composition. Utilisé sur .tag (aucun mot-clé **…** dans le
+         CORPS (karaoké) de ce brouillon, donc b.ocre n'est pas utilisé ici
+         mais la règle CSS reste déclarée pour cohérence/réutilisation). */
+      :root { --ocre-render: #B9A456; }
+      .tag {
+        position: absolute; left: 96px; top: 350px; height: 58px; z-index: 20;
+        display: flex; align-items: center; background: var(--ocre-render); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; padding: 0 15px;
+      }
+
+      /* corps de texte façon karaoké — Anton, centré verticalement dans le
+         cadre, superposé directement sur le plan net (§4.B CLAUDE.md).
+         Taille FIXE 80px pour toutes les cartes, aucun palier par
+         longueur ; aucune ombre portée ; léger contour semi-transparent
+         ink. Texte déjà écrit en MAJUSCULES dans le HTML (pas seulement
+         via text-transform, cf. bug de subsetting de police documenté au
+         §4.B CLAUDE.md). .story-line porte un transform:translateY(-50%)
+         STATIQUE — ne jamais animer y dessus avec GSAP (§6), opacity
+         uniquement. top:0/bottom:0 sur .story-zone obligatoires pour que
+         le centrage vertical ait une hauteur de référence. */
+      .story-zone { position: absolute; top: 0; bottom: 0; left: 96px; right: 96px; z-index: 20; text-align: center; }
+      .story-line {
+        position: absolute; left: 0; right: 0;
+        top: 50%; transform: translateY(-50%);
+        font-family: 'Anton', sans-serif; font-size: 80px; line-height: 1.1;
+        text-transform: uppercase; color: var(--cream); opacity: 0;
+        -webkit-text-stroke: 1.5px rgba(44,40,35,.35);
+      }
+      /* mot-clé en ocre via **mot** dans CORPS (karaoké) — §4.B règle du
+         13 août 2026 : couleur seule, pas de fond/padding. Aucun mot-clé
+         marqué dans le brouillon de ce reel, règle non utilisée ici. */
+      .story-line b.ocre { color: var(--ocre-render); font-weight: inherit; }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="47.933"
+      data-fps="30"
+    >
+      <!-- vidéo du Drive intégrale, un seul plan continu du début à la fin -->
+      <video class="video-full" id="fullv" src="assets/full.mp4" data-start="0.0000" data-duration="47.933" data-track-index="1" muted playsinline></video>
+
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+      <div class="tag">CE JOUR LÀ …</div>
+
+      <!-- corps du post — champ CORPS (karaoké) du brouillon "POST DU JOUR
+           — 21 août 2026" (trouvé sous le sujet Gmail "📲 POST DU JOUR — 16
+           août 2026 · France bat le monde entier 5-1" — TITRE/CORPS de ce
+           brouillon concernent un autre sujet (Trezeguet, 16 août 2000),
+           mais son champ CORPS (KARAOKE) correspond sans ambiguïté à la
+           vidéo fournie le 20 août 2026 pour le post du 21 août : finale
+           de Ligue Europa 2020 Séville-Inter à huis clos, mêmes faits
+           (pénalty Lukaku, doublé de Jong, égalisation Godín, csc Lukaku
+           décisif sur reprise de Diego Carlos, 3-2, 6e Ligue Europa du
+           Séville). Anomalie de brouillon signalée à Thomas dans le
+           message de livraison plutôt que traitée en silence. Une ligne du
+           brouillon = une carte, verbatim, AUCUN re-découpage ni
+           réordonnancement — reprise dans l'ordre exact du brouillon (45
+           cartes ; les deux dernières lignes du brouillon, "tue l'espoir"
+           et "des siens…", séparées par un simple retour à la ligne sans
+           ligne vide contrairement à toutes les autres paires — traitées
+           comme une seule carte "TUE L'ESPOIR DES SIENS…", cf. mise en
+           forme du brouillon). Aucun mot marqué **entre astérisques** dans
+           ce brouillon → aucun <b class="ocre"> utilisé. -->
+      <div class="story-zone">
+        <div class="story-line" id="c1">CE JOUR LÀ,</div>
+        <div class="story-line" id="c2">LE 21 AOÛT 2020</div>
+        <div class="story-line" id="c3">LE RHEINENERGIESTADION</div>
+        <div class="story-line" id="c4">DE COLOGNE</div>
+        <div class="story-line" id="c5">EST VIDE.</div>
+        <div class="story-line" id="c6">LA FINALE</div>
+        <div class="story-line" id="c7">DE LIGUE EUROPA</div>
+        <div class="story-line" id="c8">SE JOUE</div>
+        <div class="story-line" id="c9">EN MINI-TOURNOI</div>
+        <div class="story-line" id="c10">DANS DES</div>
+        <div class="story-line" id="c11">STADES VIDES</div>
+        <div class="story-line" id="c12">SÉVILLE - INTER</div>
+        <div class="story-line" id="c13">5E MINUTE.</div>
+        <div class="story-line" id="c14">PENALTY.</div>
+        <div class="story-line" id="c15">LUKAKU OUVRE LE SCORE.</div>
+        <div class="story-line" id="c16">PUIS</div>
+        <div class="story-line" id="c17">LA TÊTE</div>
+        <div class="story-line" id="c18">DE LUUK DE JONG.</div>
+        <div class="story-line" id="c19">12E.</div>
+        <div class="story-line" id="c20">33E.</div>
+        <div class="story-line" id="c21">UN DOUBLÉ.</div>
+        <div class="story-line" id="c22">GODÍN ÉGALISE.</div>
+        <div class="story-line" id="c23">36E.</div>
+        <div class="story-line" id="c24">2-2.</div>
+        <div class="story-line" id="c25">ET PLUS RIEN.</div>
+        <div class="story-line" id="c26">JUSQU'À LA 74E.</div>
+        <div class="story-line" id="c27">REPRISE ACROBATIQUE</div>
+        <div class="story-line" id="c28">DE DIEGO CARLOS.</div>
+        <div class="story-line" id="c29">LE BALLON</div>
+        <div class="story-line" id="c30">DÉVIE.</div>
+        <div class="story-line" id="c31">SUR LUKAKU.</div>
+        <div class="story-line" id="c32">QUI TROMPE</div>
+        <div class="story-line" id="c33">SON PROPRE GARDIEN.</div>
+        <div class="story-line" id="c34">3-2.</div>
+        <div class="story-line" id="c35">SÉVILLE SOULÈVE</div>
+        <div class="story-line" id="c36">SA 6E LIGUE EUROPA.</div>
+        <div class="story-line" id="c37">UN RECORD</div>
+        <div class="story-line" id="c38">OFFERT</div>
+        <div class="story-line" id="c39">PAR LE MÊME HOMME</div>
+        <div class="story-line" id="c40">QUI AVAIT OUVERT</div>
+        <div class="story-line" id="c41">LE SCORE.</div>
+        <div class="story-line" id="c42">IL Y A DES SOIRS</div>
+        <div class="story-line" id="c43">OÙ CELUI</div>
+        <div class="story-line" id="c44">QUI LANCE LA FINALE</div>
+        <div class="story-line" id="c45">TUE L'ESPOIR DES SIENS…</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      /* corps façon karaoké — §4.B/§5 CLAUDE.md : rythme calculé au CPS
+         (13 caractères/seconde, plancher 0.8s/carte), zéro pause entre
+         blocs (toujours un sous-titre à l'écran), démarrage à 0.3s absolu
+         (pas d'introEnd, pas de titre animé pour ce style). 45 cartes,
+         534 caractères, durée disponible = 47.933−0.3 = 47.633s ->
+         facteur d'étirement ×1.0256 sur les durées brutes CPS. Dernière
+         carte se termine exactement à la fin de la vidéo (47.933s).
+         Calcul fait via script (timeline.py), pas à la main, pour éviter
+         une erreur d'arrondi cumulée sur 45 cartes. */
+      function fadeBlockKaraoke(sel, start, dur) {
+        tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 0.10, ease: 'power2.out' }, start);
+        tl.to(sel, { opacity: 0, duration: 0.08, ease: 'sine.in' }, start + dur - 0.08);
+        tl.set(sel, { opacity: 0 }, start + dur);
+      }
+
+      const cards = [
+        { id: 'c1', start: 0.300, dur: 0.868 },
+        { id: 'c2', start: 1.168, dur: 1.183 },
+        { id: 'c3', start: 2.351, dur: 1.736 },
+        { id: 'c4', start: 4.087, dur: 0.820 },
+        { id: 'c5', start: 4.907, dur: 0.820 },
+        { id: 'c6', start: 5.728, dur: 0.820 },
+        { id: 'c7', start: 6.548, dur: 1.183 },
+        { id: 'c8', start: 7.731, dur: 0.820 },
+        { id: 'c9', start: 8.552, dur: 1.183 },
+        { id: 'c10', start: 9.735, dur: 0.820 },
+        { id: 'c11', start: 10.556, dur: 0.947 },
+        { id: 'c12', start: 11.502, dur: 1.183 },
+        { id: 'c13', start: 12.686, dur: 0.820 },
+        { id: 'c14', start: 13.506, dur: 0.820 },
+        { id: 'c15', start: 14.327, dur: 1.736 },
+        { id: 'c16', start: 16.062, dur: 0.820 },
+        { id: 'c17', start: 16.883, dur: 0.820 },
+        { id: 'c18', start: 17.703, dur: 1.262 },
+        { id: 'c19', start: 18.965, dur: 0.820 },
+        { id: 'c20', start: 19.786, dur: 0.820 },
+        { id: 'c21', start: 20.606, dur: 0.820 },
+        { id: 'c22', start: 21.427, dur: 1.104 },
+        { id: 'c23', start: 22.531, dur: 0.820 },
+        { id: 'c24', start: 23.351, dur: 0.820 },
+        { id: 'c25', start: 24.172, dur: 1.026 },
+        { id: 'c26', start: 25.197, dur: 1.183 },
+        { id: 'c27', start: 26.381, dur: 1.499 },
+        { id: 'c28', start: 27.880, dur: 1.262 },
+        { id: 'c29', start: 29.142, dur: 0.820 },
+        { id: 'c30', start: 29.962, dur: 0.820 },
+        { id: 'c31', start: 30.783, dur: 0.868 },
+        { id: 'c32', start: 31.651, dur: 0.820 },
+        { id: 'c33', start: 32.471, dur: 1.499 },
+        { id: 'c34', start: 33.970, dur: 0.820 },
+        { id: 'c35', start: 34.790, dur: 1.183 },
+        { id: 'c36', start: 35.974, dur: 1.499 },
+        { id: 'c37', start: 37.473, dur: 0.820 },
+        { id: 'c38', start: 38.293, dur: 0.820 },
+        { id: 'c39', start: 39.114, dur: 1.341 },
+        { id: 'c40', start: 40.455, dur: 1.262 },
+        { id: 'c41', start: 41.717, dur: 0.820 },
+        { id: 'c42', start: 42.537, dur: 1.262 },
+        { id: 'c43', start: 43.800, dur: 0.820 },
+        { id: 'c44', start: 44.620, dur: 1.499 },
+        { id: 'c45', start: 46.119, dur: 1.814 },
+      ];
+
+      cards.forEach(({ id, start, dur }) => {
+        fadeBlockKaraoke(`#${id}`, start, dur);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
