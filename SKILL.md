@@ -6,8 +6,11 @@ description: >
   touches". Couvre la production complète d'un post carrousel : script slides,
   fichier script.json prêt pour l'éditeur HTML, prompts photo style presse, et
   légende Instagram. Se déclenche sur "post pour une·deux", "on fait un post",
-  "prépare un post sur [pays/joueur]", ou toute demande de contenu éditorial
-  une·deux. Inclut la vérification factuelle obligatoire avant rédaction.
+  "prépare un post sur [pays/joueur]", "article/post arrêt de jeu sur [sujet]",
+  ou toute demande de contenu éditorial une·deux. Inclut la vérification
+  factuelle obligatoire avant rédaction. Note : la série "L'arrêt de jeu" a un
+  livrable et un workflow dédiés, distincts du reste du skill (voir section
+  "Format spécifique — série L'arrêt de jeu").
 ---
 
 # une·deux — Production de post
@@ -87,7 +90,11 @@ disponibles pour les slides intérieures et les reels.
 | `btnlabel` | libellé du bouton (template CTA uniquement) |
 
 Format **verrouillé par série** : `cejourla`, `oublies`, `arretdejeu` → 3:4 ;
-`portraits` → 9:16 (titre vertical). Voir `exemples/*-par-serie.md` et
+`portraits` → 9:16 (titre vertical). L'entrée `arretdejeu` de cet éditeur ne
+sert plus au workflow par défaut de cette série depuis septembre 2026 (voir
+« Format spécifique — série L'arrêt de jeu » plus bas) — ne l'utiliser que
+sur demande explicite de Thomas pour un visuel ponctuel. Voir
+`exemples/*-par-serie.md` et
 `planning/planning-unedeux.md` pour la déclinaison série par série (scénarios,
 prompts photo, légendes) et le planning éditorial (2 posts/jour).
 
@@ -142,7 +149,20 @@ sous-titres animés). Déclencheur : Thomas envoie un lien Drive vers une vidéo
 de match, ou dit "on va faire un reel une·deux" à propos d'un montage vidéo.
 Ne pas utiliser le format `script_reel.json` ci-dessous pour ce cas.
 
+**Exception : série « L'arrêt de jeu ».** Cette série ne suit PAS le format
+`script.json` / 8 slides décrit dans ce document (ni le format prompts photo
+qui l'accompagne). Elle a son propre livrable, entièrement différent — voir
+la section dédiée **« Format spécifique — série L'arrêt de jeu »** plus bas.
+Dès que Thomas mentionne "arrêt de jeu" (article, post, sujet), c'est ce
+format-là qui s'applique, jamais `script.json` ni des prompts photo séparés,
+même si Thomas ne le précise pas explicitement à chaque demande.
+
 ## Structure des 8 slides (gabarit de référence)
+
+> Cette structure et le format `script.json` associé (plus bas) s'appliquent
+> aux séries **Ce jour-là**, **Les oubliés** et **Portraits** uniquement.
+> Pour **L'arrêt de jeu**, voir « Format spécifique — série L'arrêt de jeu »
+> plus bas : format article Markdown, jamais de `script.json`.
 
 | # | Template | Fonction | Rôle |
 |---|----------|----------|------|
@@ -310,6 +330,10 @@ la posture archiviste (on constate, on ne sermonne pas).
 
 ## Format script.json (post carrousel — référence `script_post.json`)
 
+> Ne s'applique **jamais** à la série L'arrêt de jeu (voir « Format spécifique
+> — série L'arrêt de jeu » plus bas) — uniquement à Ce jour-là, Les oubliés et
+> Portraits.
+
 Tableau d'objets, 1 objet par slide, 8 slides dans l'ordre : A, A, H, A, G, A, A, D.
 
 **Accents :** autorisés partout (`title`, `greenWord`, `tag`, `body`, `quote`,
@@ -378,6 +402,10 @@ Toujours valider le JSON (parse) avant livraison. Un dossier par post :
 
 ## Format prompts photo (style presse, Workflow v7)
 
+> Ne s'applique pas à L'arrêt de jeu : pas de prompts photo séparés pour
+> cette série (sauf demande explicite de Thomas), voir « Format spécifique
+> — série L'arrêt de jeu » plus bas.
+
 Un prompt par slide illustrée (S1, S2, S4, S6, S7 — pas H ni G). Format :
 ```
 nom_NN (LABEL) : Press photography. [sujet nommé / maillot précis] [action/émotion],
@@ -416,6 +444,139 @@ donc **risquées à republier** sur le compte.
 - Séries à faits récents (*Portraits*, *L'arrêt de jeu* quand l'hypothèse porte sur un sujet actuel) :
   davantage de sources visuelles disponibles, mais la même règle de droits
   s'applique.
+
+## Format spécifique — série « L'arrêt de jeu »
+
+Établi avec Thomas à partir de septembre 2026, en remplacement complet du
+format `script.json` pour cette série uniquement. Les 3 autres séries (Ce
+jour-là, Les oubliés, Portraits) restent sur le format décrit plus haut.
+
+### Déclencheur
+
+Dès que Thomas dit quelque chose comme *"on va faire un article/post arrêt de
+jeu sur X"*, *"sujet : X"* (dans le contexte arrêt de jeu), ou nomme
+directement un sujet après avoir établi qu'on travaille sur cette série :
+produire directement le livrable complet ci-dessous, sans demander de
+confirmation intermédiaire — sauf si le sujet lui-même est ambigu.
+
+### Ton : journalisme d'investigation
+
+L'arrêt de jeu est un **article d'investigation**, pas un post réseaux
+sociaux habillé en article. Appliquer les codes du journalisme à chaque étape,
+pas seulement au moment de la rédaction :
+
+- **Récupération d'informations** : privilégier les sources primaires
+  (communiqués officiels, décisions de justice/instances sportives,
+  déclarations directes, documents publiés) avant les sources secondaires
+  (presse spécialisée qui les reprend). Une source primaire + 2 reprises
+  indépendantes valent mieux que 3 reprises du même papier. Identifier chaque
+  source par son nom, sa fonction et la date de sa déclaration ou publication.
+- **Vérification des faits** : la règle des 3 sources indépendantes
+  (voir plus bas) s'applique avec la rigueur d'une salle de rédaction — on
+  vérifie avant d'écrire, pas après. Tout fait qui ne tient pas est écarté ou
+  requalifié en hypothèse, jamais arrondi pour que l'histoire fonctionne.
+- **Structure** : chaque paragraphe/slide porte le fait le plus important en
+  premier (logique de pyramide inversée), puis le contexte et le détail.
+  L'attribution est intégrée à la phrase (« selon *L'Équipe* », « d'après le
+  communiqué de la FIFA », « révèle Mediacités »), pas reléguée en fin de
+  paragraphe. Le fait établi, l'allégation non tranchée et l'analyse/nuance
+  de Claude restent visiblement distincts à la lecture.
+- **Vocabulaire** : registre journalistique sobre, pas de ton réseaux sociaux
+  dans le corps de l'article (pas de tutoiement du lecteur, pas d'emoji, pas
+  de superlatif non sourcé). Conditionnel de prudence obligatoire pour tout
+  fait non confirmé par une autorité ou la justice (« aurait », « serait »,
+  jamais l'affirmatif tant que ce n'est pas établi). Le tutoiement et le ton
+  de marque une·deux restent réservés à `LEGENDE.md`, jamais à `ARTICLE.md`.
+
+### Branche Git
+
+Toujours développer **et pousser** sur la branche **`arrets-de-jeu`** (jamais
+une autre branche sans consigne explicite de Thomas). Committer après chaque
+livraison ou modification, avec un message clair.
+
+### Dossier et fichiers
+
+Un dossier par post, nommé `posts/AAAA-MM-JJ-slug-du-sujet/`, contenant
+**exactement 2 fichiers** :
+- `ARTICLE.md`
+- `LEGENDE.md`
+
+**Jamais** de `script.json`, jamais de `POST.md`, jamais de prompts photo
+séparés (sauf demande explicite de Thomas) — le format script.json/prompts
+photo décrit plus haut dans ce document ne doit jamais être utilisé pour
+cette série.
+
+### `ARTICLE.md` — article de fond, pas de découpage par templates
+
+- Un vrai article de presse en Markdown : titre, chapô de 2-4 phrases qui pose
+  le paradoxe ou l'hypothèse du sujet, puis le corps.
+- Structuré en **10 slides** (`### SLIDE 1 — ...` à `### SLIDE 10 — ...`).
+  Rester à 10 sauf besoin réel de développer davantage un sujet (ex. plusieurs
+  cas/précédents à documenter) — dans ce cas, l'annoncer à Thomas et revenir à
+  10 s'il le redemande, en fusionnant du contenu plutôt qu'en le coupant.
+- Chaque slide = un texte **complet et dense** (paragraphe de presse), jamais
+  tronqué ni réduit à des puces fragmentaires.
+- Une slide-citation avec une **vraie citation vérifiée mot pour mot** à sa
+  source, nommément attribuée (personne, fonction, date, média).
+- Une slide « respiration » courte (une phrase choc) est acceptée pour le
+  rythme.
+- Une slide de **nuance** obligatoire, qui évite le verdict tranché : posture
+  « on aligne les faits, on ne referme pas le débat » — y compris quand un
+  sujet implique des personnes réelles (rester factuel, ne pas incriminer
+  au-delà de ce que les faits vérifiés établissent).
+- Dernière slide = la réponse (nuancée) + une **question de débat** ouverte.
+- Section finale **« Vérification factuelle — 3 sources indépendantes par
+  fait »** : tableau numéroté, chaque fait cité avec ses 3 sources
+  indépendantes (liens). Ajouter une ligne **« Fait volontairement écarté »**
+  ou **« Fait présenté avec prudence »** pour tout ce qui ne peut pas être
+  triple-sourcé, ou qui reste une allégation/accusation non tranchée par une
+  autorité ou la justice — ne jamais la présenter comme un fait acquis.
+- Section finale **« Note de méthode »** : explique les choix de structure
+  (fusions de slides, exceptions au format 10 slides, lien avec d'autres
+  posts déjà publiés sur un sujet proche, sans le répéter).
+
+### `LEGENDE.md` — légende Instagram au format réellement publié du compte
+
+Ne pas utiliser le gabarit générique « 4 temps » des autres séries. Reproduire
+le format effectivement publié par le compte (observé sur des posts réels) :
+
+```
+une.deux ARRÊT DE JEU - [emoji] [accroche liée à l'actu, incluant la question de l'arrêt de jeu]
+
+[Paragraphe récit dense : les faits, chiffres, dates]
+
+Et le plus fou ? [nuance ou leçon honnête, dans le même esprit que l'article]
+
+Alors dis-nous : [question débat, reprise ou proche de celle de l'article]
+
+@une.deux
+
+.
+.
+
+#arretdejeu #[sujet1] #[sujet2] #footballhistoire #unedeux
+```
+
+- Max **5 hashtags**, toujours `#arretdejeu` en premier et `#unedeux` en
+  dernier.
+- Jamais de gras markdown (`**...**`) : le texte est reproduit tel qu'il
+  apparaîtrait réellement sur Instagram (texte brut).
+
+### Rigueur factuelle (spécifique à cette série)
+
+Complète la section « Ton : journalisme d'investigation » ci-dessus.
+
+- Vérifier chaque fait par **au moins 3 sources indépendantes** avant de
+  l'utiliser (même règle que le reste du skill, appliquée systématiquement à
+  chaque post arrêt de jeu, pas seulement aux éphémérides).
+- Toute allégation non confirmée par une autorité, une décision officielle ou
+  la justice doit être explicitement présentée comme telle (attribuée à sa
+  source, au conditionnel, jamais affirmée comme acquise) — en particulier
+  pour les sujets impliquant des personnes réelles, des accusations, des
+  procédures en cours ou des mineurs.
+- Rester factuel et nuancé sur les personnes nommées : ne pas formuler de
+  jugement sur l'usage qu'elles ont fait d'une situation au-delà de ce que les
+  faits vérifiés établissent.
 
 ## Lanceur automatique de l'éphéméride (`editeurs/lanceur-ephemeride.html`)
 
@@ -611,7 +772,7 @@ Hashtags : série (#lesouscotés, #undestinparjour, #lachutedesgéants, #ledéba
 - **Ce jour-là** · `#cejourla` — éphéméride calendaire (socle quotidien). Carrousel 3:4, ocre / sépia chaud.
 - **Les oubliés** · `#lesoubliés` — effacés de l'histoire, injustices. Carrousel 3:4, vert / N&B froid.
 - **Portraits** · `#portraits` — parcours d'un joueur par l'angle méconnu. Reel 9:16, N&B studio.
-- **L'arrêt de jeu** · `#arretdejeu` — mode enquête/hypothèse : on pose une question foot (« pourquoi les Bleus ne rejouent plus en rouge ? ») et on aligne les faits, sans jamais donner de réponse tranchée — on relance plutôt qu'on referme. Carrousel 3:4, rouille / légère surimpression sur les médias importés.
+- **L'arrêt de jeu** · `#arretdejeu` — mode enquête/hypothèse : on pose une question foot (« pourquoi les Bleus ne rejouent plus en rouge ? ») et on aligne les faits, sans jamais donner de réponse tranchée — on relance plutôt qu'on referme. **Livrable et workflow spécifiques, différents des 3 autres séries : voir « Format spécifique — série L'arrêt de jeu » plus haut** (article Markdown 10 slides + légende, branche `arrets-de-jeu`, jamais de `script.json` ni de prompts photo séparés).
 
 Scénarios, prompts photo et légendes déclinés par série dans
 `exemples/scenarios-par-serie.md`, `exemples/prompts-par-serie.md`,
@@ -639,6 +800,13 @@ Deux JSON de référence dans `exemples/`, à copier pour tout nouveau contenu :
 - **`exemples/script_reel.json`** — modèle canonique des **reels** (quand Thomas
   dit "on fait un reel"). Structure : `meta` + 5 scènes narratives. Fait foi
   pour tout doute sur le format reel.
+
+Ces deux fichiers ne concernent pas la série **L'arrêt de jeu** : ses posts
+(`ARTICLE.md` + `LEGENDE.md`) vivent sur la branche dédiée `arrets-de-jeu`
+(jamais fusionnée dans `main`, jamais dans `exemples/`) — voir « Format
+spécifique — série L'arrêt de jeu » plus haut pour le format et le
+déclencheur, et consulter les posts déjà livrés sur cette branche
+(`posts/AAAA-MM-JJ-slug/`) comme exemples concrets.
 
 ### Posts produits (cas concrets, pas des gabarits)
 
