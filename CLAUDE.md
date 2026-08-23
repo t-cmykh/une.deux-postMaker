@@ -624,11 +624,17 @@ seconde (CPS) plutôt que sur le nombre de mots — voir ci-dessous.
   mais pas le même effort) ; le CPS compte directement les caractères
   affichés, comme le font Netflix (~20 CPS pour du contenu adulte, ~17 CPS
   pour du contenu enfants) ou la BBC/Ofcom (~15-17 CPS). Choix retenu pour
-  une·deux : **20 CPS** (norme Netflix adulte, cohérente avec le rythme
-  punchy attendu sur un Reel plutôt qu'un sous-titrage broadcast classique
-  — validé par Thomas le 19 août 2026).
+  une·deux : **13 CPS** — plus lent que la fourchette BBC/Ofcom (retour de
+  Thomas le 19 août 2026 : 20 CPS défilait trop vite à l'écran malgré le
+  côté punchy recherché ; 13 CPS priorise la lisibilité sur des cartons en
+  gros Anton 80px, plus exigeants à lire vite qu'un sous-titre classique en
+  bas d'écran). [Reporté depuis main le 23 août 2026 — cette copie
+  ce-jour-là portait encore 20 CPS, valeur corrigée sur main le même jour
+  que son introduction (19 août) mais jamais portée ici jusqu'à
+  aujourd'hui ; cf. message de livraison du reel du 24 août 2026 pour le
+  signalement complet de la divergence.]
   ```
-  durée_brute_carte = max(0.8, nombre_de_caractères_du_carton / 20)   (secondes — CPS = 20, plancher 0.8s)
+  durée_brute_carte = max(0.8, nombre_de_caractères_du_carton / 13)   (secondes — CPS = 13, plancher 0.8s)
   facteur = durée_vidéo_disponible / Σ durée_brute_tous_les_cartons
   durée_carte = durée_brute_carte × facteur
   ```
@@ -645,7 +651,7 @@ seconde (CPS) plutôt que sur le nombre de mots — voir ci-dessous.
     lisible — si ça arrive, signaler à Thomas qu'il y a trop de cartons
     pour la durée de la vidéo plutôt que de produire un rendu illisible).
   - Si le facteur est très supérieur à 1 (peu de cartons pour une vidéo
-    longue), le rythme obtenu sera plus lent que 20 CPS — compromis
+    longue), le rythme obtenu sera plus lent que 13 CPS — compromis
     acceptable, cf. règle "toujours un sous-titre à l'écran" ci-dessous
     plutôt que de laisser un trou.
   - Historique : l'ancienne mécanique "TikTok" d'avant le 11 août, puis la
