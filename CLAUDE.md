@@ -384,9 +384,38 @@ d'un style s'applique à l'autre.
   présent uniquement dans ce style) dans la timeline globale de la
   composition — décaler tous les `start` calculés en §5 de `introEnd`
   (durée totale de l'intro, cf. §4bis), pas de `t=0`.
-- **Découpage en unités : phrases/propositions** du CORPS, chacune son
-  propre bloc (peut tenir sur 2-3 lignes, cf. règle una-seule-ligne propre
-  à 4.B ci-dessous qui ne s'applique pas ici).
+- **Découpage en unités : groupes de souffle, pas des phrases entières**
+  (révisé le 23 août 2026 après analyse de 5 reels de référence — compte
+  `languedebut`/`parionssport`, benchmarks fournis par Thomas). Un groupe
+  de souffle = le fragment qu'un narrateur dirait d'une traite avant une
+  respiration ou une inflexion : **1 à 5 mots**, souvent un seul connecteur
+  isolé sur son propre carton (« mais », « car », « pourtant », « hors »,
+  « enfin », « malgré », « sauf que », « avant »...). **Le CORPS doit
+  rester une prose continue et grammaticalement complète si on recolle
+  tous les cartons dans l'ordre** — ce n'est pas une liste de punchlines
+  indépendantes (contrairement au style Karaoké, §4.B, où chaque ligne est
+  autonome et pré-écrite courte par construction). Ne jamais fusionner un
+  connecteur avec le groupe suivant "pour gagner du temps" : un connecteur
+  seul sur son carton, même d'1 mot, fait partie du rythme recherché, pas
+  une anomalie à corriger.
+  Ancienne règle (jusqu'au 23 août 2026) : découpage en phrases/
+  propositions entières (blocs de 2-3 lignes) — abandonnée car elle
+  produisait un rythme trop lent/statique comparé aux références, qui
+  changent de carton en moyenne toutes les 1.5-2.5s.
+- **Vérifier que le CORPS suit un arc en 3 temps avant de composer**
+  (ajouté le 23 août 2026, même analyse) : accroche/enjeu (généralement
+  déjà porté par le TITRE, §4bis) → un développement qui installe la
+  tension/le contexte/les obstacles (doit occuper la majorité du CORPS,
+  **~45-70% de la durée totale** observée sur les références) → une
+  résolution ou une bascule vers le présent/l'avenir en fin de texte. La
+  Routine ne réécrit jamais le CORPS (cf. ci-dessus) — si un CORPS reçu
+  est manifestement déséquilibré (ex. il commence déjà par la conclusion/
+  le résultat, ou enchaîne accroche→résolution en 2 phrases sans
+  développement), ne pas tenter de retravailler la structure seul :
+  composer quand même avec le texte fact-checké fourni, mais **signaler
+  l'écart à Thomas dans le message de livraison** pour qu'il ajuste la
+  rédaction du `CORPS` la prochaine fois plutôt que de découvrir le
+  problème seulement au montage.
 
 - Mots-clés importants en **gras et/ou ocre** (`<b>` pour gras crème,
   `<b class="ocre">` pour gras + couleur `var(--ocre-render)`, cf. §3) —
@@ -563,6 +592,32 @@ champ `TITRE` du brouillon n'est pas utilisé pour l'habillage vidéo (il
 reste utile ailleurs, ex. légende Instagram), et le corps (§4.B) démarre
 directement après le header, cf. §5.
 
+**Le titre est le hook — il doit poser l'enjeu très vite** (ajouté le
+23 août 2026, analyse de 5 reels de référence). Deux formulations
+possibles selon le registre du CORPS de ce jour-là — c'est Thomas qui
+choisit en écrivant le brouillon, le TITRE reste toujours repris tel quel
+(cf. ci-dessous, la Routine ne le réécrit jamais) :
+- **Thèse fermée** — `[Sujet] + [verdict/jugement fort]` dès la/les
+  premières lignes (ex. observé sur les références : "L'Angleterre" / "va
+  gagner", "Le Maroc" / "catastrophique") — le registre par défaut pour un
+  post factuel/argumentatif.
+- **Amorce choc à identité différée** — une révélation ou un fait fort
+  posé en ouverture sans nommer le sujet (l'identité arrive plus tard dans
+  le CORPS) — réservé aux sujets à forte charge humaine/dramatique,
+  jamais utilisé par défaut sans que Thomas l'ait explicitement écrit
+  ainsi dans le brouillon.
+
+**Garder le TITRE à 1-2 lignes courtes** (pas 3-4 comme le gabarit de test
+`templates/titre-anime-intro/`, cf. calibration `font-size` ci-dessous) :
+avec la formule de révélation de cette section, 1-2 lignes tiennent
+`introEnd` autour de 1.5-2.1s, cohérent avec les références où la thèse
+est posée en moins de 2s — un titre à 4 lignes repousse `introEnd` à plus
+de 3.3s et dilue l'effet de hook. Si le TITRE fourni dans le brouillon
+dépasse 2 lignes ou ne pose pas d'enjeu clair dès la première ligne, ne
+pas le retravailler seul : le signaler à Thomas (même principe que pour
+`CORPS (karaoké)` manquant, §4.B) et composer quand même avec le texte
+fourni.
+
 - **Source du titre** : champ `TITRE` du brouillon Gmail "POST DU JOUR —
   <date>" correspondant (pas `CORPS` — c'est le champ court/percutant,
   distinct du texte long utilisé en §4 pour le corps). Repris tel quel, mis
@@ -648,8 +703,23 @@ formule différente, basée sur la vitesse de lecture en caractères par
 seconde (CPS) plutôt que sur le nombre de mots — voir ci-dessous.
 
 **Style Fixe (§4.A)** :
-- Pauses entre blocs : 0.15s (vidéo courte, rythme serré) à 0.5s (vidéo
-  longue, rythme posé) selon la marge disponible.
+- **Pauses entre blocs resserrées : 0.08s à 0.25s** (révisé le 23 août
+  2026 — l'ancienne fourchette 0.15-0.5s datait du découpage par
+  phrases/propositions §4.A d'avant cette date, adaptée à des blocs longs
+  et rares ; avec le découpage en groupes de souffle désormais en vigueur,
+  des pauses aussi longues créeraient des trous perceptibles entre cartons
+  courts et casseraient le rythme quasi continu observé sur les
+  références — 1 changement de carton toutes les 1.5-2.5s en moyenne).
+  Réserver le haut de la fourchette (jusqu'à 0.5s, en exception) à une
+  vraie rupture narrative marquée, par exemple juste avant la bascule
+  vers la résolution en fin de CORPS.
+- **Plancher de durée par carton : jamais sous ~0.55s**, même pour un
+  connecteur d'un seul mot (`durée_brute_ligne = mots×0.27+0.35` donne
+  déjà ~0.62s pour 1 mot avant application du `facteur` — si le `facteur`
+  de compression écrase un carton sous ce plancher sur une vidéo très
+  dense en texte relativement à sa durée, signaler à Thomas plutôt que de
+  produire un carton illisible, même logique que le plancher CPS du style
+  Karaoké ci-dessous).
 - Démarrer le premier bloc du corps à `introEnd + 0.3s` (§4bis) — pas de
   `t≈0.3s` absolu comme avant la fusion, le corps commence après l'intro.
   `durée_vidéo_disponible` = durée totale de la vidéo moins `introEnd`.
