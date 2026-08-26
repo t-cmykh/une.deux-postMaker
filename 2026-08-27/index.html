@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 27 août 1997, PSG-Steaua Bucarest (karaoké)</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* vidéo du Drive gardée intégrale, telle quelle (pas de sélection de
+         plans, §1bis CLAUDE.md) — un seul composite continu du début à la
+         fin (0 → 67.667s), même géométrie sur toute la durée : fond plein
+         cadre flouté/désaturé + plan net 1080×888 plein cadre horizontal
+         (overlay y=420 — §2 CLAUDE.md). Source brute : MOV pillarboxée
+         884×488, contenu réel ~653×488 (bandes noires 118px de chaque
+         côté), logo CANAL+ permanent coin haut-droit — pré-crop du
+         pillarbox (653:488:118:0) puis zoom ×1.45 centré avant le
+         cover-crop du composite, vérifié par extraction de frame (logo
+         sorti du cadre après zoom). Un seul élément <video>, pas de titre
+         animé séparé pour ce style (§4bis ne s'applique pas au style
+         karaoké). Pas de piste audio reprise (§2 CLAUDE.md ce-jour-là :
+         son source jamais repris, retiré le 14 août 2026). */
+      .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+
+      /* header — constantes fixes de la série, persistant du début à la fin */
+      #hdr { position: absolute; inset: 0 0 auto 0; z-index: 20; }
+      .ring {
+        position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
+        border: 4px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
+
+      /* --ocre-render : compensation du décalage de teinte du pipeline de
+         render HyperFrames sur --ocre (§3 CLAUDE.md) — ne pas remplacer
+         var(--ocre) dans tokens/colors.css, uniquement une variable locale
+         à la composition. Aucun mot-clé **…** littéral dans le CORPS
+         (karaoké) de ce brouillon, donc b.ocre n'est pas utilisé ici mais
+         la règle CSS reste déclarée pour cohérence. */
+      :root { --ocre-render: #B9A456; }
+      .tag {
+        position: absolute; left: 96px; top: 350px; height: 58px; z-index: 20;
+        display: flex; align-items: center; background: var(--ocre-render); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; padding: 0 15px;
+      }
+
+      /* corps de texte façon karaoké — Anton, centré verticalement dans le
+         cadre, superposé directement sur le plan net (§4.B CLAUDE.md).
+         Taille FIXE 80px pour toutes les cartes, aucun palier par
+         longueur ; aucune ombre portée ; léger contour semi-transparent
+         ink. Texte déjà écrit en MAJUSCULES dans le HTML (pas seulement
+         via text-transform, cf. bug de subsetting de police documenté au
+         §4.B CLAUDE.md). .story-line porte un transform:translateY(-50%)
+         STATIQUE — ne jamais animer y dessus avec GSAP (§6), opacity
+         uniquement. top:0/bottom:0 sur .story-zone obligatoires pour que
+         le centrage vertical ait une hauteur de référence. */
+      .story-zone { position: absolute; top: 0; bottom: 0; left: 96px; right: 96px; z-index: 20; text-align: center; }
+      .story-line {
+        position: absolute; left: 0; right: 0;
+        top: 50%; transform: translateY(-50%);
+        font-family: 'Anton', sans-serif; font-size: 80px; line-height: 1.1;
+        text-transform: uppercase; color: var(--cream); opacity: 0;
+        -webkit-text-stroke: 1.5px rgba(44,40,35,.35);
+      }
+      /* mot-clé en ocre via **mot** dans CORPS (karaoké) — §4.B règle du
+         13 août 2026 : couleur seule, pas de fond/padding. Aucun mot-clé
+         marqué (au sens littéral **mot**) dans ce brouillon, règle non
+         utilisée ici. */
+      .story-line b.ocre { color: var(--ocre-render); font-weight: inherit; }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="67.667"
+      data-fps="30"
+    >
+      <!-- vidéo du Drive intégrale, un seul plan continu du début à la fin -->
+      <video class="video-full" id="fullv" src="assets/composite.mp4" data-start="0.0000" data-duration="67.667" data-track-index="1" muted playsinline></video>
+
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+      <div class="tag">CE JOUR LÀ …</div>
+
+      <!-- corps du post — champ CORPS (KARAOKÉ) du brouillon Gmail
+           "📲 POST DU JOUR — 27 août 2026 · PSG-Steaua Bucarest, 5 buts pour
+           effacer un fax oublié" (relu à jour le 26/08 22:36 UTC). Une ligne
+           du brouillon = une carte, verbatim, aucun re-découpage (§4.B) —
+           65 cartes, mises en capitales pour l'affichage. Aucun **mot**
+           entre astérisques doubles littéraux dans le HTML source du
+           brouillon, donc pas de <b class="ocre"> appliqué ici, conformément
+           à la règle d'extraction par position du §4.B. Carte 4 reprend
+           verbatim "tout se suite" (sic — coquille probable pour "tout de
+           suite") du CORPS (karaoké) tel que rédigé ; non corrigé ici (la
+           Routine ne réécrit jamais le texte fourni), signalé dans le
+           message de livraison. -->
+      <div class="story-zone">
+        <div class="story-line" id="c1">QUAND ON PARLE</div>
+        <div class="story-line" id="c2">DE REMONTADA</div>
+        <div class="story-line" id="c3">ON NE PENSE PAS</div>
+        <div class="story-line" id="c4">TOUT SE SUITE</div>
+        <div class="story-line" id="c5">À CE MATCH</div>
+        <div class="story-line" id="c6">ET POURTANT…</div>
+        <div class="story-line" id="c7">LE 27 AOÛT 1997,</div>
+        <div class="story-line" id="c8">LE PSG DEVAIT</div>
+        <div class="story-line" id="c9">GAGNER 4-0</div>
+        <div class="story-line" id="c10">AU PARC DES PRINCES.</div>
+        <div class="story-line" id="c11">POURQUOI?</div>
+        <div class="story-line" id="c12">2 SEMAINES</div>
+        <div class="story-line" id="c13">PLUS TÔT,</div>
+        <div class="story-line" id="c14">PARIS A PERDU</div>
+        <div class="story-line" id="c15">3-2</div>
+        <div class="story-line" id="c16">À BUCAREST.</div>
+        <div class="story-line" id="c17">MAIS</div>
+        <div class="story-line" id="c18">TOUT A BASCULÉ.</div>
+        <div class="story-line" id="c19">APRÈS LE MATCH,</div>
+        <div class="story-line" id="c20">L’UEFA DÉCOUVRE</div>
+        <div class="story-line" id="c21">QUE LAURENT FOURNIER,</div>
+        <div class="story-line" id="c22">SUSPENDU</div>
+        <div class="story-line" id="c23">APRÈS UN ROUGE</div>
+        <div class="story-line" id="c24">CONTRE LA JUVENTUS</div>
+        <div class="story-line" id="c25">ET UN JAUNE</div>
+        <div class="story-line" id="c26">CONTRE BARCELONE</div>
+        <div class="story-line" id="c27">A PARTICIPÉ À LA RENCONTRE.</div>
+        <div class="story-line" id="c28">PARIS EST SANCTIONNÉ.</div>
+        <div class="story-line" id="c29">3-0 SUR TAPIS VERT.</div>
+        <div class="story-line" id="c30">LE PSG SE RETROUVE</div>
+        <div class="story-line" id="c31">AU BORD DU PRÉCIPICE.</div>
+        <div class="story-line" id="c32">CE SOIR-LÀ,</div>
+        <div class="story-line" id="c33">ILS N’ONT PLUS LE DROIT</div>
+        <div class="story-line" id="c34">À L’ERREUR.</div>
+        <div class="story-line" id="c35">ET POURTANT…</div>
+        <div class="story-line" id="c36">2E MINUTE.</div>
+        <div class="story-line" id="c37">PENALTY</div>
+        <div class="story-line" id="c38">CONVERTI PAR RAÍ.</div>
+        <div class="story-line" id="c39">LE PARC COMMENCE</div>
+        <div class="story-line" id="c40">À Y CROIRE.</div>
+        <div class="story-line" id="c41">PUIS SIMONE</div>
+        <div class="story-line" id="c42">MARQUE LE DEUXIÈME.</div>
+        <div class="story-line" id="c43">MAURICE</div>
+        <div class="story-line" id="c44">INSCRIT LE TROISIÈME.</div>
+        <div class="story-line" id="c45">IL RESTE ENCORE</div>
+        <div class="story-line" id="c46">UN BUT</div>
+        <div class="story-line" id="c47">POUR ARRACHER</div>
+        <div class="story-line" id="c48">LA QUALIFICATION.</div>
+        <div class="story-line" id="c49">À LA 56E MINUTE.</div>
+        <div class="story-line" id="c50">RAÍ REÇOIT LE BALLON…</div>
+        <div class="story-line" id="c51">ET MARQUE ENCORE.</div>
+        <div class="story-line" id="c52">4-0.</div>
+        <div class="story-line" id="c53">MAIS PARIS</div>
+        <div class="story-line" id="c54">NE S’ARRÊTE PAS LÀ.</div>
+        <div class="story-line" id="c55">5-0.</div>
+        <div class="story-line" id="c56">LE PSG VIENT DE FAIRE</div>
+        <div class="story-line" id="c57">EXACTEMENT</div>
+        <div class="story-line" id="c58">CE QU’IL DEVAIT FAIRE.</div>
+        <div class="story-line" id="c59">LE 27 AOÛT 1997,</div>
+        <div class="story-line" id="c60">PARIS N’A PAS</div>
+        <div class="story-line" id="c61">SEULEMENT GAGNÉ 5-0.</div>
+        <div class="story-line" id="c62">IL A ÉCHAPPÉ</div>
+        <div class="story-line" id="c63">À UNE ÉLIMINATION</div>
+        <div class="story-line" id="c64">QUI SEMBLAIT</div>
+        <div class="story-line" id="c65">PRESQUE CERTAINE.</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      /* corps façon karaoké — §4.B/§5 CLAUDE.md (branche ce-jour-là) :
+         rythme calculé au CPS (13 caractères/seconde), plancher 0.8s/carte,
+         zéro pause entre blocs (toujours un sous-titre à l'écran),
+         démarrage à 0.25s absolu (pas d'introEnd, pas de titre animé pour
+         ce style). 65 cartes, durée disponible = 67.667−0.25 = 67.417s ->
+         facteur d'étirement ×0.9164 sur les durées brutes CPS (durées
+         finales de 0.733s à 1.903s, toutes au-dessus du plancher de
+         lisibilité ~0.5s du §5). Dernière carte se termine à 67.667s (fin
+         de la vidéo). Calcul fait via script Python, pas à la main. */
+      function fadeBlockKaraoke(sel, start, dur) {
+        tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 0.10, ease: 'power2.out' }, start);
+        tl.to(sel, { opacity: 0, duration: 0.08, ease: 'sine.in' }, start + dur - 0.08);
+        tl.set(sel, { opacity: 0 }, start + dur);
+      }
+
+      const cards = [
+        { id: "c1", start: 0.250, dur: 0.987 }, // "Quand on parle"
+        { id: "c2", start: 1.237, dur: 0.846 }, // "de remontada"
+        { id: "c3", start: 2.083, dur: 1.057 }, // "on ne pense pas"
+        { id: "c4", start: 3.140, dur: 0.916 }, // "tout se suite"
+        { id: "c5", start: 4.056, dur: 0.733 }, // "à ce match"
+        { id: "c6", start: 4.790, dur: 0.846 }, // "et pourtant…"
+        { id: "c7", start: 5.635, dur: 1.128 }, // "le 27 août 1997,"
+        { id: "c8", start: 6.763, dur: 0.916 }, // "le PSG devait"
+        { id: "c9", start: 7.680, dur: 0.733 }, // "gagner 4-0"
+        { id: "c10", start: 8.413, dur: 1.410 }, // "au Parc des Princes."
+        { id: "c11", start: 9.823, dur: 0.733 }, // "pourquoi?"
+        { id: "c12", start: 10.556, dur: 0.733 }, // "2 semaines"
+        { id: "c13", start: 11.289, dur: 0.733 }, // "plus tôt,"
+        { id: "c14", start: 12.022, dur: 0.916 }, // "Paris a perdu"
+        { id: "c15", start: 12.938, dur: 0.733 }, // "3-2"
+        { id: "c16", start: 13.671, dur: 0.775 }, // "à Bucarest."
+        { id: "c17", start: 14.447, dur: 0.733 }, // "Mais"
+        { id: "c18", start: 15.180, dur: 1.057 }, // "tout a basculé."
+        { id: "c19", start: 16.237, dur: 1.057 }, // "Après le match,"
+        { id: "c20", start: 17.294, dur: 1.057 }, // "l’UEFA découvre"
+        { id: "c21", start: 18.352, dur: 1.480 }, // "que Laurent Fournier,"
+        { id: "c22", start: 19.832, dur: 0.733 }, // "suspendu"
+        { id: "c23", start: 20.565, dur: 0.987 }, // "après un rouge"
+        { id: "c24", start: 21.552, dur: 1.269 }, // "contre la Juventus"
+        { id: "c25", start: 22.821, dur: 0.775 }, // "Et un jaune"
+        { id: "c26", start: 23.596, dur: 1.128 }, // "Contre Barcelone"
+        { id: "c27", start: 24.724, dur: 1.903 }, // "a participé à la rencontre."
+        { id: "c28", start: 26.627, dur: 1.480 }, // "Paris est sanctionné."
+        { id: "c29", start: 28.108, dur: 1.339 }, // "3-0 sur tapis vert."
+        { id: "c30", start: 29.447, dur: 1.269 }, // "le PSG se retrouve"
+        { id: "c31", start: 30.716, dur: 1.480 }, // "au bord du précipice."
+        { id: "c32", start: 32.196, dur: 0.775 }, // "Ce soir-là,"
+        { id: "c33", start: 32.971, dur: 1.621 }, // "ils n’ont plus le droit"
+        { id: "c34", start: 34.593, dur: 0.775 }, // "à l’erreur."
+        { id: "c35", start: 35.368, dur: 0.846 }, // "Et pourtant…"
+        { id: "c36", start: 36.214, dur: 0.733 }, // "2e minute."
+        { id: "c37", start: 36.947, dur: 0.733 }, // "Penalty"
+        { id: "c38", start: 37.680, dur: 1.198 }, // "Converti par Raí."
+        { id: "c39", start: 38.879, dur: 1.128 }, // "Le Parc commence"
+        { id: "c40", start: 40.006, dur: 0.775 }, // "à y croire."
+        { id: "c41", start: 40.782, dur: 0.775 }, // "Puis Simone"
+        { id: "c42", start: 41.557, dur: 1.339 }, // "marque le deuxième."
+        { id: "c43", start: 42.896, dur: 0.733 }, // "Maurice"
+        { id: "c44", start: 43.630, dur: 1.480 }, // "inscrit le troisième."
+        { id: "c45", start: 45.110, dur: 1.057 }, // "Il reste encore"
+        { id: "c46", start: 46.167, dur: 0.733 }, // "un but"
+        { id: "c47", start: 46.900, dur: 0.916 }, // "pour arracher"
+        { id: "c48", start: 47.817, dur: 1.198 }, // "la qualification."
+        { id: "c49", start: 49.015, dur: 1.128 }, // "À la 56e minute."
+        { id: "c50", start: 50.143, dur: 1.480 }, // "Raí reçoit le ballon…"
+        { id: "c51", start: 51.623, dur: 1.198 }, // "Et marque encore."
+        { id: "c52", start: 52.821, dur: 0.733 }, // "4-0."
+        { id: "c53", start: 53.555, dur: 0.733 }, // "Mais Paris"
+        { id: "c54", start: 54.288, dur: 1.339 }, // "ne s’arrête pas là."
+        { id: "c55", start: 55.627, dur: 0.733 }, // "5-0."
+        { id: "c56", start: 56.360, dur: 1.480 }, // "Le PSG vient de faire"
+        { id: "c57", start: 57.840, dur: 0.733 }, // "exactement"
+        { id: "c58", start: 58.573, dur: 1.551 }, // "ce qu’il devait faire."
+        { id: "c59", start: 60.124, dur: 1.128 }, // "Le 27 août 1997,"
+        { id: "c60", start: 61.252, dur: 0.916 }, // "Paris n’a pas"
+        { id: "c61", start: 62.168, dur: 1.410 }, // "seulement gagné 5-0."
+        { id: "c62", start: 63.578, dur: 0.846 }, // "Il a échappé"
+        { id: "c63", start: 64.424, dur: 1.198 }, // "à une élimination"
+        { id: "c64", start: 65.622, dur: 0.846 }, // "qui semblait"
+        { id: "c65", start: 66.468, dur: 1.198 }, // "presque certaine."
+      ];
+
+      cards.forEach(({ id, start, dur }) => {
+        fadeBlockKaraoke(`#${id}`, start, dur);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
