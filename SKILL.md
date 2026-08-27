@@ -113,16 +113,35 @@ enchaîne automatiquement deux skills, sans que Thomas ait à les invoquer :
    choisie. Le hook final doit toujours respecter le « moule commun (loi du hook
    une·deux) ».
 
-2. **`humanizer` — pour TOUS les textes rédigés.** Une fois les textes écrits
-   (titres, corps de slides, citations reformulées, légende, sous-titres de
-   reel), Claude passe l'ensemble au crible du skill `humanizer` avant
-   livraison, pour retirer les marqueurs d'écriture IA (symbolisme gonflé,
-   langue promotionnelle, analyses en « -ing », attributions vagues, abus de
-   tirets cadratins, règle de trois, vocabulaire IA, voix passive, parallélismes
-   négatifs, phrases de remplissage). Le résultat doit sonner humain, direct et
-   « foot », fidèle au ton « expert complice qui va à l'essentiel ».
+2. **`humanizer` — pour TOUS les textes rédigés, sur toutes les séries.** Une
+   fois les textes écrits (titres, corps de slides, citations reformulées,
+   légende, sous-titres de reel), Claude passe l'ensemble au crible du skill
+   `humanizer` avant livraison, pour retirer les marqueurs d'écriture IA
+   (symbolisme gonflé, langue promotionnelle, analyses en « -ing »,
+   attributions vagues, abus de tirets cadratins, règle de trois, vocabulaire
+   IA, voix passive, parallélismes négatifs, phrases de remplissage).
+   S'applique explicitement aussi au livrable quotidien « post du jour »
+   (TITRE / CORPS / CORPS (karaoké), voir plus bas) et à L'arrêt de jeu
+   (`ARTICLE.md` / `LEGENDE.md`) — pas seulement au format `script.json`.
+
+   **Le registre cible dépend de la série** : ton « foot, expert complice qui
+   va à l'essentiel » pour Ce jour-là / Les oubliés / Portraits (tutoiement,
+   posture archiviste) ; registre journalistique sobre pour L'arrêt de jeu
+   (pas de tutoiement, pas d'emoji, conditionnel de prudence conservé — voir
+   « Ton : journalisme d'investigation »). `humanizer` ne doit jamais tirer
+   `ARTICLE.md` vers le ton une·deux générique.
+
    Anti-dérive : `humanizer` nettoie le style, il ne doit pas diluer la densité
-   factuelle ni casser les hooks/relances voulus.
+   factuelle, casser les hooks/relances voulus, ni toucher au conditionnel de
+   prudence ou aux attributions nommées de L'arrêt de jeu.
+
+   **Cas à part — texte déjà figé pour le montage vidéo « Ce jour-là »** : une
+   fois le CORPS / CORPS (karaoké) du brouillon quotidien passés au crible
+   `humanizer` à la rédaction, le pipeline de montage HyperFrames (voir
+   `CLAUDE.md`) les réutilise **verbatim** — ne jamais repasser `humanizer`
+   dessus au moment du montage : ça romprait la règle « la Routine ne réécrit
+   jamais le CORPS » et fausserait les calculs de rythme (mots/CPS, §5 de
+   `CLAUDE.md`) qui comptent sur un texte figé.
 
 Ordre d'application : vérif factuelle → `hook-writer-sms` (cover) → rédaction des
 slides/légende → `humanizer` (passe finale sur tout le texte) → livraison.
@@ -487,6 +506,18 @@ pas seulement au moment de la rédaction :
   fait non confirmé par une autorité ou la justice (« aurait », « serait »,
   jamais l'affirmatif tant que ce n'est pas établi). Le tutoiement et le ton
   de marque une·deux restent réservés à `LEGENDE.md`, jamais à `ARTICLE.md`.
+- **Passe `humanizer` (registre adapté)** : une fois `ARTICLE.md` et
+  `LEGENDE.md` rédigés, appliquer le skill `humanizer` (voir « Skills
+  chaînés » en tête de ce document) pour retirer les tics d'écriture IA —
+  symbolisme gonflé, langue promotionnelle, transitions creuses (« de
+  plus », « en outre », « il est important de noter »), voix passive
+  systématique, parallélismes « non seulement... mais aussi » artificiels,
+  conclusions moralisatrices non justifiées par les faits. **Ne jamais
+  laisser cette passe tirer `ARTICLE.md` vers le ton une·deux générique** :
+  pas de tutoiement ajouté, pas d'emoji, pas de superlatif — le conditionnel
+  de prudence et les attributions nommées restent intacts mot pour mot.
+  `LEGENDE.md`, lui, garde son registre de marque habituel (tutoiement,
+  ton une·deux) sans restriction particulière.
 
 ### Branche Git
 
@@ -634,6 +665,12 @@ pour poser une demande à traiter en tâche de fond.
 
 Le brouillon Gmail produit chaque jour par la routine (à partir du sujet validé
 en vert dans l'éphéméride) contient, **en tête et pour le sujet retenu** :
+
+Avant de figer ces textes, appliquer la vérification factuelle puis, une fois
+rédigés, le skill `humanizer` (voir « Skills chaînés » plus haut). Ce texte
+devient ensuite la version finale : le pipeline vidéo « Ce jour-là »
+(`CLAUDE.md`) réutilise le CORPS / CORPS (karaoké) verbatim et ne repasse
+jamais `humanizer` dessus au montage.
 
 **Demande sur plusieurs jours à la fois** : la routine, ou une invocation
 directe en chat (« prépare les posts des 5 prochains jours », « fais les
