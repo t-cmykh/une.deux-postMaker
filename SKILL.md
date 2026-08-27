@@ -26,19 +26,60 @@ reine : carrousel narratif exporté en vidéo via l'éditeur HTML de Thomas
 citations, dates, palmarès — tout fait cité doit être vérifié. La citation de la
 slide G doit être une vraie déclaration sourcée.
 
-### Règle des 3 sources (éphémérides & faits) — OBLIGATOIRE
+### Règle des 3 sources (tout fait, toute série) — OBLIGATOIRE
 
-Tout fait proposé — en particulier chaque entrée d'éphéméride *Ce jour-là* — doit
-être **confirmé par au moins 3 sources indépendantes** : trois origines
-distinctes (p. ex. Wikipédia + un média + une base type RSSSF / FBref /
-Britannica), pas trois reprises du même article ni trois miroirs de Wikipédia.
+Tout fait proposé — dans n'importe quel livrable une·deux, pas seulement les
+éphémérides *Ce jour-là* — doit être **confirmé par au moins 3 sources
+indépendantes** : trois origines distinctes (p. ex. Wikipédia + un média + une
+base type RSSSF / FBref / Britannica), pas trois reprises du même article ni
+trois miroirs de Wikipédia.
 
+**Constat (27 août 2026) : cette règle, telle qu'appliquée jusqu'ici, laisse
+passer des infos fausses.** Le problème n'est pas l'énoncé de la règle, c'est
+qu'elle est facile à contourner en silence — vérifier "de mémoire", arrondir
+un chiffre, ne jamais noter les liens donc ne jamais pouvoir être audité. Les
+points ci-dessous ferment ces trous ; ils s'ajoutent à la règle des 3 sources,
+ils ne l'assouplissent jamais :
+
+- **Interdiction de vérifier "de mémoire".** Un fait qui semble connu, ou qui
+  correspond à ce que Claude croit savoir de son entraînement, n'est **jamais**
+  dispensé de recherche web réelle — l'entraînement peut contenir des erreurs
+  propagées, des chiffres arrondis, ou une version d'un fait depuis corrigée.
+  Chaque claim doit déclencher un vrai appel d'outil de recherche (web search /
+  fetch), pas une reformulation de ce que le modèle pense déjà savoir. Aucun
+  appel de recherche fait pour un fait donné = ce fait n'est pas vérifié,
+  quelle que soit la confiance apparente.
+- **Vérification chiffre par chiffre / lettre par lettre.** Chiffre, date,
+  score, orthographe d'un nom propre : comparer la valeur exacte telle qu'elle
+  apparaît dans la source, jamais une valeur approximative reconstituée de
+  mémoire. Une source qui donne une valeur légèrement différente d'une autre
+  est un désaccord à traiter (voir méthode ci-dessous), jamais un arrondi
+  silencieux vers la version qui sonne le mieux.
+- **Vérifier la fraîcheur/l'autorité de la source, pas seulement son
+  existence.** Une source ancienne peut avoir été corrigée depuis (nouvelle
+  recherche historique, rectificatif, jugement en appel) — chercher
+  explicitement une version plus récente ou une source faisant autorité qui
+  contredirait une source plus ancienne, avant de trancher.
+- **Citation vérifiée mot pour mot.** Pour toute citation utilisée (slide G,
+  L'arrêt de jeu), le texte cité doit être recopié **exactement** tel qu'il
+  apparaît dans la source primaire ou une retranscription fiable — jamais
+  reformulé, résumé, ou reconstitué de mémoire puis présenté comme citation
+  directe.
+- **Traçabilité obligatoire sur TOUT livrable, pas seulement les
+  éphémérides.** Chaque post (carrousel, reel, L'arrêt de jeu, livrable
+  quotidien) est accompagné d'une **fiche de sources interne** : la liste des
+  claims utilisés, avec pour chacun ses 3 liens + une phrase résumant ce que
+  dit chacune des 3 sources. Cette fiche n'est **pas publiée** (elle ne
+  remplace pas `LEGENDE.md`/le script) — elle est livrée à Thomas en même
+  temps que le reste pour qu'il puisse auditer avant publication (voir
+  « Livrables par post » et « Livrable quotidien » plus bas). Une fiche vide
+  ou absente signifie que la vérification n'a pas été faite : le post n'est
+  pas livrable en l'état.
 - Si un fait **ne peut pas** être corroboré par 3 sources différentes, il est
   **écarté** : on ne le propose pas dans le brouillon, on ne l'utilise pas dans
   un post.
 - Préférer un fait moins spectaculaire mais solidement triple-sourcé à un fait
   fort mais douteux. La fiabilité prime sur le punch.
-- Conserver les **liens des 3 sources** pour chaque entrée livrée (traçabilité).
 
 ### Méthode de vérification (pipeline claim par claim)
 
@@ -46,6 +87,11 @@ La règle des 3 sources précise le *nombre* de sources ; ceci précise la
 *méthode* — pour éviter les faux ou les points qui auraient dû être nuancés.
 À appliquer avant toute rédaction finale, sur le brouillon de faits collectés :
 
+0. **Aucun fait n'est exempté par avance.** Un fait qui paraît évident, connu,
+   ou déjà écrit dans un post une·deux précédent repart de zéro : il suit le
+   même pipeline claim par claim que n'importe quel autre fait, avec de
+   vraies recherches à l'appui. "Je le sais déjà" n'est jamais un motif pour
+   sauter une étape.
 1. **Isoler chaque claim.** Lister à part chaque chiffre, date, citation,
    palmarès ou fait précis que le post s'apprête à utiliser — un par un, pas
    en bloc. Un post = plusieurs claims à vérifier séparément, pas un seul
@@ -67,6 +113,20 @@ La règle des 3 sources précise le *nombre* de sources ; ceci précise la
    un fait certain.
 5. **Un claim non confirmé est écarté**, pas arrondi ni approximé pour passer
    quand même (cf. règle des 3 sources ci-dessus).
+6. **Consigner la fiche de sources au fur et à mesure**, pas reconstituée de
+   mémoire à la fin. Pour chaque claim retenu : les 3 liens + une phrase par
+   source ("dit quoi exactement"). Une fiche reconstituée après coup, sans
+   avoir gardé trace des recherches réellement faites, n'est pas une preuve
+   de vérification.
+
+**Traitement par lot (plusieurs jours/sujets en une passe) : zéro remise à
+l'échelle de la rigueur.** Une demande portant sur plusieurs jours ou
+plusieurs sujets à la fois (voir « Demande sur plusieurs jours » plus bas) ne
+justifie jamais d'alléger ce pipeline par sujet — chaque sujet du lot suit les
+6 étapes ci-dessus intégralement. Si le volume ne permet pas de tout vérifier
+avec ce niveau de rigueur dans un temps raisonnable, réduire le **nombre de
+sujets traités**, jamais le niveau de vérification par sujet — et le signaler
+explicitement à Thomas plutôt que de livrer un lot bâclé en silence.
 
 ## Éditeur principal : `editeurs/editeur-series.html`
 
@@ -148,11 +208,15 @@ slides/légende → `humanizer` (passe finale sur tout le texte) → livraison.
 
 ## Livrables par post
 
-Dès que Thomas dit "on va faire un post pour une·deux", livrer **3 éléments** :
+Dès que Thomas dit "on va faire un post pour une·deux", livrer **4 éléments** :
 
 1. **SCRIPT SLIDES** (validé avant le reste si Thomas veut arbitrer)
 2. **PROMPTS PHOTO** style presse (un par slide illustrée)
 3. **LÉGENDE** complète (gabarit 5 temps + hashtags de série)
+4. **FICHE DE SOURCES** (interne, non publiée) — un claim par ligne, ses 3
+   liens, une phrase par source résumant ce qu'elle dit. Voir « Règle des 3
+   sources » plus haut. Sert à Thomas pour auditer avant publication ; jamais
+   intégrée telle quelle au script ou à la légende.
 
 Le **Reel-promo** n'est fourni que si Thomas le demande explicitement.
 
@@ -599,7 +663,14 @@ Complète la section « Ton : journalisme d'investigation » ci-dessus.
 
 - Vérifier chaque fait par **au moins 3 sources indépendantes** avant de
   l'utiliser (même règle que le reste du skill, appliquée systématiquement à
-  chaque post arrêt de jeu, pas seulement aux éphémérides).
+  chaque post arrêt de jeu, pas seulement aux éphémérides) — y compris les
+  garde-fous durcis de la section « Règle des 3 sources » en tête de ce
+  document (interdiction de vérifier de mémoire, vérification chiffre par
+  chiffre, citations mot pour mot, fiche de sources tracée au fur et à
+  mesure). Le tableau « Vérification factuelle » d'`ARTICLE.md` (voir
+  ci-dessous) tient lieu de fiche de sources pour cette série — il doit être
+  aussi rigoureux que la fiche interne des autres séries, pas un résumé
+  allégé.
 - Toute allégation non confirmée par une autorité, une décision officielle ou
   la justice doit être explicitement présentée comme telle (attribuée à sa
   source, au conditionnel, jamais affirmée comme acquise) — en particulier
@@ -724,10 +795,16 @@ de bloquer la production des autres jours de la plage.
    **« Pas de lien vidéo disponible. »**
 5. **Légende Instagram** prête à publier, au format de la série (voir
    `exemples/legendes-par-serie.md`).
+6. **Fiche de sources** (interne, non publiée) — les 3 liens + une phrase par
+   source pour chaque claim utilisé dans le Corps/Corps (karaoké). Voir
+   « Règle des 3 sources » en tête de ce document. Obligatoire même pour ce
+   livrable allégé : l'absence de `script.json` ne dispense pas de tracer la
+   vérification.
 
-**Le livrable quotidien s'arrête là : PAS de `script.json`, PAS de prompts photo.**
-Ces éléments (cover/CTA éditeur séries, script.json, prompts) ne sont produits que
-sur demande explicite de Thomas (« on fait le post complet »).
+**Le livrable quotidien s'arrête là (hors fiche de sources, toujours
+obligatoire) : PAS de `script.json`, PAS de prompts photo.** Ces éléments
+(cover/CTA éditeur séries, script.json, prompts) ne sont produits que sur
+demande explicite de Thomas (« on fait le post complet »).
 
 **Exemple (29 juin 1950) :**
 > **29 JUIN 1950 : des amateurs américains ont giflé les rois du foot.**
