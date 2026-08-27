@@ -373,6 +373,14 @@ d'un style s'applique à l'autre.
   réécrire) — chercher le brouillon "POST DU JOUR — <date>" correspondant à
   la date demandée ("le post de demain" etc.) via `search_threads`/
   `list_drafts`, section `CORPS`.
+- **Ce texte a déjà été passé au crible du skill `humanizer` au moment de sa
+  rédaction** (voir `SKILL.md` § « Skills chaînés » et § « Livrable
+  quotidien »). Le pipeline vidéo ne doit **jamais** le repasser au crible ni
+  le reformuler pour "améliorer le style" — toute retouche de fond (texte
+  trop IA, tournure maladroite) se signale à Thomas pour correction du
+  brouillon source, elle ne se fait pas ici. Repasser `humanizer` au montage
+  romprait cette règle de verbatim et fausserait le calcul de rythme du §5
+  (mots/CPS), qui compte sur un texte figé.
 
 #### 4.A — Style fixe (défaut, `STYLE SOUS-TITRES: fixe`)
 
