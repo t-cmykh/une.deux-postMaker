@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 28 août 1994, Robbie Fowler hat-trick (karaoké)</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* vidéo du Drive gardée intégrale, telle quelle (pas de sélection de
+         plans, §1bis CLAUDE.md) — un seul composite continu du début à la
+         fin (0 -> 44.433s), même géométrie sur toute la durée : fond plein
+         cadre flouté/désaturé + plan net 1080x888 plein cadre horizontal
+         (overlay y=420 - §2 CLAUDE.md). Source brute : MOV HEVC 882x432,
+         aucune métadonnée de rotation, pas d'habillage de chaîne détecté
+         (pas de zoom préalable appliqué). Un seul élément <video>, pas de
+         titre animé séparé pour ce style (§4bis ne s'applique pas au style
+         karaoké). Pas de piste audio reprise (§2 CLAUDE.md ce-jour-là :
+         son source jamais repris, retiré le 14 août 2026). */
+      .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+
+      /* header - constantes fixes de la série, persistant du début à la fin */
+      #hdr { position: absolute; inset: 0 0 auto 0; z-index: 20; }
+      .ring {
+        position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
+        border: 4px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
+
+      /* --ocre-render : compensation du décalage de teinte du pipeline de
+         render HyperFrames sur --ocre (§3 CLAUDE.md) - ne pas remplacer
+         var(--ocre) dans tokens/colors.css, uniquement une variable locale
+         à la composition. Aucun mot-clé **...** littéral dans le CORPS
+         (karaoké) de ce brouillon, donc b.ocre n'est pas utilisé ici mais
+         la règle CSS reste déclarée pour cohérence. */
+      :root { --ocre-render: #B9A456; }
+      .tag {
+        position: absolute; left: 96px; top: 350px; height: 58px; z-index: 20;
+        display: flex; align-items: center; background: var(--ocre-render); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; padding: 0 15px;
+      }
+
+      /* corps de texte façon karaoké - Anton, centré verticalement dans le
+         cadre, superposé directement sur le plan net (§4.B CLAUDE.md).
+         Taille FIXE 80px pour toutes les cartes, aucun palier par
+         longueur ; aucune ombre portée ; léger contour semi-transparent
+         ink. Texte déjà écrit en MAJUSCULES dans le HTML (pas seulement
+         via text-transform, cf. bug de subsetting de police documenté au
+         §4.B CLAUDE.md). .story-line porte un transform:translateY(-50%)
+         STATIQUE - ne jamais animer y dessus avec GSAP (§6), opacity
+         uniquement. top:0/bottom:0 sur .story-zone obligatoires pour que
+         le centrage vertical ait une hauteur de référence. */
+      .story-zone { position: absolute; top: 0; bottom: 0; left: 96px; right: 96px; z-index: 20; text-align: center; }
+      .story-line {
+        position: absolute; left: 0; right: 0;
+        top: 50%; transform: translateY(-50%);
+        font-family: 'Anton', sans-serif; font-size: 80px; line-height: 1.1;
+        text-transform: uppercase; color: var(--cream); opacity: 0;
+        -webkit-text-stroke: 1.5px rgba(44,40,35,.35);
+      }
+      /* mot-clé en ocre via **mot** dans CORPS (karaoké) - §4.B règle du
+         13 août 2026 : couleur seule, pas de fond/padding. Aucun mot-clé
+         marqué (au sens littéral **mot**) dans ce brouillon, règle non
+         utilisée ici. */
+      .story-line b.ocre { color: var(--ocre-render); font-weight: inherit; }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="44.433"
+      data-fps="30"
+    >
+      <!-- vidéo du Drive intégrale, un seul plan continu du début à la fin -->
+      <video class="video-full" id="fullv" src="assets/composite.mp4" data-start="0.0000" data-duration="44.433" data-track-index="1" muted playsinline></video>
+
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+      <div class="tag">CE JOUR LÀ …</div>
+
+      <!-- corps du post - champ CORPS (KARAOKÉ) du brouillon Gmail
+           "POST DU JOUR - 28 août 2026 · Robbie Fowler, le hat-trick le
+           plus rapide de l'histoire de la Premier League" (relu à jour le
+           27/08 19:31 UTC). Une ligne du brouillon = une carte, verbatim,
+           aucun re-découpage (§4.B) - 40 cartes, mises en capitales pour
+           l'affichage. Aucun **mot** entre astérisques doubles littéraux
+           dans le CORPS (karaoké) source, donc pas de <b class="ocre">
+           appliqué ici, conformément à la règle d'extraction par position
+           du §4.B. -->
+      <div class="story-zone">
+        <div class="story-line" id="c1">QUAND ON ÉVOQUE</div>
+        <div class="story-line" id="c2">LES LÉGENDES D'ANGLETERRE,</div>
+        <div class="story-line" id="c3">ON PENSE À</div>
+        <div class="story-line" id="c4">L'IMPLANTABLE ARSENAL</div>
+        <div class="story-line" id="c5">DE SEAMAN, ADAMS ET KEOWN</div>
+        <div class="story-line" id="c6">UNE VÉRITABLE MURAILLE.</div>
+        <div class="story-line" id="c7">MAIS CE JOUR-LÀ,</div>
+        <div class="story-line" id="c8">LE 28 AOÛT 1994,</div>
+        <div class="story-line" id="c9">FACE À CETTE DÉFENSE</div>
+        <div class="story-line" id="c10">UN JEUNE</div>
+        <div class="story-line" id="c11">DE 19 ANS</div>
+        <div class="story-line" id="c12">ROBBIE FOWLER</div>
+        <div class="story-line" id="c13">VA S’ACHARNER</div>
+        <div class="story-line" id="c14">A LA 25E MINUTE</div>
+        <div class="story-line" id="c15">PREMIER BUT</div>
+        <div class="story-line" id="c16">28E MINUTE</div>
+        <div class="story-line" id="c17">DEUXIÈME BUT</div>
+        <div class="story-line" id="c18">30E MINUTE</div>
+        <div class="story-line" id="c19">TROISIÈME BUT.</div>
+        <div class="story-line" id="c20">UN TRIPLÉ LÉGENDAIRE.</div>
+        <div class="story-line" id="c21">EN SEULEMENT</div>
+        <div class="story-line" id="c22">4 MINUTES 33,</div>
+        <div class="story-line" id="c23">IL TERRASSE LE GÉANT</div>
+        <div class="story-line" id="c24">ET SIGNE</div>
+        <div class="story-line" id="c25">LE TRIPLÉ</div>
+        <div class="story-line" id="c26">LE PLUS RAPIDE</div>
+        <div class="story-line" id="c27">DE L'HISTOIRE</div>
+        <div class="story-line" id="c28">DE LA PREMIER LEAGUE.</div>
+        <div class="story-line" id="c29">UNE DÉMONSTRATION ÉCLAIR</div>
+        <div class="story-line" id="c30">QUI TIENDRA</div>
+        <div class="story-line" id="c31">20 ANS</div>
+        <div class="story-line" id="c32">JUSQU'À</div>
+        <div class="story-line" id="c33">L'EXPLOIT DE MANÉ</div>
+        <div class="story-line" id="c34">EN 2015.</div>
+        <div class="story-line" id="c35">CE JOUR-LÀ,</div>
+        <div class="story-line" id="c36">À ANFIELD,</div>
+        <div class="story-line" id="c37">ARSENAL A SOMBRÉ</div>
+        <div class="story-line" id="c38">SOUS LES 3 COUPS</div>
+        <div class="story-line" id="c39">DE MASSUE</div>
+        <div class="story-line" id="c40">DE FOWLER</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      /* corps façon karaoké - §4.B/§5 CLAUDE.md (branche ce-jour-là) :
+         rythme calculé au CPS (13 caractères/seconde), plancher 0.8s/carte,
+         zéro pause entre blocs (toujours un sous-titre à l'écran),
+         démarrage à 0.25s absolu (pas d'introEnd, pas de titre animé pour
+         ce style). 40 cartes, durée disponible = 44.433-0.25 = 44.183s ->
+         facteur d'étirement sur les durées brutes CPS (durées finales de
+         0.787s à 1.966s, toutes au-dessus du plancher de lisibilité ~0.5s
+         du §5). Dernière carte se termine à 44.433s (fin de la vidéo).
+         Calcul fait via script Python, pas à la main. */
+      function fadeBlockKaraoke(sel, start, dur) {
+        tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 0.10, ease: 'power2.out' }, start);
+        tl.to(sel, { opacity: 0, duration: 0.08, ease: 'sine.in' }, start + dur - 0.08);
+        tl.set(sel, { opacity: 0 }, start + dur);
+      }
+
+      const cards = [
+        { id: "c1", start: 0.250, dur: 1.134 }, // "Quand on évoque"
+        { id: "c2", start: 1.384, dur: 1.966 }, // "les légendes d'Angleterre,"
+        { id: "c3", start: 3.351, dur: 0.787 }, // "on pense à"
+        { id: "c4", start: 4.137, dur: 1.588 }, // "l'implantable Arsenal"
+        { id: "c5", start: 5.726, dur: 1.891 }, // "de Seaman, Adams et Keown"
+        { id: "c6", start: 7.616, dur: 1.740 }, // "Une véritable muraille."
+        { id: "c7", start: 9.356, dur: 1.210 }, // "Mais ce jour-là,"
+        { id: "c8", start: 10.566, dur: 1.210 }, // "Le 28 août 1994,"
+        { id: "c9", start: 11.776, dur: 1.513 }, // "Face à cette défense"
+        { id: "c10", start: 13.289, dur: 0.787 }, // "un jeune"
+        { id: "c11", start: 14.075, dur: 0.787 }, // "de 19 ans"
+        { id: "c12", start: 14.862, dur: 0.983 }, // "Robbie Fowler"
+        { id: "c13", start: 15.845, dur: 0.983 }, // "Va s’acharner"
+        { id: "c14", start: 16.828, dur: 1.134 }, // "A la 25e minute"
+        { id: "c15", start: 17.963, dur: 0.832 }, // "premier but"
+        { id: "c16", start: 18.795, dur: 0.787 }, // "28e minute"
+        { id: "c17", start: 19.581, dur: 0.908 }, // "deuxième but"
+        { id: "c18", start: 20.489, dur: 0.787 }, // "30e minute"
+        { id: "c19", start: 21.275, dur: 1.059 }, // "troisième but."
+        { id: "c20", start: 22.334, dur: 1.588 }, // "Un triplé légendaire."
+        { id: "c21", start: 23.922, dur: 0.908 }, // "En seulement"
+        { id: "c22", start: 24.830, dur: 0.983 }, // "4 minutes 33,"
+        { id: "c23", start: 25.813, dur: 1.513 }, // "Il terrasse le géant"
+        { id: "c24", start: 27.326, dur: 0.787 }, // "et signe"
+        { id: "c25", start: 28.112, dur: 0.787 }, // "le triplé"
+        { id: "c26", start: 28.899, dur: 1.059 }, // "le plus rapide"
+        { id: "c27", start: 29.958, dur: 0.983 }, // "de l'histoire"
+        { id: "c28", start: 30.941, dur: 1.588 }, // "de la Premier League."
+        { id: "c29", start: 32.529, dur: 1.815 }, // "Une démonstration éclair"
+        { id: "c30", start: 34.344, dur: 0.832 }, // "qui tiendra"
+        { id: "c31", start: 35.176, dur: 0.787 }, // "20 ans"
+        { id: "c32", start: 35.963, dur: 0.787 }, // "jusqu'à"
+        { id: "c33", start: 36.749, dur: 1.286 }, // "l'exploit de Mané"
+        { id: "c34", start: 38.035, dur: 0.787 }, // "en 2015."
+        { id: "c35", start: 38.822, dur: 0.832 }, // "Ce jour-là,"
+        { id: "c36", start: 39.653, dur: 0.787 }, // "à Anfield,"
+        { id: "c37", start: 40.440, dur: 1.210 }, // "Arsenal a sombré"
+        { id: "c38", start: 41.650, dur: 1.210 }, // "sous les 3 coups"
+        { id: "c39", start: 42.860, dur: 0.787 }, // "de massue"
+        { id: "c40", start: 43.647, dur: 0.787 }, // "De Fowler"
+      ];
+
+      cards.forEach(({ id, start, dur }) => {
+        fadeBlockKaraoke(`#${id}`, start, dur);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
