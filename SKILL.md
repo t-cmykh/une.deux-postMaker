@@ -686,6 +686,17 @@ La routine **« Éphéméride foot une·deux »** tourne automatiquement chaque
 jour à 7h (Paris) et ne traite que **demain** — comportement par défaut,
 non modifiable depuis le chat, pensé pour rester simple et sans surprise.
 
+**Elle applique la règle des 3 sources durcie (voir en tête de ce document)
+comme n'importe quel autre livrable** : pas de sujet retenu "de mémoire",
+chaque option nécessite un vrai appel de recherche web, chiffres/dates
+vérifiés chiffre par chiffre. C'est le tout premier maillon du pipeline — le
+sujet validé ici nourrit ensuite le livrable quotidien "post du jour" sans
+être re-vérifié depuis zéro (cf. plus bas) : une option mal vérifiée à cette
+étape se propage telle quelle en aval, jusqu'au post publié. Chaque option
+numérotée du brouillon (voir format ci-dessous) porte ses **3 liens de
+sources**, pas une affirmation nue à valider à l'aveugle par ✅ — sans ces
+liens, Thomas ne peut pas juger la fiabilité de ce qu'il valide.
+
 Pour demander une éphéméride pour une autre date, ou pour **plusieurs
 jours d'un coup** (sans passer par une session Claude Code), Thomas utilise
 le lanceur statique `editeurs/lanceur-ephemeride.html` — même DA que les
@@ -717,12 +728,14 @@ Une **Routine dédiée** ("Lanceur éphémérides Ce jour-là"), distincte de la
 routine automatique 7h, tourne environ une fois par heure et cherche un
 brouillon/thread Gmail `subject:LANCER ÉPHÉMÉRIDE` non traité. Si elle en
 trouve un : recherche web + vérification 3 sources pour chaque date de la
-demande, puis produit **un seul brouillon** « ⚽ Éphéméride foot une·deux »
-au même format que la routine automatique (options numérotées à valider
-par ✅ ; plusieurs jours = une section `JOUR N — <date>` par jour, chacune
-avec ses propres options, validées indépendamment). Marque ensuite la
-demande traitée. Aucun commit/push pour ce livrable — uniquement le
-brouillon Gmail.
+demande — avec les mêmes garde-fous durcis que la routine automatique
+(pas de mémoire, chiffre par chiffre, 3 liens par option, cf. ci-dessus) —
+puis produit **un seul brouillon** « ⚽ Éphéméride foot une·deux » au même
+format que la routine automatique (options numérotées, chacune avec ses 3
+liens de sources, à valider par ✅ ; plusieurs jours = une section
+`JOUR N — <date>` par jour, chacune avec ses propres options, validées
+indépendamment). Marque ensuite la demande traitée. Aucun commit/push pour
+ce livrable — uniquement le brouillon Gmail.
 
 La routine « post du jour » (ci-dessous) lit ensuite ce brouillon éphéméride
 exactement de la même façon, que ses options viennent de la routine
