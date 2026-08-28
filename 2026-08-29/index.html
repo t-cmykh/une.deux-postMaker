@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 29 août 2003, Mourinho perd la Supercoupe (karaoké)</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* vidéo du Drive gardée intégrale, telle quelle (pas de sélection de
+         plans, §1bis CLAUDE.md) — un seul composite continu du début à la
+         fin (0 -> 53.117s), même géométrie sur toute la durée : fond plein
+         cadre flouté/désaturé + plan net 1080x888 plein cadre horizontal
+         (overlay y=420 - §2 CLAUDE.md). Source brute : MOV 1078x492, aucune
+         métadonnée de rotation, pas d'habillage de chaîne détecté (pas de
+         zoom préalable appliqué). Un seul élément <video>, pas de titre
+         animé séparé pour ce style (§4bis ne s'applique pas au style
+         karaoké). Pas de piste audio reprise (§2 CLAUDE.md ce-jour-là :
+         son source jamais repris, retiré le 14 août 2026). */
+      .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+
+      /* header - constantes fixes de la série, persistant du début à la fin */
+      #hdr { position: absolute; inset: 0 0 auto 0; z-index: 20; }
+      .ring {
+        position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
+        border: 4px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
+
+      /* --ocre-render : compensation du décalage de teinte du pipeline de
+         render HyperFrames sur --ocre (§3 CLAUDE.md) - ne pas remplacer
+         var(--ocre) dans tokens/colors.css, uniquement une variable locale
+         à la composition. Aucun mot-clé **...** littéral dans le CORPS
+         (karaoké) de ce brouillon, donc b.ocre n'est pas utilisé ici mais
+         la règle CSS reste déclarée pour cohérence. */
+      :root { --ocre-render: #B9A456; }
+      .tag {
+        position: absolute; left: 96px; top: 350px; height: 58px; z-index: 20;
+        display: flex; align-items: center; background: var(--ocre-render); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; padding: 0 15px;
+      }
+
+      /* corps de texte façon karaoké - Anton, centré verticalement dans le
+         cadre, superposé directement sur le plan net (§4.B CLAUDE.md).
+         Taille FIXE 80px pour toutes les cartes, aucun palier par
+         longueur ; aucune ombre portée ; léger contour semi-transparent
+         ink. Texte déjà écrit en MAJUSCULES dans le HTML (pas seulement
+         via text-transform, cf. bug de subsetting de police documenté au
+         §4.B CLAUDE.md). .story-line porte un transform:translateY(-50%)
+         STATIQUE - ne jamais animer y dessus avec GSAP (§6), opacity
+         uniquement. top:0/bottom:0 sur .story-zone obligatoires pour que
+         le centrage vertical ait une hauteur de référence. */
+      .story-zone { position: absolute; top: 0; bottom: 0; left: 96px; right: 96px; z-index: 20; text-align: center; }
+      .story-line {
+        position: absolute; left: 0; right: 0;
+        top: 50%; transform: translateY(-50%);
+        font-family: 'Anton', sans-serif; font-size: 80px; line-height: 1.1;
+        text-transform: uppercase; color: var(--cream); opacity: 0;
+        -webkit-text-stroke: 1.5px rgba(44,40,35,.35);
+      }
+      /* mot-clé en ocre via **mot** dans CORPS (karaoké) - §4.B règle du
+         13 août 2026 : couleur seule, pas de fond/padding. Aucun mot-clé
+         marqué (au sens littéral **mot**) dans ce brouillon, règle non
+         utilisée ici. */
+      .story-line b.ocre { color: var(--ocre-render); font-weight: inherit; }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="53.133"
+      data-fps="30"
+    >
+      <!-- vidéo du Drive intégrale, un seul plan continu du début à la fin -->
+      <video class="video-full" id="fullv" src="assets/composite.mp4" data-start="0.0000" data-duration="53.133" data-track-index="1" muted playsinline></video>
+
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+      <div class="tag">CE JOUR LÀ …</div>
+
+      <!-- corps du post - champ CORPS (KARAOKÉ) du brouillon Gmail
+           "POST DU JOUR - 29 août 2026 · La défaite de Mourinho qui
+           annonçait son sacre en Ligue des champions" (relu à jour le
+           28/08 17:30 UTC). Une ligne du brouillon = une carte, verbatim,
+           aucun re-découpage (§4.B) - 52 cartes, mises en capitales pour
+           l'affichage. Aucun **mot** entre astérisques doubles littéraux
+           dans le CORPS (karaoké) source, donc pas de <b class="ocre">
+           appliqué ici, conformément à la règle d'extraction par position
+           du §4.B. -->
+      <div class="story-zone">
+        <div class="story-line" id="c1">IL A PERDU</div>
+        <div class="story-line" id="c2">LA FINALE</div>
+        <div class="story-line" id="c3">CE SOIR-LÀ</div>
+        <div class="story-line" id="c4">MAIS</div>
+        <div class="story-line" id="c5">IL NE SEMBLE PAS</div>
+        <div class="story-line" id="c6">DÉÇU.</div>
+        <div class="story-line" id="c7">LE 29 AOÛT 2003,</div>
+        <div class="story-line" id="c8">AU STADE LOUIS-II,</div>
+        <div class="story-line" id="c9">À MONACO</div>
+        <div class="story-line" id="c10">MILAN,</div>
+        <div class="story-line" id="c11">CHAMPION D'EUROPE,</div>
+        <div class="story-line" id="c12">AFFRONTE</div>
+        <div class="story-line" id="c13">LE FC PORTO</div>
+        <div class="story-line" id="c14">EN FINALE</div>
+        <div class="story-line" id="c15">DE SUPERCOUPE D’EUROPE</div>
+        <div class="story-line" id="c16">À LA 10ÈME MINUTE</div>
+        <div class="story-line" id="c17">SHEVCHENKO</div>
+        <div class="story-line" id="c18">MARQUE DE LA TÊTE.</div>
+        <div class="story-line" id="c19">C’EST LE</div>
+        <div class="story-line" id="c20">SEUL BUT</div>
+        <div class="story-line" id="c21">DU MATCH</div>
+        <div class="story-line" id="c22">1-0</div>
+        <div class="story-line" id="c23">POUR MILAN.</div>
+        <div class="story-line" id="c24">MALGRÉ</div>
+        <div class="story-line" id="c25">LA DÉFAITE,</div>
+        <div class="story-line" id="c26">JOSÉ MOURINHO</div>
+        <div class="story-line" id="c27">SEMBLE SEREIN.</div>
+        <div class="story-line" id="c28">IL PREND LA PAROLE</div>
+        <div class="story-line" id="c29">ET ASSURE</div>
+        <div class="story-line" id="c30">QUE PORTO</div>
+        <div class="story-line" id="c31">PEUT RIVALISER</div>
+        <div class="story-line" id="c32">AVEC N'IMPORTE QUI</div>
+        <div class="story-line" id="c33">EN LIGUE DES CHAMPIONS.</div>
+        <div class="story-line" id="c34">PERSONNE NE LE CROIT</div>
+        <div class="story-line" id="c35">VRAIMENT.</div>
+        <div class="story-line" id="c36">NEUF MOIS</div>
+        <div class="story-line" id="c37">PLUS TARD</div>
+        <div class="story-line" id="c38">PORTO BAT MONACO,</div>
+        <div class="story-line" id="c39">3-0</div>
+        <div class="story-line" id="c40">EN FINALE DE LDC</div>
+        <div class="story-line" id="c41">ET SOULÈVE</div>
+        <div class="story-line" id="c42">LE TROPHÉE.</div>
+        <div class="story-line" id="c43">CE SOIR-LÀ,</div>
+        <div class="story-line" id="c44">IL VENAIT PEUT-ÊTRE</div>
+        <div class="story-line" id="c45">D’ANNONCER</div>
+        <div class="story-line" id="c46">LA SUITE</div>
+        <div class="story-line" id="c47">PARCE QUE PARFOIS,</div>
+        <div class="story-line" id="c48">LA DÉFAITE</div>
+        <div class="story-line" id="c49">N’EST PAS LA FIN</div>
+        <div class="story-line" id="c50">DE L’HISTOIRE.</div>
+        <div class="story-line" id="c51">C’EST LE MOMENT</div>
+        <div class="story-line" id="c52">OÙ ELLE COMMENCE…</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      /* corps façon karaoké - §4.B/§5 CLAUDE.md (branche ce-jour-là) :
+         rythme calculé au CPS (13 caractères/seconde), plancher 0.8s/carte,
+         zéro pause entre blocs (toujours un sous-titre à l'écran),
+         démarrage à 0.25s absolu (pas d'introEnd, pas de titre animé pour
+         ce style). 52 cartes, durée disponible = 53.117-0.25 = 52.867s ->
+         facteur d'étirement sur les durées brutes CPS (durées finales de
+         0.795s à 1.757s, toutes au-dessus du plancher de lisibilité ~0.5s
+         du §5). Dernière carte se termine à 53.117s (fin de la vidéo).
+         Calcul fait via script Python, pas à la main. */
+      function fadeBlockKaraoke(sel, start, dur) {
+        tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 0.10, ease: 'power2.out' }, start);
+        tl.to(sel, { opacity: 0, duration: 0.08, ease: 'sine.in' }, start + dur - 0.08);
+        tl.set(sel, { opacity: 0 }, start + dur);
+      }
+
+      const cards = [
+        { id: "c1", start: 0.250, dur: 0.795 }, // "Il a perdu"
+        { id: "c2", start: 1.045, dur: 0.795 }, // "la finale"
+        { id: "c3", start: 1.839, dur: 0.795 }, // "ce soir-là"
+        { id: "c4", start: 2.634, dur: 0.795 }, // "mais"
+        { id: "c5", start: 3.428, dur: 1.222 }, // "Il ne semble pas"
+        { id: "c6", start: 4.650, dur: 0.795 }, // "Déçu."
+        { id: "c7", start: 5.445, dur: 1.222 }, // "le 29 août 2003,"
+        { id: "c8", start: 6.667, dur: 1.375 }, // "au Stade Louis-II,"
+        { id: "c9", start: 8.043, dur: 0.795 }, // "À Monaco"
+        { id: "c10", start: 8.837, dur: 0.795 }, // "Milan,"
+        { id: "c11", start: 9.632, dur: 1.375 }, // "champion d'Europe,"
+        { id: "c12", start: 11.007, dur: 0.795 }, // "Affronte"
+        { id: "c13", start: 11.801, dur: 0.840 }, // "Le Fc Porto"
+        { id: "c14", start: 12.642, dur: 0.795 }, // "En finale"
+        { id: "c15", start: 13.436, dur: 1.681 }, // "De supercoupe d’Europe"
+        { id: "c16", start: 15.117, dur: 1.299 }, // "À la 10ème minute"
+        { id: "c17", start: 16.416, dur: 0.795 }, // "Shevchenko"
+        { id: "c18", start: 17.210, dur: 1.375 }, // "marque de la tête."
+        { id: "c19", start: 18.585, dur: 0.795 }, // "C’est le"
+        { id: "c20", start: 19.380, dur: 0.795 }, // "Seul but"
+        { id: "c21", start: 20.174, dur: 0.795 }, // "Du match"
+        { id: "c22", start: 20.969, dur: 0.795 }, // "1-0"
+        { id: "c23", start: 21.764, dur: 0.840 }, // "pour Milan."
+        { id: "c24", start: 22.604, dur: 0.795 }, // "Malgré"
+        { id: "c25", start: 23.398, dur: 0.840 }, // "La défaite,"
+        { id: "c26", start: 24.239, dur: 0.993 }, // "José Mourinho"
+        { id: "c27", start: 25.232, dur: 1.070 }, // "semble serein."
+        { id: "c28", start: 26.302, dur: 1.375 }, // "il prend la parole"
+        { id: "c29", start: 27.677, dur: 0.795 }, // "Et assure"
+        { id: "c30", start: 28.471, dur: 0.795 }, // "que Porto"
+        { id: "c31", start: 29.266, dur: 1.070 }, // "peut rivaliser"
+        { id: "c32", start: 30.335, dur: 1.375 }, // "avec n'importe qui"
+        { id: "c33", start: 31.710, dur: 1.757 }, // "en Ligue des champions."
+        { id: "c34", start: 33.468, dur: 1.528 }, // "Personne ne le croit"
+        { id: "c35", start: 34.996, dur: 0.795 }, // "vraiment."
+        { id: "c36", start: 35.790, dur: 0.795 }, // "Neuf mois"
+        { id: "c37", start: 36.585, dur: 0.795 }, // "plus tard"
+        { id: "c38", start: 37.379, dur: 1.299 }, // "Porto bat Monaco,"
+        { id: "c39", start: 38.678, dur: 0.795 }, // "3-0"
+        { id: "c40", start: 39.472, dur: 1.222 }, // "en finale de LDC"
+        { id: "c41", start: 40.695, dur: 0.795 }, // "et soulève"
+        { id: "c42", start: 41.489, dur: 0.840 }, // "Le trophée."
+        { id: "c43", start: 42.330, dur: 0.840 }, // "Ce soir-là,"
+        { id: "c44", start: 43.170, dur: 1.452 }, // "il venait peut-être"
+        { id: "c45", start: 44.622, dur: 0.795 }, // "d’annoncer"
+        { id: "c46", start: 45.416, dur: 0.795 }, // "La suite"
+        { id: "c47", start: 46.211, dur: 1.375 }, // "Parce que parfois,"
+        { id: "c48", start: 47.586, dur: 0.795 }, // "la défaite"
+        { id: "c49", start: 48.380, dur: 1.222 }, // "n’est pas la fin"
+        { id: "c50", start: 49.603, dur: 1.070 }, // "de l’histoire."
+        { id: "c51", start: 50.672, dur: 1.146 }, // "C’est le moment"
+        { id: "c52", start: 51.818, dur: 1.299 }, // "où elle commence…"
+      ];
+
+      cards.forEach(({ id, start, dur }) => {
+        fadeBlockKaraoke(`#${id}`, start, dur);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
