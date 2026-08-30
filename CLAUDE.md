@@ -101,6 +101,43 @@ seul jour ne doit pas faire perdre le suivi des autres — livrer ce qui
 fonctionne, signaler explicitement le(s) jour(s) en échec plutôt que de
 marquer l'email traité en silence).
 
+**Optimisation crédits — isoler chaque jour dans une sous-session** (ajouté
+le 30 août 2026, retour de Thomas : un lot de plusieurs jours dans le même
+email épuise le budget de crédits Claude bien plus vite qu'un nombre
+équivalent de reels lancés séparément dans le chat). La cause probable :
+dans une conversation continue, l'historique complet — y compris les images
+extraites au contrôle visuel du §9, les logs `npm run check`/`render`, les
+sorties ffmpeg — est réenvoyé à chaque appel d'outil suivant ; traiter 3
+jours à la suite **dans le même thread** fait donc payer le poids cumulé
+des jours déjà traités à chaque étape des jours suivants, pas seulement 3×
+le coût d'un jour isolé.
+
+**Traiter chaque bloc `JOUR N` dans un sous-agent dédié** (outil Agent,
+`subagent_type: general-purpose`, pas d'isolation `worktree` — les dossiers
+`<date-ISO>/` du §7 ne se chevauchent jamais entre deux jours) : lui
+déléguer la recette complète (§1 à §9) pour ce jour précis, et ne récupérer
+dans la session orchestratrice que le résultat court (chemin livré sur
+`ce-jour-là`, ou échec + raison) — jamais les logs/images intermédiaires du
+sous-agent. La session qui a reçu le mail (connecteur Gmail attaché) reste
+l'orchestratrice : elle découpe les blocs, lance un sous-agent par jour **en
+série, pas en parallèle** (des commits/push concurrents sur la même branche
+`ce-jour-là` depuis le même clone créeraient des conflits d'index Git),
+attend son rapport, puis passe au suivant. Le contexte de l'orchestratrice
+reste ainsi plat — quelques lignes par jour — quel que soit le nombre de
+jours du lot, au lieu de grossir avec chaque jour traité.
+
+**Faire taire ffmpeg** : ajouter `-hide_banner -loglevel error` à toute
+commande ffmpeg qui ne l'a pas déjà (notamment les bakes du §2 et le concat
+CTA du §8) — la sortie de progression verbeuse (une ligne par frame/stat)
+n'apporte rien à la vérification et gonfle inutilement chaque résultat
+d'outil, jour après jour dans un même lot.
+
+**Ne pas faire remonter les logs `npm run check`/`npm run render` en
+entier** dans le contexte : ne vérifier que la conclusion (`Lint: 0 erreur`,
+présence/absence du warning `sparse keyframes` du §2) plutôt que de lire la
+sortie complète — grep/tail ciblé sur les lignes qui comptent si la sortie
+est longue.
+
 Une **Routine** ("Lanceur reels Ce jour-là", trig_01CJMco7Azm8WwCSEpM8dhvX)
 tourne une fois par jour à 14h heure de Paris (créée via l'interface Routines
 de claude.ai, connecteurs Gmail + Google Drive attachés explicitement — la
@@ -246,12 +283,16 @@ occupant l'espace entre le bas du tag (§3, tag bottom ≈408) et la zone de
 texte (§4), plein cadre horizontalement :
 
 ```bash
-ffmpeg -y -i video_raw.mp4 -filter_complex \
+ffmpeg -hide_banner -loglevel error -y -i video_raw.mp4 -filter_complex \
 "[0:v]fps=30,scale=3400:1920,crop=1080:1920,gblur=sigma=36,eq=saturation=0.4[bg];[0:v]fps=30,scale=<cover_w2>:888,crop=1080:888:<centerX>:0[fg];[bg][fg]overlay=x=0:y=420:shortest=1[outv]" \
 -map "[outv]" -c:v libx264 -crf 20 -preset fast -pix_fmt yuv420p -g 30 -keyint_min 30 -sc_threshold 0 -an composite.mp4
 
-ffmpeg -y -i video_raw.mp4 -vn -c:a aac -b:a 160k audio.m4a   # si la source a du son
+ffmpeg -hide_banner -loglevel error -y -i video_raw.mp4 -vn -c:a aac -b:a 160k audio.m4a   # si la source a du son
 ```
+(`-hide_banner -loglevel error` sur ces deux commandes et les autres ffmpeg
+de la recette, §8 inclus — coupe la sortie de progression verbeuse, cf.
+note crédits ci-dessus ; ne s'applique pas aux commandes d'inspection du §1
+qui utilisent déjà `-loglevel error` seul, équivalent pour ce besoin.)
 
 - `gblur=sigma=36` (flou fort — a été doublé une fois depuis sigma=18, la
   valeur 36 est celle validée) / `eq=saturation=0.4` (fond nettement
@@ -854,7 +895,7 @@ des flux strictement identiques — le CTA n'a pas de piste audio, le reel
 peut en avoir une) :
 
 ```bash
-ffmpeg -y -i reel-intro-corps.mp4 -i templates/rdvdemain-intro/cta-final.mp4 -filter_complex \
+ffmpeg -hide_banner -loglevel error -y -i reel-intro-corps.mp4 -i templates/rdvdemain-intro/cta-final.mp4 -filter_complex \
 "[0:v]setpts=PTS-STARTPTS[v0];[1:v]setpts=PTS-STARTPTS[v1];[v0][v1]concat=n=2:v=1:a=0[outv]" \
 -map "[outv]" -map 0:a? -c:v libx264 -crf 20 -preset veryfast -pix_fmt yuv420p -c:a aac reel-final.mp4
 ```
