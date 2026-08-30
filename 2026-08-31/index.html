@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 31 août 2004, Rooney signe à Manchester United (karaoké)</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* vidéo du Drive gardée intégrale, telle quelle (pas de sélection de
+         plans, §1bis CLAUDE.md) — un seul composite continu du début à la
+         fin (0 -> 54.617s), même géométrie sur toute la durée : fond plein
+         cadre flouté/désaturé + plan net 1080x888 plein cadre horizontal
+         (overlay y=420 - §2 CLAUDE.md). Source brute : HEVC 1078x412 (ratio
+         très large ≈2.62, hors du 16:9 habituel mais horizontale, aucune
+         métadonnée de rotation) — cover-crop recalculé pour ce ratio
+         (cover_w bg=5024, cover_w fg=2324). Un seul élément <video>, pas de
+         titre animé séparé pour ce style (§4bis ne s'applique pas au style
+         karaoké). Pas de piste audio reprise (§2 CLAUDE.md ce-jour-là :
+         son source jamais repris, retiré le 14 août 2026 — voir message de
+         livraison pour la divergence détectée avec la copie main). */
+      .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+
+      /* header - constantes fixes de la série, persistant du début à la fin */
+      #hdr { position: absolute; inset: 0 0 auto 0; z-index: 20; }
+      .ring {
+        position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
+        border: 4px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
+
+      /* --ocre-render : compensation du décalage de teinte du pipeline de
+         render HyperFrames sur --ocre (§3 CLAUDE.md) - ne pas remplacer
+         var(--ocre) dans tokens/colors.css, uniquement une variable locale
+         à la composition. Aucun mot-clé **...** littéral dans le CORPS
+         (karaoké) de ce brouillon, donc b.ocre n'est pas utilisé ici mais
+         la règle CSS reste déclarée pour cohérence. */
+      :root { --ocre-render: #B9A456; }
+      .tag {
+        position: absolute; left: 96px; top: 350px; height: 58px; z-index: 20;
+        display: flex; align-items: center; background: var(--ocre-render); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; padding: 0 15px;
+      }
+
+      /* corps de texte façon karaoké - Anton, centré verticalement dans le
+         cadre, superposé directement sur le plan net (§4.B CLAUDE.md).
+         Taille FIXE 80px pour toutes les cartes, aucun palier par
+         longueur ; aucune ombre portée ; léger contour semi-transparent
+         ink. Texte déjà écrit en MAJUSCULES dans le HTML (pas seulement
+         via text-transform, cf. bug de subsetting de police documenté au
+         §4.B CLAUDE.md). .story-line porte un transform:translateY(-50%)
+         STATIQUE - ne jamais animer y dessus avec GSAP (§6), opacity
+         uniquement. top:0/bottom:0 sur .story-zone obligatoires pour que
+         le centrage vertical ait une hauteur de référence. */
+      .story-zone { position: absolute; top: 0; bottom: 0; left: 96px; right: 96px; z-index: 20; text-align: center; }
+      .story-line {
+        position: absolute; left: 0; right: 0;
+        top: 50%; transform: translateY(-50%);
+        font-family: 'Anton', sans-serif; font-size: 80px; line-height: 1.1;
+        text-transform: uppercase; color: var(--cream); opacity: 0;
+        -webkit-text-stroke: 1.5px rgba(44,40,35,.35);
+      }
+      /* mot-clé en ocre via **mot** dans CORPS (karaoké) - §4.B règle du
+         13 août 2026 : couleur seule, pas de fond/padding. Aucun mot-clé
+         marqué (au sens littéral **mot**) dans ce brouillon, règle non
+         utilisée ici. */
+      .story-line b.ocre { color: var(--ocre-render); font-weight: inherit; }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="54.617"
+      data-fps="30"
+    >
+      <!-- vidéo du Drive intégrale, un seul plan continu du début à la fin -->
+      <video class="video-full" id="fullv" src="assets/composite.mp4" data-start="0.0000" data-duration="54.617" data-track-index="1" muted playsinline></video>
+
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+      <div class="tag">CE JOUR LÀ …</div>
+
+      <!-- corps du post - champ CORPS (KARAOKÉ) du brouillon Gmail
+           "POST DU JOUR — 31 août 2026 · Wayne Rooney, 25,6 millions de
+           livres misés sur un ado de 18 ans" (thread 1a051e136f299dea).
+           Une ligne du brouillon = une carte, verbatim, aucun re-découpage
+           (§4.B) - 52 cartes, mises en capitales pour l'affichage. Aucun
+           **mot** entre astérisques doubles littéraux dans le CORPS
+           (karaoké) source, donc pas de <b class="ocre"> appliqué ici,
+           conformément à la règle d'extraction par position du §4.B. -->
+      <div class="story-zone">
+        <div class="story-line" id="c1">À MANCHESTER,</div>
+        <div class="story-line" id="c2">QUELQUE CHOSE</div>
+        <div class="story-line" id="c3">SE JOUE</div>
+        <div class="story-line" id="c4">LE 31 AOÛT 2004</div>
+        <div class="story-line" id="c5">UN JEUNE</div>
+        <div class="story-line" id="c6">DE 18 ANS</div>
+        <div class="story-line" id="c7">EST SUR LE POINT</div>
+        <div class="story-line" id="c8">DE CHANGER DE CLUB</div>
+        <div class="story-line" id="c9">IL S’APPELLE</div>
+        <div class="story-line" id="c10">WAYNE ROONEY</div>
+        <div class="story-line" id="c11">MAIS RIEN</div>
+        <div class="story-line" id="c12">N’EST ENCORE</div>
+        <div class="story-line" id="c13">TOTALEMENT RÉGLÉ</div>
+        <div class="story-line" id="c14">LES NÉGOCIATIONS</div>
+        <div class="story-line" id="c15">SE POURSUIVENT</div>
+        <div class="story-line" id="c16">ET FINALEMENT…</div>
+        <div class="story-line" id="c17">MANCHESTER UNITED</div>
+        <div class="story-line" id="c18">BOUCLE LE TRANSFERT.</div>
+        <div class="story-line" id="c19">LE DERNIER JOUR</div>
+        <div class="story-line" id="c20">DU MERCATO.</div>
+        <div class="story-line" id="c21">LE CLUB VIENT</div>
+        <div class="story-line" id="c22">DE MISER</div>
+        <div class="story-line" id="c23">GROS SUR</div>
+        <div class="story-line" id="c24">UN ADOLESCENT.</div>
+        <div class="story-line" id="c25">UN MONTANT RECORD</div>
+        <div class="story-line" id="c26">POUR UN JOUEUR</div>
+        <div class="story-line" id="c27">DE SON ÂGE.</div>
+        <div class="story-line" id="c28">À CET INSTANT,</div>
+        <div class="story-line" id="c29">MANCHESTER UNITED</div>
+        <div class="story-line" id="c30">VIENT SIMPLEMENT</div>
+        <div class="story-line" id="c31">DE RECRUTER</div>
+        <div class="story-line" id="c32">UN IMMENSE</div>
+        <div class="story-line" id="c33">ESPOIR ANGLAIS</div>
+        <div class="story-line" id="c34">PERSONNE</div>
+        <div class="story-line" id="c35">NE SAIT ENCORE</div>
+        <div class="story-line" id="c36">QU’IL VIENT</div>
+        <div class="story-line" id="c37">DE SIGNER</div>
+        <div class="story-line" id="c38">POUR DEVENIR</div>
+        <div class="story-line" id="c39">L’UNE DES ICÔNES</div>
+        <div class="story-line" id="c40">DE SA GÉNÉRATION.</div>
+        <div class="story-line" id="c41">559 MATCHS</div>
+        <div class="story-line" id="c42">EN 253 BUTS</div>
+        <div class="story-line" id="c43">5 PREMIER LEAGUE</div>
+        <div class="story-line" id="c44">UNE LIGUE DES CHAMPIONS</div>
+        <div class="story-line" id="c45">UNE LIGUE EUROPA</div>
+        <div class="story-line" id="c46">L’UN DES JOUEURS</div>
+        <div class="story-line" id="c47">LES PLUS EMBLÉMATIQUES</div>
+        <div class="story-line" id="c48">DE SA GÉNÉRATION</div>
+        <div class="story-line" id="c49">DONT L’HISTOIRE</div>
+        <div class="story-line" id="c50">À COMMENCÉ</div>
+        <div class="story-line" id="c51">LE DERNIER JOUR</div>
+        <div class="story-line" id="c52">DU MERCATO…</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      /* corps façon karaoké - §4.B/§5 CLAUDE.md (branche ce-jour-là) :
+         rythme calculé au CPS (13 caractères/seconde), plancher 0.8s/carte,
+         zéro pause entre blocs (toujours un sous-titre à l'écran),
+         démarrage à 0.25s absolu (pas d'introEnd, pas de titre animé pour
+         ce style). 52 cartes, durée disponible = 54.617-0.25 = 54.367s ->
+         facteur d'étirement 0.9811 sur les durées brutes CPS (durées
+         finales de 0.785s à 1.736s, toutes au-dessus du plancher de
+         lisibilité ~0.5s du §5). Dernière carte se termine à 54.617s (fin
+         de la vidéo). Calcul fait via script Python, pas à la main. */
+      function fadeBlockKaraoke(sel, start, dur) {
+        tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 0.10, ease: 'power2.out' }, start);
+        tl.to(sel, { opacity: 0, duration: 0.08, ease: 'sine.in' }, start + dur - 0.08);
+        tl.set(sel, { opacity: 0 }, start + dur);
+      }
+
+      const cards = [
+        { id: "c1", start: 0.250, dur: 0.981 }, // "À Manchester,"
+        { id: "c2", start: 1.231, dur: 0.981 }, // "quelque chose"
+        { id: "c3", start: 2.212, dur: 0.785 }, // "se joue"
+        { id: "c4", start: 2.997, dur: 1.132 }, // "Le 31 août 2004"
+        { id: "c5", start: 4.129, dur: 0.785 }, // "Un jeune"
+        { id: "c6", start: 4.914, dur: 0.785 }, // "de 18 ans"
+        { id: "c7", start: 5.699, dur: 1.207 }, // "est sur le point"
+        { id: "c8", start: 6.906, dur: 1.358 }, // "de changer de club"
+        { id: "c9", start: 8.265, dur: 0.906 }, // "Il s’appelle"
+        { id: "c10", start: 9.170, dur: 0.906 }, // "Wayne Rooney"
+        { id: "c11", start: 10.076, dur: 0.785 }, // "Mais rien"
+        { id: "c12", start: 10.861, dur: 0.906 }, // "n’est encore"
+        { id: "c13", start: 11.766, dur: 1.207 }, // "totalement réglé"
+        { id: "c14", start: 12.974, dur: 1.207 }, // "Les négociations"
+        { id: "c15", start: 14.181, dur: 1.057 }, // "se poursuivent"
+        { id: "c16", start: 15.238, dur: 1.057 }, // "Et finalement…"
+        { id: "c17", start: 16.294, dur: 1.283 }, // "Manchester United"
+        { id: "c18", start: 17.577, dur: 1.509 }, // "boucle le transfert."
+        { id: "c19", start: 19.087, dur: 1.132 }, // "Le dernier jour"
+        { id: "c20", start: 20.219, dur: 0.830 }, // "du mercato."
+        { id: "c21", start: 21.049, dur: 0.981 }, // "Le club vient"
+        { id: "c22", start: 22.030, dur: 0.785 }, // "de miser"
+        { id: "c23", start: 22.815, dur: 0.785 }, // "gros sur"
+        { id: "c24", start: 23.600, dur: 1.057 }, // "un adolescent."
+        { id: "c25", start: 24.656, dur: 1.283 }, // "Un montant record"
+        { id: "c26", start: 25.939, dur: 1.057 }, // "pour un joueur"
+        { id: "c27", start: 26.996, dur: 0.830 }, // "de son âge."
+        { id: "c28", start: 27.826, dur: 1.057 }, // "À cet instant,"
+        { id: "c29", start: 28.882, dur: 1.283 }, // "Manchester United"
+        { id: "c30", start: 30.165, dur: 1.207 }, // "vient simplement"
+        { id: "c31", start: 31.373, dur: 0.830 }, // "de recruter"
+        { id: "c32", start: 32.203, dur: 0.785 }, // "un immense"
+        { id: "c33", start: 32.988, dur: 1.057 }, // "espoir anglais"
+        { id: "c34", start: 34.044, dur: 0.785 }, // "Personne"
+        { id: "c35", start: 34.829, dur: 1.057 }, // "ne sait encore"
+        { id: "c36", start: 35.886, dur: 0.830 }, // "qu’il vient"
+        { id: "c37", start: 36.716, dur: 0.785 }, // "de signer"
+        { id: "c38", start: 37.501, dur: 0.906 }, // "pour devenir"
+        { id: "c39", start: 38.406, dur: 1.207 }, // "l’une des icônes"
+        { id: "c40", start: 39.614, dur: 1.283 }, // "de sa génération."
+        { id: "c41", start: 40.897, dur: 0.785 }, // "559 matchs"
+        { id: "c42", start: 41.682, dur: 0.830 }, // "En 253 buts"
+        { id: "c43", start: 42.512, dur: 1.207 }, // "5 Premier League"
+        { id: "c44", start: 43.719, dur: 1.736 }, // "Une Ligue des champions"
+        { id: "c45", start: 45.455, dur: 1.207 }, // "Une Ligue Europa"
+        { id: "c46", start: 46.662, dur: 1.207 }, // "L’un des joueurs"
+        { id: "c47", start: 47.870, dur: 1.660 }, // "les plus emblématiques"
+        { id: "c48", start: 49.530, dur: 1.207 }, // "de sa génération"
+        { id: "c49", start: 50.738, dur: 1.132 }, // "Dont l’histoire"
+        { id: "c50", start: 51.870, dur: 0.785 }, // "À commencé"
+        { id: "c51", start: 52.655, dur: 1.132 }, // "Le dernier jour"
+        { id: "c52", start: 53.787, dur: 0.830 }, // "du mercato…"
+      ];
+
+      cards.forEach(({ id, start, dur }) => {
+        fadeBlockKaraoke(`#${id}`, start, dur);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
