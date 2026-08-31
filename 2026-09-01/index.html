@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 1er septembre 2008, Sheikh Mansour rachète Manchester City et signe Robinho (style karaoké)</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* vidéo du Drive gardée intégrale, telle quelle (pas de sélection de
+         plans, §1bis CLAUDE.md) — un seul composite continu du début à la
+         fin (0 -> 50.1s), même géométrie sur toute la durée : fond plein
+         cadre flouté/désaturé + plan net 1080x888 plein cadre horizontal
+         (overlay y=420 - §2 CLAUDE.md). Source brute : HEVC 880x420 60fps,
+         aucune métadonnée de rotation, pas d'habillage de chaîne détecté
+         (pas de zoom préalable appliqué). Un seul élément <video>, pas de
+         titre animé séparé pour ce style (§4bis ne s'applique pas au style
+         karaoké). Pas de piste audio reprise (§2 CLAUDE.md ce-jour-là :
+         son source jamais repris, retiré le 14 août 2026) — la source avait
+         pourtant une piste AAC, volontairement ignorée (-an au bake). */
+      .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+
+      /* header - constantes fixes de la série, persistant du début à la fin */
+      #hdr { position: absolute; inset: 0 0 auto 0; z-index: 20; }
+      .ring {
+        position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
+        border: 4px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
+
+      /* --ocre-render : compensation du décalage de teinte du pipeline de
+         render HyperFrames sur --ocre (§3 CLAUDE.md) - ne pas remplacer
+         var(--ocre) dans tokens/colors.css, uniquement une variable locale
+         à la composition. Aucun mot-clé **...** littéral dans le CORPS
+         (karaoké) de ce brouillon, donc b.ocre n'est pas utilisé ici mais
+         la règle CSS reste déclarée pour cohérence. */
+      :root { --ocre-render: #B9A456; }
+      .tag {
+        position: absolute; left: 96px; top: 350px; height: 58px; z-index: 20;
+        display: flex; align-items: center; background: var(--ocre-render); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; padding: 0 15px;
+      }
+
+      /* corps de texte façon karaoké - Anton, centré verticalement dans le
+         cadre, superposé directement sur le plan net (§4.B CLAUDE.md).
+         Taille FIXE 80px pour toutes les cartes, aucun palier par
+         longueur ; aucune ombre portée ; léger contour semi-transparent
+         ink. Texte déjà écrit en MAJUSCULES dans le HTML (pas seulement
+         via text-transform, cf. bug de subsetting de police documenté au
+         §4.B CLAUDE.md). .story-line porte un transform:translateY(-50%)
+         STATIQUE - ne jamais animer y dessus avec GSAP (§6), opacity
+         uniquement. top:0/bottom:0 sur .story-zone obligatoires pour que
+         le centrage vertical ait une hauteur de référence. */
+      .story-zone { position: absolute; top: 0; bottom: 0; left: 96px; right: 96px; z-index: 20; text-align: center; }
+      .story-line {
+        position: absolute; left: 0; right: 0;
+        top: 50%; transform: translateY(-50%);
+        font-family: 'Anton', sans-serif; font-size: 80px; line-height: 1.1;
+        text-transform: uppercase; color: var(--cream); opacity: 0;
+        -webkit-text-stroke: 1.5px rgba(44,40,35,.35);
+      }
+      /* mot-clé en ocre via **mot** dans CORPS (karaoké) - §4.B règle du
+         13 août 2026 : couleur seule, pas de fond/padding. Aucun mot-clé
+         marqué (au sens littéral **mot**) dans ce brouillon, règle non
+         utilisée ici. */
+      .story-line b.ocre { color: var(--ocre-render); font-weight: inherit; }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="50.100"
+      data-fps="30"
+    >
+      <!-- vidéo du Drive intégrale, un seul plan continu du début à la fin -->
+      <video class="video-full" id="fullv" src="assets/composite.mp4" data-start="0.0000" data-duration="50.100" data-track-index="1" muted playsinline></video>
+
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+      <div class="tag">CE JOUR LÀ …</div>
+
+      <!-- corps du post - champ CORPS (KARAOKÉ) du brouillon Gmail
+           "POST DU JOUR — 1 septembre 2026 · Sheikh Mansour rachète
+           Manchester City et signe Robinho (2008)". Une ligne du
+           brouillon = une carte, verbatim, aucun re-découpage (§4.B) -
+           39 cartes, mises en capitales pour l'affichage. Aucun **mot**
+           entre astérisques doubles littéraux dans le CORPS (karaoké)
+           source, donc pas de <b class="ocre"> appliqué ici, conformément
+           à la règle d'extraction par position du §4.B. -->
+      <div class="story-zone">
+        <div class="story-line" id="c1">CE JOUR-LÀ,</div>
+        <div class="story-line" id="c2">MANCHESTER CITY</div>
+        <div class="story-line" id="c3">CHANGE DE MONDE,</div>
+        <div class="story-line" id="c4">LE 1ER SEPTEMBRE 2008,</div>
+        <div class="story-line" id="c5">LE CLUB VIENT</div>
+        <div class="story-line" id="c6">D’ÊTRE RACHETÉ</div>
+        <div class="story-line" id="c7">PAR LE CHEIKH</div>
+        <div class="story-line" id="c8">MANSOUR BIN ZAYED AL NAHYAN</div>
+        <div class="story-line" id="c9">CITY N’A PLUS REMPORTÉ</div>
+        <div class="story-line" id="c10">LE CHAMPIONNAT D’ANGLETERRE</div>
+        <div class="story-line" id="c11">DEPUIS 1968.</div>
+        <div class="story-line" id="c12">MAIS CE JOUR-LÀ,</div>
+        <div class="story-line" id="c13">TOUT VA S’ACCÉLÉRER.</div>
+        <div class="story-line" id="c14">À PEINE</div>
+        <div class="story-line" id="c15">LE RACHAT OFFICIALISÉ,</div>
+        <div class="story-line" id="c16">CITY FRAPPE FORT</div>
+        <div class="story-line" id="c17">32,5 MILLIONS DE LIVRES</div>
+        <div class="story-line" id="c18">POUR UN SEUL JOUEUR</div>
+        <div class="story-line" id="c19">ROBINHO</div>
+        <div class="story-line" id="c20">UN MONTANT RECORD</div>
+        <div class="story-line" id="c21">POUR L’ÉPOQUE</div>
+        <div class="story-line" id="c22">EN QUELQUES HEURES,</div>
+        <div class="story-line" id="c23">MANCHESTER CITY VIENT</div>
+        <div class="story-line" id="c24">D’ENVOYER UN MESSAGE</div>
+        <div class="story-line" id="c25">À TOUTE L’ANGLETERRE.</div>
+        <div class="story-line" id="c26">L’ÈRE MANSOUR</div>
+        <div class="story-line" id="c27">COMMENCE</div>
+        <div class="story-line" id="c28">MAIS L’HISTOIRE</div>
+        <div class="story-line" id="c29">NE DURERA PAS LONGTEMPS.</div>
+        <div class="story-line" id="c30">DEUX ANS PLUS TARD,</div>
+        <div class="story-line" id="c31">ROBINHO EST DÉJÀ REPARTI</div>
+        <div class="story-line" id="c32">CITY PAR CONTRE</div>
+        <div class="story-line" id="c33">CONTINUE</div>
+        <div class="story-line" id="c34">SES INVESTISSEMENTS</div>
+        <div class="story-line" id="c35">ET PRENDS</div>
+        <div class="story-line" id="c36">RENDEZ-VOUS</div>
+        <div class="story-line" id="c37">AVEC SON HISTOIRE</div>
+        <div class="story-line" id="c38">QUELQUES ANNÉES</div>
+        <div class="story-line" id="c39">PLUS TARD…</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      /* corps façon karaoké - §4.B/§5 CLAUDE.md (branche ce-jour-là) :
+         rythme calculé au CPS (13 caractères/seconde), plancher 0.8s/carte,
+         zéro pause entre blocs (toujours un sous-titre à l'écran),
+         démarrage à 0.3s absolu (pas d'introEnd, pas de titre animé pour
+         ce style). 39 cartes, durée disponible = 50.100-0.3 = 49.8s ->
+         facteur d'étirement ~0.991 sur les durées brutes CPS (durées
+         finales de 0.793s à 2.058s, toutes au-dessus du plancher de
+         lisibilité ~0.5s du §5). Dernière carte se termine à 50.100s (fin
+         exacte de la vidéo). Calcul fait via script Python, pas à la
+         main. */
+      function fadeBlockKaraoke(sel, start, dur) {
+        tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 0.10, ease: 'power2.out' }, start);
+        tl.to(sel, { opacity: 0, duration: 0.08, ease: 'sine.in' }, start + dur - 0.08);
+        tl.set(sel, { opacity: 0 }, start + dur);
+      }
+
+      const cards = [
+        { id: "c1", start: 0.300, dur: 0.838 }, // "Ce jour-là,"
+        { id: "c2", start: 1.138, dur: 1.143 }, // "Manchester City"
+        { id: "c3", start: 2.282, dur: 1.219 }, // "change de monde,"
+        { id: "c4", start: 3.501, dur: 1.677 }, // "Le 1er septembre 2008,"
+        { id: "c5", start: 5.178, dur: 0.991 }, // "Le club vient"
+        { id: "c6", start: 6.169, dur: 1.067 }, // "d'être racheté"
+        { id: "c7", start: 7.236, dur: 0.991 }, // "par le cheikh"
+        { id: "c8", start: 8.227, dur: 2.058 }, // "Mansour bin Zayed Al Nahyan"
+        { id: "c9", start: 10.284, dur: 1.677 }, // "City n'a plus remporté"
+        { id: "c10", start: 11.961, dur: 2.058 }, // "le championnat d'Angleterre"
+        { id: "c11", start: 14.019, dur: 0.915 }, // "depuis 1968."
+        { id: "c12", start: 14.934, dur: 1.219 }, // "Mais ce jour-là,"
+        { id: "c13", start: 16.153, dur: 1.524 }, // "tout va s'accélérer."
+        { id: "c14", start: 17.677, dur: 0.793 }, // "À peine"
+        { id: "c15", start: 18.470, dur: 1.677 }, // "Le rachat officialisé,"
+        { id: "c16", start: 20.147, dur: 1.219 }, // "City frappe fort"
+        { id: "c17", start: 21.366, dur: 1.753 }, // "32,5 millions de livres"
+        { id: "c18", start: 23.119, dur: 1.448 }, // "Pour un seul joueur"
+        { id: "c19", start: 24.567, dur: 0.793 }, // "Robinho"
+        { id: "c20", start: 25.360, dur: 1.296 }, // "Un montant record"
+        { id: "c21", start: 26.656, dur: 0.991 }, // "Pour l'époque"
+        { id: "c22", start: 27.647, dur: 1.448 }, // "En quelques heures,"
+        { id: "c23", start: 29.095, dur: 1.601 }, // "Manchester City vient"
+        { id: "c24", start: 30.695, dur: 1.524 }, // "d'envoyer un message"
+        { id: "c25", start: 32.220, dur: 1.601 }, // "à toute l'Angleterre."
+        { id: "c26", start: 33.820, dur: 0.991 }, // "L'ère Mansour"
+        { id: "c27", start: 34.811, dur: 0.793 }, // "commence"
+        { id: "c28", start: 35.604, dur: 1.143 }, // "Mais l'histoire"
+        { id: "c29", start: 36.747, dur: 1.829 }, // "ne durera pas longtemps."
+        { id: "c30", start: 38.576, dur: 1.448 }, // "Deux ans plus tard,"
+        { id: "c31", start: 40.024, dur: 1.829 }, // "Robinho est déjà reparti"
+        { id: "c32", start: 41.853, dur: 1.143 }, // "City par contre"
+        { id: "c33", start: 42.997, dur: 0.793 }, // "Continue"
+        { id: "c34", start: 43.789, dur: 1.448 }, // "Ses investissements"
+        { id: "c35", start: 45.237, dur: 0.793 }, // "Et prends"
+        { id: "c36", start: 46.030, dur: 0.838 }, // "rendez-vous"
+        { id: "c37", start: 46.868, dur: 1.296 }, // "Avec son histoire"
+        { id: "c38", start: 48.164, dur: 1.143 }, // "Quelques années"
+        { id: "c39", start: 49.307, dur: 0.793 }, // "Plus tard…"
+      ];
+
+      cards.forEach(({ id, start, dur }) => {
+        fadeBlockKaraoke(`#${id}`, start, dur);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
