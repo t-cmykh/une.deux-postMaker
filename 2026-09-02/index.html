@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 2 septembre 1992, premier but de Teddy Sheringham et première victoire de Tottenham en Premier League (style karaoké)</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* vidéo du Drive gardée intégrale, telle quelle (pas de sélection de
+         plans, §1bis CLAUDE.md ce-jour-là) — un seul composite continu du
+         début à la fin (0 -> 55.867s), même géométrie sur toute la durée :
+         fond plein cadre flouté/désaturé + plan net 1080x888 plein cadre
+         horizontal (overlay y=420, §2 CLAUDE.md). Source brute : 1078x496
+         (~2.17:1) mais avec un pillarbox noir intégré au fichier
+         (contenu réel 660x496 centré, bandes noires ~212px de chaque
+         côté, mesuré par cropdetect) — le bake ffmpeg pré-crop ce
+         pillarbox (crop=660:496:212:0) avant le cover-crop du plan net,
+         sinon le plan net affichait de fines bandes noires sur les bords
+         (~49px de chaque côté avec le calcul cover-crop naïf sur le cadre
+         plein 1078x496). Le fond flouté (formule figée scale=3400:1920,
+         crop=1080:1920) reste centré et n'a pas besoin du même correctif :
+         le pillarbox y est symétrique et le crop centré tombe entièrement
+         dans la zone de contenu. Aucune métadonnée de rotation détectée
+         (stream_side_data vide). Un seul élément <video>, pas de titre
+         animé séparé pour ce style (§4bis ne s'applique pas au style
+         karaoké). Pas de piste audio (§2/§7 CLAUDE.md ce-jour-là : le son
+         source n'est jamais repris, retiré le 14 août 2026) — bake fait
+         avec -an, pas d'élément <audio> dans la composition. */
+      .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+
+      /* header - constantes fixes de la série, persistant du début à la fin */
+      #hdr { position: absolute; inset: 0 0 auto 0; z-index: 20; }
+      .ring {
+        position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
+        border: 4px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
+
+      /* --ocre-render : compensation du décalage de teinte du pipeline de
+         render HyperFrames sur --ocre (§3 CLAUDE.md) - ne pas remplacer
+         var(--ocre) dans tokens/colors.css, uniquement une variable locale
+         à la composition. Aucun mot-clé **...** littéral dans le CORPS
+         (karaoké) de ce brouillon, donc b.ocre n'est pas utilisé ici mais
+         la règle CSS reste déclarée pour cohérence. */
+      :root { --ocre-render: #B9A456; }
+      .tag {
+        position: absolute; left: 96px; top: 350px; height: 58px; z-index: 20;
+        display: flex; align-items: center; background: var(--ocre-render); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; padding: 0 15px;
+      }
+
+      /* corps de texte façon karaoké - Anton, centré verticalement dans le
+         cadre, superposé directement sur le plan net (§4.B CLAUDE.md
+         ce-jour-là). Taille FIXE 80px pour toutes les cartes, aucun palier
+         par longueur ; aucune ombre portée ; léger contour semi-transparent
+         ink. Texte déjà écrit en MAJUSCULES dans le HTML (pas seulement via
+         text-transform, cf. bug de subsetting de police documenté au
+         §4.B). .story-line porte un transform:translateY(-50%) STATIQUE -
+         ne jamais animer y dessus avec GSAP (§6), opacity uniquement.
+         top:0/bottom:0 sur .story-zone pour que le centrage vertical ait
+         une hauteur de référence (héritage 1920px de #root). */
+      .story-zone { position: absolute; top: 0; bottom: 0; left: 96px; right: 96px; z-index: 20; text-align: center; }
+      .story-line {
+        position: absolute; left: 0; right: 0;
+        top: 50%; transform: translateY(-50%);
+        font-family: 'Anton', sans-serif; font-size: 80px; line-height: 1.1;
+        text-transform: uppercase; color: var(--cream); opacity: 0;
+        -webkit-text-stroke: 1.5px rgba(44,40,35,.35);
+      }
+      /* mot-clé en ocre via **mot** dans CORPS (karaoké) - §4.B règle du
+         13 août 2026 : couleur seule, pas de fond/padding. Aucun mot-clé
+         marqué (au sens littéral **mot**) dans ce brouillon, règle non
+         utilisée ici. */
+      .story-line b.ocre { color: var(--ocre-render); font-weight: inherit; }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="55.867"
+      data-fps="30"
+    >
+      <!-- vidéo du Drive intégrale, un seul plan continu du début à la fin -->
+      <video class="video-full" id="fullv" src="assets/composite.mp4" data-start="0.0000" data-duration="55.867" data-track-index="1" muted playsinline></video>
+
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+      <div class="tag">CE JOUR LÀ …</div>
+
+      <!-- corps du post - champ CORPS (KARAOKÉ) du brouillon Gmail
+           "POST DU JOUR — 2 septembre 2026 · Sheringham, premier but et
+           première victoire de Tottenham en Premier League (1992)". Une
+           ligne du brouillon = une carte, verbatim, aucun re-découpage
+           (§4.B) - 41 cartes, mises en capitales pour l'affichage. Aucun
+           **mot** entre astérisques doubles littéraux dans le CORPS
+           (karaoké) source, donc pas de <b class="ocre"> appliqué ici,
+           conformément à la règle d'extraction par position du §4.B. -->
+      <div class="story-zone">
+        <div class="story-line" id="c1">APRÈS CINQ JOURNÉES,</div>
+        <div class="story-line" id="c2">TOTTENHAM DÉBUTE</div>
+        <div class="story-line" id="c3">LA PREMIÈRE</div>
+        <div class="story-line" id="c4">PREMIER LEAGUE</div>
+        <div class="story-line" id="c5">DE L’HISTOIRE</div>
+        <div class="story-line" id="c6">SANS LE MOINDRE SUCCÈS.</div>
+        <div class="story-line" id="c7">MAIS CE JOUR-LÀ</div>
+        <div class="story-line" id="c8">LE 2 SEPTEMBRE 1992,</div>
+        <div class="story-line" id="c9">FACE À SHEFFIELD UNITED,</div>
+        <div class="story-line" id="c10">TEDDY SHERINGHAM</div>
+        <div class="story-line" id="c11">SIGNÉ CINQ JOURS</div>
+        <div class="story-line" id="c12">PLUS TÔT</div>
+        <div class="story-line" id="c13">CHANGE TOUT,</div>
+        <div class="story-line" id="c14">À LA 44E MINUTE</div>
+        <div class="story-line" id="c15">IL MARQUE</div>
+        <div class="story-line" id="c16">SON PREMIER BUT</div>
+        <div class="story-line" id="c17">AVEC LES SPURS</div>
+        <div class="story-line" id="c18">PUIS DURIE</div>
+        <div class="story-line" id="c19">DOUBLE LA MISE</div>
+        <div class="story-line" id="c20">DÈS LA REPRISE</div>
+        <div class="story-line" id="c21">TOTTENHAM</div>
+        <div class="story-line" id="c22">TIENT ENFIN</div>
+        <div class="story-line" id="c23">SA PREMIÈRE VICTOIRE</div>
+        <div class="story-line" id="c24">EN PREMIER LEAGUE</div>
+        <div class="story-line" id="c25">MAIS CE SOIR-LÀ,</div>
+        <div class="story-line" id="c26">PERSONNE</div>
+        <div class="story-line" id="c27">NE SAIT ENCORE</div>
+        <div class="story-line" id="c28">CE QUI VIENT</div>
+        <div class="story-line" id="c29">DE COMMENCER</div>
+        <div class="story-line" id="c30">SHERINGHAM</div>
+        <div class="story-line" id="c31">TERMINERA LA SAISON</div>
+        <div class="story-line" id="c32">AVEC 22 BUTS</div>
+        <div class="story-line" id="c33">MEILLEUR BUTEUR</div>
+        <div class="story-line" id="c34">DU CHAMPIONNAT</div>
+        <div class="story-line" id="c35">ET PREMIER SOULIER D’OR</div>
+        <div class="story-line" id="c36">DE L’HISTOIRE</div>
+        <div class="story-line" id="c37">DE LA PREMIER LEAGUE.</div>
+        <div class="story-line" id="c38">DIRE QUE</div>
+        <div class="story-line" id="c39">TOUT AVAIT COMMENCÉ</div>
+        <div class="story-line" id="c40">PAR UN BUT</div>
+        <div class="story-line" id="c41">DE RENARD…</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      /* corps façon karaoké - §4.B/§5 CLAUDE.md (branche ce-jour-là) :
+         rythme calculé au CPS (13 caractères/seconde), plancher 0.8s/carte,
+         zéro pause entre blocs (toujours un sous-titre à l'écran),
+         démarrage à 0.3s absolu (pas d'introEnd, pas de titre animé pour
+         ce style). 41 cartes, durée disponible = 55.867-0.3 = 55.567s ->
+         facteur d'étirement ~1.1968 sur les durées brutes CPS (durées
+         finales de 0.957s à 2.209s, toutes au-dessus du plancher de
+         lisibilité ~0.5s du §5). Dernière carte se termine à 55.867s (fin
+         exacte de la vidéo). Calcul fait via script Python, pas à la
+         main. Texte repris verbatim du champ CORPS (karaoké) du brouillon
+         "POST DU JOUR — 2 septembre 2026" tel qu'il se lit au moment de ce
+         build (ordre et ponctuation exacts, ex. "PLUS TÔT" sans point). */
+      function fadeBlockKaraoke(sel, start, dur) {
+        tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 0.10, ease: 'power2.out' }, start);
+        tl.to(sel, { opacity: 0, duration: 0.08, ease: 'sine.in' }, start + dur - 0.08);
+        tl.set(sel, { opacity: 0 }, start + dur);
+      }
+
+      const cards = [
+        { id: "c1", start: 0.300, dur: 1.841 }, // "Après Cinq journées,"
+        { id: "c2", start: 2.141, dur: 1.473 }, // "Tottenham débute"
+        { id: "c3", start: 3.614, dur: 1.013 }, // "la première"
+        { id: "c4", start: 4.627, dur: 1.289 }, // "Premier League"
+        { id: "c5", start: 5.916, dur: 1.197 }, // "De l'histoire"
+        { id: "c6", start: 7.112, dur: 2.117 }, // "sans le moindre succès."
+        { id: "c7", start: 9.230, dur: 1.381 }, // "Mais ce jour-là"
+        { id: "c8", start: 10.611, dur: 1.841 }, // "Le 2 septembre 1992,"
+        { id: "c9", start: 12.452, dur: 2.209 }, // "Face à Sheffield United,"
+        { id: "c10", start: 14.661, dur: 1.473 }, // "Teddy Sheringham"
+        { id: "c11", start: 16.134, dur: 1.473 }, // "Signé cinq jours"
+        { id: "c12", start: 17.607, dur: 0.957 }, // "plus tôt"
+        { id: "c13", start: 18.564, dur: 1.105 }, // "change tout,"
+        { id: "c14", start: 19.669, dur: 1.381 }, // "À la 44e minute"
+        { id: "c15", start: 21.050, dur: 0.957 }, // "Il marque"
+        { id: "c16", start: 22.007, dur: 1.381 }, // "Son Premier but"
+        { id: "c17", start: 23.388, dur: 1.289 }, // "avec les Spurs"
+        { id: "c18", start: 24.677, dur: 0.957 }, // "Puis Durie"
+        { id: "c19", start: 25.635, dur: 1.289 }, // "double la mise"
+        { id: "c20", start: 26.923, dur: 1.289 }, // "dès la reprise"
+        { id: "c21", start: 28.212, dur: 0.957 }, // "Tottenham"
+        { id: "c22", start: 29.170, dur: 1.013 }, // "tient enfin"
+        { id: "c23", start: 30.182, dur: 1.841 }, // "sa première victoire"
+        { id: "c24", start: 32.023, dur: 1.565 }, // "en Premier League"
+        { id: "c25", start: 33.588, dur: 1.473 }, // "Mais ce soir-là,"
+        { id: "c26", start: 35.061, dur: 0.957 }, // "personne"
+        { id: "c27", start: 36.019, dur: 1.289 }, // "ne sait encore"
+        { id: "c28", start: 37.308, dur: 1.105 }, // "ce qui vient"
+        { id: "c29", start: 38.412, dur: 1.105 }, // "de commencer"
+        { id: "c30", start: 39.517, dur: 0.957 }, // "Sheringham"
+        { id: "c31", start: 40.474, dur: 1.749 }, // "terminera la saison"
+        { id: "c32", start: 42.224, dur: 1.105 }, // "avec 22 buts"
+        { id: "c33", start: 43.328, dur: 1.381 }, // "Meilleur buteur"
+        { id: "c34", start: 44.709, dur: 1.289 }, // "du championnat"
+        { id: "c35", start: 45.998, dur: 2.117 }, // "Et premier Soulier d'or"
+        { id: "c36", start: 48.115, dur: 1.197 }, // "de l'histoire"
+        { id: "c37", start: 49.312, dur: 1.933 }, // "de la Premier League."
+        { id: "c38", start: 51.245, dur: 0.957 }, // "Dire que"
+        { id: "c39", start: 52.203, dur: 1.749 }, // "Tout avait commencé"
+        { id: "c40", start: 53.952, dur: 0.957 }, // "par un but"
+        { id: "c41", start: 54.909, dur: 0.957 }, // "de renard…"
+      ];
+
+      cards.forEach(({ id, start, dur }) => {
+        fadeBlockKaraoke(`#${id}`, start, dur);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
