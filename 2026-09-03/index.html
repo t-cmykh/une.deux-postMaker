@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 3 septembre 1975, le doublé oublié de Guillou contre l'Islande (style karaoké)</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* vidéo du Drive gardée intégrale, telle quelle (pas de sélection de
+         plans, §1bis CLAUDE.md ce-jour-là) — un seul composite continu du
+         début à la fin (0 -> 40.166667s), même géométrie sur toute la
+         durée : fond plein cadre flouté/désaturé + plan net 1080x888 plein
+         cadre horizontal (overlay y=420, §2 CLAUDE.md). Source brute :
+         1078x496 (~2.17:1) avec un pillarbox noir intégré au fichier
+         (contenu réel ~648x496 centré, bandes noires ~218px à gauche /
+         212px à droite, mesuré par cropdetect sur toute la durée) — le
+         bake ffmpeg pré-crop ce pillarbox (crop=648:496:218:0) avant le
+         cover-crop du fond (scale=2508:1920,crop=1080:1920) et du plan net
+         (scale=1160:888,crop=1080:888), sinon les deux couches auraient
+         gardé de fines bandes noires sur les bords. Aucune métadonnée de
+         rotation détectée (stream_side_data vide). Un seul élément
+         <video>, pas de titre animé séparé pour ce style (§4bis ne
+         s'applique pas au style karaoké). Pas de piste audio (§2/§7
+         CLAUDE.md ce-jour-là : le son source n'est jamais repris) — bake
+         fait avec -an, pas d'élément <audio> dans la composition. */
+      .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+
+      /* header - constantes fixes de la série, persistant du début à la fin */
+      #hdr { position: absolute; inset: 0 0 auto 0; z-index: 20; }
+      .ring {
+        position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
+        border: 4px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
+
+      /* --ocre-render : compensation du décalage de teinte du pipeline de
+         render HyperFrames sur --ocre (§3 CLAUDE.md) - ne pas remplacer
+         var(--ocre) dans tokens/colors.css, uniquement une variable locale
+         à la composition. Aucun mot-clé **...** littéral dans le CORPS
+         (karaoké) de ce brouillon, donc b.ocre n'est pas utilisé ici mais
+         la règle CSS reste déclarée pour cohérence. */
+      :root { --ocre-render: #B9A456; }
+      .tag {
+        position: absolute; left: 96px; top: 350px; height: 58px; z-index: 20;
+        display: flex; align-items: center; background: var(--ocre-render); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; padding: 0 15px;
+      }
+
+      /* corps de texte façon karaoké - Anton, centré verticalement dans le
+         cadre, superposé directement sur le plan net (§4.B CLAUDE.md
+         ce-jour-là). Taille FIXE 80px pour toutes les cartes, aucun palier
+         par longueur ; aucune ombre portée ; léger contour semi-transparent
+         ink. Texte déjà écrit en MAJUSCULES dans le HTML (pas seulement via
+         text-transform, cf. bug de subsetting de police documenté au
+         §4.B). .story-line porte un transform:translateY(-50%) STATIQUE -
+         ne jamais animer y dessus avec GSAP (§6), opacity uniquement.
+         top:0/bottom:0 sur .story-zone pour que le centrage vertical ait
+         une hauteur de référence (héritage 1920px de #root). */
+      .story-zone { position: absolute; top: 0; bottom: 0; left: 96px; right: 96px; z-index: 20; text-align: center; }
+      .story-line {
+        position: absolute; left: 0; right: 0;
+        top: 50%; transform: translateY(-50%);
+        font-family: 'Anton', sans-serif; font-size: 80px; line-height: 1.1;
+        text-transform: uppercase; color: var(--cream); opacity: 0;
+        -webkit-text-stroke: 1.5px rgba(44,40,35,.35);
+      }
+      /* mot-clé en ocre via **mot** dans CORPS (karaoké) - §4.B règle du
+         13 août 2026 : couleur seule, pas de fond/padding. Aucun mot-clé
+         marqué (au sens littéral **mot**) dans ce brouillon, règle non
+         utilisée ici. */
+      .story-line b.ocre { color: var(--ocre-render); font-weight: inherit; }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="40.166667"
+      data-fps="30"
+    >
+      <!-- vidéo du Drive intégrale, un seul plan continu du début à la fin -->
+      <video class="video-full" id="fullv" src="assets/composite.mp4" data-start="0.0000" data-duration="40.166667" data-track-index="1" muted playsinline></video>
+
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+      <div class="tag">CE JOUR LÀ …</div>
+
+      <!-- corps du post - champ CORPS (KARAOKÉ) du brouillon Gmail
+           "📲 POST DU JOUR — 3 septembre 2026 · France-Islande 1975, le
+           doublé oublié de Guillou". Une ligne du brouillon = une carte,
+           verbatim, aucun re-découpage (§4.B) - 34 cartes, mises en
+           capitales pour l'affichage. Aucun **mot** entre astérisques
+           doubles littéraux dans le CORPS (karaoké) source, donc pas de
+           <b class="ocre"> appliqué ici, conformément à la règle
+           d'extraction par position du §4.B. -->
+      <div class="story-zone">
+        <div class="story-line" id="c1">LA FRANCE EST</div>
+        <div class="story-line" id="c2">AU BORD DU GOUFFRE.</div>
+        <div class="story-line" id="c3">POUR SE RELANCER</div>
+        <div class="story-line" id="c4">DANS LA COURSE</div>
+        <div class="story-line" id="c5">À L’EURO 76,</div>
+        <div class="story-line" id="c6">ELLE DOIT GAGNER.</div>
+        <div class="story-line" id="c7">LE 3 SEPTEMBRE 1975,</div>
+        <div class="story-line" id="c8">AU STADE MARCEL-SAUPIN,</div>
+        <div class="story-line" id="c9">LES BLEUS AFFRONTENT L’ISLANDE.</div>
+        <div class="story-line" id="c10">À LA 20E MINUTE,</div>
+        <div class="story-line" id="c11">JEAN-MARC GUILLOU</div>
+        <div class="story-line" id="c12">OUVRE LE SCORE.</div>
+        <div class="story-line" id="c13">À LA 74E,</div>
+        <div class="story-line" id="c14">IL FRAPPE ENCORE.</div>
+        <div class="story-line" id="c15">DOUBLÉ DE GUILLOU.</div>
+        <div class="story-line" id="c16">PUIS, À LA 87E,</div>
+        <div class="story-line" id="c17">MARC BERDOLL INSCRIT</div>
+        <div class="story-line" id="c18">LE TROISIÈME BUT.</div>
+        <div class="story-line" id="c19">VICTOIRE 3-0.</div>
+        <div class="story-line" id="c20">LA FRANCE RESPIRE</div>
+        <div class="story-line" id="c21">ET CROIT ENCORE</div>
+        <div class="story-line" id="c22">À LA QUALIFICATION.</div>
+        <div class="story-line" id="c23">MAIS</div>
+        <div class="story-line" id="c24">QUELQUES SEMAINES PLUS TARD,</div>
+        <div class="story-line" id="c25">LES BLEUS</div>
+        <div class="story-line" id="c26">S’INCLINENT EN RDA.</div>
+        <div class="story-line" id="c27">L’EURO 76 SE JOUERA</div>
+        <div class="story-line" id="c28">SANS EUX.</div>
+        <div class="story-line" id="c29">À NANTES,</div>
+        <div class="story-line" id="c30">CE JOUR-LÀ,</div>
+        <div class="story-line" id="c31">GUILLOU ET BERDOLL</div>
+        <div class="story-line" id="c32">AVAIENT POURTANT</div>
+        <div class="story-line" id="c33">OFFERT UN DERNIER ESPOIR</div>
+        <div class="story-line" id="c34">AUX BLEUS…</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      /* corps façon karaoké - §4.B/§5 CLAUDE.md (branche ce-jour-là) :
+         rythme calculé au CPS (13 caractères/seconde), plancher 0.8s/carte,
+         zéro pause entre blocs (toujours un sous-titre à l'écran),
+         démarrage à 0.3s absolu (pas d'introEnd, pas de titre animé pour
+         ce style). 34 cartes, durée disponible = 40.166667-0.3 = 39.867s ->
+         facteur d'étirement ~0.9232 sur les durées brutes CPS (durées
+         finales de 0.739s à 2.201s, toutes au-dessus du plancher de
+         lisibilité ~0.5s du §5). Dernière carte se termine à 40.167s (fin
+         exacte de la vidéo). Calcul fait via script Python, pas à la
+         main. Texte repris verbatim du champ CORPS (karaoké) du brouillon
+         "📲 POST DU JOUR — 3 septembre 2026" tel qu'il se lit au moment de
+         ce build (ordre et ponctuation exacts). */
+      function fadeBlockKaraoke(sel, start, dur) {
+        tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 0.10, ease: 'power2.out' }, start);
+        tl.to(sel, { opacity: 0, duration: 0.08, ease: 'sine.in' }, start + dur - 0.08);
+        tl.set(sel, { opacity: 0 }, start + dur);
+      }
+
+      const cards = [
+        { id: "c1", start: 0.300, dur: 0.923 }, // "La France est"
+        { id: "c2", start: 1.223, dur: 1.349 }, // "au bord du gouffre."
+        { id: "c3", start: 2.572, dur: 1.136 }, // "Pour se relancer"
+        { id: "c4", start: 3.709, dur: 0.994 }, // "dans la course"
+        { id: "c5", start: 4.703, dur: 0.852 }, // "à l'Euro 76,"
+        { id: "c6", start: 5.555, dur: 1.207 }, // "elle doit gagner."
+        { id: "c7", start: 6.762, dur: 1.420 }, // "Le 3 septembre 1975,"
+        { id: "c8", start: 8.182, dur: 1.633 }, // "au stade Marcel-Saupin,"
+        { id: "c9", start: 9.816, dur: 2.201 }, // "les Bleus affrontent l'Islande."
+        { id: "c10", start: 12.017, dur: 1.136 }, // "À la 20e minute,"
+        { id: "c11", start: 13.153, dur: 1.207 }, // "Jean-Marc Guillou"
+        { id: "c12", start: 14.361, dur: 1.065 }, // "ouvre le score."
+        { id: "c13", start: 15.426, dur: 0.739 }, // "À la 74e,"
+        { id: "c14", start: 16.164, dur: 1.207 }, // "il frappe encore."
+        { id: "c15", start: 17.372, dur: 1.278 }, // "Doublé de Guillou."
+        { id: "c16", start: 18.650, dur: 1.065 }, // "Puis, à la 87e,"
+        { id: "c17", start: 19.715, dur: 1.420 }, // "Marc Berdoll inscrit"
+        { id: "c18", start: 21.135, dur: 1.207 }, // "le troisième but."
+        { id: "c19", start: 22.342, dur: 0.923 }, // "Victoire 3-0."
+        { id: "c20", start: 23.266, dur: 1.207 }, // "La France respire"
+        { id: "c21", start: 24.473, dur: 1.065 }, // "et croit encore"
+        { id: "c22", start: 25.538, dur: 1.349 }, // "à la qualification."
+        { id: "c23", start: 26.887, dur: 0.739 }, // "Mais"
+        { id: "c24", start: 27.626, dur: 1.988 }, // "quelques semaines plus tard,"
+        { id: "c25", start: 29.614, dur: 0.739 }, // "les Bleus"
+        { id: "c26", start: 30.353, dur: 1.349 }, // "s'inclinent en RDA."
+        { id: "c27", start: 31.702, dur: 1.349 }, // "L'Euro 76 se jouera"
+        { id: "c28", start: 33.051, dur: 0.739 }, // "sans eux."
+        { id: "c29", start: 33.790, dur: 0.739 }, // "À Nantes,"
+        { id: "c30", start: 34.528, dur: 0.781 }, // "ce jour-là,"
+        { id: "c31", start: 35.309, dur: 1.278 }, // "Guillou et Berdoll"
+        { id: "c32", start: 36.588, dur: 1.136 }, // "avaient pourtant"
+        { id: "c33", start: 37.724, dur: 1.704 }, // "offert un dernier espoir"
+        { id: "c34", start: 39.428, dur: 0.739 }, // "aux Bleus…"
+      ];
+
+      cards.forEach(({ id, start, dur }) => {
+        fadeBlockKaraoke(`#${id}`, start, dur);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
