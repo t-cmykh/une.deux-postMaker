@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 6 septembre 1989, Terry Butcher (style karaoké)</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* vidéo du Drive gardée intégrale, telle quelle (pas de sélection de
+         plans, §1bis CLAUDE.md ce-jour-là) — un seul composite continu du
+         début à la fin (0 -> 45.4s), même géométrie sur toute la durée :
+         fond plein cadre flouté/désaturé + plan net 1080x888 plein cadre
+         horizontal (overlay y=420, §2 CLAUDE.md). Source brute : 858x492
+         (~1.744:1, ffprobe — pas de métadonnée de rotation). Cover-crop
+         standard appliqué directement (fond -> 3348x1920 puis crop
+         1080x1920 centré ; plan net -> 1549x888 puis crop 1080x888 centré).
+         Un seul élément <video>, pas de titre animé séparé pour ce style
+         (§4bis ne s'applique pas au style karaoké). Le son de la vidéo
+         source n'est jamais repris pour ce format (§2/§7 CLAUDE.md branche
+         ce-jour-là) : bake fait avec -an, pas d'élément <audio>. */
+      .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+
+      /* header - constantes fixes de la série, persistant du début à la fin */
+      #hdr { position: absolute; inset: 0 0 auto 0; z-index: 20; }
+      .ring {
+        position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
+        border: 4px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
+
+      /* --ocre-render : compensation du décalage de teinte du pipeline de
+         render HyperFrames sur --ocre (§3 CLAUDE.md) - ne pas remplacer
+         var(--ocre) dans tokens/colors.css, uniquement une variable locale
+         à la composition. Aucun mot-clé **...** littéral dans le CORPS
+         (karaoké) de ce brouillon, donc b.ocre n'est pas utilisé ici mais
+         la règle CSS reste déclarée pour cohérence. */
+      :root { --ocre-render: #B9A456; }
+      .tag {
+        position: absolute; left: 96px; top: 350px; height: 58px; z-index: 20;
+        display: flex; align-items: center; background: var(--ocre-render); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; padding: 0 15px;
+      }
+
+      /* corps de texte façon karaoké - Anton, centré verticalement dans le
+         cadre, superposé directement sur le plan net (§4.B CLAUDE.md
+         ce-jour-là). Taille FIXE 80px pour toutes les cartes, aucun palier
+         par longueur ; aucune ombre portée ; léger contour semi-transparent
+         ink. Texte déjà écrit en MAJUSCULES dans le HTML (pas seulement via
+         text-transform, cf. bug de subsetting de police documenté au
+         §4.B). .story-line porte un transform:translateY(-50%) STATIQUE -
+         ne jamais animer y dessus avec GSAP (§6), opacity uniquement. */
+      .story-zone { position: absolute; top: 0; bottom: 0; left: 96px; right: 96px; z-index: 20; text-align: center; }
+      .story-line {
+        position: absolute; left: 0; right: 0;
+        top: 50%; transform: translateY(-50%);
+        font-family: 'Anton', sans-serif; font-size: 80px; line-height: 1.1;
+        text-transform: uppercase; color: var(--cream); opacity: 0;
+        -webkit-text-stroke: 1.5px rgba(44,40,35,.35);
+      }
+      /* mot-clé en ocre via **mot** dans CORPS (karaoké) - §4.B règle du
+         13 août 2026 : couleur seule, pas de fond/padding. Aucun mot-clé
+         marqué (au sens littéral **mot**) dans ce brouillon, règle non
+         utilisée ici. */
+      .story-line b.ocre { color: var(--ocre-render); font-weight: inherit; }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="45.400000"
+      data-fps="30"
+    >
+      <!-- vidéo du Drive intégrale, un seul plan continu du début à la fin -->
+      <video class="video-full" id="fullv" src="assets/composite.mp4" data-start="0.0000" data-duration="45.400000" data-track-index="1" muted playsinline></video>
+
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+      <div class="tag">CE JOUR LÀ …</div>
+
+      <!-- corps du post - champ CORPS (KARAOKÉ) du brouillon Gmail
+           "📲 POST DU JOUR — 6 septembre 2026 · Terry Butcher, le crâne
+           recousu contre la Suède (1989)". Une ligne du brouillon = une
+           carte, verbatim, aucun re-découpage (§4.B) - 35 cartes, mises en
+           capitales pour l'affichage. Aucun **mot** entre astérisques
+           doubles littéraux dans le CORPS (karaoké) source, donc pas de
+           <b class="ocre"> appliqué ici, conformément à la règle
+           d'extraction par position du §4.B. -->
+      <div class="story-zone">
+        <div class="story-line" id="c1">SON MAILLOT</div>
+        <div class="story-line" id="c2">ÉTAIT BLANC</div>
+        <div class="story-line" id="c3">AU COUP D’ENVOI…</div>
+        <div class="story-line" id="c4">MAIS CE JOUR-LÀ,</div>
+        <div class="story-line" id="c5">LE 6 SEPTEMBRE 1989,</div>
+        <div class="story-line" id="c6">À RÅSUNDA</div>
+        <div class="story-line" id="c7">L’ANGLETERRE JOUE</div>
+        <div class="story-line" id="c8">SA PLACE POUR</div>
+        <div class="story-line" id="c9">LA COUPE DU MONDE 1990.</div>
+        <div class="story-line" id="c10">EN PREMIÈRE MI-TEMPS</div>
+        <div class="story-line" id="c11">TERRY BUTCHER</div>
+        <div class="story-line" id="c12">MONTE AU DUEL ET</div>
+        <div class="story-line" id="c13">PERCUTE LA TÊTE</div>
+        <div class="story-line" id="c14">DE JOHNNY EKSTRÖM.</div>
+        <div class="story-line" id="c15">LE FRONT S’OUVRE.</div>
+        <div class="story-line" id="c16">À LA PAUSE</div>
+        <div class="story-line" id="c17">LE STAFF</div>
+        <div class="story-line" id="c18">LE RECOUD À LA HÂTE,</div>
+        <div class="story-line" id="c19">ET LE RENVOIE SUR LE TERRAIN.</div>
+        <div class="story-line" id="c20">IL EST CAPITAINE CE SOIR-LÀ,</div>
+        <div class="story-line" id="c21">SORTIR N’EST PAS UNE OPTION.</div>
+        <div class="story-line" id="c22">BUTCHER EST DÉFENSEUR CENTRAL</div>
+        <div class="story-line" id="c23">IL SAUTE. IL DÉGAGE DE LA TÊTE.</div>
+        <div class="story-line" id="c24">ET À CHAQUE IMPACT,</div>
+        <div class="story-line" id="c25">LA PLAIE SE ROUVRE</div>
+        <div class="story-line" id="c26">SON MAILLOT BLANC</div>
+        <div class="story-line" id="c27">VIRE AU ROUGE</div>
+        <div class="story-line" id="c28">LE SANG COULE</div>
+        <div class="story-line" id="c29">JUSQU’AU COUP DE SIFFLET FINAL.</div>
+        <div class="story-line" id="c30">0-0 SCORE FINALE</div>
+        <div class="story-line" id="c31">BUTCHER N’A JAMAIS</div>
+        <div class="story-line" id="c32">VOULU SORTIR</div>
+        <div class="story-line" id="c33">IL A PRÉFÉRÉ SAIGNER</div>
+        <div class="story-line" id="c34">PLUTÔT QUE RATER</div>
+        <div class="story-line" id="c35">UN SEUL BALLON…</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      /* corps façon karaoké - §4.B/§5 CLAUDE.md (branche ce-jour-là) :
+         rythme calculé au CPS (13 caractères/seconde), plancher 0.8s/carte,
+         zéro pause entre blocs (toujours un sous-titre à l'écran),
+         démarrage à 0.25s absolu (pas d'introEnd, pas de titre animé pour
+         ce style). 35 cartes, 626 caractères au total, durée disponible =
+         45.4-0.25 = 45.15s -> facteur d'étirement ~0.9313 sur les durées
+         brutes CPS (durées finales de 0.745s à 2.221s, toutes au-dessus du
+         plancher de lisibilité ~0.5s du §5). Dernière carte se termine à
+         45.401s (fin quasi exacte de la vidéo, 45.4s). Calcul fait via
+         script (Python), pas à la main. Texte repris verbatim du champ
+         CORPS (karaoké) du brouillon "📲 POST DU JOUR — 6 septembre 2026"
+         tel qu'il se lit au moment de ce build (ordre et ponctuation
+         exacts, y compris "0-0 score finale" qui n'est pas corrigé en
+         "final" - verbatim du brouillon, cf. règle anti-réécriture §4). */
+      function fadeBlockKaraoke(sel, start, dur) {
+        tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 0.10, ease: 'power2.out' }, start);
+        tl.to(sel, { opacity: 0, duration: 0.08, ease: 'sine.in' }, start + dur - 0.08);
+        tl.set(sel, { opacity: 0 }, start + dur);
+      }
+
+      const cards = [
+        { id: "c1",  start: 0.250,  dur: 0.788 }, // "Son maillot"
+        { id: "c2",  start: 1.038,  dur: 0.788 }, // "était blanc"
+        { id: "c3",  start: 1.826,  dur: 1.147 }, // "au coup d'envoi…"
+        { id: "c4",  start: 2.973,  dur: 1.147 }, // "Mais ce jour-là,"
+        { id: "c5",  start: 4.120,  dur: 1.432 }, // "Le 6 septembre 1989,"
+        { id: "c6",  start: 5.552,  dur: 0.745 }, // "À Råsunda"
+        { id: "c7",  start: 6.297,  dur: 1.218 }, // "l'Angleterre joue"
+        { id: "c8",  start: 7.515,  dur: 0.931 }, // "sa place pour"
+        { id: "c9",  start: 8.446,  dur: 1.647 }, // "la Coupe du monde 1990."
+        { id: "c10", start: 10.093, dur: 1.432 }, // "En Première mi-temps"
+        { id: "c11", start: 11.525, dur: 0.931 }, // "Terry Butcher"
+        { id: "c12", start: 12.456, dur: 1.147 }, // "monte au duel et"
+        { id: "c13", start: 13.603, dur: 1.075 }, // "percute la tête"
+        { id: "c14", start: 14.678, dur: 1.290 }, // "de Johnny Ekström."
+        { id: "c15", start: 15.968, dur: 1.218 }, // "Le front s'ouvre."
+        { id: "c16", start: 17.186, dur: 0.745 }, // "À la pause"
+        { id: "c17", start: 17.931, dur: 0.745 }, // "Le staff"
+        { id: "c18", start: 18.676, dur: 1.432 }, // "le recoud à la hâte,"
+        { id: "c19", start: 20.108, dur: 2.078 }, // "et le renvoie sur le terrain."
+        { id: "c20", start: 22.186, dur: 2.006 }, // "Il est capitaine ce soir-là,"
+        { id: "c21", start: 24.192, dur: 2.006 }, // "Sortir n'est pas une option."
+        { id: "c22", start: 26.198, dur: 2.078 }, // "Butcher est défenseur central"
+        { id: "c23", start: 28.276, dur: 2.221 }, // "Il saute. Il dégage de la tête."
+        { id: "c24", start: 30.497, dur: 1.362 }, // "Et à chaque impact,"
+        { id: "c25", start: 31.859, dur: 1.290 }, // "La plaie se rouvre"
+        { id: "c26", start: 33.149, dur: 1.218 }, // "Son maillot blanc"
+        { id: "c27", start: 34.367, dur: 0.931 }, // "vire au rouge"
+        { id: "c28", start: 35.298, dur: 0.931 }, // "Le sang coule"
+        { id: "c29", start: 36.229, dur: 2.221 }, // "Jusqu'au coup de sifflet final."
+        { id: "c30", start: 38.450, dur: 1.147 }, // "0-0 score finale"
+        { id: "c31", start: 39.597, dur: 1.290 }, // "Butcher n'a jamais"
+        { id: "c32", start: 40.887, dur: 0.860 }, // "voulu sortir"
+        { id: "c33", start: 41.747, dur: 1.432 }, // "Il a préféré saigner"
+        { id: "c34", start: 43.179, dur: 1.147 }, // "plutôt que rater"
+        { id: "c35", start: 44.326, dur: 1.075 }, // "un seul ballon…"
+      ];
+
+      cards.forEach(({ id, start, dur }) => {
+        fadeBlockKaraoke(`#${id}`, start, dur);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
