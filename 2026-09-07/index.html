@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 7 septembre 1979, Maradona champion du monde junior (style karaoké)</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* vidéo du Drive gardée intégrale, telle quelle (pas de sélection de
+         plans, §1bis CLAUDE.md ce-jour-là) — un seul composite continu du
+         début à la fin (0 -> 47.283333s), même géométrie sur toute la
+         durée : fond plein cadre flouté/désaturé + plan net 1080x888 plein
+         cadre horizontal (overlay y=420, §2 CLAUDE.md). Source brute :
+         848x488 (~1.7377:1, ffprobe — pas de métadonnée de rotation).
+         Cover-crop standard appliqué directement (fond -> 3336x1920 puis
+         crop 1080x1920 centré ; plan net -> 1544x888 puis crop 1080x888
+         centré). Un seul élément <video>, pas de titre animé séparé pour ce
+         style (§4bis ne s'applique pas au style karaoké). Le son de la
+         vidéo source n'est jamais repris pour ce format (§2/§7 CLAUDE.md
+         branche ce-jour-là) : bake fait avec -an, pas d'élément <audio>. */
+      .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+
+      /* header - constantes fixes de la série, persistant du début à la fin */
+      #hdr { position: absolute; inset: 0 0 auto 0; z-index: 20; }
+      .ring {
+        position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
+        border: 4px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
+
+      /* --ocre-render : compensation du décalage de teinte du pipeline de
+         render HyperFrames sur --ocre (§3 CLAUDE.md) - ne pas remplacer
+         var(--ocre) dans tokens/colors.css, uniquement une variable locale
+         à la composition. Aucun mot-clé **...** littéral dans le CORPS
+         (karaoké) de ce brouillon, donc b.ocre n'est pas utilisé ici mais
+         la règle CSS reste déclarée pour cohérence. */
+      :root { --ocre-render: #B9A456; }
+      .tag {
+        position: absolute; left: 96px; top: 350px; height: 58px; z-index: 20;
+        display: flex; align-items: center; background: var(--ocre-render); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; padding: 0 15px;
+      }
+
+      /* corps de texte façon karaoké - Anton, centré verticalement dans le
+         cadre, superposé directement sur le plan net (§4.B CLAUDE.md
+         ce-jour-là). Taille FIXE 80px pour toutes les cartes, aucun palier
+         par longueur ; aucune ombre portée ; léger contour semi-transparent
+         ink. Texte déjà écrit en MAJUSCULES dans le HTML (pas seulement via
+         text-transform, cf. bug de subsetting de police documenté au
+         §4.B). .story-line porte un transform:translateY(-50%) STATIQUE -
+         ne jamais animer y dessus avec GSAP (§6), opacity uniquement. */
+      .story-zone { position: absolute; top: 0; bottom: 0; left: 96px; right: 96px; z-index: 20; text-align: center; }
+      .story-line {
+        position: absolute; left: 0; right: 0;
+        top: 50%; transform: translateY(-50%);
+        font-family: 'Anton', sans-serif; font-size: 80px; line-height: 1.1;
+        text-transform: uppercase; color: var(--cream); opacity: 0;
+        -webkit-text-stroke: 1.5px rgba(44,40,35,.35);
+      }
+      /* mot-clé en ocre via **mot** dans CORPS (karaoké) - §4.B règle du
+         13 août 2026 : couleur seule, pas de fond/padding. Aucun mot-clé
+         marqué (au sens littéral **mot**) dans ce brouillon, règle non
+         utilisée ici. */
+      .story-line b.ocre { color: var(--ocre-render); font-weight: inherit; }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="47.283333"
+      data-fps="30"
+    >
+      <!-- vidéo du Drive intégrale, un seul plan continu du début à la fin -->
+      <video class="video-full" id="fullv" src="assets/composite.mp4" data-start="0.0000" data-duration="47.283333" data-track-index="1" muted playsinline></video>
+
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+      <div class="tag">CE JOUR LÀ …</div>
+
+      <!-- corps du post - champ CORPS (KARAOKÉ) du brouillon Gmail
+           "📲 POST DU JOUR — 7 septembre 2026 · Maradona, champion du monde
+           junior à 18 ans (1979)". Une ligne du brouillon = une carte,
+           verbatim, aucun re-découpage (§4.B) - 34 cartes, mises en
+           capitales pour l'affichage. Aucun **mot** entre astérisques
+           doubles littéraux dans le CORPS (karaoké) source, donc pas de
+           <b class="ocre"> appliqué ici, conformément à la règle
+           d'extraction par position du §4.B. -->
+      <div class="story-zone">
+        <div class="story-line" id="c1">TOKYO RETIENT SON SOUFFLE,</div>
+        <div class="story-line" id="c2">SANS SE DOUTER</div>
+        <div class="story-line" id="c3">QU'UNE LÉGENDE</div>
+        <div class="story-line" id="c4">EST EN TRAIN DE NAÎTRE.</div>
+        <div class="story-line" id="c5">LE 7 SEPTEMBRE 1979,</div>
+        <div class="story-line" id="c6">FACE À L'URSS,</div>
+        <div class="story-line" id="c7">L'ARGENTINE CONCÈDE</div>
+        <div class="story-line" id="c8">L'OUVERTURE DU SCORE</div>
+        <div class="story-line" id="c9">DANS LA FINALE</div>
+        <div class="story-line" id="c10">DU MONDIALE JUNIOR</div>
+        <div class="story-line" id="c11">QUE TOUT LE MONDE</div>
+        <div class="story-line" id="c12">CROYAIT ANONYME.</div>
+        <div class="story-line" id="c13">C'EST LÀ QUE</div>
+        <div class="story-line" id="c14">L'HISTOIRE A CHOISI</div>
+        <div class="story-line" id="c15">SON CAMPS.</div>
+        <div class="story-line" id="c16">ALVES REMET</div>
+        <div class="story-line" id="c17">LES DEUX ÉQUIPES À ÉGALITÉ,</div>
+        <div class="story-line" id="c18">DÍAZ ENFONCE LE CLOU,</div>
+        <div class="story-line" id="c19">AVANT QU'UN GAMIN DE 18 ANS</div>
+        <div class="story-line" id="c20">NE VERROUILLE LA VICTOIRE</div>
+        <div class="story-line" id="c21">D'UN COUP FRANC MAGIQUE.</div>
+        <div class="story-line" id="c22">3-1 SCORE FINAL</div>
+        <div class="story-line" id="c23">LE TITRE EST PLIÉ,</div>
+        <div class="story-line" id="c24">IL REPART AVEC</div>
+        <div class="story-line" id="c25">LE TITRE</div>
+        <div class="story-line" id="c26">DE MEILLEUR JOUEUR DU TOURNOI</div>
+        <div class="story-line" id="c27">SEPT ANS AVANT</div>
+        <div class="story-line" id="c28">DE RÉGNER SUR LE MONDE,</div>
+        <div class="story-line" id="c29">DIEGO MARADONA</div>
+        <div class="story-line" id="c30">VIENT D'INSCRIRE</div>
+        <div class="story-line" id="c31">SON NOM TOUT EN HAUT,</div>
+        <div class="story-line" id="c32">SOUS LES YEUX</div>
+        <div class="story-line" id="c33">DE CEUX QUI SAURONT</div>
+        <div class="story-line" id="c34">DÉSORMAIS OÙ REGARDER…</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      /* corps façon karaoké - §4.B/§5 CLAUDE.md (branche ce-jour-là) :
+         rythme calculé au CPS (13 caractères/seconde), plancher 0.8s/carte,
+         zéro pause entre blocs (toujours un sous-titre à l'écran),
+         démarrage à 0.3s absolu (pas d'introEnd, pas de titre animé pour ce
+         style). 34 cartes, 617 caractères au total, durée disponible =
+         47.283333-0.3 = 46.983333s -> facteur d'étirement ~0.9855 sur les
+         durées brutes CPS (durées finales de 0.788s à 2.198s, toutes
+         au-dessus du plancher de lisibilité ~0.5s du §5). Dernière carte se
+         termine à 47.283s (fin exacte de la vidéo). Calcul fait via script
+         (Python), pas à la main. Texte repris verbatim du champ CORPS
+         (karaoké) du brouillon "📲 POST DU JOUR — 7 septembre 2026" tel
+         qu'il se lit au moment de ce build (ordre et ponctuation exacts, y
+         compris "son camps." qui n'est pas corrigé en "son camp" -
+         verbatim du brouillon, cf. règle anti-réécriture §4 — signalé à
+         Thomas dans le message de livraison). */
+      function fadeBlockKaraoke(sel, start, dur) {
+        tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 0.10, ease: 'power2.out' }, start);
+        tl.to(sel, { opacity: 0, duration: 0.08, ease: 'sine.in' }, start + dur - 0.08);
+        tl.set(sel, { opacity: 0 }, start + dur);
+      }
+
+      const cards = [
+        { id: "c1", start: 0.300, dur: 1.971 }, // "Tokyo retient son souffle,"
+        { id: "c2", start: 2.271, dur: 1.061 }, // "sans se douter"
+        { id: "c3", start: 3.332, dur: 1.061 }, // "qu'une légende"
+        { id: "c4", start: 4.393, dur: 1.743 }, // "est en train de naître."
+        { id: "c5", start: 6.137, dur: 1.516 }, // "Le 7 septembre 1979,"
+        { id: "c6", start: 7.653, dur: 1.061 }, // "Face à l'URSS,"
+        { id: "c7", start: 8.714, dur: 1.440 }, // "l'Argentine concède"
+        { id: "c8", start: 10.155, dur: 1.516 }, // "l'ouverture du score"
+        { id: "c9", start: 11.671, dur: 1.061 }, // "dans la finale"
+        { id: "c10", start: 12.732, dur: 1.364 }, // "Du mondiale junior"
+        { id: "c11", start: 14.096, dur: 1.289 }, // "que tout le monde"
+        { id: "c12", start: 15.385, dur: 1.213 }, // "croyait anonyme."
+        { id: "c13", start: 16.598, dur: 0.910 }, // "C'est là que"
+        { id: "c14", start: 17.508, dur: 1.440 }, // "l'histoire a choisi"
+        { id: "c15", start: 18.948, dur: 0.788 }, // "son camps."
+        { id: "c16", start: 19.736, dur: 0.834 }, // "Alves remet"
+        { id: "c17", start: 20.570, dur: 2.047 }, // "les deux équipes à égalité,"
+        { id: "c18", start: 22.617, dur: 1.592 }, // "Díaz enfonce le clou,"
+        { id: "c19", start: 24.209, dur: 2.047 }, // "avant qu'un gamin de 18 ans"
+        { id: "c20", start: 26.255, dur: 1.895 }, // "ne verrouille la victoire"
+        { id: "c21", start: 28.150, dur: 1.819 }, // "d'un coup franc magique."
+        { id: "c22", start: 29.970, dur: 1.137 }, // "3-1 score final"
+        { id: "c23", start: 31.107, dur: 1.364 }, // "Le titre est plié,"
+        { id: "c24", start: 32.471, dur: 1.061 }, // "Il repart avec"
+        { id: "c25", start: 33.532, dur: 0.788 }, // "Le titre"
+        { id: "c26", start: 34.321, dur: 2.198 }, // "De meilleur joueur du tournoi"
+        { id: "c27", start: 36.519, dur: 1.061 }, // "Sept ans avant"
+        { id: "c28", start: 37.580, dur: 1.743 }, // "de régner sur le monde,"
+        { id: "c29", start: 39.324, dur: 1.061 }, // "Diego Maradona"
+        { id: "c30", start: 40.385, dur: 1.213 }, // "vient d'inscrire"
+        { id: "c31", start: 41.598, dur: 1.592 }, // "son nom tout en haut,"
+        { id: "c32", start: 43.190, dur: 0.985 }, // "sous les yeux"
+        { id: "c33", start: 44.175, dur: 1.440 }, // "de ceux qui sauront"
+        { id: "c34", start: 45.616, dur: 1.668 }, // "désormais où regarder…"
+      ];
+
+      cards.forEach(({ id, start, dur }) => {
+        fadeBlockKaraoke(`#${id}`, start, dur);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
