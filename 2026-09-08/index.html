@@ -71,7 +71,7 @@
       </div>
       <div class="tag">CE JOUR LÀ …</div>
 
-      <!-- ===== corps karaoké — 14 cartons contigus, uniquement 0.20s→10.00s.
+      <!-- ===== corps karaoké — 12 cartons contigus, uniquement 0.20s→10.00s.
            Texte écrit en MAJUSCULES littérales dans le HTML (pas seulement
            via text-transform CSS) — le compilateur HyperFrames fait du
            subsetting de police sur les caractères littéraux du source, pas
@@ -86,13 +86,11 @@
         <div class="story-line" id="k5">DE REMONTER LE TEMPS…</div>
         <div class="story-line" id="k6">DIRECTION 2007,</div>
         <div class="story-line" id="k7">UNE ÉPOQUE OÙ</div>
-        <div class="story-line" id="k8">LA LIGUE DES CHAMPIONS</div>
-        <div class="story-line" id="k9">AVAIT ENCORE</div>
-        <div class="story-line" id="k10">UN PARFUM BIEN PARTICULIER…</div>
-        <div class="story-line" id="k11">ALORS,</div>
-        <div class="story-line" id="k12">POUR FÊTER SON RETOUR,</div>
-        <div class="story-line" id="k13">RETOUR SUR UN EXTRAIT CULTE.</div>
-        <div class="story-line" id="k14">MONTEZ LE SON…</div>
+        <div class="story-line" id="k8">ELLE AVAIT ENCORE</div>
+        <div class="story-line" id="k9">UN PARFUM PARTICULIER…</div>
+        <div class="story-line" id="k10">ALORS,</div>
+        <div class="story-line" id="k11">RETOUR SUR UN EXTRAIT CULTE.</div>
+        <div class="story-line" id="k12">MONTEZ LE SON…</div>
       </div>
     </div>
 
@@ -119,23 +117,21 @@
         tl.set(sel, { opacity: 0 }, start + dur);
       }
 
-      // ---- 14 cartons contigus, calage CPS=13 (plancher 0.5s/carton après
+      // ---- 12 cartons contigus, calage CPS=13 (plancher 0.5s/carton après
       // compression) sur une fenêtre de 10s uniquement — spécificité de ce
       // reel (demande explicite de Thomas), pas le standard §4.B/§5 ----
-      fadeBlockKaraoke('#k1',  0.200, 0.852);
-      fadeBlockKaraoke('#k2',  1.052, 0.778);
-      fadeBlockKaraoke('#k3',  1.830, 0.593);
-      fadeBlockKaraoke('#k4',  2.423, 0.519);
-      fadeBlockKaraoke('#k5',  2.942, 0.778);
-      fadeBlockKaraoke('#k6',  3.720, 0.556);
-      fadeBlockKaraoke('#k7',  4.276, 0.500);
-      fadeBlockKaraoke('#k8',  4.776, 0.852);
-      fadeBlockKaraoke('#k9',  5.628, 0.500);
-      fadeBlockKaraoke('#k10', 6.128, 1.001);
-      fadeBlockKaraoke('#k11', 7.129, 0.500);
-      fadeBlockKaraoke('#k12', 7.629, 0.815);
-      fadeBlockKaraoke('#k13', 8.444, 1.038);
-      fadeBlockKaraoke('#k14', 9.482, 0.519);
+      fadeBlockKaraoke('#k1',  0.200, 1.048);
+      fadeBlockKaraoke('#k2',  1.248, 0.957);
+      fadeBlockKaraoke('#k3',  2.205, 0.729);
+      fadeBlockKaraoke('#k4',  2.934, 0.638);
+      fadeBlockKaraoke('#k5',  3.572, 0.957);
+      fadeBlockKaraoke('#k6',  4.529, 0.684);
+      fadeBlockKaraoke('#k7',  5.213, 0.593);
+      fadeBlockKaraoke('#k8',  5.806, 0.775);
+      fadeBlockKaraoke('#k9',  6.581, 1.003);
+      fadeBlockKaraoke('#k10', 7.584, 0.500);
+      fadeBlockKaraoke('#k11', 8.084, 1.277);
+      fadeBlockKaraoke('#k12', 9.361, 0.638);
 
       window.__timelines['main'] = tl;
     </script>
