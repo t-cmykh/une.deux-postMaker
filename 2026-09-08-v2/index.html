@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour là · Ligue des champions 2007 (v2, sous-titres 7s)</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      .clip { opacity: 0; }
+
+      /* compensation ocre pour le rendu vidéo — cf. CLAUDE.md §3 */
+      :root { --ocre-render: #B9A456; }
+
+      /* ===== header (persistant, cf. CLAUDE.md §3) ===== */
+      #hdr { position: absolute; inset: 0 0 auto 0; z-index: 30; }
+      .ring {
+        position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
+        border: 4px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
+      .tag {
+        position: absolute; left: 96px; top: 350px; height: 58px; z-index: 30;
+        display: flex; align-items: center; background: var(--ocre-render); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; padding: 0 15px;
+      }
+
+      /* ===== vidéo composite (fond flou + plan net, pré-cuit ffmpeg) ===== */
+      #compositeVideo { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; object-fit: cover; z-index: 1; }
+
+      /* ===== corps karaoké — CLAUDE.md §4.B (restreint aux 7 premières
+         secondes sur cette variante précise, demande explicite de Thomas) ===== */
+      .story-zone { position: absolute; top: 0; bottom: 0; left: 96px; right: 96px; z-index: 20; text-align: center; }
+      .story-line {
+        position: absolute; left: 0; right: 0;
+        top: 50%; transform: translateY(-50%);
+        font-family: 'Anton', sans-serif; font-size: 80px; line-height: 1.1;
+        text-transform: uppercase; color: var(--cream); opacity: 0;
+        -webkit-text-stroke: 1.5px rgba(44, 40, 35, .35);
+      }
+      .story-line b.ocre { color: var(--ocre-render); font-weight: inherit; }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="41.033333"
+      data-fps="30"
+    >
+      <video id="compositeVideo" src="assets/composite.mp4" data-start="0" data-duration="41.033333" data-track-index="0" muted playsinline></video>
+
+      <!-- ===== header ===== -->
+      <div id="hdr" class="clip" data-start="0" data-duration="41.033333">
+        <div class="ring" id="hdrRing">1·2</div>
+        <div class="wordmark" id="hdrWordmark">une·deux</div>
+        <div class="handle" id="hdrHandle">@UNE.DEUX</div>
+        <div class="hairline" id="hdrHairline"></div>
+      </div>
+      <div class="tag">CE JOUR LÀ …</div>
+
+      <!-- ===== corps karaoké — 9 cartons contigus, uniquement 0.20s→7.00s.
+           Texte écrit en MAJUSCULES littérales dans le HTML (pas seulement
+           via text-transform CSS) — cf. bug de subsetting de police
+           documenté sur ce reel. ===== -->
+      <div class="story-zone">
+        <div class="story-line" id="k1">LA LIGUE DES CHAMPIONS</div>
+        <div class="story-line" id="k2">EST DE RETOUR CE SOIR</div>
+        <div class="story-line" id="k3">DIRECTION 2007,</div>
+        <div class="story-line" id="k4">UNE ÉPOQUE OÙ</div>
+        <div class="story-line" id="k5">ELLE AVAIT ENCORE</div>
+        <div class="story-line" id="k6">UN PARFUM PARTICULIER…</div>
+        <div class="story-line" id="k7">ALORS,</div>
+        <div class="story-line" id="k8">RETOUR SUR UN EXTRAIT CULTE.</div>
+        <div class="story-line" id="k9">MONTEZ LE SON…</div>
+      </div>
+    </div>
+
+    <!-- ===== son de la vidéo source — gardé tout au long du reel sur
+         demande explicite de Thomas pour ce reel (dérogation à la règle
+         "muet" en vigueur sur la branche ce-jour-là depuis le 14 août
+         2026) : <video> reste muet, le son passe par cet élément <audio>
+         séparé, même source d'origine ===== -->
+    <audio id="compositeAudio" src="assets/audio.m4a" data-start="0" data-duration="41.033333" data-track-index="10" data-volume="1"></audio>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // ---- header fade-in, stays on screen for the whole reel ----
+      tl.fromTo('#hdr', { opacity: 0 }, { opacity: 1, duration: 0.4, ease: 'power2.out' }, 0);
+      tl.fromTo('.tag', { opacity: 0 }, { opacity: 1, duration: 0.4, ease: 'power2.out' }, 0);
+
+      // ---- karaoké fade helper (opacity uniquement — .story-line a un
+      // transform:translateY(-50%) statique, jamais de tween sur y, cf. CLAUDE.md §6) ----
+      function fadeBlockKaraoke(sel, start, dur) {
+        tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 0.10, ease: 'power2.out' }, start);
+        tl.to(sel, { opacity: 0, duration: 0.08, ease: 'sine.in' }, start + dur - 0.08);
+        tl.set(sel, { opacity: 0 }, start + dur);
+      }
+
+      // ---- 9 cartons contigus, calage CPS=13 (plancher 0.5s/carton après
+      // compression) sur une fenêtre de 7s uniquement — spécificité de
+      // cette variante (demande explicite de Thomas), pas le standard §4.B/§5 ----
+      fadeBlockKaraoke('#k1', 0.200, 0.947);
+      fadeBlockKaraoke('#k2', 1.147, 0.865);
+      fadeBlockKaraoke('#k3', 2.012, 0.618);
+      fadeBlockKaraoke('#k4', 2.630, 0.535);
+      fadeBlockKaraoke('#k5', 3.165, 0.700);
+      fadeBlockKaraoke('#k6', 3.865, 0.906);
+      fadeBlockKaraoke('#k7', 4.771, 0.500);
+      fadeBlockKaraoke('#k8', 5.271, 1.153);
+      fadeBlockKaraoke('#k9', 6.424, 0.577);
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
