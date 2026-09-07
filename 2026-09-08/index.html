@@ -37,9 +37,9 @@
       /* ===== vidéo composite (fond flou + plan net, pré-cuit ffmpeg) ===== */
       #compositeVideo { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; object-fit: cover; z-index: 1; }
 
-      /* ===== corps karaoké — CLAUDE.md §4.B (restreint aux 9 premières
+      /* ===== corps karaoké — CLAUDE.md §4.B (restreint aux 10 premières
          secondes sur ce reel précis, demande explicite de Thomas) ===== */
-      .story-zone { position: absolute; left: 96px; right: 96px; z-index: 20; text-align: center; }
+      .story-zone { position: absolute; top: 0; bottom: 0; left: 96px; right: 96px; z-index: 20; text-align: center; }
       .story-line {
         position: absolute; left: 0; right: 0;
         top: 50%; transform: translateY(-50%);
@@ -71,24 +71,37 @@
       </div>
       <div class="tag">CE JOUR LÀ …</div>
 
-      <!-- ===== corps karaoké — 14 cartons contigus, uniquement 0.20s→9.01s ===== -->
+      <!-- ===== corps karaoké — 14 cartons contigus, uniquement 0.20s→10.00s.
+           Texte écrit en MAJUSCULES littérales dans le HTML (pas seulement
+           via text-transform CSS) — le compilateur HyperFrames fait du
+           subsetting de police sur les caractères littéraux du source, pas
+           sur le résultat visuel de text-transform ; compter seulement sur
+           le CSS a produit des glyphes cassés (ex. "I") sur le premier
+           rendu de ce reel. ===== -->
       <div class="story-zone">
-        <div class="story-line" id="k1">La Ligue des champions</div>
-        <div class="story-line" id="k2">est de retour ce soir</div>
-        <div class="story-line" id="k3">Alors forcément,</div>
-        <div class="story-line" id="k4">on avait envie</div>
-        <div class="story-line" id="k5">de remonter le temps…</div>
-        <div class="story-line" id="k6">Direction 2007,</div>
-        <div class="story-line" id="k7">Une époque où</div>
-        <div class="story-line" id="k8">la Ligue des champions</div>
-        <div class="story-line" id="k9">avait encore</div>
-        <div class="story-line" id="k10">un parfum bien particulier…</div>
-        <div class="story-line" id="k11">Alors,</div>
-        <div class="story-line" id="k12">pour fêter son retour,</div>
-        <div class="story-line" id="k13">retour sur un extrait culte.</div>
-        <div class="story-line" id="k14">Montez le son…</div>
+        <div class="story-line" id="k1">LA LIGUE DES CHAMPIONS</div>
+        <div class="story-line" id="k2">EST DE RETOUR CE SOIR</div>
+        <div class="story-line" id="k3">ALORS FORCÉMENT,</div>
+        <div class="story-line" id="k4">ON AVAIT ENVIE</div>
+        <div class="story-line" id="k5">DE REMONTER LE TEMPS…</div>
+        <div class="story-line" id="k6">DIRECTION 2007,</div>
+        <div class="story-line" id="k7">UNE ÉPOQUE OÙ</div>
+        <div class="story-line" id="k8">LA LIGUE DES CHAMPIONS</div>
+        <div class="story-line" id="k9">AVAIT ENCORE</div>
+        <div class="story-line" id="k10">UN PARFUM BIEN PARTICULIER…</div>
+        <div class="story-line" id="k11">ALORS,</div>
+        <div class="story-line" id="k12">POUR FÊTER SON RETOUR,</div>
+        <div class="story-line" id="k13">RETOUR SUR UN EXTRAIT CULTE.</div>
+        <div class="story-line" id="k14">MONTEZ LE SON…</div>
       </div>
     </div>
+
+    <!-- ===== son de la vidéo source — gardé tout au long du reel sur
+         demande explicite de Thomas pour ce reel précis (dérogation à la
+         règle "muet" en vigueur sur la branche ce-jour-là depuis le
+         14 août 2026) : <video> reste muet, le son passe par cet élément
+         <audio> séparé, même source d'origine ===== -->
+    <audio id="compositeAudio" src="assets/audio.m4a" data-start="0" data-duration="41.033333" data-track-index="10" data-volume="1"></audio>
 
     <script>
       window.__timelines = window.__timelines || {};
@@ -107,22 +120,22 @@
       }
 
       // ---- 14 cartons contigus, calage CPS=13 (plancher 0.5s/carton après
-      // compression) sur une fenêtre de 9s uniquement — spécificité de ce
+      // compression) sur une fenêtre de 10s uniquement — spécificité de ce
       // reel (demande explicite de Thomas), pas le standard §4.B/§5 ----
-      fadeBlockKaraoke('#k1',  0.20, 0.74);
-      fadeBlockKaraoke('#k2',  0.94, 0.67);
-      fadeBlockKaraoke('#k3',  1.61, 0.51);
-      fadeBlockKaraoke('#k4',  2.12, 0.50);
-      fadeBlockKaraoke('#k5',  2.62, 0.67);
-      fadeBlockKaraoke('#k6',  3.29, 0.50);
-      fadeBlockKaraoke('#k7',  3.79, 0.50);
-      fadeBlockKaraoke('#k8',  4.29, 0.74);
-      fadeBlockKaraoke('#k9',  5.03, 0.50);
-      fadeBlockKaraoke('#k10', 5.53, 0.87);
-      fadeBlockKaraoke('#k11', 6.40, 0.50);
-      fadeBlockKaraoke('#k12', 6.90, 0.71);
-      fadeBlockKaraoke('#k13', 7.61, 0.90);
-      fadeBlockKaraoke('#k14', 8.51, 0.50);
+      fadeBlockKaraoke('#k1',  0.200, 0.852);
+      fadeBlockKaraoke('#k2',  1.052, 0.778);
+      fadeBlockKaraoke('#k3',  1.830, 0.593);
+      fadeBlockKaraoke('#k4',  2.423, 0.519);
+      fadeBlockKaraoke('#k5',  2.942, 0.778);
+      fadeBlockKaraoke('#k6',  3.720, 0.556);
+      fadeBlockKaraoke('#k7',  4.276, 0.500);
+      fadeBlockKaraoke('#k8',  4.776, 0.852);
+      fadeBlockKaraoke('#k9',  5.628, 0.500);
+      fadeBlockKaraoke('#k10', 6.128, 1.001);
+      fadeBlockKaraoke('#k11', 7.129, 0.500);
+      fadeBlockKaraoke('#k12', 7.629, 0.815);
+      fadeBlockKaraoke('#k13', 8.444, 1.038);
+      fadeBlockKaraoke('#k14', 9.482, 0.519);
 
       window.__timelines['main'] = tl;
     </script>
