@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=1080, height=1920" />
-    <title>une·deux — Ce jour là · Ligue des champions 2007 (v2, sous-titres 7s)</title>
+    <title>une·deux — Ce jour là · Ligue des champions 2007 (v2, sous-titres 10s)</title>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
     <link rel="stylesheet" href="tokens/fonts.css" />
     <link rel="stylesheet" href="tokens/colors.css" />
@@ -37,7 +37,7 @@
       /* ===== vidéo composite (fond flou + plan net, pré-cuit ffmpeg) ===== */
       #compositeVideo { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; object-fit: cover; z-index: 1; }
 
-      /* ===== corps karaoké — CLAUDE.md §4.B (restreint aux 7 premières
+      /* ===== corps karaoké — CLAUDE.md §4.B (restreint aux 10 premières
          secondes sur cette variante précise, demande explicite de Thomas) ===== */
       .story-zone { position: absolute; top: 0; bottom: 0; left: 96px; right: 96px; z-index: 20; text-align: center; }
       .story-line {
@@ -71,7 +71,7 @@
       </div>
       <div class="tag">CE JOUR LÀ …</div>
 
-      <!-- ===== corps karaoké — 9 cartons contigus, uniquement 0.20s→7.00s.
+      <!-- ===== corps karaoké — 9 cartons contigus, uniquement 0.20s→10.00s.
            Texte écrit en MAJUSCULES littérales dans le HTML (pas seulement
            via text-transform CSS) — cf. bug de subsetting de police
            documenté sur ce reel. ===== -->
@@ -111,18 +111,18 @@
         tl.set(sel, { opacity: 0 }, start + dur);
       }
 
-      // ---- 9 cartons contigus, calage CPS=13 (plancher 0.5s/carton après
-      // compression) sur une fenêtre de 7s uniquement — spécificité de
-      // cette variante (demande explicite de Thomas), pas le standard §4.B/§5 ----
-      fadeBlockKaraoke('#k1', 0.200, 0.947);
-      fadeBlockKaraoke('#k2', 1.147, 0.865);
-      fadeBlockKaraoke('#k3', 2.012, 0.618);
-      fadeBlockKaraoke('#k4', 2.630, 0.535);
-      fadeBlockKaraoke('#k5', 3.165, 0.700);
-      fadeBlockKaraoke('#k6', 3.865, 0.906);
-      fadeBlockKaraoke('#k7', 4.771, 0.500);
-      fadeBlockKaraoke('#k8', 5.271, 1.153);
-      fadeBlockKaraoke('#k9', 6.424, 0.577);
+      // ---- 9 cartons contigus, calage CPS=13 sur une fenêtre de 10s
+      // uniquement — spécificité de cette variante (demande explicite de
+      // Thomas), pas le standard §4.B/§5 ----
+      fadeBlockKaraoke('#k1', 0.200, 1.379);
+      fadeBlockKaraoke('#k2', 1.579, 1.259);
+      fadeBlockKaraoke('#k3', 2.838, 0.900);
+      fadeBlockKaraoke('#k4', 3.738, 0.780);
+      fadeBlockKaraoke('#k5', 4.518, 1.020);
+      fadeBlockKaraoke('#k6', 5.538, 1.319);
+      fadeBlockKaraoke('#k7', 6.857, 0.624);
+      fadeBlockKaraoke('#k8', 7.481, 1.679);
+      fadeBlockKaraoke('#k9', 9.160, 0.840);
 
       window.__timelines['main'] = tl;
     </script>
