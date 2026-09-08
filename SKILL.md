@@ -182,6 +182,47 @@ incomplète, ou en désaccord avec le texte au moment de cette relecture (cf.
 une fiche complète et cohérente avec le texte n'est pas ré-cherché depuis
 zéro, il est simplement recontrôlé contre sa citation déjà tracée.
 
+**Limite constatée (8 septembre 2026, post Portraits — Brian Clough) : cette
+passe reste insuffisante seule pour les livrables produits par une
+Routine.** Même appliquée avec la fiche au format ci-dessus, elle a laissé
+passer 8 erreurs (dont une statistique sans citation réelle et une erreur
+d'arithmétique triviale sur un écart d'années) — parce qu'elle reste
+exécutée par la **même session** que la rédaction : le biais de
+confirmation n'est réduit qu'en partie quand celle qui s'audite est aussi
+celle qui a écrit. Elle reste un filet de sécurité utile et obligatoire
+(elle attrape les incohérences internes évidentes à moindre coût), mais
+**pour tout livrable produit automatiquement par une Routine, elle est
+complétée par une Routine d'audit séparée** — session neuve, sans mémoire
+de la rédaction, qui ne lit que le texte final publié (jamais la fiche de
+sources déjà produite, pour ne pas s'ancrer dessus) et refait sa propre
+recherche indépendante claim par claim. C'est ce que Thomas a fait à la
+main sur le post Clough (relecture externe, sources croisées) — le
+mécanisme ci-dessous le reproduit de façon systématique :
+
+- **Une Routine de rédaction** (ex. « une.deux - post Portraits ») produit
+  le livrable + sa fiche de sources, comme décrit dans ce document.
+- **Une Routine d'audit dédiée** (ex. « une.deux - Audit indépendant
+  Portraits »), déclenchée séparément (fire_trigger, jamais dans la même
+  exécution), relit uniquement le texte livré, ignore délibérément la
+  fiche de sources déjà présente, revérifie chaque claim par une recherche
+  indépendante, et ajoute au **même brouillon** un verdict par slide
+  (✅ établi / 🟡 à nuancer, avec reformulation proposée / ❌ à corriger,
+  avec correction proposée) — additif uniquement, ne modifie jamais le
+  texte d'origine. Le sujet du brouillon est ensuite préfixé pour indiquer
+  le résultat (« ✅ AUDITÉ · » ou « ⚠️ AUDITÉ — CORRECTIONS REQUISES · »),
+  pour que Thomas voie l'état d'un coup d'œil dans sa liste de brouillons.
+- Trois pièges à cibler en priorité dans cette passe d'audit séparée,
+  identifiés sur le cas Clough : un chiffre dérivé d'un calcul de dates non
+  recalculé, un superlatif/comparatif reformulé plus largement que ce que
+  la source permet (périmètre, seuil, compétition), et un chiffre annoncé
+  publiquement confondu avec le chiffre réel.
+- Ce mécanisme est déployé pour la série Portraits en premier (Routine
+  « une.deux - Audit indépendant Portraits ») — à répliquer pour les autres
+  Routines de production (Post du jour, Les oubliés, arrêt de jeu) une fois
+  validé sur Portraits, avec le même principe : session séparée, aucune
+  confiance dans la fiche déjà produite, verdict additif dans le même
+  brouillon.
+
 ### Efficacité de la vérification (sans réduire la rigueur)
 
 La rigueur ci-dessus ne justifie jamais une recherche gaspillée — chaque
