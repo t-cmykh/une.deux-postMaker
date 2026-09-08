@@ -67,14 +67,42 @@ ils ne l'assouplissent jamais :
   directe.
 - **Traçabilité obligatoire sur TOUT livrable, pas seulement les
   éphémérides.** Chaque post (carrousel, reel, L'arrêt de jeu, livrable
-  quotidien) est accompagné d'une **fiche de sources interne** : la liste des
-  claims utilisés, avec pour chacun ses 3 liens + une phrase résumant ce que
-  dit chacune des 3 sources. Cette fiche n'est **pas publiée** (elle ne
-  remplace pas `LEGENDE.md`/le script) — elle est livrée à Thomas en même
-  temps que le reste pour qu'il puisse auditer avant publication (voir
-  « Livrables par post » et « Livrable quotidien » plus bas). Une fiche vide
-  ou absente signifie que la vérification n'a pas été faite : le post n'est
-  pas livrable en l'état.
+  quotidien) est accompagné d'une **fiche de sources interne**, livrée à
+  Thomas **systématiquement et au même endroit** que le reste du livrable —
+  jamais en pièce séparée à réclamer après coup (voir « Livrables par post »
+  et « Livrable quotidien » plus bas). Cette fiche n'est **pas publiée**
+  (elle ne remplace pas `LEGENDE.md`/le script). Une fiche vide ou absente
+  signifie que la vérification n'a pas été faite : le post n'est pas
+  livrable en l'état.
+
+  **Format par claim (révisé le 8 septembre 2026 — remplace l'ancien format
+  "une phrase résumant ce que dit la source", jugé insuffisant : un résumé
+  peut être écrit sans que la citation exacte ait vraiment été relue) :**
+  1. Le claim tel qu'utilisé dans le texte.
+  2. Pour chacune des 3 sources : le lien, sa date de publication/mise à
+     jour, et une **citation exacte copiée-collée** du passage qui confirme
+     le claim (le texte brut de la source entre guillemets — pas une
+     paraphrase, pas un résumé). Une source dont on ne peut pas extraire de
+     citation exacte ne compte pas pour ce claim.
+  3. La ou les requêtes de recherche effectivement utilisées pour trouver
+     chaque source — traçabilité de la recherche elle-même, pas seulement du
+     résultat, pour qu'une fiche complète en apparence mais bâtie sur une
+     seule vraie recherche reste détectable.
+
+  Objectif : que Thomas puisse auditer un claim en quelques secondes (ouvrir
+  le lien, Ctrl+F la citation) plutôt que refaire la recherche lui-même.
+- **Catégories de sources acceptées / interdites.** Une source ne compte
+  pour une des 3 exigées que si elle appartient à une catégorie identifiable
+  et vérifiable : site officiel (fédération, club, instance judiciaire),
+  média de référence (presse sportive ou généraliste identifiée, agence de
+  presse), base de données de référence (RSSSF, FBref, Wikipédia — jamais
+  seule, cf. règle d'indépendance ci-dessous), encyclopédie reconnue
+  (Britannica, Larousse), ou archive vérifiée (INA, journal d'époque
+  numérisé). **Jamais acceptés comme une des 3 sources** : forum, réseau
+  social (post, thread, commentaire), blog non signé/anonyme, page sans
+  auteur ni date identifiables, ou tout contenu généré par IA. Une source de
+  ce type peut orienter une recherche vers la bonne piste mais ne compte
+  jamais dans le décompte des 3.
 - Si un fait **ne peut pas** être corroboré par 3 sources différentes, il est
   **écarté** : on ne le propose pas dans le brouillon, on ne l'utilise pas dans
   un post.
@@ -114,10 +142,81 @@ La règle des 3 sources précise le *nombre* de sources ; ceci précise la
 5. **Un claim non confirmé est écarté**, pas arrondi ni approximé pour passer
    quand même (cf. règle des 3 sources ci-dessus).
 6. **Consigner la fiche de sources au fur et à mesure**, pas reconstituée de
-   mémoire à la fin. Pour chaque claim retenu : les 3 liens + une phrase par
-   source ("dit quoi exactement"). Une fiche reconstituée après coup, sans
-   avoir gardé trace des recherches réellement faites, n'est pas une preuve
-   de vérification.
+   mémoire à la fin. Pour chaque claim retenu, au format détaillé ci-dessous
+   (« Traçabilité obligatoire ») : lien, date, citation exacte et requête
+   par source. Une fiche reconstituée après coup, sans avoir gardé trace des
+   recherches réellement faites, n'est pas une preuve de vérification.
+
+### Passe d'audit indépendante (obligatoire avant livraison)
+
+**Ajoutée le 8 septembre 2026, en réponse à un problème structurel repéré par
+Thomas : jusqu'ici, la même passe qui rédige le post certifiait aussi
+qu'elle l'avait vérifié — biais de confirmation qui laisse passer des
+erreurs même en suivant le pipeline ci-dessus.** Avant de livrer un post,
+une seconde passe, distincte de la rédaction, reprend le **texte final**
+(pas le brouillon de travail) et vérifie :
+
+1. **Chaque claim du texte livré contre sa ligne de fiche de sources** :
+   le chiffre/la date/le nom qui apparaît dans le titre, le corps, la
+   citation ou la légende correspond-il exactement à la citation exacte
+   relevée (cf. format ci-dessus) ? Toute divergence, même mineure (arrondi,
+   orthographe, ordre de grandeur), est corrigée avant livraison — jamais
+   notée pour "plus tard".
+2. **Tout chiffre dérivé, recalculé explicitement.** Âge calculé à une date,
+   écart de buts, ancienneté d'un record, durée entre deux événements :
+   refaire le calcul à partir des valeurs sourcées et vérifier qu'il
+   correspond au chiffre utilisé dans le texte. Une confusion d'arithmétique
+   ou de millésime (ex. écart d'années qui ignore le mois) est une des
+   erreurs les plus fréquentes, indépendamment de la qualité des sources —
+   montrer le calcul dans la fiche de sources, pas seulement le résultat.
+3. **La fiche de sources elle-même, complète et audit-prête** : 3 sources
+   par claim, citation exacte, lien, requêtes tracées (cf. « Traçabilité
+   obligatoire » ci-dessus). Une fiche incomplète est le signal que le
+   pipeline claim par claim n'a pas été suivi jusqu'au bout — à corriger
+   avant livraison, jamais à livrer "en l'état" avec une réserve verbale.
+
+Cette passe porte sur le **texte final complet**, claim par claim — mais
+elle ne relance une recherche que pour un claim dont la fiche est absente,
+incomplète, ou en désaccord avec le texte au moment de cette relecture (cf.
+« Efficacité de la vérification » ci-dessous) : un claim déjà couvert par
+une fiche complète et cohérente avec le texte n'est pas ré-cherché depuis
+zéro, il est simplement recontrôlé contre sa citation déjà tracée.
+
+### Efficacité de la vérification (sans réduire la rigueur)
+
+La rigueur ci-dessus ne justifie jamais une recherche gaspillée — chaque
+appel de recherche doit ajouter une preuve utile, jamais être relancé par
+prudence ou par paresse de vérifier ce qui a déjà été trouvé. Ce qui suit
+change la mécanique des recherches, jamais le niveau d'exigence appliqué à
+un claim donné :
+
+- **Ne jamais relancer une recherche identique dans la même session.** Si
+  une recherche déjà faite pour un claim couvre aussi un claim voisin (même
+  page, même source), réutiliser le résultat déjà obtenu plutôt que de
+  relancer la même requête — l'exigence porte sur l'indépendance des
+  **sources retenues** (règle d'indépendance, ci-dessus), pas sur le nombre
+  d'appels de recherche.
+- **Réutiliser un fait déjà triple-sourcé dans un post une·deux antérieur**
+  pour le même événement, à condition de retrouver et citer la fiche de
+  sources d'origine (le post/la date où il a été tracé la première fois) —
+  ce n'est pas vérifier "de mémoire" (interdit ci-dessus) puisque la preuve
+  tracée existe déjà et est citée, pas reconstituée. Si le claim réutilisé
+  diverge même légèrement de ce qui est demandé cette fois (angle
+  différent, précision supplémentaire), revérifier ce qui diverge, pas le
+  fait déjà solidement établi.
+- **Requête ciblée d'abord, requête large seulement si elle échoue.**
+  Formuler la recherche la plus précise possible pour le claim (nom, date,
+  chiffre) avant d'élargir — une requête vague qui ramène dix pages à trier
+  coûte plus cher, en appels de lecture, qu'une requête précise qui trouve
+  la bonne source du premier coup.
+- **La passe d'audit indépendante cible les claims à risque en priorité** —
+  chiffre, date, citation, palmarès, score, calcul dérivé — plutôt que de
+  ré-auditer des éléments qui ne sont pas des faits vérifiables (transitions
+  de style, tournures narratives).
+- Rien ci-dessus ne dispense un claim non couvert, douteux, ou en désaccord
+  entre sources de son plein traitement (§ Méthode de vérification et §
+  Passe d'audit indépendante) — un claim fragile se traite intégralement,
+  quel qu'en soit le coût en appels.
 
 **Traitement par lot (plusieurs jours/sujets en une passe) : zéro remise à
 l'échelle de la rigueur.** Une demande portant sur plusieurs jours ou
@@ -213,10 +312,12 @@ Dès que Thomas dit "on va faire un post pour une·deux", livrer **4 éléments*
 1. **SCRIPT SLIDES** (validé avant le reste si Thomas veut arbitrer)
 2. **PROMPTS PHOTO** style presse (un par slide illustrée)
 3. **LÉGENDE** complète (gabarit 5 temps + hashtags de série)
-4. **FICHE DE SOURCES** (interne, non publiée) — un claim par ligne, ses 3
-   liens, une phrase par source résumant ce qu'elle dit. Voir « Règle des 3
-   sources » plus haut. Sert à Thomas pour auditer avant publication ; jamais
-   intégrée telle quelle au script ou à la légende.
+4. **FICHE DE SOURCES** (interne, non publiée), livrée systématiquement avec
+   les 3 autres éléments, au même endroit — jamais séparément ni sur
+   demande. Format détaillé (citation exacte par source, requêtes tracées)
+   dans « Règle des 3 sources » plus haut, en tête de ce document. Sert à
+   Thomas pour auditer un claim en quelques secondes ; jamais intégrée telle
+   quelle au script ou à la légende.
 
 Le **Reel-promo** n'est fourni que si Thomas le demande explicitement.
 
@@ -667,7 +768,8 @@ Complète la section « Ton : journalisme d'investigation » ci-dessus.
   garde-fous durcis de la section « Règle des 3 sources » en tête de ce
   document (interdiction de vérifier de mémoire, vérification chiffre par
   chiffre, citations mot pour mot, fiche de sources tracée au fur et à
-  mesure). Le tableau « Vérification factuelle » d'`ARTICLE.md` (voir
+  mesure) et la « Passe d'audit indépendante » qui la suit, obligatoire ici
+  aussi avant envoi. Le tableau « Vérification factuelle » d'`ARTICLE.md` (voir
   ci-dessous) tient lieu de fiche de sources pour cette série — il doit être
   aussi rigoureux que la fiche interne des autres séries, pas un résumé
   allégé.
@@ -808,11 +910,12 @@ de bloquer la production des autres jours de la plage.
    **« Pas de lien vidéo disponible. »**
 5. **Légende Instagram** prête à publier, au format de la série (voir
    `exemples/legendes-par-serie.md`).
-6. **Fiche de sources** (interne, non publiée) — les 3 liens + une phrase par
-   source pour chaque claim utilisé dans le Corps/Corps (karaoké). Voir
-   « Règle des 3 sources » en tête de ce document. Obligatoire même pour ce
-   livrable allégé : l'absence de `script.json` ne dispense pas de tracer la
-   vérification.
+6. **Fiche de sources** (interne, non publiée), livrée systématiquement dans
+   le même brouillon Gmail — jamais en pièce séparée. Format détaillé
+   (citation exacte par source, requêtes tracées) dans « Règle des 3
+   sources » en tête de ce document. Obligatoire même pour ce livrable
+   allégé : l'absence de `script.json` ne dispense pas de tracer la
+   vérification, ni de la passe d'audit indépendante avant envoi.
 
 **Le livrable quotidien s'arrête là (hors fiche de sources, toujours
 obligatoire) : PAS de `script.json`, PAS de prompts photo.** Ces éléments
