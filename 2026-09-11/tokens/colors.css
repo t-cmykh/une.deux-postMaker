@@ -1,0 +1,55 @@
+/* une·deux — color tokens
+   Source of truth: t-cmykh/une.deux-postMaker (editeurs/editeur-series.html, editeurs/post.html)
+   Base palette (`C` object in the editors) + the 4 series "signature" colors. */
+
+:root{
+  /* ---- base palette (base values) ---- */
+  --ink:            #2C2823;  /* "encre" — primary dark ground, editor bg, ink text on cream */
+  --paper:          #F1ECE1;  /* "newsprint" — editor page/base light tone */
+  --cream:          #EDDCB2;  /* "creme" — cream text-on-dark, CTA/quote card ground */
+  --muted-cream:    #D1C1A3;  /* "soustitre" — muted body copy on dark grounds */
+  --line-dark:      #4a463e;  /* hairline rules on dark editor UI */
+  --panel:          #26221d;  /* editor input/panel fill, one step lighter than ink */
+
+  /* ---- series signature colors (base) ---- */
+  --ocre:           #C2A04E;  /* Ce jour-là signature */
+  --vert:           #27543C;  /* Les oubliés signature */
+  --vert-deep:      #1F4430;  /* Les oubliés — deeper variant */
+  --rouille:        #A8452B;  /* L'arrêt de jeu signature */
+
+  /* ---- semantic: surfaces ---- */
+  --surface-dark:       var(--ink);     /* cover / breather slide ground */
+  --surface-light:      var(--cream);   /* CTA + quote slide ground */
+  --surface-editor-bg:  var(--ink);
+  --surface-editor-panel: var(--panel);
+  --surface-editor-input: var(--panel);
+
+  /* ---- semantic: text ---- */
+  --text-heading-on-dark: var(--cream);
+  --text-body-on-dark:    var(--muted-cream);
+  --text-heading-on-light: var(--ink);
+  --text-body-on-light:    var(--ink);
+  --text-label-muted:      #9a968c;  /* editor field labels */
+  --text-label-faint:      #776f60;  /* editor hint copy */
+
+  /* ---- semantic: borders ---- */
+  --border-editor: var(--line-dark);
+  --border-editor-hover: #6a635a;
+
+  /* ---- semantic: series signature + the ink/cream that sits on top of each ---- */
+  --sig-cejourla:        var(--ocre);
+  --on-sig-cejourla:     var(--ink);
+
+  --sig-oublies:         var(--vert);
+  --on-sig-oublies:      var(--cream);
+
+  --sig-arretdejeu:      var(--rouille);
+  --on-sig-arretdejeu:   var(--cream);
+
+  --sig-portraits:       var(--cream);   /* text/rule color for Portraits */
+  --swatch-portraits:    var(--ink);     /* series-picker swatch/dot color for Portraits */
+
+  /* ---- links (none exist in the source; kept in the brand's own palette) ---- */
+  --link: var(--ocre);
+  --link-hover: #d8b666;
+}
