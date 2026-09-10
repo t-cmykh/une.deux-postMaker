@@ -332,6 +332,9 @@ const C = {
   newsprint:'#F1ECE1', encre:'#2C2823', vert:'#27543C', vertD:'#1F4430',
   ocre:'#C2A04E', creme:'#EDDCB2', soustitre:'#D1C1A3', line:'#EDDCB2',
   rouille:'#A8452B',
+  /* bleu pétrole, même famille désaturée/vintage que ocre/vert/rouille —
+     réservé à L'histoire derrière cette photo. */
+  bleu:'#336699',
   /* fond crème désaturé de 25% (HSL, S×0.75), réservé à L'arrêt de jeu —
      #EDDCB2 (62.1% sat) -> #E6D9B9 (46.6% sat). Ne pas toucher C.creme,
      qui reste la référence pour les 3 autres séries. */
@@ -376,7 +379,10 @@ const SERIES = {
     legend:'Format reel dédié · N&B studio · monogramme seul · titre vertical.' },
   arretdejeu:{ name:"L'arrêt de jeu", label:"L'ARRÊT DE JEU", num:'N°1', sig:C.rouille, swatch:C.rouille,
     photo:'enquete', desc:'Enquête & hypothèse · carrousel', sigTextColor:C.creme,
-    legend:"Même template cover · signature rouille · virage sépia enquête + légère surimpression dossier sur le média. Répond à une question foot par l'hypothèse (« pourquoi les Bleus ne rejouent plus en rouge ? »)." }
+    legend:"Même template cover · signature rouille · virage sépia enquête + légère surimpression dossier sur le média. Répond à une question foot par l'hypothèse (« pourquoi les Bleus ne rejouent plus en rouge ? »)." },
+  histoire:{ name:"L'histoire derrière cette photo", label:"L'HISTOIRE DERRIÈRE CETTE PHOTO", num:'N°1', sig:C.bleu, swatch:C.bleu,
+    photo:'', desc:'Photo & récit · carrousel', sigTextColor:C.creme,
+    legend:"Même template cover · signature bleu pétrole · photo plein cadre sans filtre (la photo d'origine est le sujet)." }
 };
 
 /* ===== State (calé sur post.html) ===== */
@@ -407,7 +413,7 @@ const state = {
 
 const RATIOS = {'3:4':[1080,1440], '4:5':[1080,1350], '9:16':[1080,1920], '1:1':[1080,1080]};
 const RAT_BY_SERIE = { cejourla:['9:16'], oublies:['3:4'],
-  portraits:['3:4'], arretdejeu:['3:4'] };
+  portraits:['3:4'], arretdejeu:['3:4'], histoire:['3:4'] };
 
 const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
 function mediaW(m){return m.videoWidth||m.naturalWidth||m.width;}
