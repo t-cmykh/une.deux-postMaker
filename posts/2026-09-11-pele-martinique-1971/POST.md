@@ -233,3 +233,31 @@ citation littérale de la1ere.
   par au moins 2 citations exactes indépendantes d'autres publications (franceguyane.fr,
   film-documentaire.fr, fr.wikipedia.org) — signalé ici pour transparence, pas pour minimiser
   la réserve.
+
+---
+
+## Audit indépendant (passe séparée, additive — verdict par slide)
+
+Effectué après la rédaction, avec de nouvelles recherches ciblées (requêtes différentes de
+celles de la rédaction initiale), sans se reposer sur la fiche de sources ci-dessus tant que
+chaque claim n'a pas été recontrôlé. Verdict : ✅ établi / 🟡 à nuancer / ❌ à corriger.
+**Aucune correction de texte n'a été nécessaire** — le texte livré (slides + légende) reste
+inchangé. Deux points restent en 🟡, déjà traités avec prudence dans le texte livré (voir
+détail ci-dessous).
+
+| Slide | Claim(s) | Verdict | Détail de l'audit |
+|-------|----------|---------|--------------------|
+| S1 (cover) | Billet passé de 10 à 100 francs | ✅ établi | Reconfirmé par une nouvelle recherche croisée (requête `"Groupe d'Action Prolétarienne" Martinique 1971 Pelé grève`) — cohérent avec franceguyane.fr et film-documentaire.fr déjà cités. |
+| S2 (contexte) | « Quelques mois après son 3ᵉ sacre mondial » ; match à Fort-de-France | ✅ établi | Une nouvelle synthèse de recherche répète « six mois » — recalcul confirmé : finale du 21 juin 1970 → janvier 1971 = **~7 mois**, pas 6. La correction déjà appliquée dans le texte livré (« quelques mois », pas de chiffre précis) est validée par cet audit, pas seulement par la rédaction initiale. |
+| S3 (H) | Aucun fait (slide-respiration) | — | N/A |
+| S4 | Prix multiplié par dix | ✅ établi | Idem S1. |
+| S5 (G — citation) | Slogan « Nous irons voir Pelé sans payer », Groupe d'Action Prolétarienne (GAP) | 🟡 à nuancer | Une nouvelle recherche indépendante (`"Groupe d'Action Prolétarienne" Martinique 1971 Pelé grève`) fait apparaître des sources tierces sur le GAP et les luttes martiniquaises de l'époque (Lutte Ouvrière, un article académique AFSP/Pierre Odin non lisible en l'état — PDF non exploitable par les outils disponibles) qui confirment l'existence et le positionnement du GAP dans cette période, mais aucune n'a pu être relue avec une citation exacte reliant explicitement le slogan à Pelé. Le fait reste couvert par 2 citations exactes indépendantes (franceguyane.fr en creux, film-documentaire.fr explicitement) — **suffisant pour publier tel quel**, mais pas au niveau ✅ (3 citations exactes indépendantes). Reformulation proposée si Thomas veut passer en ✅ : retrouver une 3ᵉ source primaire (coupure de presse d'époque, archive INA, ou l'article académique une fois lisible) plutôt que reformuler le texte, qui est déjà correctement attribué et daté. |
+| S6 | Manifestations, heurts avec les gendarmes, blessés | ✅ établi | franceguyane.fr (citation exacte, relue une 2e fois) tient la charge à lui seul de façon solide ; cohérent avec le contexte GAP/ticket-price ci-dessus. |
+| S7 (climax) | Diffusion en direct, première de l'île ; score 4-1 ; Martinique a marqué | ✅ établi | Reconfirmé par une nouvelle recherche indépendante (`INA archive Pelé Martinique 1971 Fort-de-France vidéo`) qui ajoute un détail non retenu dans le texte livré : plusieurs résultats évoquent une **première diffusion EN COULEUR**, produite par une équipe ORTF spécialement envoyée de Paris. **Fait non ajouté au texte** — une seule famille de source (la1ere.franceinfo.fr, non relue directement) le mentionne, pas de 2ᵉ source indépendante trouvée à ce stade. Signalé ici comme piste d'enrichissement future, pas comme correction. |
+| S8 (CTA) | Aucun fait | — | N/A |
+| — | Date exacte du match (23 vs 28 janvier 1971) | 🟡 non tranché (confirmé par l'audit) | Une nouvelle recherche croisée fait à nouveau apparaître les deux dates sans départager : Wikipédia FR / wikimonde.com donnent le 23, franceguyane.fr donne le 28. Une tentative de résolution automatique (« Pelé serait arrivé le 28, le match aurait eu lieu le 23 ») n'est pas une source réelle — c'est une reformulation spéculative de l'outil de recherche, écartée. **Décision confirmée** : le texte livré ne mentionne que « janvier 1971 », sans jour précis. |
+
+**Conclusion de l'audit :** le post est publiable en l'état. Les deux points 🟡 (slogan GAP, date
+exacte) sont déjà traités avec la prudence requise dans le texte livré (attribution correcte,
+absence de jour précis) — ils ne bloquent pas la publication, mais valent la peine d'être
+rouverts si une source primaire d'époque (coupure de presse, archive INA) refait surface.
