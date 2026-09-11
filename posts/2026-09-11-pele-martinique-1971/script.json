@@ -1,0 +1,63 @@
+[
+  {
+    "template": "A",
+    "tag": "LA VISITE DU ROI",
+    "title": "PELÉ A JOUÉ EN MARTINIQUE. LE BILLET EST PASSÉ DE 10 À 100 FRANCS.",
+    "greenWord": "100 FRANCS",
+    "body": "Et ça a failli mal tourner.",
+    "media": "pele_martinique_01.PNG"
+  },
+  {
+    "template": "A",
+    "tag": "LE CONTEXTE",
+    "title": "QUELQUES MOIS APRÈS SON TROISIÈME SACRE MONDIAL, LE ROI DÉBARQUE À FORT-DE-FRANCE.",
+    "greenWord": "TROISIÈME SACRE MONDIAL",
+    "body": "Le Santos FC en tournée dans la Caraïbe. La Martinique n'avait jamais vu un spectacle pareil arriver chez elle.",
+    "media": "pele_martinique_02.PNG"
+  },
+  {
+    "template": "H",
+    "quote": "Le vrai choc était ailleurs.",
+    "quoteAccent": "ailleurs.",
+    "quoteAuthor": "",
+    "caption": ""
+  },
+  {
+    "template": "A",
+    "tag": "1971",
+    "title": "DIX FRANCS LE BILLET. PUIS CENT, DU JOUR AU LENDEMAIN.",
+    "greenWord": "CENT",
+    "body": "De quoi payer le cachet du club brésilien. Personne n'avait demandé l'avis des Martiniquais.",
+    "media": "pele_martinique_03.PNG"
+  },
+  {
+    "template": "G",
+    "quote": "Nous irons voir Pelé sans payer.",
+    "quoteAccent": "sans payer.",
+    "quoteAuthor": "Slogan du Groupe d'Action Prolétarienne, Martinique, janvier 1971",
+    "caption": "LE SLOGAN"
+  },
+  {
+    "template": "A",
+    "tag": "LE DÉTAIL FOU",
+    "title": "TRACTS, MANIFESTATIONS, HEURTS AVEC LES GENDARMES. IL Y A EU DES BLESSÉS.",
+    "greenWord": "DES BLESSÉS",
+    "body": "Pour calmer l'île, l'État a fait une chose qu'il n'avait jamais faite avant.",
+    "media": "pele_martinique_04.PNG"
+  },
+  {
+    "template": "A",
+    "tag": "LE DÉNOUEMENT",
+    "title": "L'ÉTAT A FAIT DIFFUSER LE MATCH EN DIRECT. LA PREMIÈRE RETRANSMISSION SPORTIVE DE L'ÎLE.",
+    "greenWord": "LA PREMIÈRE",
+    "body": "Santos a gagné 4-1. La Martinique a quand même marqué. Mais ce jour-là, le vrai résultat n'était pas sur le tableau d'affichage.",
+    "media": "pele_martinique_05.PNG"
+  },
+  {
+    "template": "D",
+    "tag": "LE RECAP",
+    "title": "RESTE DANS LE JEU",
+    "body": "Le foot en deux touches, tous les jours.",
+    "btnlabel": "FOLLOW"
+  }
+]
