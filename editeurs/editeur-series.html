@@ -442,9 +442,10 @@ function safeBottom(){ return state.ratio==='9:16'?120:0; }
 
 function defaultTag(key){ return SERIES[key].label; }
 
-/* pagination visible partout, sauf Les oubliés / L'arrêt de jeu quand leur toggle est désactivé */
+/* pagination visible partout, sauf Les oubliés / L'arrêt de jeu / L'histoire derrière
+   cette photo quand leur toggle est désactivé */
 function paginationShown(){
-  return !(state.serie==='arretdejeu'||state.serie==='oublies') || state.paginationOn;
+  return !(state.serie==='arretdejeu'||state.serie==='oublies'||state.serie==='histoire') || state.paginationOn;
 }
 
 /* ===== UI séries ===== */
@@ -472,8 +473,8 @@ function selectSerie(key){
   document.getElementById('f_tag').value=defaultTag(key);
   /* champ fond corps : uniquement Portraits */
   document.getElementById('field_bodybox').style.display = (key==='portraits')?'block':'none';
-  /* toggles swipe + pagination : Les oubliés et L'arrêt de jeu */
-  document.getElementById('field_footer_toggles').style.display = (key==='arretdejeu'||key==='oublies')?'block':'none';
+  /* toggles swipe + pagination : Les oubliés, L'arrêt de jeu et L'histoire derrière cette photo */
+  document.getElementById('field_footer_toggles').style.display = (key==='arretdejeu'||key==='oublies'||key==='histoire')?'block':'none';
   /* toggle filtre rouille (photo) : uniquement L'arrêt de jeu */
   document.getElementById('field_enquetefilter').style.display = (key==='arretdejeu')?'block':'none';
   /* template "citation · interview" (duo photo/texte) : réservé à L'arrêt de jeu */
