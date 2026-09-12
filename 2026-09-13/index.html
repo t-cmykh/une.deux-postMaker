@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 13 septembre 2005, Lyon humilie le Real Madrid des Galactiques (style karaoké)</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* vidéo du Drive gardée intégrale, telle quelle (pas de sélection de
+         plans, §1bis CLAUDE.md ce-jour-là) — un seul composite continu du
+         début à la fin (0 -> 49.333333s), même géométrie sur toute la durée :
+         fond plein cadre flouté/désaturé + plan net 1080x888 plein cadre
+         horizontal (overlay y=420, §2 CLAUDE.md). Source brute : 860x500
+         (~1.72:1, ffprobe — pas de métadonnée de rotation). Cover-crop
+         calculé dynamiquement par ffmpeg (scale=-2:H puis crop centré) plutôt
+         que des constantes recopiées d'un autre ratio source. Un seul
+         élément <video>, pas de titre animé séparé pour ce style (§4bis ne
+         s'applique pas au style karaoké). Le son de la vidéo source n'est
+         jamais repris pour ce format (§2/§7 CLAUDE.md branche ce-jour-là) :
+         bake fait avec -an, pas d'élément <audio>. */
+      .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+
+      /* header - constantes fixes de la série, persistant du début à la fin */
+      #hdr { position: absolute; inset: 0 0 auto 0; z-index: 20; }
+      .ring {
+        position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
+        border: 4px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
+
+      /* --ocre-render : compensation du décalage de teinte du pipeline de
+         render HyperFrames sur --ocre (§3 CLAUDE.md) - ne pas remplacer
+         var(--ocre) dans tokens/colors.css, uniquement une variable locale
+         à la composition. Aucun mot-clé **...** littéral dans le CORPS
+         (karaoké) de ce brouillon, donc b.ocre n'est pas utilisé ici mais
+         la règle CSS reste déclarée pour cohérence. */
+      :root { --ocre-render: #B9A456; }
+      .tag {
+        position: absolute; left: 96px; top: 350px; height: 58px; z-index: 20;
+        display: flex; align-items: center; background: var(--ocre-render); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; padding: 0 15px;
+      }
+
+      /* corps de texte façon karaoké - Anton, centré verticalement dans le
+         cadre, superposé directement sur le plan net (§4.B CLAUDE.md
+         ce-jour-là). Taille FIXE 80px pour toutes les cartes, aucun palier
+         par longueur ; aucune ombre portée ; léger contour semi-transparent
+         ink. Texte déjà écrit en MAJUSCULES dans le HTML (pas seulement via
+         text-transform, cf. bug de subsetting de police documenté au
+         §4.B). .story-line porte un transform:translateY(-50%) STATIQUE -
+         ne jamais animer y dessus avec GSAP (§6), opacity uniquement. */
+      .story-zone { position: absolute; top: 0; bottom: 0; left: 96px; right: 96px; z-index: 20; text-align: center; }
+      .story-line {
+        position: absolute; left: 0; right: 0;
+        top: 50%; transform: translateY(-50%);
+        font-family: 'Anton', sans-serif; font-size: 80px; line-height: 1.1;
+        text-transform: uppercase; color: var(--cream); opacity: 0;
+        -webkit-text-stroke: 1.5px rgba(44,40,35,.35);
+      }
+      /* mot-clé en ocre via **mot** dans CORPS (karaoké) - §4.B règle du
+         13 août 2026 : couleur seule, pas de fond/padding. Aucun mot-clé
+         marqué (au sens littéral **mot**) dans ce brouillon, règle non
+         utilisée ici. */
+      .story-line b.ocre { color: var(--ocre-render); font-weight: inherit; }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="49.333333"
+      data-fps="30"
+    >
+      <!-- vidéo du Drive intégrale, un seul plan continu du début à la fin -->
+      <video class="video-full" id="fullv" src="assets/composite.mp4" data-start="0.0000" data-duration="49.333333" data-track-index="1" muted playsinline></video>
+
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+      <div class="tag">CE JOUR LÀ …</div>
+
+      <!-- corps du post - champ CORPS (KARAOKÉ) du brouillon Gmail
+           "📲 POST DU JOUR — 13 septembre 2026 · Lyon humilie le Real Madrid
+           des Galactiques". Une ligne du brouillon = une carte, verbatim,
+           aucun re-découpage (§4.B) - 37 cartes, mises en capitales pour
+           l'affichage. Aucun **mot** entre astérisques doubles littéraux
+           dans le CORPS (karaoké) source, donc pas de <b class="ocre">
+           appliqué ici, conformément à la règle d'extraction par position
+           du §4.B. -->
+      <div class="story-zone">
+        <div class="story-line" id="c1">LE REAL MADRID</div>
+        <div class="story-line" id="c2">ÉTAIT VENU À LYON</div>
+        <div class="story-line" id="c3">AVEC SES GALACTIQUES.</div>
+        <div class="story-line" id="c4">À LA PAUSE,</div>
+        <div class="story-line" id="c5">LE MATCH ÉTAIT DÉJÀ TERMINÉ…</div>
+        <div class="story-line" id="c6">À LYON,</div>
+        <div class="story-line" id="c7">LE 13 SEPTEMBRE 2005.</div>
+        <div class="story-line" id="c8">GERLAND REÇOIT</div>
+        <div class="story-line" id="c9">LE REAL MADRID</div>
+        <div class="story-line" id="c10">POUR LA PREMIÈRE JOURNÉE</div>
+        <div class="story-line" id="c11">DE LIGUE DES CHAMPIONS.</div>
+        <div class="story-line" id="c12">À LA 21E MINUTE,</div>
+        <div class="story-line" id="c13">JOHN CAREW OUVRE LE SCORE.</div>
+        <div class="story-line" id="c14">5 MINUTES PLUS TARD,</div>
+        <div class="story-line" id="c15">JUNINHO DOUBLE LA MISE</div>
+        <div class="story-line" id="c16">SUR COUP FRANC.</div>
+        <div class="story-line" id="c17">PUIS WILTORD</div>
+        <div class="story-line" id="c18">ENFONCE LE REAL.</div>
+        <div class="story-line" id="c19">3-0</div>
+        <div class="story-line" id="c20">LE REAL ALIGNE</div>
+        <div class="story-line" id="c21">UNE ÉQUIPE AFFAIBLIE</div>
+        <div class="story-line" id="c22">SANS ZIDANE ET RONALDO</div>
+        <div class="story-line" id="c23">MAIS LYON</div>
+        <div class="story-line" id="c24">VIENT DE FAIRE</div>
+        <div class="story-line" id="c25">VOLER EN ÉCLATS</div>
+        <div class="story-line" id="c26">LES GALACTIQUES.</div>
+        <div class="story-line" id="c27">CE SOIR-LÀ,</div>
+        <div class="story-line" id="c28">LYON NE BAT PAS SEULEMENT</div>
+        <div class="story-line" id="c29">LE REAL MADRID.</div>
+        <div class="story-line" id="c30">IL MONTRE À L’EUROPE</div>
+        <div class="story-line" id="c31">QU’IL EST DÉSORMAIS</div>
+        <div class="story-line" id="c32">BIEN PLUS</div>
+        <div class="story-line" id="c33">QU’UN CHAMPION DE FRANCE.</div>
+        <div class="story-line" id="c34">ET QUELQUES MOIS PLUS TARD,</div>
+        <div class="story-line" id="c35">LES LYONNAIS TERMINERONT</div>
+        <div class="story-line" id="c36">PREMIERS DE LEUR GROUPE</div>
+        <div class="story-line" id="c37">DEVANT LE REAL…</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      /* corps façon karaoké - §4.B/§5 CLAUDE.md (branche ce-jour-là) :
+         rythme calculé au CPS (13 caractères/seconde), plancher 0.8s/carte,
+         zéro pause entre blocs (toujours un sous-titre à l'écran),
+         démarrage à 0.25s absolu (pas d'introEnd, pas de titre animé pour ce
+         style). 37 cartes, 647 caractères au total, durée disponible =
+         49.333333-0.25 = 49.083333s -> facteur d'étirement ~0.9659 sur les
+         durées brutes CPS (durées finales de 0.773s à 2.080s, toutes
+         au-dessus du plancher de lisibilité ~0.5s du §5). Dernière carte se
+         termine à 49.333s (fin exacte de la vidéo). Calcul fait via script
+         (Python), pas à la main. Texte repris verbatim du champ CORPS
+         (karaoké) du brouillon "📲 POST DU JOUR — 13 septembre 2026" tel
+         qu'il se lit au moment de ce build (ordre et ponctuation exacts). */
+      function fadeBlockKaraoke(sel, start, dur) {
+        tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 0.10, ease: 'power2.out' }, start);
+        tl.to(sel, { opacity: 0, duration: 0.08, ease: 'sine.in' }, start + dur - 0.08);
+        tl.set(sel, { opacity: 0 }, start + dur);
+      }
+
+      const cards = [
+        { id: "c1", start: 0.250, dur: 1.040 }, // "LE REAL MADRID"
+        { id: "c2", start: 1.290, dur: 1.263 }, // "ÉTAIT VENU À LYON"
+        { id: "c3", start: 2.553, dur: 1.560 }, // "AVEC SES GALACTIQUES."
+        { id: "c4", start: 4.114, dur: 0.817 }, // "À LA PAUSE,"
+        { id: "c5", start: 4.931, dur: 2.080 }, // "LE MATCH ÉTAIT DÉJÀ TERMINÉ…"
+        { id: "c6", start: 7.011, dur: 0.773 }, // "À LYON,"
+        { id: "c7", start: 7.784, dur: 1.560 }, // "LE 13 SEPTEMBRE 2005."
+        { id: "c8", start: 9.344, dur: 1.040 }, // "GERLAND REÇOIT"
+        { id: "c9", start: 10.385, dur: 1.040 }, // "LE REAL MADRID"
+        { id: "c10", start: 11.425, dur: 1.783 }, // "POUR LA PREMIÈRE JOURNÉE"
+        { id: "c11", start: 13.208, dur: 1.709 }, // "DE LIGUE DES CHAMPIONS."
+        { id: "c12", start: 14.917, dur: 1.189 }, // "À LA 21E MINUTE,"
+        { id: "c13", start: 16.106, dur: 1.932 }, // "JOHN CAREW OUVRE LE SCORE."
+        { id: "c14", start: 18.038, dur: 1.486 }, // "5 MINUTES PLUS TARD,"
+        { id: "c15", start: 19.524, dur: 1.635 }, // "JUNINHO DOUBLE LA MISE"
+        { id: "c16", start: 21.158, dur: 1.115 }, // "SUR COUP FRANC."
+        { id: "c17", start: 22.273, dur: 0.892 }, // "PUIS WILTORD"
+        { id: "c18", start: 23.164, dur: 1.189 }, // "ENFONCE LE REAL."
+        { id: "c19", start: 24.353, dur: 0.773 }, // "3-0"
+        { id: "c20", start: 25.126, dur: 1.040 }, // "LE REAL ALIGNE"
+        { id: "c21", start: 26.166, dur: 1.486 }, // "UNE ÉQUIPE AFFAIBLIE"
+        { id: "c22", start: 27.652, dur: 1.635 }, // "SANS ZIDANE ET RONALDO"
+        { id: "c23", start: 29.287, dur: 0.773 }, // "MAIS LYON"
+        { id: "c24", start: 30.060, dur: 1.040 }, // "VIENT DE FAIRE"
+        { id: "c25", start: 31.100, dur: 1.115 }, // "VOLER EN ÉCLATS"
+        { id: "c26", start: 32.214, dur: 1.189 }, // "LES GALACTIQUES."
+        { id: "c27", start: 33.403, dur: 0.817 }, // "CE SOIR-LÀ,"
+        { id: "c28", start: 34.220, dur: 1.858 }, // "LYON NE BAT PAS SEULEMENT"
+        { id: "c29", start: 36.078, dur: 1.115 }, // "LE REAL MADRID."
+        { id: "c30", start: 37.193, dur: 1.486 }, // "IL MONTRE À L'EUROPE"
+        { id: "c31", start: 38.679, dur: 1.412 }, // "QU'IL EST DÉSORMAIS"
+        { id: "c32", start: 40.090, dur: 0.773 }, // "BIEN PLUS"
+        { id: "c33", start: 40.863, dur: 1.858 }, // "QU'UN CHAMPION DE FRANCE."
+        { id: "c34", start: 42.721, dur: 2.006 }, // "ET QUELQUES MOIS PLUS TARD,"
+        { id: "c35", start: 44.727, dur: 1.783 }, // "LES LYONNAIS TERMINERONT"
+        { id: "c36", start: 46.510, dur: 1.709 }, // "PREMIERS DE LEUR GROUPE"
+        { id: "c37", start: 48.219, dur: 1.115 }, // "DEVANT LE REAL…"
+      ];
+
+      cards.forEach(({ id, start, dur }) => {
+        fadeBlockKaraoke(`#${id}`, start, dur);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
