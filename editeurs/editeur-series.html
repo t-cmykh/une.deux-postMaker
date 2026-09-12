@@ -171,6 +171,7 @@ Corps du CTA."></textarea>
         <div class="chip" data-tpl="enquete-temoin" id="chip_enquete_temoin" style="display:none">ENQUÊTE · TÉMOIN</div>
         <div class="chip" data-tpl="enquete-duo" id="chip_enquete_duo" style="display:none">ENQUÊTE · DUO PHOTO</div>
         <div class="chip" data-tpl="enquete-titre" id="chip_enquete_titre" style="display:none">ENQUÊTE · TITRE XXL</div>
+        <div class="chip" data-tpl="histoire-recit" id="chip_histoire_recit" style="display:none">PHOTO & RÉCIT</div>
         <div class="chip" data-tpl="cta">CTA ENREGISTRE</div>
       </div>
     </div>
@@ -490,7 +491,14 @@ function selectSerie(key){
   ['chip_enquete_temoin','chip_enquete_duo','chip_enquete_titre'].forEach(id=>{
     document.getElementById(id).style.display = (key==='arretdejeu')?'':'none';
   });
+  /* template "photo & récit" (photo encadrée 3:4 en haut à droite, titre +
+     chapô + corps à lettrine pleine largeur en dessous) : réservé à L'histoire
+     derrière cette photo */
+  document.getElementById('chip_histoire_recit').style.display = (key==='histoire')?'':'none';
   if((state.template==='verbatim' || state.template==='citation-echo' || LONGFORM_TPLS.includes(state.template)) && key!=='arretdejeu'){
+    document.querySelector('#tpl_chips [data-tpl="citation"]').click();
+  }
+  if(state.template==='histoire-recit' && key!=='histoire'){
     document.querySelector('#tpl_chips [data-tpl="citation"]').click();
   }
   /* apparition ligne par ligne du titre : uniquement Ce jour-là */
@@ -567,13 +575,15 @@ document.querySelectorAll('#tpl_chips .chip').forEach(c=>{
     document.getElementById('field_titleanim').style.display = (state.template==='titre' && state.serie==='cejourla')?'block':'none';
     document.getElementById('field_textbg').style.display = (state.template==='corps')?'block':'none';
     /* templates longform "enquête" : chapô italique (témoin/duo), byline (titre XXL),
-       Q&A 3 colonnes (témoin), corps relabellé selon le rôle qu'il joue dans chacun */
-    document.getElementById('field_intro').style.display = (state.template==='enquete-temoin'||state.template==='enquete-duo')?'block':'none';
+       Q&A 3 colonnes (témoin), corps relabellé selon le rôle qu'il joue dans chacun —
+       "photo & récit" (L'histoire derrière cette photo) partage le même chapô +
+       corps à lettrine que témoin/duo */
+    document.getElementById('field_intro').style.display = (state.template==='enquete-temoin'||state.template==='enquete-duo'||state.template==='histoire-recit')?'block':'none';
     document.getElementById('field_byline').style.display = (state.template==='enquete-titre')?'block':'none';
     document.getElementById('field_qa').style.display = (state.template==='enquete-temoin')?'block':'none';
     const bodyLabel=document.getElementById('f_body_label');
     if(state.template==='enquete-titre') bodyLabel.textContent='Corps (texte, 2 colonnes)';
-    else if(state.template==='enquete-temoin'||state.template==='enquete-duo') bodyLabel.textContent='Corps (paragraphe, lettrine)';
+    else if(state.template==='enquete-temoin'||state.template==='enquete-duo'||state.template==='histoire-recit') bodyLabel.textContent='Corps (paragraphe, lettrine)';
     else bodyLabel.textContent='Sous-titre (corps)';
     updateKwPadVisibility();
     setVerbatimLabels(state.template==='verbatim');
@@ -1048,6 +1058,9 @@ function draw(){
   if(state.template==='enquete-temoin'){ drawEnqueteTemoin(W,H,s); if(state.safeOn) drawSafeGuides(W,H); return; }
   if(state.template==='enquete-duo'){ drawEnqueteDuo(W,H,s); if(state.safeOn) drawSafeGuides(W,H); return; }
   if(state.template==='enquete-titre'){ drawEnqueteTitre(W,H,s); if(state.safeOn) drawSafeGuides(W,H); return; }
+
+  /* router PHOTO & RÉCIT (L'histoire derrière cette photo) */
+  if(state.template==='histoire-recit'){ drawHistoireRecit(W,H,s); if(state.safeOn) drawSafeGuides(W,H); return; }
 
   /* 1. média de fond */
   if(state.img){
@@ -1650,7 +1663,10 @@ function drawVerbatim(W,H,s){
    L'arrêt de jeu (fond crème + stries, header/tag identiques aux autres
    templates de la série), pensées pour un post d'enquête façon interview
    longue plutôt qu'une simple citation. Partagent des helpers dédiés
-   ci-dessous (photo encadrée, lettrine, texte en colonnes, Q&R). ===== */
+   ci-dessous (photo encadrée, lettrine, texte en colonnes, Q&R) — également
+   réutilisés par le template PHOTO & RÉCIT de L'histoire derrière cette
+   photo, plus loin dans ce fichier, qui n'appartient PAS à cette famille
+   "enquête" (série différente, pas de fond désaturé ni de trame de journal). ===== */
 
 /* photo encadrée dans un rectangle donné (pas plein cadre) — même logique de
    cover-crop + filtre de série que le reste de l'éditeur, translatée dans le
@@ -1860,6 +1876,46 @@ function dropCapParagraph(g,text,x,topY,maxW,maxH,color){
     drawBodyRich(g, ln.words.join(' '), lx, y, bodySize);
     y+=lineH;
   });
+  g.restore();
+  return y;
+}
+
+/* paragraphe SANS lettrine — même mécanique de taille adaptative que
+   dropCapParagraph (mêmes paliers, même garde-fou de troncature dure), mais
+   toutes les lignes pleine largeur dès le début. Utilisé par PHOTO & RÉCIT
+   (L'histoire derrière cette photo) : demande explicite de Thomas de retirer
+   la lettrine de ce template après un premier essai (la grande capitale
+   posait un problème de lisibilité à côté du mot qui suit sur la 1ère ligne). */
+function plainParagraph(g,text,x,topY,maxW,maxH,color){
+  const trimmed=String(text).trim();
+  if(!trimmed) return topY;
+
+  const sizes=[28,26,24,22,20,18,16];
+  let picked=null;
+  for(let i=0;i<sizes.length;i++){
+    const bodySize=sizes[i], lineH=Math.round(bodySize*1.36);
+    const lines=wrapAtSize(g,trimmed,maxW,bodySize);
+    const h=bodySize*1.02+(lines.length-1)*lineH;
+    if(h<=Math.max(40,maxH) || i===sizes.length-1){ picked={bodySize,lineH,lines}; break; }
+  }
+  let {bodySize,lineH,lines}=picked;
+  /* garde-fou dur, identique à dropCapParagraph : tronquer plutôt que déborder */
+  const maxLines=Math.max(1,Math.floor(Math.max(40,maxH)/lineH));
+  if(lines.length>maxLines) lines=lines.slice(0,maxLines);
+
+  g.save(); g.beginPath(); g.rect(x,0,maxW,4000); g.clip();
+  g.textAlign='left'; g.textBaseline='alphabetic';
+  /* drawBodyRich ne fixe jamais fillStyle lui-même (segments non-gras) — il
+     faut le faire ici, sans quoi le texte hérite silencieusement de la
+     dernière couleur laissée par l'appelant (ex. le chapô juste au-dessus :
+     son propre g.save()/g.restore() annule la couleur qu'il avait fixée
+     PENDANT son tracé, en la faisant revenir à celle d'AVANT son bloc —
+     bug identifié via rendu réel : corps invisible, hérite tour à tour du
+     bordeaux du dernier mot-clé de titre ou du crème du texte du tag). */
+  g.fillStyle=color;
+  g.font="500 "+bodySize+"px 'Archivo'";
+  let y=topY+bodySize*1.02;
+  lines.forEach(ln=>{ drawBodyRich(g, ln, x, y, bodySize); y+=lineH; });
   g.restore();
   return y;
 }
@@ -2215,6 +2271,137 @@ function drawEnqueteDuo(W,H,s){
   /* corps à lettrine, confiné à la colonne droite */
   const dropTop=y+30;
   dropCapParagraph(g,state.body,colX,dropTop,colW,panelBottom-dropTop,C.encre);
+
+  if(showFooter){
+    if(state.showSwipe){
+      g.fillStyle=s.sig; g.font="36px 'Saira Condensed'"; g.textBaseline='middle'; g.textAlign='left';
+      g.fillText('SWIPE',M,footY);
+      const sw=g.measureText('SWIPE').width;
+      const circD=76, circX=M+sw+28+circD/2, circY=footY;
+      g.fillStyle=s.sig; g.beginPath(); g.arc(circX,circY,circD/2,0,Math.PI*2); g.fill();
+      roundedArrow(g,circX,circY,C.creme);
+    }
+    g.textAlign='right'; g.textBaseline='middle'; g.font="60px 'Anton'";
+    const totTxt='/'+state.tot; g.fillStyle=C.encre; g.fillText(totTxt,rightEdge,footY);
+    const tw=g.measureText(totTxt).width; g.fillStyle=s.sig; g.fillText(state.cur,rightEdge-tw-4,footY);
+  }
+  g.textAlign='left';
+}
+
+/* ===== TEMPLATE PHOTO & RÉCIT — réservé à L'histoire derrière cette photo
+   (pas une variante des templates "enquête" ci-dessus, qui restent propres à
+   L'arrêt de jeu). Structure proche de TÉMOIN : photo encadrée en haut à
+   droite, titre + chapô dans la colonne de gauche à côté d'elle, puis corps
+   PLEINE LARGEUR en dessous (contrairement à un premier essai confiné à la
+   colonne gauche, corrigé après retour explicite de Thomas — référence
+   capture annotée : le corps occupe toute la largeur du cadre, comme le
+   paragraphe de la photo source). Différences avec TÉMOIN :
+   1) la photo est cadrée au format 3:4 STRICT (largeur choisie, hauteur =
+      largeur × 4/3) plutôt qu'une hauteur fixe en Y quel que soit le ratio
+      obtenu ; 2) pas de fond crème désaturé ni de trame de journal (réservés
+      à L'arrêt de jeu, cf. commentaires de C.cremeEnquete/drawNewsprintTrame)
+      — fond C.creme classique, comme les 3 autres séries hors arrêt de jeu ;
+   3) le corps n'a PAS de lettrine (plainParagraph, pas dropCapParagraph) —
+      un premier essai avec lettrine posait un problème de lisibilité entre
+      la grande capitale et le mot juste à sa droite sur la 1ère ligne,
+      retirée sur retour explicite de Thomas ;
+   4) le titre reste entièrement en encre par défaut, seuls les mots marqués
+      (sélecteur « Mot-clé coloré » / **étoiles** en batch) passent en
+      couleur de signature — contrairement à TÉMOIN/DUO où toute la 2e ligne
+      est en couleur de signature ; un titre vide saute le bloc entier et le
+      chapô remonte occuper sa place (rien ne doit rester vide en haut de la
+      colonne).
+      Pas de Q&R (n'a pas de sens pour ce format). */
+function drawHistoireRecit(W,H,s){
+  const g=ctx, isVert=state.ratio==='9:16';
+  const M=isVert?96:50, MR=isVert?96:120, rightEdge=W-MR;
+
+  g.fillStyle=C.creme; g.fillRect(0,0,W,H);
+  g.save(); g.strokeStyle='rgba(44,40,35,0.05)'; g.lineWidth=2;
+  for(let i=-H;i<W+H;i+=46){ g.beginPath(); g.moveTo(i,0); g.lineTo(i+H,H); g.stroke(); }
+  g.restore();
+
+  const ringD=92, ringC=66+safeTop()+ringD/2;
+  g.strokeStyle=C.encre; g.lineWidth=4;
+  g.beginPath(); g.arc(M+ringD/2,ringC,ringD/2-2,0,Math.PI*2); g.stroke();
+  g.fillStyle=C.encre; g.textBaseline='middle'; g.textAlign='center'; g.font="38px 'Saira Condensed'";
+  g.fillText('1·2',M+ringD/2,ringC+1);
+  g.textAlign='left'; g.font="58px 'Anton'"; g.fillText('une·deux',M+ringD+26,ringC+2);
+  g.textAlign='right'; g.font="32px 'Saira Condensed'"; g.fillStyle=C.encre;
+  g.fillText('@UNE.DEUX',rightEdge,ringC); g.textAlign='left';
+  g.fillStyle=C.encre; g.fillRect(M,168+safeTop(),rightEdge-M,4);
+
+  /* tag de série (couleur/texte pilotés par SERIES.histoire — bordeaux sourd,
+     texte crème, cf. §3 de CLAUDE.md) */
+  const tagY=200+safeTop(), tagH=58;
+  g.font="32px 'Saira Condensed'"; g.textBaseline='middle';
+  const nameTxt=s.label.toUpperCase(), nameW=g.measureText(nameTxt).width+30;
+  g.fillStyle=s.sig; g.fillRect(M,tagY,nameW,tagH);
+  g.fillStyle=s.sigTextColor||C.encre; g.fillText(nameTxt,M+15,tagY+tagH/2+1);
+  g.textBaseline='alphabetic'; g.textAlign='left';
+
+  const footY=H-70-safeBottom();
+  const showFooter=!isVert && paginationShown();
+  const panelTop=tagY+tagH+34;
+  const panelBottom=(showFooter?footY-46:H-90)-6;
+
+  /* photo encadrée en haut à droite, format 3:4 STRICT (largeur choisie,
+     hauteur = largeur × 4/3), jamais étirée. La photo d'origine reste sans
+     filtre (s.photo==='' pour cette série, cf. SERIES.histoire — c'est elle
+     le sujet du post). */
+  const photoW=Math.round((rightEdge-M)*0.42), photoH=Math.round(photoW*4/3);
+  const photoX=rightEdge-photoW, photoY=panelTop;
+  drawPhotoPanel(g,photoX,photoY,photoW,photoH,s);
+
+  /* titre — confiné à la colonne à gauche de la photo. Contrairement à
+     TÉMOIN/DUO (2e ligne entière en couleur de signature), tout le titre
+     reste en encre par défaut : seuls les mots marqués (sélecteur « Mot-clé
+     coloré », ou **doubles étoiles** en mode batch) passent en couleur de
+     signature — demande explicite de Thomas, même mécanique mot-à-mot que
+     paintDuoTitle (template DUO PHOTO). Si le TITRE est vide, ce bloc entier
+     est sauté et le chapô (ci-dessous) démarre directement à panelTop : le
+     texte comble alors automatiquement la place que le titre aurait
+     occupée, plutôt que de laisser un vide — également demandé par Thomas. */
+  const titleMaxW=photoX-32-M;
+  const words=state.title.trim().split(/\s+/).filter(Boolean);
+  let y=panelTop;
+  if(words.length){
+    const {size:tSize,lines:tLines}=fitTitleToBox(g,words,titleMaxW,170,4);
+    const lh=tSize*0.96;
+    const useIdx=state.greenWordIndices instanceof Set;
+    g.font=tSize+"px 'Anton'"; g.textAlign='left'; g.textBaseline='alphabetic';
+    const sp=g.measureText(' ').width;
+    let ty2=panelTop+tSize, baseIdx=0;
+    tLines.forEach(lw=>{
+      let cx=M;
+      lw.forEach((w,i)=>{
+        const up=w.toUpperCase();
+        const isAccent = useIdx ? state.greenWordIndices.has(baseIdx+i) : state.greenWords.has(up);
+        g.fillStyle = isAccent ? s.sig : C.encre;
+        g.fillText(up,cx,ty2);
+        cx += g.measureText(up).width + sp;
+      });
+      baseIdx += lw.length;
+      ty2 += lh;
+    });
+    y = ty2 - lh + 40;
+  }
+
+  /* chapô italique, même colonne que le titre */
+  const introMaxLines=6;
+  const introLines=wrapAtSize(g,state.introText,titleMaxW,30).slice(0,introMaxLines);
+  g.save(); g.beginPath(); g.rect(M,0,titleMaxW,4000); g.clip();
+  introLines.forEach(ln=>{ y+=38; drawItalicLine(g,ln,M,y,30,C.encre); });
+  g.restore();
+
+  /* corps SANS lettrine, PLEINE LARGEUR, sous le plus bas de {chapô, photo} —
+     occupe tout l'espace comme sur la référence annotée par Thomas. Pas de
+     lettrine ici (contrairement à TÉMOIN/DUO) : la grande capitale posait un
+     problème de lisibilité contre le mot juste à sa droite sur la 1ère ligne
+     — retirée sur demande explicite de Thomas, cf. plainParagraph. */
+  const photoBottom=photoY+photoH;
+  const bodyTop=Math.max(y+34, photoBottom+34);
+  plainParagraph(g,state.body,M,bodyTop,rightEdge-M,panelBottom-bodyTop,C.encre);
 
   if(showFooter){
     if(state.showSwipe){
