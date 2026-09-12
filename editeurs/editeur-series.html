@@ -332,9 +332,11 @@ const C = {
   newsprint:'#F1ECE1', encre:'#2C2823', vert:'#27543C', vertD:'#1F4430',
   ocre:'#C2A04E', creme:'#EDDCB2', soustitre:'#D1C1A3', line:'#EDDCB2',
   rouille:'#A8452B',
-  /* bleu pétrole, même famille désaturée/vintage que ocre/vert/rouille —
-     réservé à L'histoire derrière cette photo. */
-  bleu:'#336699',
+  /* bordeaux sourd, même famille désaturée/vintage que ocre/vert/rouille —
+     réservé à L'histoire derrière cette photo. Remplace l'ancien bleu
+     pétrole (#336699) le 12 septembre 2026, choix validé par Thomas parmi
+     5 pistes comparées sur le rendu réel de la série. */
+  bordeaux:'#6E3B3F',
   /* fond crème désaturé de 25% (HSL, S×0.75), réservé à L'arrêt de jeu —
      #EDDCB2 (62.1% sat) -> #E6D9B9 (46.6% sat). Ne pas toucher C.creme,
      qui reste la référence pour les 3 autres séries. */
@@ -380,9 +382,9 @@ const SERIES = {
   arretdejeu:{ name:"L'arrêt de jeu", label:"L'ARRÊT DE JEU", num:'N°1', sig:C.rouille, swatch:C.rouille,
     photo:'enquete', desc:'Enquête & hypothèse · carrousel', sigTextColor:C.creme,
     legend:"Même template cover · signature rouille · virage sépia enquête + légère surimpression dossier sur le média. Répond à une question foot par l'hypothèse (« pourquoi les Bleus ne rejouent plus en rouge ? »)." },
-  histoire:{ name:"L'histoire derrière cette photo", label:"L'HISTOIRE DERRIÈRE CETTE PHOTO", num:'N°1', sig:C.bleu, swatch:C.bleu,
+  histoire:{ name:"L'histoire derrière cette photo", label:"L'HISTOIRE DERRIÈRE CETTE PHOTO", num:'N°1', sig:C.bordeaux, swatch:C.bordeaux,
     photo:'', desc:'Photo & récit · carrousel', sigTextColor:C.creme,
-    legend:"Même template cover · signature bleu pétrole · photo plein cadre sans filtre (la photo d'origine est le sujet)." }
+    legend:"Même template cover · signature bordeaux sourd · photo plein cadre sans filtre (la photo d'origine est le sujet)." }
 };
 
 /* ===== State (calé sur post.html) ===== */
