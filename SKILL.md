@@ -268,6 +268,71 @@ avec ce niveau de rigueur dans un temps raisonnable, réduire le **nombre de
 sujets traités**, jamais le niveau de vérification par sujet — et le signaler
 explicitement à Thomas plutôt que de livrer un lot bâclé en silence.
 
+### Coût en crédit des Routines de vérification (constat du 13 septembre 2026)
+
+**Ne jamais réduire la rigueur pour réduire le coût — les leviers ci-dessous
+changent uniquement la mécanique des appels, jamais le nombre de sources ni
+la profondeur de vérification par claim.** Ajoutée après un incident concret :
+deux déclenchements consécutifs le 13 septembre 2026 (« une.deux - post
+Portraits » puis « Fact checking - PORTRAITS », l'audit indépendant) ont
+coûté respectivement ~2,02 $ et ~4,31 $ — le second interrompu en cours de
+route par le plafond de dépense mensuel de l'organisation. Deux causes
+identifiées, cumulables :
+
+1. **Connecteurs MCP inutilisés attachés aux Routines de vérification.** Les
+   Routines « une.deux - post Portraits » et « Fact checking - PORTRAITS »
+   ont Gmail **+ Google-Drive + Higgsfield + visualize** attachés, alors que
+   ce pipeline n'utilise que Gmail (lecture/écriture de brouillons) — Drive,
+   Higgsfield (des dizaines d'outils, génération image/vidéo/3D...) et
+   visualize ne servent à rien ici (workflow v7 : Claude ne génère pas
+   d'images, cf. « Livrables par post »). Les définitions de ces outils
+   inutilisés gonflent le contexte envoyé à chaque tour de la session, un
+   surcoût qui se répète à chaque appel d'outil de la Routine. **Correctif :
+   détacher Google-Drive, Higgsfield et visualize de ces deux Routines (garder
+   Gmail seul) depuis l'interface web des Routines** — l'outil `update_trigger`
+   en session ne permet pas de modifier les connecteurs attachés (seuls
+   nom/cron/enabled/modèle/prompt le sont), même limitation déjà documentée
+   dans `CLAUDE.md` pour la Routine « Lanceur reels Ce jour-là ». Vérifier au
+   passage qu'aucune autre Routine de vérification factuelle une·deux ne
+   traîne les mêmes connecteurs inutiles.
+2. **Accumulation de contenu dans une session longue.** Un post Portraits
+   compte 8 à 10 slides, chacune avec plusieurs claims, chacun vérifié par 3
+   sources — tout dans la même session, dont le contexte ne fait que croître
+   (chaque résultat d'outil reste dans l'historique pour le reste de la
+   session). Sans réduire ni le nombre de claims ni le nombre de sources par
+   claim :
+   - **Préférer l'extrait déjà renvoyé par la recherche web à un
+     `WebFetch` de la page entière** quand cet extrait contient déjà la
+     citation exacte nécessaire — n'aller chercher la page complète que si
+     l'extrait ne suffit pas à extraire la citation exacte requise (cf.
+     « Traçabilité obligatoire »). Une page entière ajoutée au contexte pour
+     une phrase déjà disponible dans l'extrait est le principal poste de
+     gaspillage observé.
+   - **Grouper dans un même tour les appels de recherche indépendants** (les
+     3 sources d'un même claim, ou plusieurs claims sans dépendance entre
+     eux) plutôt que de les enchaîner un par un — chaque tour supplémentaire
+     réémet tout le contexte déjà accumulé, donc moins de tours pour le même
+     volume de recherches coûte moins cher.
+   - **La règle « ne jamais relancer une recherche identique dans la même
+     session » (ci-dessus) s'applique aussi à la Routine d'audit
+     indépendant**, à l'intérieur de sa propre passe : un fait qui revient
+     tel quel sur plusieurs slides (même joueur, même date, même chiffre)
+     n'est recherché qu'une fois pendant cette passe, pas rerecherché en
+     entier à chaque occurrence — l'indépendance exigée porte sur les
+     sources retenues pour un claim donné, jamais sur le nombre de fois où
+     la même requête est retapée pour la même information répétée. Ça reste
+     distinct de l'interdiction plus haut de réutiliser une fiche déjà
+     produite par la Routine de rédaction — celle-là reste absolue (biais de
+     confirmation), ce point-ci ne concerne que les répétitions internes à
+     l'audit lui-même.
+3. **Traitement en lot de la Routine de rédaction.** « une.deux - post
+   Portraits » traite en une seule session tous les joueurs cochés ✅ dans
+   LISTE PORTRAITS au moment du déclenchement — plus il y en a de cochés, plus
+   la session (et son coût) grossit d'un coup, sans plafond. Si le coût par
+   déclenchement doit rester prévisible, cocher/déclencher un joueur à la fois
+   plutôt qu'un lot est le levier le plus direct — décision éditoriale de
+   Thomas, pas un changement à appliquer seul à cette Routine.
+
 ## Éditeur principal : `editeurs/editeur-series.html`
 
 L'**éditeur de référence** est `editeurs/editeur-series.html` : éditeur
