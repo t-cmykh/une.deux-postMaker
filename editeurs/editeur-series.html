@@ -29,6 +29,9 @@ html,body{margin:0;padding:0;background:var(--encre);color:var(--newsprint);
 .brand .dot{color:var(--vert)}
 .subbrand{margin-left:auto;font-family:'Saira Condensed';font-weight:700;font-size:11px;
   letter-spacing:2px;color:var(--sig);transition:color .25s}
+.tool-link{font-family:'Saira Condensed';font-weight:700;font-size:11px;letter-spacing:1.5px;
+  color:#9a968c;text-decoration:none;text-transform:uppercase;white-space:nowrap;margin-left:14px}
+.tool-link:hover{color:var(--sig)}
 
 .series-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:20px}
 .serie-btn{position:relative;text-align:left;padding:12px 13px 11px;border-radius:9px;cursor:pointer;
@@ -113,6 +116,7 @@ input[type=range]{flex:1;accent-color:var(--sig)}
       <div class="mono">1·2</div>
       <div class="brand">une<span class="dot">·</span>deux</div>
       <div class="subbrand" id="sub_serie">CE JOUR LÀ</div>
+      <a class="tool-link" href="calculateur-karaoke.html" target="_blank" rel="noopener" title="Calculer la durée optimale et les time codes d'un reel">⏱ Rythme</a>
     </div>
 
     <div class="series-grid" id="series_grid"></div>
