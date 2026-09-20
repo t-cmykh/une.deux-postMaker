@@ -992,17 +992,30 @@ function isWordAccent(word,idx){
    baseline et l'écart entre lignes (élargi pour ne pas faire chevaucher les
    accents, cf. titleBaselinesFrom{Top,Bottom}) devient un espace visible en
    plein milieu d'un même mot-clé encadré qui se poursuit sur la ligne
-   suivante. Chaque ligne concernée étend son carré jusqu'au milieu de l'écart
-   avec sa voisine, les deux carrés se rejoignent alors exactement. */
-function computeLineMerges(lines,baselines,lineBaseIdx){
+   suivante. Chaque ligne concernée étend son carré jusqu'au milieu du VRAI
+   écart entre les bords naturels des deux carrés (bas du carré du dessus,
+   haut du carré du dessous) — PAS le milieu des deux baselines : comme la
+   référence 'M' n'a quasiment pas de descente (desc≈0) mais un ascendant
+   important (asc, ex. ~104px à 120px Anton), le milieu des baselines tombe
+   très en dessous du vrai milieu de l'écart et grignote alors le haut des
+   lettres de la ligne du dessous. Si les carrés naturels se chevauchent déjà
+   (lineGap serré + gros pad, ex. Anton en 3:4), max()/min() empêche de les
+   RÉTRÉCIR en-deçà de leur étendue naturelle — le chevauchement existant
+   reste tel quel plutôt que de couper le haut des lettres d'une des deux
+   lignes (bug réel constaté sur "PARIS ET" / "L'ÉTRANGER", cf. capture
+   annotée par Thomas). */
+function computeLineMerges(g,lines,baselines,lineBaseIdx){
+  const ref=g.measureText('M'), asc=ref.actualBoundingBoxAscent||0, desc=ref.actualBoundingBoxDescent||0, pad=state.kwPad;
   const merges=lines.map(()=>({up:null,down:null}));
   for(let i=0;i<lines.length-1;i++){
     const lineA=lines[i], lineB=lines[i+1];
     if(!lineA.length || !lineB.length) continue;
     const lastIdxA=lineBaseIdx[i]+lineA.length-1, firstIdxB=lineBaseIdx[i+1];
     if(isWordAccent(lineA[lineA.length-1],lastIdxA) && isWordAccent(lineB[0],firstIdxB)){
-      const mid=(baselines[i]+baselines[i+1])/2;
-      merges[i].down=mid; merges[i+1].up=mid;
+      const naturalBottomA=baselines[i]+desc+pad, naturalTopB=baselines[i+1]-asc-pad;
+      const boundary=(naturalBottomA+naturalTopB)/2;
+      merges[i].down=Math.max(naturalBottomA,boundary);
+      merges[i+1].up=Math.min(naturalTopB,boundary);
     }
   }
   return merges;
@@ -1067,7 +1080,7 @@ function drawTitle(g,x,y2,size,baseGap){
   const words=state.title.trim().split(/\s+/); const [l1,l2]=splitTitleTwoLines(words);
   g.font=size+"px 'Anton'"; g.textBaseline='alphabetic'; g.textAlign='left';
   const [y1,yy2]=titleBaselinesFromBottom(g,[l1,l2],y2,baseGap);
-  const merges=computeLineMerges([l1,l2],[y1,yy2],[0,l1.length]);
+  const merges=computeLineMerges(g,[l1,l2],[y1,yy2],[0,l1.length]);
   drawWordLine(g,l1,x,y1,0,merges[0]); drawWordLine(g,l2,x,yy2,l1.length,merges[1]);
 }
 function roundedArrow(g,cx,cy,color){
@@ -1311,7 +1324,7 @@ function draw(){
        l'accent par position (state.greenWordIndices) */
     const lineBaseIdx=[]; let __idx=0;
     shown.forEach(lw=>{ lineBaseIdx.push(__idx); __idx+=lw.length; });
-    const merges=computeLineMerges(shown,baselines,lineBaseIdx);
+    const merges=computeLineMerges(g,shown,baselines,lineBaseIdx);
 
     if(state.serie==='cejourla'){
       /* apparition ligne par ligne, uniquement pour Ce jour-là — vitesse réglable */
@@ -1436,7 +1449,7 @@ function drawPortraitCover(g,W,H,M,footY,s){
   const wordLines=lines.map(l=>l.split(' '));
   const lineBaseIdx=[]; let __portraitIdx=0;
   wordLines.forEach(lw=>{ lineBaseIdx.push(__portraitIdx); __portraitIdx+=lw.length; });
-  const merges=computeLineMerges(wordLines,baselines,lineBaseIdx);
+  const merges=computeLineMerges(g,wordLines,baselines,lineBaseIdx);
   wordLines.forEach((lw,i)=> drawWordLine(g,lw,baseX,baselines[i],lineBaseIdx[i],merges[i]) );
 
   /* mention discrète */
@@ -2693,7 +2706,7 @@ function drawCejourlaCoverPhoto(W,H,s){
     const baselines=titleBaselinesFromBottom(g,lines,lastBaseline,lineGap);
     const lineBaseIdx=[]; let __idx=0;
     lines.forEach(lw=>{ lineBaseIdx.push(__idx); __idx+=lw.length; });
-    const merges=computeLineMerges(lines,baselines,lineBaseIdx);
+    const merges=computeLineMerges(g,lines,baselines,lineBaseIdx);
     lines.forEach((lw,i)=> drawWordLine(g,lw,M,baselines[i],lineBaseIdx[i],merges[i]) );
   }
 }
