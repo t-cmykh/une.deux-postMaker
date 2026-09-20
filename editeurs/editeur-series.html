@@ -169,6 +169,7 @@ Corps du CTA."></textarea>
         <div class="chip on" data-tpl="cover">COVER</div>
         <div class="chip" data-tpl="titre">COVER · TITRE SEUL</div>
         <div class="chip" data-tpl="corps">COVER · CORPS SEUL</div>
+        <div class="chip" data-tpl="cejourla-cover" id="chip_cejourla_cover" style="display:none">COUVERTURE PHOTO</div>
         <div class="chip" data-tpl="citation">CITATION</div>
         <div class="chip" data-tpl="verbatim" id="chip_verbatim" style="display:none">CITATION · INTERVIEW</div>
         <div class="chip" data-tpl="citation-echo" id="chip_citation_echo" style="display:none">CITATION · ÉCHO</div>
@@ -188,12 +189,12 @@ Corps du CTA."></textarea>
       <div class="hint">Automatique : numéro + nom de la série</div>
     </div>
 
-    <div class="field">
+    <div class="field" id="field_title">
       <label>Titre</label>
       <textarea id="f_title" placeholder="TITRE DE LA COVER"></textarea>
     </div>
 
-    <div class="field">
+    <div class="field" id="field_greenpicker">
       <label>Mot-clé coloré</label>
       <div class="chips" id="greenpicker"></div>
     </div>
@@ -499,10 +500,16 @@ function selectSerie(key){
      chapô + corps à lettrine pleine largeur en dessous) : réservé à L'histoire
      derrière cette photo */
   document.getElementById('chip_histoire_recit').style.display = (key==='histoire')?'':'none';
+  /* template "couverture photo" (fond flouté/désaturé + bande nette + header,
+     composition reprise du reel vidéo "Ce jour-là") : réservé à Ce jour-là */
+  document.getElementById('chip_cejourla_cover').style.display = (key==='cejourla')?'':'none';
   if((state.template==='verbatim' || state.template==='citation-echo' || LONGFORM_TPLS.includes(state.template)) && key!=='arretdejeu'){
     document.querySelector('#tpl_chips [data-tpl="citation"]').click();
   }
   if(state.template==='histoire-recit' && key!=='histoire'){
+    document.querySelector('#tpl_chips [data-tpl="citation"]').click();
+  }
+  if(state.template==='cejourla-cover' && key!=='cejourla'){
     document.querySelector('#tpl_chips [data-tpl="citation"]').click();
   }
   /* apparition ligne par ligne du titre : uniquement Ce jour-là */
@@ -574,7 +581,10 @@ document.querySelectorAll('#tpl_chips .chip').forEach(c=>{
     c.classList.add('on'); state.template=c.dataset.tpl;
     document.getElementById('field_btnlabel').style.display = (state.template==='cta')?'block':'none';
     document.getElementById('field_citation').style.display = (state.template==='citation'||state.template==='verbatim'||state.template==='citation-echo')?'block':'none';
-    document.getElementById('field_body').style.display = (state.template==='titre')?'none':'block';
+    /* couverture photo : pilotée par l'image seule, ni titre ni corps */
+    document.getElementById('field_title').style.display = (state.template==='cejourla-cover')?'none':'block';
+    document.getElementById('field_greenpicker').style.display = (state.template==='cejourla-cover')?'none':'block';
+    document.getElementById('field_body').style.display = (state.template==='titre'||state.template==='cejourla-cover')?'none':'block';
     document.getElementById('field_titlesize').style.display = (state.template==='titre')?'block':'none';
     document.getElementById('field_titleanim').style.display = (state.template==='titre' && state.serie==='cejourla')?'block':'none';
     document.getElementById('field_textbg').style.display = (state.template==='corps')?'block':'none';
@@ -908,6 +918,40 @@ function wrapAtSize(g,text,maxW,fontPx){
   return lines.map(ln=>{ let out=ln; if(openBold)out='**'+out;
     const n=(out.match(/\*\*/g)||[]).length; openBold=(n%2!==0); if(openBold)out=out+'**'; return out; });
 }
+/* ===== espacement vertical des titres multi-lignes (Anton) ==========
+   Une capitale accentuée (É, À, Ê…) a un ascendant nettement plus haut
+   qu'une capitale nue, et une cédille (Ç) une descente plus basse — mesuré
+   : à 120px, actualBoundingBoxAscent passe de ~103px (« ETE ») à ~132px
+   (« ÉTÉ »). Un interligne calé sur des capitales sans accent (le rythme
+   visuel habituel, cf. les *0.92/0.94/0.96 ci-dessous) laisse alors
+   l'accent d'une ligne mordre légèrement sur la ligne au-dessus dès qu'un
+   titre passe sur plusieurs lignes — corrigé en élargissant l'écart entre
+   deux baselines consécutives seulement quand le texte réellement affiché
+   (mesuré tel quel, accents compris) l'exige, jamais en dessous du rythme
+   calibré existant. */
+function lineAscentDescent(g,text){
+  const m=g.measureText(String(text).toUpperCase());
+  return {ascent:m.actualBoundingBoxAscent||0, descent:m.actualBoundingBoxDescent||0};
+}
+function titleLineGap(g,baseGap,aboveText,belowText){
+  const above=lineAscentDescent(g,aboveText), below=lineAscentDescent(g,belowText);
+  return Math.max(baseGap, above.descent+below.ascent+4);
+}
+/* baselines d'un titre multi-lignes (lignes = tableaux de mots ou chaînes déjà
+   assemblées), en partant de la baseline de la 1ère ligne (haut) ou de la
+   dernière (bas) et en élargissant chaque écart via titleLineGap si besoin */
+function titleBaselinesFromTop(g,lines,firstBaseline,baseGap){
+  const text=l=>Array.isArray(l)?l.join(' '):String(l);
+  const n=lines.length, baselines=new Array(n); baselines[0]=firstBaseline;
+  for(let i=1;i<n;i++) baselines[i]=baselines[i-1]+titleLineGap(g,baseGap,text(lines[i-1]),text(lines[i]));
+  return baselines;
+}
+function titleBaselinesFromBottom(g,lines,lastBaseline,baseGap){
+  const text=l=>Array.isArray(l)?l.join(' '):String(l);
+  const n=lines.length, baselines=new Array(n); baselines[n-1]=lastBaseline;
+  for(let i=n-2;i>=0;i--) baselines[i]=baselines[i+1]-titleLineGap(g,baseGap,text(lines[i]),text(lines[i+1]));
+  return baselines;
+}
 function drawWordLine(g,words,x,y,baseIndex){
   baseIndex = baseIndex||0;
   const space=g.measureText(' ').width, s=SERIES[state.serie], pad=state.kwPad;
@@ -958,10 +1002,11 @@ function drawWordLine(g,words,x,y,baseIndex){
     g.fillText(o.up,o.x,y);
   });
 }
-function drawTitle(g,x,y1,y2,size){
+function drawTitle(g,x,y2,size,baseGap){
   const words=state.title.trim().split(/\s+/); const [l1,l2]=splitTitleTwoLines(words);
   g.font=size+"px 'Anton'"; g.textBaseline='alphabetic'; g.textAlign='left';
-  drawWordLine(g,l1,x,y1,0); drawWordLine(g,l2,x,y2,l1.length);
+  const [y1,yy2]=titleBaselinesFromBottom(g,[l1,l2],y2,baseGap);
+  drawWordLine(g,l1,x,y1,0); drawWordLine(g,l2,x,yy2,l1.length);
 }
 function roundedArrow(g,cx,cy,color){
   g.strokeStyle=color; g.lineWidth=5; g.lineCap='round'; g.lineJoin='round';
@@ -1065,6 +1110,9 @@ function draw(){
 
   /* router PHOTO & RÉCIT (L'histoire derrière cette photo) */
   if(state.template==='histoire-recit'){ drawHistoireRecit(W,H,s); if(state.safeOn) drawSafeGuides(W,H); return; }
+
+  /* router COUVERTURE PHOTO (Ce jour-là) */
+  if(state.template==='cejourla-cover'){ drawCejourlaCoverPhoto(W,H,s); if(state.safeOn) drawSafeGuides(W,H); return; }
 
   /* 1. média de fond */
   if(state.img){
@@ -1186,7 +1234,7 @@ function draw(){
     const shown=lines;
     const lineGap=tSize*0.92;
     const lastBaseline=bodyBottom-30;
-    let baselines=shown.map((_,i)=> lastBaseline-(shown.length-1-i)*lineGap );
+    let baselines=titleBaselinesFromBottom(g,shown,lastBaseline,lineGap);
 
     const safeTopBound=isVert?150:180, safeBottomBound=H-(isVert?200:180);
     const ascent=tSize*0.78, descent=tSize*0.22;
@@ -1224,8 +1272,8 @@ function draw(){
     /* corps : wrap + tailles adaptatives (post.html) */
     const tSize = clampTitle();
     const lineGap=tSize*0.92;
-    const titleBaseline2=bodyTop-30, titleBaseline1=titleBaseline2-lineGap;
-    drawTitle(g,M,titleBaseline1,titleBaseline2,tSize);
+    const titleBaseline2=bodyTop-30;
+    drawTitle(g,M,titleBaseline2,tSize,lineGap);
   }
 
   /* 6. corps (absent en template "titre seul" et "corps seul", déjà dessiné ci-dessus) */
@@ -1320,10 +1368,10 @@ function drawPortraitCover(g,W,H,M,footY,s){
   let lines=wrap();
   while((lines.length>4||lines.some(l=>g.measureText(l.toUpperCase()).width>maxW))&&tSize>52){ tSize-=6; g.font=tSize+"px 'Anton'"; lines=wrap(); }
   const lineGap=tSize*0.94;
-  let ty=(bodyTxt?bodyBlockTop-40:footY-30)-(lines.length-1)*lineGap;
+  const baselines=titleBaselinesFromBottom(g,lines,(bodyTxt?bodyBlockTop-40:footY-30),lineGap);
   g.textAlign='left'; g.textBaseline='alphabetic'; g.font=tSize+"px 'Anton'";
   let __portraitIdx=0;
-  lines.forEach(line=>{ const lw=line.split(' '); drawWordLine(g,lw,baseX,ty,__portraitIdx); __portraitIdx+=lw.length; ty+=lineGap; });
+  lines.forEach((line,i)=>{ const lw=line.split(' '); drawWordLine(g,lw,baseX,baselines[i],__portraitIdx); __portraitIdx+=lw.length; });
 
   /* mention discrète */
   g.fillStyle='rgba(237,220,178,0.6)'; g.font="26px 'Saira Condensed'"; g.textBaseline='middle'; g.textAlign='left';
@@ -1381,7 +1429,8 @@ function drawCTA(W,H,s){
   tSize=Math.max(54,Math.min(104,tSize));
   const lh=tSize*0.94;
   g.font=tSize+"px 'Anton'"; g.textBaseline='alphabetic'; g.textAlign='center';
-  const ty1=tagY+tagH+tSize+30, ty2=ty1+lh;
+  const ty1=tagY+tagH+tSize+30;
+  const ty2=ty1+(l2.length?titleLineGap(g,lh,l1.join(' '),l2.join(' ')):lh);
   const useIdxCta = state.greenWordIndices instanceof Set;
   const drawCenterLine=(words2,y,baseIndex)=>{
     /* gère le mot-clé coloré au centre (accent par position si dispo,
@@ -2088,12 +2137,13 @@ function drawEnqueteTemoin(W,H,s){
   const {size:tSize,l1Lines,l2Lines}=fitSplitTitleToBox(g,l1w,l2w,titleMaxW,170,4);
   const lh=tSize*0.94;
   g.font=tSize+"px 'Anton'"; g.textBaseline='alphabetic'; g.textAlign='left';
-  let ty2=panelTop+tSize;
+  const allLines=[...l1Lines,...l2Lines];
+  const baselines=titleBaselinesFromTop(g,allLines,panelTop+tSize,lh);
   g.fillStyle=C.encre;
-  l1Lines.forEach(lw=>{ g.fillText(lw.join(' ').toUpperCase(),M,ty2); ty2+=lh; });
+  l1Lines.forEach((lw,i)=>{ g.fillText(lw.join(' ').toUpperCase(),M,baselines[i]); });
   g.fillStyle=s.sig;
-  l2Lines.forEach(lw=>{ g.fillText(lw.join(' ').toUpperCase(),M,ty2); ty2+=lh; });
-  ty2-=lh; /* revient à la ligne de base de la dernière ligne réellement dessinée */
+  l2Lines.forEach((lw,i)=>{ g.fillText(lw.join(' ').toUpperCase(),M,baselines[l1Lines.length+i]); });
+  let ty2=baselines[baselines.length-1]; /* ligne de base de la dernière ligne réellement dessinée */
 
   /* chapô italique, colonne gauche (largeur du titre) */
   let y=ty2+40;
@@ -2207,15 +2257,17 @@ function drawEnqueteDuo(W,H,s){
   const {size:tSize,lines:tLines}=fitTitleToBox(g,words,titleW,170,4);
   const lh=tSize*0.96;
   const useIdx=state.greenWordIndices instanceof Set;
+  g.font=tSize+"px 'Anton'";
+  const titleBaselines=titleBaselinesFromTop(g,tLines,panelTop+tSize,lh);
   /* trace les mots du titre — colorFn(isAccent) résout la couleur par mot :
      encre/signature pour le rendu normal, un aplat opaque unique pour le
      masque de découpe photo (seule l'opacité compte alors, cf. plus bas) */
   function paintDuoTitle(gg,colorFn){
     gg.font=tSize+"px 'Anton'"; gg.textAlign='left'; gg.textBaseline='alphabetic';
     const sp=gg.measureText(' ').width;
-    let ty2=panelTop+tSize, baseIdx=0;
-    tLines.forEach(lw=>{
-      let cx=titleX;
+    let baseIdx=0;
+    tLines.forEach((lw,li)=>{
+      let cx=titleX; const ty2=titleBaselines[li];
       lw.forEach((w,i)=>{
         const up=w.toUpperCase();
         const isAccent = useIdx ? state.greenWordIndices.has(baseIdx+i) : state.greenWords.has(up);
@@ -2224,11 +2276,10 @@ function drawEnqueteDuo(W,H,s){
         cx += gg.measureText(up).width + sp;
       });
       baseIdx += lw.length;
-      ty2 += lh;
     });
   }
   paintDuoTitle(g, acc => acc ? s.sig : C.encre);
-  const ty=panelTop+tSize+(tLines.length-1)*lh; /* baseline de la dernière ligne, réutilisé plus bas */
+  const ty=titleBaselines[titleBaselines.length-1]; /* baseline de la dernière ligne, réutilisé plus bas */
 
   /* là où le titre chevauche le cadre photo (référence : le texte devient
      transparent et laisse voir la photo au travers, comme le titre XXL) —
@@ -2239,7 +2290,7 @@ function drawEnqueteDuo(W,H,s){
     const overlapX=titleX, overlapRight=M+photoW;
     if(overlapRight>overlapX){
       const overlapTop=panelTop+tSize-tSize*0.85;
-      const overlapBottom=panelTop+tSize+(tLines.length-1)*lh+tSize*0.25;
+      const overlapBottom=ty+tSize*0.25;
       const off=document.createElement('canvas');
       off.width=g.canvas.width; off.height=g.canvas.height;
       const og=off.getContext('2d');
@@ -2375,9 +2426,10 @@ function drawHistoireRecit(W,H,s){
     const useIdx=state.greenWordIndices instanceof Set;
     g.font=tSize+"px 'Anton'"; g.textAlign='left'; g.textBaseline='alphabetic';
     const sp=g.measureText(' ').width;
-    let ty2=panelTop+tSize, baseIdx=0;
-    tLines.forEach(lw=>{
-      let cx=M;
+    const baselines=titleBaselinesFromTop(g,tLines,panelTop+tSize,lh);
+    let baseIdx=0;
+    tLines.forEach((lw,li)=>{
+      let cx=M; const ty2=baselines[li];
       lw.forEach((w,i)=>{
         const up=w.toUpperCase();
         const isAccent = useIdx ? state.greenWordIndices.has(baseIdx+i) : state.greenWords.has(up);
@@ -2386,9 +2438,8 @@ function drawHistoireRecit(W,H,s){
         cx += g.measureText(up).width + sp;
       });
       baseIdx += lw.length;
-      ty2 += lh;
     });
-    y = ty2 - lh + 40;
+    y = baselines[baselines.length-1] + 40;
   }
 
   /* chapô italique, même colonne que le titre */
@@ -2421,6 +2472,72 @@ function drawHistoireRecit(W,H,s){
     const tw=g.measureText(totTxt).width; g.fillStyle=s.sig; g.fillText(state.cur,rightEdge-tw-4,footY);
   }
   g.textAlign='left';
+}
+
+/* ===== TEMPLATE COUVERTURE PHOTO (Ce jour-là) — reprend telle quelle la
+   composition du reel vidéo « Ce jour-là » (cf. CLAUDE.md §2/§3 : composite
+   ffmpeg + header) : fond plein cadre flouté/désaturé de l'image, bande
+   nette plein cadre horizontalement entre le bas du tag et y=1308 (mêmes
+   constantes pixel que l'overlay du composite vidéo — y=420, hauteur 888),
+   header ring/wordmark/handle/hairline + tag « CE JOUR LÀ … » identiques aux
+   autres templates de la série. Piloté uniquement par l'image chargée
+   (state.img) — pas de titre ni de corps, une couverture n'est qu'un aperçu
+   visuel du reel, pas un slide éditorial. */
+function drawCejourlaCoverPhoto(W,H,s){
+  const g=ctx, M=96, MR=96;
+  g.clearRect(0,0,W,H);
+
+  /* 1. fond plein cadre flouté + désaturé — mêmes réglages que le bake
+     ffmpeg du reel (gblur sigma=36, saturation 0.4) */
+  if(state.img){
+    const img=state.img, ir=mediaW(img)/mediaH(img), cr=W/H; let dw,dh;
+    if(ir>cr){dh=H;dw=dh*ir;}else{dw=W;dh=dw/ir;}
+    g.save();
+    g.filter='blur(36px) saturate(40%)';
+    g.drawImage(img,(W-dw)/2,(H-dh)/2,dw,dh);
+    g.restore();
+  } else {
+    g.fillStyle=C.encre; g.fillRect(0,0,W,H);
+  }
+
+  /* 2. bande nette — même image, cover-crop sur cette seule bande, sans flou,
+     plein cadre horizontalement (x=0, pas de marge) comme le composite vidéo */
+  const bandY=420, bandH=888;
+  if(state.img){
+    const img=state.img, ir=mediaW(img)/mediaH(img), cr=W/bandH; let dw,dh;
+    if(ir>cr){dh=bandH;dw=dh*ir;}else{dw=W;dh=dw/ir;}
+    g.save();
+    g.beginPath(); g.rect(0,bandY,W,bandH); g.clip();
+    g.drawImage(img,(W-dw)/2,bandY+(bandH-dh)/2,dw,dh);
+    g.restore();
+  }
+
+  /* 3. header — copie exacte du header cover/titre/corps (ring/wordmark/
+     handle/hairline), cf. plus haut dans draw() */
+  const ringD=92, ringX=M, ringY=66+safeTop(), ringC=ringY+ringD/2;
+  g.strokeStyle=C.creme; g.lineWidth=4;
+  g.beginPath(); g.arc(ringX+ringD/2, ringC, ringD/2-2, 0, Math.PI*2); g.stroke();
+  g.fillStyle=C.creme; g.textBaseline='middle';
+  g.font="38px 'Saira Condensed'"; g.textAlign='center';
+  g.fillText('1·2', ringX+ringD/2, ringC+1);
+  g.textAlign='left';
+  g.font="58px 'Anton'";
+  g.fillText('une·deux', ringX+ringD+26, ringC+2);
+  g.textAlign='right'; g.fillStyle=C.creme;
+  g.font="32px 'Saira Condensed'";
+  g.fillText('@UNE.DEUX', W-MR, ringC);
+  g.textAlign='left';
+  g.fillStyle=C.line; g.fillRect(M, 168+safeTop(), W-M-MR, 4);
+
+  /* tag série — fond ocre, texte encre, comme le composite vidéo */
+  const tagY=200+safeTop(), tagH=58;
+  g.font="32px 'Saira Condensed'"; g.textBaseline='middle';
+  const nameTxt=s.label.toUpperCase();
+  const nameW=g.measureText(nameTxt).width+30;
+  g.fillStyle=s.sig; g.fillRect(M,tagY,nameW,tagH);
+  g.fillStyle=s.sigTextColor||C.encre;
+  g.fillText(nameTxt, M+15, tagY+tagH/2+1);
+  g.textBaseline='alphabetic'; g.textAlign='left';
 }
 
 /* ===== TEMPLATE ENQUÊTE · TITRE XXL — très grand titre en rouille estompée,
@@ -2500,15 +2617,15 @@ function drawEnqueteTitre(W,H,s){
   g.font=tSize+"px 'Anton'"; g.textBaseline='alphabetic'; g.textAlign='left';
   const allLines=[...l1Lines,...l2Lines];
   const ty1=panelTop+tSize;
-  const titleBottom=ty1+(allLines.length-1)*lh;
+  const titleLineBaselines=titleBaselinesFromTop(g,allLines,ty1,lh);
+  const titleBottom=titleLineBaselines[titleLineBaselines.length-1];
   /* trace les glyphes seuls — la couleur passée n'importe que pour le repli
      sans photo : pour le masque (drawPhotoFilledTextFromMaster), seule
      l'opacité compte, la couleur réelle vient ensuite de la photo composée
      par-dessus */
   const paintTitle=(gg,color)=>{
     gg.font=tSize+"px 'Anton'"; gg.textBaseline='alphabetic'; gg.textAlign='left'; gg.fillStyle=color;
-    let ty=ty1;
-    allLines.forEach(lw=>{ gg.fillText(lw.join(' ').toUpperCase(),M,ty); ty+=lh; });
+    allLines.forEach((lw,i)=>{ gg.fillText(lw.join(' ').toUpperCase(),M,titleLineBaselines[i]); });
   };
   if(state.img){
     const boxY=ty1-tSize*0.85, boxH=(titleBottom-boxY)+tSize*0.25;
