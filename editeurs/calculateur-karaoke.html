@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>une·deux — calculateur rythme reel</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600&family=Saira+Condensed:wght@600;700&display=swap');
+
+:root{
+  --newsprint:#F1ECE1; --encre:#2C2823; --vert:#27543C; --vert-d:#1F4430;
+  --ocre:#C2A04E; --creme:#EDDCB2; --soustitre:#D1C1A3; --line:#4a463e;
+  --panel:#26221d; --sig:#C2A04E; --err:#c9705a;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--encre);color:var(--newsprint);
+  font-family:'Archivo',system-ui,sans-serif;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
+.wrap{display:flex;min-height:100vh}
+@media(max-width:960px){.wrap{flex-direction:column}}
+
+.panel{width:420px;flex:0 0 420px;padding:22px 22px 60px;border-right:1px solid var(--line);
+  overflow-y:auto;max-height:100vh}
+@media(max-width:960px){.panel{width:100%;flex:none;max-height:none;border-right:none;border-bottom:1px solid var(--line)}}
+
+.topbar{display:flex;align-items:center;gap:11px;padding-bottom:16px;margin-bottom:18px;border-bottom:1px solid var(--line)}
+.mono{width:30px;height:30px;border:2px solid var(--creme);border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-family:'Saira Condensed';font-weight:700;font-size:14px;color:var(--creme);flex:0 0 auto}
+.brand{font-family:'Anton';font-size:22px;letter-spacing:.5px;color:var(--creme)}
+.brand .dot{color:var(--vert)}
+.subbrand{margin-left:auto;font-family:'Saira Condensed';font-weight:700;font-size:11px;
+  letter-spacing:2px;color:var(--sig)}
+.back-link{font-family:'Saira Condensed';font-weight:700;font-size:11px;letter-spacing:1.5px;
+  color:#9a968c;text-decoration:none;text-transform:uppercase;white-space:nowrap}
+.back-link:hover{color:var(--sig)}
+
+.section-h{font-family:'Saira Condensed';font-weight:700;font-size:12px;letter-spacing:2px;
+  color:var(--sig);margin:22px 0 12px;text-transform:uppercase}
+.section-h:first-of-type{margin-top:0}
+
+.field{margin-bottom:14px}
+.field label{display:block;font-family:'Saira Condensed';font-weight:700;font-size:12px;letter-spacing:1.5px;
+  color:#9a968c;margin-bottom:6px;text-transform:uppercase}
+.field input,.field textarea{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:8px;
+  color:var(--newsprint);font-family:'Archivo';font-size:15px;padding:11px 13px;outline:none;transition:border-color .15s}
+.field textarea{resize:vertical;min-height:260px;line-height:1.5;font-family:'Archivo'}
+.field input:focus,.field textarea:focus{border-color:var(--sig)}
+.field .hint{font-size:11px;color:#776f60;margin-top:5px;line-height:1.5}
+.field .hint b{color:var(--sig)}
+
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{font-family:'Saira Condensed';font-weight:700;font-size:12.5px;letter-spacing:1px;padding:7px 13px;
+  border-radius:20px;border:1px solid var(--line);background:var(--panel);color:var(--newsprint);
+  cursor:pointer;text-transform:uppercase;transition:all .15s}
+.chip:hover{border-color:#6a635a}
+.chip.on{background:var(--sig);border-color:var(--sig);color:var(--encre)}
+
+.legend{font-size:11.5px;color:#776f60;line-height:1.55;text-align:left;margin-bottom:4px}
+.legend b{color:var(--sig)}
+
+.stage{flex:1;display:flex;flex-direction:column;align-items:center;padding:28px 22px;gap:16px}
+.stage-head{width:100%;max-width:780px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.stage-title{font-family:'Saira Condensed';font-weight:700;font-size:13px;letter-spacing:2px;color:#8b8678}
+.status-pill{font-family:'Saira Condensed';font-weight:700;font-size:11px;letter-spacing:1.5px;
+  padding:5px 12px;border-radius:20px;text-transform:uppercase;white-space:nowrap}
+.status-pill.ready{background:rgba(194,160,78,.16);color:var(--sig);border:1px solid var(--sig)}
+.status-pill.wait{background:rgba(255,255,255,.06);color:#776f60;border:1px solid var(--line)}
+.status-pill.warn{background:rgba(201,112,90,.14);color:var(--err);border:1px solid var(--err)}
+
+.summary{width:100%;max-width:780px;display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:13px 15px}
+.stat .v{font-family:'Anton';font-size:26px;color:var(--creme);line-height:1.1}
+.stat .k{font-family:'Saira Condensed';font-weight:700;font-size:10.5px;letter-spacing:1.5px;
+  color:#8b8678;text-transform:uppercase;margin-top:3px}
+.stat.accent .v{color:var(--sig)}
+.stat.warn .v{color:var(--err)}
+
+.facteur-note{width:100%;max-width:780px;font-size:12px;color:var(--soustitre);line-height:1.5;
+  background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:11px 14px}
+.facteur-note b{color:var(--sig)}
+.facteur-note.warn{border-color:var(--err);color:var(--err)}
+.facteur-note.warn b{color:var(--err)}
+
+.table-wrap{width:100%;max-width:780px;background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  overflow:hidden}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{text-align:left;font-family:'Saira Condensed';font-weight:700;font-size:10.5px;letter-spacing:1.5px;
+  color:#8b8678;text-transform:uppercase;padding:10px 14px;border-bottom:1px solid var(--line);
+  background:rgba(255,255,255,.02)}
+tbody td{padding:9px 14px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:top}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:rgba(255,255,255,.02)}
+td.idx{font-family:'Saira Condensed';font-weight:700;color:#776f60;width:32px}
+td.txt{color:var(--newsprint);line-height:1.4}
+td.txt b.ocre{color:var(--ocre);font-weight:600}
+td.tc{font-family:'Saira Condensed';font-weight:600;color:var(--soustitre);white-space:nowrap;font-variant-numeric:tabular-nums}
+td.tc b{color:var(--sig)}
+td.dur{font-family:'Saira Condensed';font-weight:600;color:#8b8678;white-space:nowrap;font-variant-numeric:tabular-nums}
+tr.floor td.dur{color:var(--sig)}
+tr.floor td.dur::after{content:" ⚑";color:var(--sig)}
+
+.btns{display:flex;gap:10px;width:100%;max-width:780px}
+.btn{font-family:'Saira Condensed';font-weight:700;font-size:13px;letter-spacing:1.5px;padding:11px 18px;
+  border-radius:9px;border:none;cursor:pointer;text-transform:uppercase;transition:filter .15s}
+.btn:hover{filter:brightness(1.08)}
+.btn-sig{background:var(--sig);color:var(--encre)}
+.btn-ghost{background:transparent;color:#9a9588;border:1px solid var(--line)}
+.toast{font-family:'Saira Condensed';font-weight:700;font-size:12px;letter-spacing:1px;
+  color:var(--sig);opacity:0;transition:opacity .2s;text-transform:uppercase;align-self:center}
+.toast.show{opacity:1}
+
+.empty{width:100%;max-width:780px;text-align:center;color:#776f60;font-size:13px;padding:40px 20px;
+  border:1px dashed var(--line);border-radius:10px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="panel">
+    <div class="topbar">
+      <div class="mono">1·2</div>
+      <div class="brand">une<span class="dot">·</span>deux</div>
+      <a class="back-link" href="index.html">← studio</a>
+    </div>
+
+    <div class="section-h">Style des sous-titres</div>
+    <div class="field">
+      <div class="chips" id="chips_style">
+        <div class="chip on" data-style="karaoke">KARAOKÉ</div>
+        <div class="chip" data-style="fixe">FIXE</div>
+      </div>
+      <div class="hint" id="hint_style"></div>
+    </div>
+
+    <div class="section-h">Texte</div>
+    <div class="field">
+      <label id="lbl_texte">Corps</label>
+      <textarea id="in_texte" placeholder="Colle ici une ligne = un carton (style karaoké) ou le CORPS déjà découpé en groupes de souffle (style fixe). Les lignes vides sont ignorées — un **mot** entre doubles astérisques s'affichera en ocre, sans compter dans le calcul de durée."></textarea>
+      <div class="hint" id="hint_texte"></div>
+    </div>
+
+    <div class="section-h">Rythme</div>
+    <div class="field">
+      <label>Durée vidéo disponible (s) — optionnel</label>
+      <input id="in_target" type="number" min="0" step="0.1" placeholder="laisse vide = durée optimale (facteur = 1)">
+      <div class="hint">Vide → calcule la <b>durée optimale</b> (rythme natif). Renseignée → calcule le <b>facteur</b> d'étirement/compression et recale tous les time codes sur cette durée réelle.</div>
+    </div>
+    <div class="row2" id="row_karaoke_opts">
+      <div class="field">
+        <label>Départ 1ᵉʳ carton (s)</label>
+        <input id="in_offset" type="number" min="0" step="0.05" value="0.25">
+      </div>
+      <div class="field">
+        <label>CPS (vitesse lecture)</label>
+        <input id="in_cps" type="number" min="1" step="0.5" value="13">
+      </div>
+    </div>
+    <div class="row2" id="row_fixe_opts" style="display:none">
+      <div class="field">
+        <label>Départ 1ᵉʳ bloc (s)</label>
+        <input id="in_offset_fixe" type="number" min="0" step="0.05" value="0.3">
+      </div>
+      <div class="field">
+        <label>Pause entre blocs (s)</label>
+        <input id="in_pause" type="number" min="0" step="0.01" value="0.15">
+      </div>
+    </div>
+
+    <div class="legend" style="margin-top:18px">
+      Reprend à l'identique la <b>formule figée</b> du <b>CLAUDE.md</b> du projet
+      (§5) : Karaoké = <b>max(0.8, caractères / CPS)</b> par carton, cartons
+      contigus, zéro pause. Fixe = <b>mots × 0.27 + 0.35</b> par bloc, pause
+      réglable entre blocs. Le <b>facteur</b> ne fait qu'étirer/compresser
+      proportionnellement chaque durée brute — jamais le texte lui-même.
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-head">
+      <div class="stage-title">RYTHME &amp; TIME CODES</div>
+      <div class="status-pill wait" id="status_pill">COLLE UN TEXTE À GAUCHE</div>
+    </div>
+
+    <div id="results" style="display:none;width:100%;max-width:780px;display:flex;flex-direction:column;gap:16px;align-items:center">
+      <div class="summary" id="summary"></div>
+      <div class="facteur-note" id="facteur_note" style="display:none"></div>
+
+      <div class="btns">
+        <button class="btn btn-sig" id="b_copy_table">Copier le tableau</button>
+        <button class="btn btn-ghost" id="b_copy_gsap">Copier en JS (start/dur)</button>
+        <div class="toast" id="toast"></div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Carton</th><th>Début</th><th>Fin</th><th>Durée</th></tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="empty" id="empty_state">Colle le texte du reel à gauche (§4 CLAUDE.md — une ligne = un carton en style karaoké) pour voir le rythme et les time codes de chaque carton.</div>
+  </div>
+
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const inTexte = $('in_texte'), inTarget = $('in_target'), inOffset = $('in_offset'),
+      inCps = $('in_cps'), inOffsetFixe = $('in_offset_fixe'), inPause = $('in_pause');
+const statusPill = $('status_pill'), summaryEl = $('summary'), facteurNote = $('facteur_note'),
+      tbody = $('tbody'), resultsEl = $('results'), emptyEl = $('empty_state'), toast = $('toast');
+const rowKaraokeOpts = $('row_karaoke_opts'), rowFixeOpts = $('row_fixe_opts');
+const lblTexte = $('lbl_texte'), hintTexte = $('hint_texte'), hintStyle = $('hint_style');
+
+let style = 'karaoke';
+
+const HINTS = {
+  karaoke: {
+    lbl: 'CORPS (karaoké)',
+    texte: '<b>Verbatim</b> — chaque saut de ligne devient directement un carton, dans l\'ordre, sans re-découpage (§4.B). La brièveté (~3 mots/ligne) reste la responsabilité de la rédaction, pas de ce calculateur.',
+    style: 'Cartons plein écran, contigus (zéro pause), rythme en caractères/seconde (CPS = 13 par défaut, plancher 0,8s/carton).'
+  },
+  fixe: {
+    lbl: 'CORPS',
+    texte: 'Colle le texte déjà <b>découpé en groupes de souffle</b> (1-5 mots, une ligne = un bloc — §4.A) : ce calculateur ne re-découpe pas les phrases à ta place, il chronomètre le découpage que tu lui donnes.',
+    style: 'Bande basse sous le plan net, rythme en mots (0,27s/mot + 0,35s), pause réglable entre blocs.'
+  }
+};
+
+function escapeHtml(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+/* Extrait le texte affiché (sans **) + le HTML avec <b class="ocre"> pour
+   l'aperçu — même mécanisme d'extraction par position que §4.B/§4bis du
+   CLAUDE.md (extractGreenWords) : les ** ne s'affichent jamais à l'écran,
+   donc ne comptent jamais dans le calcul de durée, qu'on les affiche en
+   ocre ou pas. */
+function parseOcre(rawLine){
+  const parts = rawLine.split(/\*\*(.+?)\*\*/g); // impairs = texte marqué
+  let plain = '', html = '';
+  parts.forEach((p, i) => {
+    if(i % 2 === 1){ plain += p; html += '<b class="ocre">' + escapeHtml(p) + '</b>'; }
+    else { plain += p; html += escapeHtml(p); }
+  });
+  return { plain, html };
+}
+
+function fmtTC(sec){
+  sec = Math.max(0, sec);
+  const m = Math.floor(sec / 60);
+  const s = sec - m * 60;
+  return m + ':' + s.toFixed(1).padStart(4, '0');
+}
+
+function fmtDur(sec){ return sec.toFixed(2) + 's'; }
+
+function computeKaraoke(lines, opts){
+  const cps = opts.cps > 0 ? opts.cps : 13;
+  const cartons = lines.map(l => {
+    const { plain, html } = parseOcre(l);
+    const chars = plain.length;
+    const brute = Math.max(0.8, chars / cps);
+    return { html, plain, chars, brute };
+  });
+  const sumBrute = cartons.reduce((a, c) => a + c.brute, 0);
+  const offset = opts.offset;
+  let facteur = 1, dispoNote = null;
+  if(opts.target != null && opts.target > 0){
+    const dispo = opts.target - offset;
+    facteur = dispo > 0 ? dispo / sumBrute : 0;
+    dispoNote = { dispo, target: opts.target };
+  }
+  let t = offset;
+  cartons.forEach(c => {
+    c.dur = c.brute * facteur;
+    c.start = t;
+    c.end = t + c.dur;
+    t = c.end;
+  });
+  const totalDur = opts.target != null && opts.target > 0 ? opts.target : t;
+  return { cartons, sumBrute, offset, facteur, totalDur, dispoNote, unitLabel: 'caractères', sumUnit: sumBrute };
+}
+
+function computeFixe(lines, opts){
+  const cartons = lines.map(l => {
+    const { plain, html } = parseOcre(l);
+    const mots = plain.trim().split(/\s+/).filter(Boolean).length;
+    const brute = mots * 0.27 + 0.35;
+    return { html, plain, mots, brute };
+  });
+  const sumBrute = cartons.reduce((a, c) => a + c.brute, 0);
+  const offset = opts.offset;
+  const pause = opts.pause;
+  const totalPauses = Math.max(0, cartons.length - 1) * pause;
+  let facteur = 1, dispoNote = null;
+  if(opts.target != null && opts.target > 0){
+    const dispo = opts.target - offset - totalPauses;
+    facteur = dispo > 0 ? dispo / sumBrute : 0;
+    dispoNote = { dispo, target: opts.target };
+  }
+  let t = offset;
+  cartons.forEach((c, i) => {
+    c.dur = c.brute * facteur;
+    c.start = t;
+    c.end = t + c.dur;
+    t = c.end + (i < cartons.length - 1 ? pause : 0);
+  });
+  const totalDur = opts.target != null && opts.target > 0 ? opts.target : t;
+  return { cartons, sumBrute, offset, facteur, totalDur, dispoNote, totalPauses, unitLabel: 'mots', sumUnit: cartons.reduce((a,c)=>a+c.mots,0) };
+}
+
+function render(){
+  const raw = inTexte.value;
+  const lines = raw.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+
+  hintTexte.innerHTML = HINTS[style].texte;
+  hintStyle.textContent = HINTS[style].style;
+  lblTexte.textContent = HINTS[style].lbl;
+
+  if(lines.length === 0){
+    resultsEl.style.display = 'none';
+    emptyEl.style.display = '';
+    statusPill.className = 'status-pill wait';
+    statusPill.textContent = 'COLLE UN TEXTE À GAUCHE';
+    return;
+  }
+  emptyEl.style.display = 'none';
+  resultsEl.style.display = 'flex';
+
+  const targetRaw = inTarget.value.trim();
+  const target = targetRaw === '' ? null : parseFloat(targetRaw);
+
+  let result;
+  if(style === 'karaoke'){
+    result = computeKaraoke(lines, {
+      cps: parseFloat(inCps.value) || 13,
+      offset: parseFloat(inOffset.value) || 0,
+      target
+    });
+  } else {
+    result = computeFixe(lines, {
+      offset: parseFloat(inOffsetFixe.value) || 0,
+      pause: parseFloat(inPause.value) || 0,
+      target
+    });
+  }
+
+  const n = result.cartons.length;
+  const facteurBad = result.facteur < 0.99 || result.facteur > 1.01;
+  const tooCompressed = style === 'karaoke'
+    ? result.cartons.some(c => c.dur < 0.5)
+    : result.cartons.some(c => c.dur < 0.55);
+
+  // status pill
+  if(target != null && target > 0){
+    statusPill.className = 'status-pill ' + (tooCompressed ? 'warn' : 'ready');
+    statusPill.textContent = tooCompressed
+      ? 'CARTONS TROP COMPRESSÉS'
+      : (facteurBad ? `FACTEUR ${result.facteur.toFixed(2)}×` : 'RYTHME NATIF (FACTEUR 1×)');
+  } else {
+    statusPill.className = 'status-pill ready';
+    statusPill.textContent = `DURÉE OPTIMALE — ${n} CARTONS`;
+  }
+
+  // summary
+  const stats = [
+    { k: 'Cartons', v: n },
+    { k: style === 'karaoke' ? 'Caractères' : 'Mots', v: Math.round(result.sumUnit) },
+    { k: target != null && target > 0 ? 'Durée vidéo' : 'Durée optimale', v: fmtTC(result.totalDur), accent: true },
+    { k: 'Facteur', v: result.facteur.toFixed(2) + '×' }
+  ];
+  summaryEl.innerHTML = stats.map(s =>
+    `<div class="stat${s.accent ? ' accent' : ''}"><div class="v">${s.v}</div><div class="k">${s.k}</div></div>`
+  ).join('');
+
+  // facteur note
+  if(target != null && target > 0){
+    facteurNote.style.display = '';
+    if(tooCompressed){
+      facteurNote.className = 'facteur-note warn';
+      facteurNote.innerHTML = `⚠ Avec <b>${fmtTC(target)}</b> pour ${n} cartons, le facteur (<b>${result.facteur.toFixed(2)}×</b>) écrase au moins un carton sous le plancher lisible — trop de texte pour cette durée. Coupe des lignes ou allonge la vidéo plutôt que de livrer ce rythme.`;
+    } else {
+      facteurNote.className = 'facteur-note';
+      const sens = result.facteur > 1.03 ? 'plus lent que le rythme natif — pas de souci, toujours un sous-titre à l\'écran' :
+                   result.facteur < 0.97 ? 'plus rapide que le rythme natif — encore lisible tant qu\'aucun carton n\'est marqué ⚑' :
+                   'quasi identique au rythme natif';
+      facteurNote.innerHTML = `Avec <b>${fmtTC(target)}</b> disponibles pour ${n} cartons, le facteur vaut <b>${result.facteur.toFixed(2)}×</b> (${sens}).`;
+    }
+  } else {
+    facteurNote.style.display = 'none';
+  }
+
+  // table
+  tbody.innerHTML = result.cartons.map((c, i) => {
+    const floor = style === 'karaoke' ? c.dur < 0.5 : c.dur < 0.55;
+    return `<tr class="${floor ? 'floor' : ''}">
+      <td class="idx">${i + 1}</td>
+      <td class="txt">${c.html}</td>
+      <td class="tc"><b>${fmtTC(c.start)}</b></td>
+      <td class="tc">${fmtTC(c.end)}</td>
+      <td class="dur">${fmtDur(c.dur)}</td>
+    </tr>`;
+  }).join('');
+
+  render._last = { result, lines, style };
+}
+
+function showToast(msg){
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2400);
+}
+
+$('b_copy_table').addEventListener('click', () => {
+  const last = render._last;
+  if(!last) return;
+  const header = ['#', 'Carton', 'Début', 'Fin', 'Durée(s)'].join('\t');
+  const rows = last.result.cartons.map((c, i) =>
+    [i + 1, c.plain, fmtTC(c.start), fmtTC(c.end), c.dur.toFixed(2)].join('\t')
+  );
+  navigator.clipboard.writeText([header, ...rows].join('\n')).then(() => showToast('Tableau copié'));
+});
+
+$('b_copy_gsap').addEventListener('click', () => {
+  const last = render._last;
+  if(!last) return;
+  const calls = last.result.cartons.map((c, i) =>
+    `// ${i + 1}. ${c.plain}\nfadeBlockKaraoke('.c${i + 1}', ${c.start.toFixed(3)}, ${c.dur.toFixed(3)});`
+  );
+  navigator.clipboard.writeText(calls.join('\n')).then(() => showToast('Appels JS copiés'));
+});
+
+$('chips_style').addEventListener('click', e => {
+  const chip = e.target.closest('.chip');
+  if(!chip) return;
+  style = chip.dataset.style;
+  document.querySelectorAll('#chips_style .chip').forEach(c => c.classList.toggle('on', c === chip));
+  rowKaraokeOpts.style.display = style === 'karaoke' ? '' : 'none';
+  rowFixeOpts.style.display = style === 'fixe' ? '' : 'none';
+  render();
+});
+
+[inTexte, inTarget, inOffset, inCps, inOffsetFixe, inPause].forEach(el => {
+  el.addEventListener('input', render);
+});
+
+render();
+</script>
+</body>
+</html>
