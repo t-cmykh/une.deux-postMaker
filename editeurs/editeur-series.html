@@ -554,8 +554,6 @@ function rebuildPicker(){
   const box=document.getElementById('greenpicker'); box.innerHTML='';
   if(!(state.greenWordIndices instanceof Set)) state.greenWordIndices=new Set();
   const words=state.title.trim().split(/\s+/).filter(Boolean);
-  const counts={};
-  words.forEach(w=>{ const up=w.toUpperCase(); counts[up]=(counts[up]||0)+1; });
   const none=document.createElement('div');
   none.className='chip'+(state.greenWordIndices.size===0?' on':''); none.textContent='Aucun';
   none.onclick=()=>{state.greenWordIndices.clear();rebuildPicker();draw();}; box.appendChild(none);
@@ -566,14 +564,10 @@ function rebuildPicker(){
     state.greenWordIndices = allOn ? new Set() : new Set(words.map((_,i)=>i));
     rebuildPicker();draw();
   }; box.appendChild(all);
-  const seen={};
   words.forEach((w,i)=>{
-    const up=w.toUpperCase();
-    seen[up]=(seen[up]||0)+1;
     const c=document.createElement('div');
     const sel=state.greenWordIndices.has(i);
-    c.className='chip'+(sel?' on':'');
-    c.textContent = counts[up]>1 ? (w+' · '+seen[up]) : w;
+    c.className='chip'+(sel?' on':''); c.textContent=w;
     c.onclick=()=>{ sel?state.greenWordIndices.delete(i):state.greenWordIndices.add(i); rebuildPicker();draw(); };
     box.appendChild(c);
   });
