@@ -396,7 +396,13 @@ const SERIES = {
 /* ===== State (calé sur post.html) ===== */
 const state = {
   serie:'cejourla',
-  tag:'', title:'', greenWords:new Set(), greenWordIndices:null,
+  /* greenWordIndices est la source de vérité de l'édition manuelle (une
+     entrée par POSITION de mot dans le titre, pas par texte) — nécessaire
+     pour pouvoir encadrer une seule occurrence d'un mot répété (ex. un seul
+     des trois "LA") sans encadrer les autres. greenWords (par texte) ne
+     sert plus qu'au chargement de données anciennes qui n'ont pas encore
+     de positions enregistrées (cf. loadFixedCta/applyBatchCtaState) */
+  tag:'', title:'', greenWords:new Set(), greenWordIndices:new Set(),
   body:'',
   cur:'01', tot:'09',
   img:null, vid:null, isVideo:false, zoom:1, posx:0.5, posy:0.5, dark:0.78,
@@ -539,33 +545,55 @@ function buildRatioTabs(){
   });
 }
 
-/* ===== green word picker (mots du titre) — sélection multiple ===== */
+/* ===== green word picker (mots du titre) — sélection multiple par POSITION,
+   pas par texte : un chip par occurrence (pas par mot unique dédupliqué),
+   pour pouvoir encadrer une seule occurrence d'un mot répété (ex. un seul
+   des trois "LA" du titre) sans encadrer les autres. Un suffixe « · N »
+   distingue les occurrences d'un même mot dans la liste. ===== */
 function rebuildPicker(){
   const box=document.getElementById('greenpicker'); box.innerHTML='';
-  const words=[...new Set(state.title.trim().split(/\s+/).filter(Boolean))];
+  if(!(state.greenWordIndices instanceof Set)) state.greenWordIndices=new Set();
+  const words=state.title.trim().split(/\s+/).filter(Boolean);
+  const counts={};
+  words.forEach(w=>{ const up=w.toUpperCase(); counts[up]=(counts[up]||0)+1; });
   const none=document.createElement('div');
-  none.className='chip'+(state.greenWords.size===0?' on':''); none.textContent='Aucun';
-  none.onclick=()=>{state.greenWords.clear();rebuildPicker();draw();}; box.appendChild(none);
+  none.className='chip'+(state.greenWordIndices.size===0?' on':''); none.textContent='Aucun';
+  none.onclick=()=>{state.greenWordIndices.clear();rebuildPicker();draw();}; box.appendChild(none);
   const all=document.createElement('div');
-  const allOn=words.length>0 && words.every(w=>state.greenWords.has(w.toUpperCase()));
+  const allOn=words.length>0 && words.every((_,i)=>state.greenWordIndices.has(i));
   all.className='chip'+(allOn?' on':''); all.textContent='Tout';
   all.onclick=()=>{
-    state.greenWords = allOn ? new Set() : new Set(words.map(w=>w.toUpperCase()));
+    state.greenWordIndices = allOn ? new Set() : new Set(words.map((_,i)=>i));
     rebuildPicker();draw();
   }; box.appendChild(all);
-  words.forEach(w=>{
+  const seen={};
+  words.forEach((w,i)=>{
     const up=w.toUpperCase();
+    seen[up]=(seen[up]||0)+1;
     const c=document.createElement('div');
-    const sel=state.greenWords.has(up);
-    c.className='chip'+(sel?' on':''); c.textContent=w;
-    c.onclick=()=>{ sel?state.greenWords.delete(up):state.greenWords.add(up); rebuildPicker();draw(); };
+    const sel=state.greenWordIndices.has(i);
+    c.className='chip'+(sel?' on':'');
+    c.textContent = counts[up]>1 ? (w+' · '+seen[up]) : w;
+    c.onclick=()=>{ sel?state.greenWordIndices.delete(i):state.greenWordIndices.add(i); rebuildPicker();draw(); };
     box.appendChild(c);
   });
 }
 
 /* ===== binds ===== */
 const f_tag=document.getElementById('f_tag'); f_tag.value=defaultTag(state.serie);
-document.getElementById('f_title').oninput=e=>{state.title=e.target.value;state.greenWordIndices=null;rebuildPicker();restartTitleReveal();draw();};
+document.getElementById('f_title').oninput=e=>{
+  const oldCount=state.title.trim().split(/\s+/).filter(Boolean).length;
+  state.title=e.target.value;
+  const newCount=state.title.trim().split(/\s+/).filter(Boolean).length;
+  /* mots-clés sélectionnés par POSITION (cf. rebuildPicker) — si le nombre
+     de mots change, les anciennes positions ne correspondent plus forcément
+     aux mêmes mots (un mot inséré au milieu décale tout ce qui suit) : on
+     repart d'une sélection vide plutôt que d'encadrer le mauvais mot en
+     silence. Une simple correction de frappe (nombre de mots inchangé)
+     garde la sélection en cours. */
+  if(newCount!==oldCount) state.greenWordIndices=new Set();
+  rebuildPicker();restartTitleReveal();draw();
+};
 document.getElementById('f_body').oninput=e=>{state.body=e.target.value;draw();};
 document.getElementById('f_cur').oninput=e=>{state.cur=e.target.value;draw();};
 document.getElementById('f_tot').oninput=e=>{state.tot=e.target.value;draw();};
@@ -3083,7 +3111,12 @@ function parseBatchScript(text){
 
 function ctaStorageKey(serie){ return 'unedeux_cta_fixed_'+serie; }
 function saveFixedCta(){
-  const data = {title:state.title, body:state.body, btnlabel:state.btnlabel, greenWords:[...state.greenWords]};
+  /* greenIndices (par position) plutôt que greenWords (par texte) — cf.
+     state.greenWordIndices, seule sélection possible depuis l'édition
+     manuelle maintenant qu'un mot répété peut être encadré occurrence par
+     occurrence. applyBatchCtaState() sait lire greenIndices en priorité. */
+  const data = {title:state.title, body:state.body, btnlabel:state.btnlabel,
+    greenIndices:[...(state.greenWordIndices instanceof Set ? state.greenWordIndices : [])]};
   localStorage.setItem(ctaStorageKey(state.serie), JSON.stringify(data));
   document.getElementById('cta_saved_hint').textContent = 'Enregistré comme CTA fixe de '+SERIES[state.serie].name+'.';
   updateBatchExportState();
@@ -3093,7 +3126,11 @@ function loadFixedCta(serie){
   if(!raw) return null;
   try{
     const d = JSON.parse(raw);
-    return {title:d.title||'', body:d.body||'', btnlabel:d.btnlabel||'ENREGISTRE', greenWords:new Set(d.greenWords||[])};
+    /* greenWords conservé tel quel pour un CTA fixe enregistré avant ce
+       changement (pas encore de greenIndices) — applyBatchCtaState() y
+       retombe automatiquement quand greenIndices est absent */
+    return {title:d.title||'', body:d.body||'', btnlabel:d.btnlabel||'ENREGISTRE',
+      greenIndices:d.greenIndices, greenWords:d.greenWords};
   }catch(e){ return null; }
 }
 
@@ -3274,9 +3311,10 @@ function applyBatchCtaState(ctaData){
   /* convention observée sur les 3 séries : le libellé du CTA porte le nom
      de la série ("LES OUBLIÉS", "PORTRAITS"…), pas "ENREGISTRE" */
   state.btnlabel=ctaData.btnlabel||SERIES[state.serie].label;
-  /* CTA du script (batch, dynamique) → accent par position ; CTA fixe
-     enregistré (édition manuelle du template CTA) → accent par texte,
-     comme le reste de l'éditeur manuel */
+  /* accent par position (greenIndices) dans les deux cas désormais — CTA du
+     script (batch) et CTA fixe enregistré depuis l'édition manuelle ; repli
+     sur l'accent par texte (greenWords) uniquement pour un CTA fixe
+     enregistré avant ce changement, qui n'a pas encore de greenIndices */
   if(ctaData.greenIndices){
     state.greenWordIndices = new Set(ctaData.greenIndices);
     state.greenWords = new Set();
