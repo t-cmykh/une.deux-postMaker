@@ -957,8 +957,36 @@ function titleBaselinesFromBottom(g,lines,lastBaseline,baseGap){
   for(let i=n-2;i>=0;i--) baselines[i]=baselines[i+1]-titleLineGap(g,baseGap,text(lines[i]),text(lines[i+1]));
   return baselines;
 }
-function drawWordLine(g,words,x,y,baseIndex){
-  baseIndex = baseIndex||0;
+/* accent d'un mot par position (mode batch) si dispo, sinon par texte (sélecteur
+   manuel) — même logique que le 1er passage de drawWordLine, extraite pour être
+   réutilisée par computeLineMerges sans dupliquer state.greenWordIndices/greenWords */
+function isWordAccent(word,idx){
+  const useIdx = state.greenWordIndices instanceof Set;
+  return useIdx ? state.greenWordIndices.has(idx) : state.greenWords.has(String(word).toUpperCase());
+}
+/* détecte, pour un titre multi-lignes, les carrés mot-clé qui continuent d'une
+   ligne à l'autre (dernier mot de la ligne N ET premier mot de la ligne N+1
+   tous deux encadrés) — sans ça, le carré de chaque ligne s'arrête à sa propre
+   baseline et l'écart entre lignes (élargi pour ne pas faire chevaucher les
+   accents, cf. titleBaselinesFrom{Top,Bottom}) devient un espace visible en
+   plein milieu d'un même mot-clé encadré qui se poursuit sur la ligne
+   suivante. Chaque ligne concernée étend son carré jusqu'au milieu de l'écart
+   avec sa voisine, les deux carrés se rejoignent alors exactement. */
+function computeLineMerges(lines,baselines,lineBaseIdx){
+  const merges=lines.map(()=>({up:null,down:null}));
+  for(let i=0;i<lines.length-1;i++){
+    const lineA=lines[i], lineB=lines[i+1];
+    if(!lineA.length || !lineB.length) continue;
+    const lastIdxA=lineBaseIdx[i]+lineA.length-1, firstIdxB=lineBaseIdx[i+1];
+    if(isWordAccent(lineA[lineA.length-1],lastIdxA) && isWordAccent(lineB[0],firstIdxB)){
+      const mid=(baselines[i]+baselines[i+1])/2;
+      merges[i].down=mid; merges[i+1].up=mid;
+    }
+  }
+  return merges;
+}
+function drawWordLine(g,words,x,y,baseIndex,merge){
+  baseIndex = baseIndex||0; merge = merge||{};
   const space=g.measureText(' ').width, s=SERIES[state.serie], pad=state.kwPad;
   /* hauteur du carré mesurée sur une référence fixe (haut de casse « M », sans
      descente) plutôt que sur le mot lui-même : ni un accent (É, Â…) ni une
@@ -997,7 +1025,13 @@ function drawWordLine(g,words,x,y,baseIndex){
     let j=i;
     while(j+1<items.length && items[j+1].isAccent) j++;
     const boxX=items[i].x-pad, boxEnd=items[j].x+items[j].w+pad;
-    g.fillRect(boxX, y-asc-pad, boxEnd-boxX, asc+desc+pad*2);
+    /* groupe en tout début/toute fin de ligne : étend le carré jusqu'au
+       milieu de l'écart avec la ligne voisine si le mot-clé s'y poursuit
+       (cf. computeLineMerges), pour que les deux carrés se rejoignent sans
+       espace au lieu de s'arrêter chacun à leur propre baseline */
+    const top = (i===0 && merge.up!=null) ? merge.up : y-asc-pad;
+    const bottom = (j===items.length-1 && merge.down!=null) ? merge.down : y+desc+pad;
+    g.fillRect(boxX, top, boxEnd-boxX, bottom-top);
     i=j;
   }
 
@@ -1011,7 +1045,8 @@ function drawTitle(g,x,y2,size,baseGap){
   const words=state.title.trim().split(/\s+/); const [l1,l2]=splitTitleTwoLines(words);
   g.font=size+"px 'Anton'"; g.textBaseline='alphabetic'; g.textAlign='left';
   const [y1,yy2]=titleBaselinesFromBottom(g,[l1,l2],y2,baseGap);
-  drawWordLine(g,l1,x,y1,0); drawWordLine(g,l2,x,yy2,l1.length);
+  const merges=computeLineMerges([l1,l2],[y1,yy2],[0,l1.length]);
+  drawWordLine(g,l1,x,y1,0,merges[0]); drawWordLine(g,l2,x,yy2,l1.length,merges[1]);
 }
 function roundedArrow(g,cx,cy,color){
   g.strokeStyle=color; g.lineWidth=5; g.lineCap='round'; g.lineJoin='round';
@@ -1254,6 +1289,7 @@ function draw(){
        l'accent par position (state.greenWordIndices) */
     const lineBaseIdx=[]; let __idx=0;
     shown.forEach(lw=>{ lineBaseIdx.push(__idx); __idx+=lw.length; });
+    const merges=computeLineMerges(shown,baselines,lineBaseIdx);
 
     if(state.serie==='cejourla'){
       /* apparition ligne par ligne, uniquement pour Ce jour-là — vitesse réglable */
@@ -1265,13 +1301,13 @@ function draw(){
         const p=Math.max(0,Math.min(1,(elapsed-i*revealMs)/fadeMs));
         if(p<=0) return;
         g.save(); g.globalAlpha=p;
-        drawWordLine(g,lw,M,baselines[i]+(1-p)*8,lineBaseIdx[i]);
+        drawWordLine(g,lw,M,baselines[i]+(1-p)*8,lineBaseIdx[i],merges[i]);
         g.restore();
       });
       titleRevealDone = elapsed >= (shown.length-1)*revealMs+fadeMs;
     } else {
       /* autres séries : template "titre seul" inchangé, tout le titre s'affiche directement */
-      shown.forEach((lw,i)=> drawWordLine(g,lw,M,baselines[i],lineBaseIdx[i]) );
+      shown.forEach((lw,i)=> drawWordLine(g,lw,M,baselines[i],lineBaseIdx[i],merges[i]) );
     }
   } else {
     /* corps : wrap + tailles adaptatives (post.html) */
@@ -1375,8 +1411,11 @@ function drawPortraitCover(g,W,H,M,footY,s){
   const lineGap=tSize*0.94;
   const baselines=titleBaselinesFromBottom(g,lines,(bodyTxt?bodyBlockTop-40:footY-30),lineGap);
   g.textAlign='left'; g.textBaseline='alphabetic'; g.font=tSize+"px 'Anton'";
-  let __portraitIdx=0;
-  lines.forEach((line,i)=>{ const lw=line.split(' '); drawWordLine(g,lw,baseX,baselines[i],__portraitIdx); __portraitIdx+=lw.length; });
+  const wordLines=lines.map(l=>l.split(' '));
+  const lineBaseIdx=[]; let __portraitIdx=0;
+  wordLines.forEach(lw=>{ lineBaseIdx.push(__portraitIdx); __portraitIdx+=lw.length; });
+  const merges=computeLineMerges(wordLines,baselines,lineBaseIdx);
+  wordLines.forEach((lw,i)=> drawWordLine(g,lw,baseX,baselines[i],lineBaseIdx[i],merges[i]) );
 
   /* mention discrète */
   g.fillStyle='rgba(237,220,178,0.6)'; g.font="26px 'Saira Condensed'"; g.textBaseline='middle'; g.textAlign='left';
@@ -2632,7 +2671,8 @@ function drawCejourlaCoverPhoto(W,H,s){
     const baselines=titleBaselinesFromBottom(g,lines,lastBaseline,lineGap);
     const lineBaseIdx=[]; let __idx=0;
     lines.forEach(lw=>{ lineBaseIdx.push(__idx); __idx+=lw.length; });
-    lines.forEach((lw,i)=> drawWordLine(g,lw,M,baselines[i],lineBaseIdx[i]) );
+    const merges=computeLineMerges(lines,baselines,lineBaseIdx);
+    lines.forEach((lw,i)=> drawWordLine(g,lw,M,baselines[i],lineBaseIdx[i],merges[i]) );
   }
 }
 
