@@ -3213,9 +3213,14 @@ selectSerie = function(key){
 };
 document.getElementById('b_savecta_serie').textContent = SERIES[state.serie].name;
 
-document.documentElement.style.setProperty('--sig',SERIES.cejourla.sig);
-rebuildPicker(); buildRatioTabs(); updateKwPadVisibility();
-document.getElementById('legend').innerHTML='<b>'+SERIES.cejourla.name+'</b> — '+SERIES.cejourla.legend;
+/* initialise réellement l'UI dépendante de la série (visibilité des chips
+   de template, tag, légende…) via selectSerie plutôt que de dupliquer à la
+   main un sous-ensemble de ce qu'elle fait déjà — l'ancien code n'appelait
+   jamais selectSerie() au chargement, ce qui laissait les chips propres à
+   Ce jour-là (ex. COUVERTURE PHOTO) cachées par leur display:none HTML par
+   défaut tant que Thomas n'avait pas changé de série puis était revenu */
+selectSerie(state.serie);
+rebuildPicker(); updateKwPadVisibility();
 document.fonts.ready.then(draw); draw();
 </script>
 </body>
