@@ -528,7 +528,7 @@ function selectSerie(key){
 /* réglage "carré mot-clé" : pertinent uniquement quand le titre est dessiné via
    drawWordLine (templates cover et titre seul — pas citation/cta/corps seul) */
 function updateKwPadVisibility(){
-  document.getElementById('field_kwpad').style.display = (state.template==='cover'||state.template==='titre')?'block':'none';
+  document.getElementById('field_kwpad').style.display = (state.template==='cover'||state.template==='titre'||state.template==='cejourla-cover')?'block':'none';
 }
 
 function buildRatioTabs(){
@@ -585,11 +585,12 @@ document.querySelectorAll('#tpl_chips .chip').forEach(c=>{
     c.classList.add('on'); state.template=c.dataset.tpl;
     document.getElementById('field_btnlabel').style.display = (state.template==='cta')?'block':'none';
     document.getElementById('field_citation').style.display = (state.template==='citation'||state.template==='verbatim'||state.template==='citation-echo')?'block':'none';
-    /* couverture photo : pilotée par l'image seule, ni titre ni corps */
-    document.getElementById('field_title').style.display = (state.template==='cejourla-cover')?'none':'block';
-    document.getElementById('field_greenpicker').style.display = (state.template==='cejourla-cover')?'none':'block';
+    /* couverture photo : titre optionnel (même mécanique mot-clé encadré
+       que COVER · TITRE SEUL), jamais de corps */
     document.getElementById('field_body').style.display = (state.template==='titre'||state.template==='cejourla-cover')?'none':'block';
-    document.getElementById('field_titlesize').style.display = (state.template==='titre')?'block':'none';
+    document.getElementById('field_titlesize').style.display = (state.template==='titre'||state.template==='cejourla-cover')?'block':'none';
+    /* révélation ligne par ligne : uniquement l'aperçu animé "titre seul",
+       une couverture reste une image fixe */
     document.getElementById('field_titleanim').style.display = (state.template==='titre' && state.serie==='cejourla')?'block':'none';
     document.getElementById('field_textbg').style.display = (state.template==='corps')?'block':'none';
     /* templates longform "enquête" : chapô italique (témoin/duo), byline (titre XXL),
@@ -606,12 +607,12 @@ document.querySelectorAll('#tpl_chips .chip').forEach(c=>{
     updateKwPadVisibility();
     setVerbatimLabels(state.template==='verbatim');
     if(state.template==='citation'||state.template==='verbatim'||state.template==='citation-echo') rebuildQuotePicker();
-    if(state.template==='titre'){
+    if(state.template==='titre'||state.template==='cejourla-cover'){
       state.titleSizeManual = clampTitle();
       const rts=document.getElementById('r_titlesize');
       rts.value = state.titleSizeManual;
       document.getElementById('v_titlesize').textContent = state.titleSizeManual;
-      if(state.serie==='cejourla') restartTitleReveal();
+      if(state.template==='titre' && state.serie==='cejourla') restartTitleReveal();
     }
     draw();
   };
@@ -2487,36 +2488,71 @@ function drawHistoireRecit(W,H,s){
    autres templates de la série. Piloté uniquement par l'image chargée
    (state.img) — pas de titre ni de corps, une couverture n'est qu'un aperçu
    visuel du reel, pas un slide éditorial. */
-/* fond flouté/désaturé de la couverture photo — volontairement PAS construit
-   avec ctx.filter (blur()/saturate()) : le support de canvas 2D filter est
-   incohérent sur Safari/iOS (rendu net sans erreur ni avertissement, repéré
-   par Thomas sur son iPhone alors que le rendu Chrome desktop était correct).
-   Approche 100% portable : downscale l'image sur un minuscule canvas
-   (l'interpolation du navigateur agit comme un flou fort), désature les
-   quelques pixels de cette version miniature à la main (bon marché), puis
-   remonte à la taille finale — ne s'appuie que sur drawImage/getImageData/
-   putImageData, universellement supportés. Mis en cache par image + taille
-   cible pour ne pas recalculer à chaque appel de draw(). */
+/* flou gaussien approximé par 3 passes de flou en boîte (technique standard,
+   cf. « fastest gaussian blur » — 3 boîtes de rayon r ≈ sigma approximent un
+   vrai flou gaussien de cet écart-type) via une somme glissante O(largeur)
+   par ligne/colonne, quel que soit le rayon. Nécessaire car canvas 2D
+   ctx.filter='blur()' n'est pas fiable sur Safari/iOS (rendu net sans erreur
+   ni avertissement, repéré par Thomas sur son iPhone alors que Chrome
+   desktop était correct) et qu'un simple downscale/upscale (tenté d'abord)
+   dépend de la qualité de l'interpolation du navigateur au moment de
+   remonter en taille — pixelisé/blocky sur Safari mobile plutôt que lissé.
+   Cette approche ne s'appuie que sur drawImage/getImageData/putImageData,
+   universellement supportés, et flou réellement les pixels (pas de recours
+   à l'agrandissement du navigateur). */
+function boxBlurPass(src,w,h,r){
+  const tmp=new Float32Array(src.length), out=new Uint8ClampedArray(src.length);
+  const size=r*2+1, inv=1/size;
+  const clampX=x=>x<0?0:(x>=w?w-1:x), clampY=y=>y<0?0:(y>=h?h-1:y);
+  for(let y=0;y<h;y++){
+    const row=y*w*4;
+    for(let c=0;c<4;c++){
+      let sum=0;
+      for(let k=-r;k<=r;k++) sum+=src[row+clampX(k)*4+c];
+      tmp[row+c]=sum*inv;
+      for(let x=1;x<w;x++){
+        sum+=src[row+clampX(x+r)*4+c]-src[row+clampX(x-r-1)*4+c];
+        tmp[row+x*4+c]=sum*inv;
+      }
+    }
+  }
+  for(let x=0;x<w;x++){
+    for(let c=0;c<4;c++){
+      let sum=0;
+      for(let k=-r;k<=r;k++) sum+=tmp[clampY(k)*w*4+x*4+c];
+      out[x*4+c]=sum*inv;
+      for(let y=1;y<h;y++){
+        sum+=tmp[clampY(y+r)*w*4+x*4+c]-tmp[clampY(y-r-1)*w*4+x*4+c];
+        out[y*w*4+x*4+c]=sum*inv;
+      }
+    }
+  }
+  return out;
+}
+function gaussianBlurRGBA(data,w,h,sigma){
+  const r=Math.max(1,Math.round((Math.sqrt(4*sigma*sigma+1)-1)/2));
+  let buf=data;
+  for(let pass=0;pass<3;pass++) buf=boxBlurPass(buf,w,h,r);
+  return buf;
+}
+/* fond flouté/désaturé de la couverture photo, mêmes réglages que le bake
+   ffmpeg du reel (gblur sigma=36, saturation 0.4). Mis en cache par image +
+   taille cible pour ne pas recalculer à chaque appel de draw(). */
 function buildCejourlaBackdrop(img,W,H){
   const cached=cejourlaBackdropCache;
   if(cached && cached.img===img && cached.w===W && cached.h===H) return cached.canvas;
-  const sw=90, sh=Math.round(sw*H/W);
-  const small=document.createElement('canvas'); small.width=sw; small.height=sh;
-  const sg=small.getContext('2d');
-  const ir=mediaW(img)/mediaH(img), cr=sw/sh; let dw,dh;
-  if(ir>cr){dh=sh;dw=dh*ir;}else{dw=sw;dh=dw/ir;}
-  sg.imageSmoothingEnabled=true;
-  sg.drawImage(img,(sw-dw)/2,(sh-dh)/2,dw,dh);
-  const id=sg.getImageData(0,0,sw,sh), d=id.data, SAT=0.4;
+  const big=document.createElement('canvas'); big.width=W; big.height=H;
+  const bg=big.getContext('2d');
+  const ir=mediaW(img)/mediaH(img), cr=W/H; let dw,dh;
+  if(ir>cr){dh=H;dw=dh*ir;}else{dw=W;dh=dw/ir;}
+  bg.drawImage(img,(W-dw)/2,(H-dh)/2,dw,dh);
+  const id=bg.getImageData(0,0,W,H), d=id.data, SAT=0.4;
   for(let i=0;i<d.length;i+=4){
     const r=d[i],gg=d[i+1],b=d[i+2], gray=0.299*r+0.587*gg+0.114*b;
     d[i]=gray+(r-gray)*SAT; d[i+1]=gray+(gg-gray)*SAT; d[i+2]=gray+(b-gray)*SAT;
   }
-  sg.putImageData(id,0,0);
-  const big=document.createElement('canvas'); big.width=W; big.height=H;
-  const bg=big.getContext('2d');
-  bg.imageSmoothingEnabled=true; bg.imageSmoothingQuality='high';
-  bg.drawImage(small,0,0,W,H);
+  const blurred=gaussianBlurRGBA(d,W,H,36);
+  bg.putImageData(new ImageData(blurred,W,H),0,0);
   cejourlaBackdropCache={img,w:W,h:H,canvas:big};
   return big;
 }
@@ -2571,6 +2607,33 @@ function drawCejourlaCoverPhoto(W,H,s){
   g.fillStyle=s.sigTextColor||C.encre;
   g.fillText(nameTxt, M+15, tagY+tagH/2+1);
   g.textBaseline='alphabetic'; g.textAlign='left';
+
+  /* 4. titre optionnel — même mécanique mot-clé encadré que COVER · TITRE
+     SEUL (drawWordLine), mais toujours pleinement affiché : une couverture
+     est une image fixe, pas un aperçu vidéo, donc pas de révélation ligne
+     par ligne. Ancré dans la bande floutée basse, sous la bande nette,
+     comme le titre animé de l'intro du reel (cf. CLAUDE.md §4bis, baseline
+     la plus basse ≈1690-1730px). */
+  if(state.title && state.title.trim()){
+    const tSize=state.titleSizeManual||120;
+    g.font=tSize+"px 'Anton'"; g.textAlign='left'; g.textBaseline='alphabetic';
+    const avail=W-M-MR;
+    const words=state.title.trim().split(/\s+/).filter(Boolean);
+    const lines=[]; let cur=[];
+    words.forEach(w=>{
+      const test=cur.concat([w]).join(' ').toUpperCase();
+      if(cur.length && g.measureText(test).width>avail){ lines.push(cur); cur=[w]; }
+      else if(!cur.length && g.measureText(w.toUpperCase()).width>avail){ lines.push([w]); cur=[]; }
+      else cur.push(w);
+    });
+    if(cur.length) lines.push(cur);
+    const lineGap=tSize*0.92;
+    const lastBaseline=H-safeBottom()-40;
+    const baselines=titleBaselinesFromBottom(g,lines,lastBaseline,lineGap);
+    const lineBaseIdx=[]; let __idx=0;
+    lines.forEach(lw=>{ lineBaseIdx.push(__idx); __idx+=lw.length; });
+    lines.forEach((lw,i)=> drawWordLine(g,lw,M,baselines[i],lineBaseIdx[i]) );
+  }
 }
 
 /* ===== TEMPLATE ENQUÊTE · TITRE XXL — très grand titre en rouille estompée,
