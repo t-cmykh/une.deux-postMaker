@@ -429,6 +429,10 @@ function mediaH(m){return m.videoHeight||m.naturalHeight||m.height;}
 /* boucle de rendu continue quand une vidéo joue (repris de post.html), ou quand
    le titre de « Ce jour-là » est en cours d'apparition ligne par ligne */
 let rafId=null, exporting=false, titleRevealDone=true;
+/* cache du fond flouté/désaturé de la couverture photo Ce jour-là (cf.
+   drawCejourlaCoverPhoto) — recalculé seulement si l'image ou le canvas
+   cible change, pas à chaque appel de draw() */
+let cejourlaBackdropCache=null;
 function animLoopActive(){
   return (state.isVideo && state.vid) ||
     (state.serie==='cejourla' && state.template==='titre' && !titleRevealDone);
@@ -2483,19 +2487,48 @@ function drawHistoireRecit(W,H,s){
    autres templates de la série. Piloté uniquement par l'image chargée
    (state.img) — pas de titre ni de corps, une couverture n'est qu'un aperçu
    visuel du reel, pas un slide éditorial. */
+/* fond flouté/désaturé de la couverture photo — volontairement PAS construit
+   avec ctx.filter (blur()/saturate()) : le support de canvas 2D filter est
+   incohérent sur Safari/iOS (rendu net sans erreur ni avertissement, repéré
+   par Thomas sur son iPhone alors que le rendu Chrome desktop était correct).
+   Approche 100% portable : downscale l'image sur un minuscule canvas
+   (l'interpolation du navigateur agit comme un flou fort), désature les
+   quelques pixels de cette version miniature à la main (bon marché), puis
+   remonte à la taille finale — ne s'appuie que sur drawImage/getImageData/
+   putImageData, universellement supportés. Mis en cache par image + taille
+   cible pour ne pas recalculer à chaque appel de draw(). */
+function buildCejourlaBackdrop(img,W,H){
+  const cached=cejourlaBackdropCache;
+  if(cached && cached.img===img && cached.w===W && cached.h===H) return cached.canvas;
+  const sw=90, sh=Math.round(sw*H/W);
+  const small=document.createElement('canvas'); small.width=sw; small.height=sh;
+  const sg=small.getContext('2d');
+  const ir=mediaW(img)/mediaH(img), cr=sw/sh; let dw,dh;
+  if(ir>cr){dh=sh;dw=dh*ir;}else{dw=sw;dh=dw/ir;}
+  sg.imageSmoothingEnabled=true;
+  sg.drawImage(img,(sw-dw)/2,(sh-dh)/2,dw,dh);
+  const id=sg.getImageData(0,0,sw,sh), d=id.data, SAT=0.4;
+  for(let i=0;i<d.length;i+=4){
+    const r=d[i],gg=d[i+1],b=d[i+2], gray=0.299*r+0.587*gg+0.114*b;
+    d[i]=gray+(r-gray)*SAT; d[i+1]=gray+(gg-gray)*SAT; d[i+2]=gray+(b-gray)*SAT;
+  }
+  sg.putImageData(id,0,0);
+  const big=document.createElement('canvas'); big.width=W; big.height=H;
+  const bg=big.getContext('2d');
+  bg.imageSmoothingEnabled=true; bg.imageSmoothingQuality='high';
+  bg.drawImage(small,0,0,W,H);
+  cejourlaBackdropCache={img,w:W,h:H,canvas:big};
+  return big;
+}
 function drawCejourlaCoverPhoto(W,H,s){
   const g=ctx, M=96, MR=96;
   g.clearRect(0,0,W,H);
 
-  /* 1. fond plein cadre flouté + désaturé — mêmes réglages que le bake
-     ffmpeg du reel (gblur sigma=36, saturation 0.4) */
+  /* 1. fond plein cadre flouté + désaturé (cf. buildCejourlaBackdrop) —
+     même intention que le bake ffmpeg du reel (gblur sigma=36, saturation
+     0.4), sans dépendre du support navigateur de ctx.filter */
   if(state.img){
-    const img=state.img, ir=mediaW(img)/mediaH(img), cr=W/H; let dw,dh;
-    if(ir>cr){dh=H;dw=dh*ir;}else{dw=W;dh=dw/ir;}
-    g.save();
-    g.filter='blur(36px) saturate(40%)';
-    g.drawImage(img,(W-dw)/2,(H-dh)/2,dw,dh);
-    g.restore();
+    g.drawImage(buildCejourlaBackdrop(state.img,W,H),0,0);
   } else {
     g.fillStyle=C.encre; g.fillRect(0,0,W,H);
   }
