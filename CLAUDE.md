@@ -384,10 +384,14 @@ d'un style s'applique à l'autre.
 
 #### 4.A — Style fixe (défaut, `STYLE SOUS-TITRES: fixe`)
 
-- Position : `top:1420px` avec `transform:translateY(-50%)`, zone
+- Position : `top:1480px` avec `transform:translateY(-50%)`, zone
   `left:96px; right:96px`, dans la bande floutée basse (sous le plan net —
   valeur calibrée pour la géométrie §2, où le plan net s'arrête à `y=1308`).
-  Garder une marge d'environ 100-115px entre le bas du plan net et `top`.
+  Garder une marge d'environ 170-175px entre le bas du plan net et `top`
+  (révisé le 21 septembre 2026 — l'ancienne valeur `top:1420px`, marge
+  ~100-115px, faisait déborder le haut du bloc de texte au-dessus de la
+  zone voulue ; Thomas a validé `top:1480px` par comparaison visuelle sur
+  une capture annotée d'un rendu réel).
 - **Le corps démarre juste après la fin de l'intro** (§4bis, titre animé —
   présent uniquement dans ce style) dans la timeline globale de la
   composition — décaler tous les `start` calculés en §5 de `introEnd`
