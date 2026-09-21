@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 25 septembre 2026, Gilberto Silva le but en 20 secondes (style karaoké)</title>
+    <!-- gsap servi localement (assets/gsap.min.js), même contournement réseau que les reels précédents -->
+    <script src="assets/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* Vidéo source (UEFA.tv, but de Gilberto Silva en 20,07s, Arsenal-PSV
+         Eindhoven 25/09/2002) gardée intégrale (§1bis) : un seul composite
+         continu du début à la fin (0 -> 41.633333s), même géométrie sur
+         toute la durée. Source brute livrée en 1078x496 mais PILLARBOXÉE
+         (bandes noires ~96px de chaque côté, vérifié par extraction de
+         frame + sondage de colonnes de pixels, même défaut que les sources
+         des 23/24 septembre) : le vrai contenu filmé est ~884x496 (~1.78:1)
+         centré dans ce cadre. Pré-crop crop=884:496:96:0 appliqué avant le
+         cover-crop du §2 (bg plein cadre flouté/désaturé + plan net
+         1080x888 plein cadre horizontal, overlay y=420) — cover-crop
+         calculé via scale=W:H:force_original_aspect_ratio=increase,crop=W:H
+         (robuste à un ratio source non exactement 16:9). Vérifié par
+         extraction de frames sur le composite fini : cadrage propre, le bug
+         UEFA.tv (coin haut-droit de la source) ne laisse qu'un fragment
+         résiduel invisible en bord extrême du plan net. Pas de titre animé
+         séparé pour ce style (§4bis ne s'applique pas au style karaoké).
+         Audio source conservé (piste AAC présente sur la source) : <audio>
+         séparé, jamais de son sur <video> (contrainte HyperFrames). */
+      .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+
+      /* header - constantes fixes de la série, persistant du début à la fin */
+      #hdr { position: absolute; inset: 0 0 auto 0; z-index: 20; }
+      .ring {
+        position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
+        border: 4px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
+
+      /* --ocre-render : compensation du décalage de teinte du pipeline de
+         render HyperFrames sur --ocre (§3 CLAUDE.md). Aucun mot-clé **...**
+         littéral dans le CORPS (karaoké) de ce brouillon, donc b.ocre n'est
+         pas utilisé ici mais la règle CSS reste déclarée pour cohérence. */
+      :root { --ocre-render: #B9A456; }
+      .tag {
+        position: absolute; left: 96px; top: 350px; height: 58px; z-index: 20;
+        display: flex; align-items: center; background: var(--ocre-render); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; padding: 0 15px;
+      }
+
+      /* corps de texte façon karaoké - Anton, centré verticalement dans le
+         cadre, superposé directement sur le plan net (§4.B). Taille FIXE
+         80px pour toutes les cartes ; aucune ombre portée ; léger contour
+         semi-transparent ink. Texte déjà écrit en MAJUSCULES dans le HTML
+         (pas seulement via text-transform, cf. bug de subsetting de police
+         §4.B). .story-line porte un transform:translateY(-50%) STATIQUE -
+         ne jamais animer y dessus avec GSAP (§6), opacity uniquement. */
+      .story-zone { position: absolute; top: 0; bottom: 0; left: 96px; right: 96px; z-index: 20; text-align: center; }
+      .story-line {
+        position: absolute; left: 0; right: 0;
+        top: 50%; transform: translateY(-50%);
+        font-family: 'Anton', sans-serif; font-size: 80px; line-height: 1.1;
+        text-transform: uppercase; color: var(--cream); opacity: 0;
+        -webkit-text-stroke: 1.5px rgba(44,40,35,.35);
+      }
+      /* mot-clé en ocre via **mot** dans CORPS (karaoké) - §4.B. Aucun
+         mot-clé marqué dans ce brouillon, règle non utilisée ici. */
+      .story-line b.ocre { color: var(--ocre-render); font-weight: inherit; }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="41.633333"
+      data-fps="30"
+    >
+      <!-- vidéo intégrale, un seul plan continu du début à la fin -->
+      <video class="video-full" id="fullv" src="assets/composite.mp4" data-start="0.0000" data-duration="41.633333" data-track-index="1" muted playsinline></video>
+      <!-- son de la source conservé (piste AAC présente) - élément séparé, jamais sur <video> -->
+      <audio id="snd" src="assets/audio.m4a" data-start="0.0000" data-duration="41.633333" data-track-index="2"></audio>
+
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+      <div class="tag">CE JOUR LÀ …</div>
+
+      <!-- corps du post - champ CORPS (KARAOKÉ) du brouillon Gmail
+           "📲 POST DU JOUR — 25 septembre 2026" (Gilberto Silva, but en 20
+           secondes). Une ligne du brouillon = une carte, verbatim, aucun
+           re-découpage (§4.B) - 28 cartes, mises en capitales pour
+           l'affichage. Aucun **mot** entre astérisques doubles littéraux
+           dans le CORPS (karaoké) source, donc pas de <b class="ocre">
+           appliqué ici. -->
+      <div class="story-zone">
+        <div class="story-line" id="c1">20 SECONDES…</div>
+        <div class="story-line" id="c2">C’EST TOUT CE QU’IL FAUT</div>
+        <div class="story-line" id="c3">À GILBERTO SILVA</div>
+        <div class="story-line" id="c4">POUR ENTRER DANS L’HISTOIRE</div>
+        <div class="story-line" id="c5">LE 25 SEPTEMBRE 2002,</div>
+        <div class="story-line" id="c6">ARSENAL SE DÉPLACE</div>
+        <div class="story-line" id="c7">AU PSV EINDHOVEN</div>
+        <div class="story-line" id="c8">EN LIGUE DES CHAMPIONS</div>
+        <div class="story-line" id="c9">LE COUP D’ENVOI EST DONNÉ</div>
+        <div class="story-line" id="c10">PUIS,</div>
+        <div class="story-line" id="c11">20,07 SECONDES PLUS TARD,</div>
+        <div class="story-line" id="c12">LE BALLON EST AU FOND</div>
+        <div class="story-line" id="c13">GILBERTO SILVA</div>
+        <div class="story-line" id="c14">VIENT D’INSCRIRE</div>
+        <div class="story-line" id="c15">LE BUT LE PLUS RAPIDE</div>
+        <div class="story-line" id="c16">DE L’HISTOIRE DE LA COMPÉTITION.</div>
+        <div class="story-line" id="c17">IL VIENT DE BATTRE</div>
+        <div class="story-line" id="c18">LE RECORD D’ALESSANDRO DEL PIERO</div>
+        <div class="story-line" id="c19">20,12 SECONDES</div>
+        <div class="story-line" id="c20">MAIS LE RECORD DE GILBERTO</div>
+        <div class="story-line" id="c21">NE TIENDRA QUE CINQ ANS</div>
+        <div class="story-line" id="c22">LE 7 MARS 2007,</div>
+        <div class="story-line" id="c23">ROY MAKAAY MARQUE</div>
+        <div class="story-line" id="c24">CONTRE LE REAL MADRID</div>
+        <div class="story-line" id="c25">APRÈS SEULEMENT</div>
+        <div class="story-line" id="c26">10,12 SECONDES</div>
+        <div class="story-line" id="c27">UN RECORD</div>
+        <div class="story-line" id="c28">QUI TIENT TOUJOURS…</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      /* corps façon karaoké - §4.B/§5 : rythme calculé au CPS (13
+         caractères/seconde), plancher 0.8s/carte, zéro pause entre blocs
+         (toujours un sous-titre à l'écran), démarrage à 0.25s absolu (pas
+         d'introEnd, pas de titre animé pour ce style). 28 cartes, durée
+         disponible = 41.633333-0.25 = 41.383s -> facteur d'étirement
+         ~0.987 sur les durées brutes CPS (durées finales de 0.790s à
+         2.431s, toutes au-dessus/à la limite du plancher de lisibilité
+         ~0.5s du §5). Dernière carte se termine exactement à 41.633333s
+         (fin de la vidéo). Calcul fait via script (Python), pas à la main.
+         Texte repris verbatim du champ CORPS (karaoké) du brouillon
+         "📲 POST DU JOUR — 25 septembre 2026" tel qu'il se lit au moment de
+         ce build (ordre et ponctuation exacts). */
+      function fadeBlockKaraoke(sel, start, dur) {
+        tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 0.10, ease: 'power2.out' }, start);
+        tl.to(sel, { opacity: 0, duration: 0.08, ease: 'sine.in' }, start + dur - 0.08);
+        tl.set(sel, { opacity: 0 }, start + dur);
+      }
+
+      const cards = [
+        { id: "c1", start: 0.250, dur: 0.912 }, // "20 secondes…"
+        { id: "c2", start: 1.162, dur: 1.823 }, // "C’est tout ce qu’il faut"
+        { id: "c3", start: 2.985, dur: 1.215 }, // "à Gilberto Silva"
+        { id: "c4", start: 4.200, dur: 2.051 }, // "pour entrer dans l’histoire"
+        { id: "c5", start: 6.251, dur: 1.595 }, // "Le 25 septembre 2002,"
+        { id: "c6", start: 7.846, dur: 1.367 }, // "Arsenal se déplace"
+        { id: "c7", start: 9.213, dur: 1.215 }, // "au PSV Eindhoven"
+        { id: "c8", start: 10.429, dur: 1.671 }, // "en Ligue des champions"
+        { id: "c9", start: 12.100, dur: 1.899 }, // "Le coup d’envoi est donné"
+        { id: "c10", start: 13.999, dur: 0.790 }, // "Puis,"
+        { id: "c11", start: 14.789, dur: 1.899 }, // "20,07 secondes plus tard,"
+        { id: "c12", start: 16.688, dur: 1.595 }, // "le ballon est au fond"
+        { id: "c13", start: 18.283, dur: 1.063 }, // "Gilberto Silva"
+        { id: "c14", start: 19.346, dur: 1.215 }, // "vient d’inscrire"
+        { id: "c15", start: 20.562, dur: 1.595 }, // "le but le plus rapide"
+        { id: "c16", start: 22.157, dur: 2.431 }, // "de l’histoire de la compétition."
+        { id: "c17", start: 24.588, dur: 1.367 }, // "Il vient de battre"
+        { id: "c18", start: 25.955, dur: 2.431 }, // "le record d’Alessandro Del Piero"
+        { id: "c19", start: 28.386, dur: 1.063 }, // "20,12 secondes"
+        { id: "c20", start: 29.449, dur: 1.975 }, // "Mais le record de Gilberto"
+        { id: "c21", start: 31.424, dur: 1.747 }, // "ne tiendra que cinq ans"
+        { id: "c22", start: 33.171, dur: 1.139 }, // "Le 7 mars 2007,"
+        { id: "c23", start: 34.311, dur: 1.291 }, // "Roy Makaay marque"
+        { id: "c24", start: 35.602, dur: 1.595 }, // "contre le Real Madrid"
+        { id: "c25", start: 37.197, dur: 1.139 }, // "après seulement"
+        { id: "c26", start: 38.337, dur: 1.063 }, // "10,12 secondes"
+        { id: "c27", start: 39.400, dur: 0.790 }, // "Un record"
+        { id: "c28", start: 40.190, dur: 1.443 }, // "qui tient toujours…"
+      ];
+
+      cards.forEach(({ id, start, dur }) => {
+        fadeBlockKaraoke(`#${id}`, start, dur);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
