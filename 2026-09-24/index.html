@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 24 septembre 2026, Newcastle 8-0 Sheffield United (style karaoké)</title>
+    <!-- gsap servi localement (assets/gsap.min.js), même contournement réseau que les reels précédents -->
+    <script src="assets/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* Vidéo source (highlights officiels NUFC TV, Sheffield United 0-8
+         Newcastle, 24/09/2023) gardée intégrale (§1bis) : un seul composite
+         continu du début à la fin (0 -> 42.05s), même géométrie sur toute la
+         durée. Source brute livrée en 1078x488 mais PILLARBOXÉE (bandes
+         noires ~96px de chaque côté, vérifié par extraction de frame +
+         sondage de colonnes de pixels, comme sur le reel du 23 septembre) :
+         le vrai contenu filmé est ~884x488 (~1.81:1) centré dans ce cadre.
+         Pré-crop crop=884:488:96:0 appliqué avant le cover-crop du §2 (bg
+         plein cadre flouté/désaturé + plan net 1080x888 plein cadre
+         horizontal, overlay y=420) — cover-crop calculé via
+         scale=W:H:force_original_aspect_ratio=increase,crop=W:H (robuste à
+         un ratio source non exactement 16:9, sans risque d'erreur d'arrondi
+         manuel). Vérifié par extraction de frames sur le composite fini :
+         le bug NUFC TV (coin haut-droit de la source) et le petit blason du
+         club (coin bas-droit) tombent hors de la fenêtre du plan net grâce
+         au cover-crop. Pas de titre animé séparé pour ce style (§4bis ne
+         s'applique pas au style karaoké). Audio source conservé (piste AAC
+         présente sur la source) : <audio> séparé, jamais de son sur
+         <video> (contrainte HyperFrames). */
+      .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+
+      /* header - constantes fixes de la série, persistant du début à la fin */
+      #hdr { position: absolute; inset: 0 0 auto 0; z-index: 20; }
+      .ring {
+        position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
+        border: 4px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
+
+      /* --ocre-render : compensation du décalage de teinte du pipeline de
+         render HyperFrames sur --ocre (§3 CLAUDE.md). Aucun mot-clé **...**
+         littéral dans le CORPS (karaoké) de ce brouillon, donc b.ocre n'est
+         pas utilisé ici mais la règle CSS reste déclarée pour cohérence. */
+      :root { --ocre-render: #B9A456; }
+      .tag {
+        position: absolute; left: 96px; top: 350px; height: 58px; z-index: 20;
+        display: flex; align-items: center; background: var(--ocre-render); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; padding: 0 15px;
+      }
+
+      /* corps de texte façon karaoké - Anton, centré verticalement dans le
+         cadre, superposé directement sur le plan net (§4.B). Taille FIXE
+         80px pour toutes les cartes ; aucune ombre portée ; léger contour
+         semi-transparent ink. Texte déjà écrit en MAJUSCULES dans le HTML
+         (pas seulement via text-transform, cf. bug de subsetting de police
+         §4.B). .story-line porte un transform:translateY(-50%) STATIQUE -
+         ne jamais animer y dessus avec GSAP (§6), opacity uniquement. */
+      .story-zone { position: absolute; top: 0; bottom: 0; left: 96px; right: 96px; z-index: 20; text-align: center; }
+      .story-line {
+        position: absolute; left: 0; right: 0;
+        top: 50%; transform: translateY(-50%);
+        font-family: 'Anton', sans-serif; font-size: 80px; line-height: 1.1;
+        text-transform: uppercase; color: var(--cream); opacity: 0;
+        -webkit-text-stroke: 1.5px rgba(44,40,35,.35);
+      }
+      /* mot-clé en ocre via **mot** dans CORPS (karaoké) - §4.B. Aucun
+         mot-clé marqué dans ce brouillon, règle non utilisée ici. */
+      .story-line b.ocre { color: var(--ocre-render); font-weight: inherit; }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="42.05"
+      data-fps="30"
+    >
+      <!-- vidéo intégrale, un seul plan continu du début à la fin -->
+      <video class="video-full" id="fullv" src="assets/composite.mp4" data-start="0.0000" data-duration="42.05" data-track-index="1" muted playsinline></video>
+      <!-- son de la source conservé (piste AAC présente) - élément séparé, jamais sur <video> -->
+      <audio id="snd" src="assets/audio.m4a" data-start="0.0000" data-duration="42.05" data-track-index="2"></audio>
+
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+      <div class="tag">CE JOUR LÀ …</div>
+
+      <!-- corps du post - champ CORPS (KARAOKÉ) du brouillon Gmail
+           "📲 POST DU JOUR — 24 septembre 2026" (Newcastle 8-0 Sheffield
+           United). Une ligne du brouillon = une carte, verbatim, aucun
+           re-découpage (§4.B) - 35 cartes, mises en capitales pour
+           l'affichage. Aucun **mot** entre astérisques doubles littéraux
+           dans le CORPS (karaoké) source, donc pas de <b class="ocre">
+           appliqué ici. -->
+      <div class="story-zone">
+        <div class="story-line" id="c1">CE JOUR-LÀ,</div>
+        <div class="story-line" id="c2">NEWCASTLE NE GAGNE PAS</div>
+        <div class="story-line" id="c3">NEWCASTLE ÉCRASE SHEFFIELD UNITED.</div>
+        <div class="story-line" id="c4">LE 24 SEPTEMBRE 2023,</div>
+        <div class="story-line" id="c5">À BRAMALL LANE</div>
+        <div class="story-line" id="c6">LE SCORE FINAL :</div>
+        <div class="story-line" id="c7">8-0</div>
+        <div class="story-line" id="c8">LA PLUS LARGE VICTOIRE</div>
+        <div class="story-line" id="c9">À L’EXTÉRIEUR DE NEWCASTLE</div>
+        <div class="story-line" id="c10">EN PREMIER LEAGUE</div>
+        <div class="story-line" id="c11">MAIS LE VRAI RECORD</div>
+        <div class="story-line" id="c12">EST AILLEURS</div>
+        <div class="story-line" id="c13">LONGSTAFF</div>
+        <div class="story-line" id="c14">BURN</div>
+        <div class="story-line" id="c15">BOTMAN</div>
+        <div class="story-line" id="c16">WILSON</div>
+        <div class="story-line" id="c17">GORDON</div>
+        <div class="story-line" id="c18">ALMIRÓN</div>
+        <div class="story-line" id="c19">GUIMARÃES</div>
+        <div class="story-line" id="c20">ISAK</div>
+        <div class="story-line" id="c21">HUIT BUTS</div>
+        <div class="story-line" id="c22">HUIT BUTEURS DIFFÉRENTS.</div>
+        <div class="story-line" id="c23">AUCUN DOUBLÉ</div>
+        <div class="story-line" id="c24">AUCUNE REDITE</div>
+        <div class="story-line" id="c25">UNE PREMIÈRE</div>
+        <div class="story-line" id="c26">DANS L’HISTOIRE</div>
+        <div class="story-line" id="c27">DE LA PREMIER LEAGUE</div>
+        <div class="story-line" id="c28">CE JOUR-LÀ,</div>
+        <div class="story-line" id="c29">NEWCASTLE N’A PAS SEULEMENT</div>
+        <div class="story-line" id="c30">MARQUÉ HUIT FOIS</div>
+        <div class="story-line" id="c31">HUIT JOUEURS</div>
+        <div class="story-line" id="c32">ONT PARTAGÉ</div>
+        <div class="story-line" id="c33">LA LUMIÈRE</div>
+        <div class="story-line" id="c34">POUR ÉCRIRE</div>
+        <div class="story-line" id="c35">LA MÊME HISTOIRE…</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      /* corps façon karaoké - §4.B/§5 : rythme calculé au CPS (13
+         caractères/seconde), plancher 0.8s/carte, zéro pause entre blocs
+         (toujours un sous-titre à l'écran), démarrage à 0.25s absolu (pas
+         d'introEnd, pas de titre animé pour ce style). 35 cartes, durée
+         disponible = 42.05-0.25 = 41.8s -> facteur d'étirement ~1.026 sur
+         les durées brutes CPS (durées finales de 0.821s à 2.685s, toutes
+         au-dessus du plancher de lisibilité ~0.5s du §5). Dernière carte se
+         termine exactement à 42.05s (fin de la vidéo). Calcul fait via
+         script (Python), pas à la main. Texte repris verbatim du champ
+         CORPS (karaoké) du brouillon "📲 POST DU JOUR — 24 septembre 2026"
+         tel qu'il se lit au moment de ce build (ordre et ponctuation
+         exacts). */
+      function fadeBlockKaraoke(sel, start, dur) {
+        tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 0.10, ease: 'power2.out' }, start);
+        tl.to(sel, { opacity: 0, duration: 0.08, ease: 'sine.in' }, start + dur - 0.08);
+        tl.set(sel, { opacity: 0 }, start + dur);
+      }
+
+      const cards = [
+        { id: "c1", start: 0.250, dur: 0.869 }, // "Ce jour-là,"
+        { id: "c2", start: 1.119, dur: 1.737 }, // "Newcastle ne gagne pas"
+        { id: "c3", start: 2.856, dur: 2.685 }, // "Newcastle écrase Sheffield United."
+        { id: "c4", start: 5.540, dur: 1.658 }, // "Le 24 septembre 2023,"
+        { id: "c5", start: 7.198, dur: 1.105 }, // "à Bramall Lane"
+        { id: "c6", start: 8.304, dur: 1.263 }, // "Le score final :"
+        { id: "c7", start: 9.567, dur: 0.821 }, // "8-0"
+        { id: "c8", start: 10.388, dur: 1.737 }, // "La plus large victoire"
+        { id: "c9", start: 12.125, dur: 2.053 }, // "à l’extérieur de Newcastle"
+        { id: "c10", start: 14.178, dur: 1.342 }, // "en Premier League"
+        { id: "c11", start: 15.520, dur: 1.500 }, // "Mais le vrai record"
+        { id: "c12", start: 17.021, dur: 0.947 }, // "est ailleurs"
+        { id: "c13", start: 17.968, dur: 0.821 }, // "Longstaff"
+        { id: "c14", start: 18.789, dur: 0.821 }, // "Burn"
+        { id: "c15", start: 19.610, dur: 0.821 }, // "Botman"
+        { id: "c16", start: 20.431, dur: 0.821 }, // "Wilson"
+        { id: "c17", start: 21.253, dur: 0.821 }, // "Gordon"
+        { id: "c18", start: 22.074, dur: 0.821 }, // "Almirón"
+        { id: "c19", start: 22.895, dur: 0.821 }, // "Guimarães"
+        { id: "c20", start: 23.716, dur: 0.821 }, // "Isak"
+        { id: "c21", start: 24.537, dur: 0.821 }, // "Huit buts"
+        { id: "c22", start: 25.358, dur: 1.895 }, // "Huit buteurs différents."
+        { id: "c23", start: 27.253, dur: 0.947 }, // "Aucun doublé"
+        { id: "c24", start: 28.201, dur: 1.026 }, // "Aucune redite"
+        { id: "c25", start: 29.227, dur: 0.947 }, // "Une première"
+        { id: "c26", start: 30.175, dur: 1.184 }, // "dans l’histoire"
+        { id: "c27", start: 31.359, dur: 1.579 }, // "de la Premier League"
+        { id: "c28", start: 32.938, dur: 0.869 }, // "Ce jour-là,"
+        { id: "c29", start: 33.807, dur: 2.132 }, // "Newcastle n’a pas seulement"
+        { id: "c30", start: 35.939, dur: 1.263 }, // "marqué huit fois"
+        { id: "c31", start: 37.202, dur: 0.947 }, // "Huit joueurs"
+        { id: "c32", start: 38.150, dur: 0.869 }, // "Ont partagé"
+        { id: "c33", start: 39.018, dur: 0.821 }, // "La lumière"
+        { id: "c34", start: 39.839, dur: 0.869 }, // "Pour écrire"
+        { id: "c35", start: 40.708, dur: 1.342 }, // "la même histoire…"
+      ];
+
+      cards.forEach(({ id, start, dur }) => {
+        fadeBlockKaraoke(`#${id}`, start, dur);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
