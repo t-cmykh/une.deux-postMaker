@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 26 septembre 1965, débuts de Beckenbauer avec l'Allemagne (style karaoké)</title>
+    <!-- gsap servi localement (assets/gsap.min.js), même contournement réseau que les reels précédents -->
+    <script src="assets/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* Vidéo source (archives Suède-Allemagne de l'Ouest, 26/09/1965,
+         débuts de Franz Beckenbauer) gardée intégrale (§1bis) : un seul
+         composite continu du début à la fin (0 -> 42.15s), même géométrie
+         sur toute la durée. Source brute livrée en 846x490 mais
+         PILLARBOXÉE (bandes noires ~104px de chaque côté, vérifié par
+         ffmpeg cropdetect sur l'ensemble des frames : crop=658:486:104:0
+         constant du début à la fin, même défaut que les sources des
+         23/24/25 septembre) : le vrai contenu filmé est 658x486 (~1.35:1)
+         centré dans ce cadre. Pré-crop crop=658:486:104:0 appliqué avant
+         le cover-crop du §2 (bg plein cadre flouté/désaturé + plan net
+         1080x888 plein cadre horizontal, overlay y=420) — cover-crop
+         calculé via scale=W:H:force_original_aspect_ratio=increase,
+         crop=W:H (robuste à un ratio source non exactement 16:9). Pas de
+         titre animé séparé pour ce style (§4bis ne s'applique pas au
+         style karaoké).
+         Audio source conservé (piste AAC présente sur la source) : <audio>
+         séparé, jamais de son sur <video> (contrainte HyperFrames) — même
+         écart assumé vs. CLAUDE.md ce-jour-là §2/§7 (qui prescrit texte
+         "son jamais repris") que sur les reels du 23/24/25 septembre,
+         cf. message de livraison pour le détail de la divergence
+         main/ce-jour-là non résolue. */
+      .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+
+      /* header - constantes fixes de la série, persistant du début à la fin */
+      #hdr { position: absolute; inset: 0 0 auto 0; z-index: 20; }
+      .ring {
+        position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
+        border: 4px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
+
+      /* --ocre-render : compensation du décalage de teinte du pipeline de
+         render HyperFrames sur --ocre (§3 CLAUDE.md). Aucun mot-clé **...**
+         littéral dans le CORPS (karaoké) de ce brouillon, donc b.ocre n'est
+         pas utilisé ici mais la règle CSS reste déclarée pour cohérence. */
+      :root { --ocre-render: #B9A456; }
+      .tag {
+        position: absolute; left: 96px; top: 350px; height: 58px; z-index: 20;
+        display: flex; align-items: center; background: var(--ocre-render); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; padding: 0 15px;
+      }
+
+      /* corps de texte façon karaoké - Anton, centré verticalement dans le
+         cadre, superposé directement sur le plan net (§4.B). Taille FIXE
+         80px pour toutes les cartes ; aucune ombre portée ; léger contour
+         semi-transparent ink. Texte déjà écrit en MAJUSCULES dans le HTML
+         (pas seulement via text-transform, cf. bug de subsetting de police
+         §4.B). .story-line porte un transform:translateY(-50%) STATIQUE -
+         ne jamais animer y dessus avec GSAP (§6), opacity uniquement. */
+      .story-zone { position: absolute; top: 0; bottom: 0; left: 96px; right: 96px; z-index: 20; text-align: center; }
+      .story-line {
+        position: absolute; left: 0; right: 0;
+        top: 50%; transform: translateY(-50%);
+        font-family: 'Anton', sans-serif; font-size: 80px; line-height: 1.1;
+        text-transform: uppercase; color: var(--cream); opacity: 0;
+        -webkit-text-stroke: 1.5px rgba(44,40,35,.35);
+      }
+      /* mot-clé en ocre via **mot** dans CORPS (karaoké) - §4.B. Aucun
+         mot-clé marqué dans ce brouillon, règle non utilisée ici. */
+      .story-line b.ocre { color: var(--ocre-render); font-weight: inherit; }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="42.166667"
+      data-fps="30"
+    >
+      <!-- vidéo intégrale, un seul plan continu du début à la fin -->
+      <video class="video-full" id="fullv" src="assets/composite.mp4" data-start="0.0000" data-duration="42.166667" data-track-index="1" muted playsinline></video>
+      <!-- son de la source conservé (piste AAC présente) - élément séparé, jamais sur <video> -->
+      <audio id="snd" src="assets/audio.m4a" data-start="0.0000" data-duration="42.166667" data-track-index="2"></audio>
+
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+      <div class="tag">CE JOUR LÀ …</div>
+
+      <!-- corps du post - champ CORPS (KARAOKÉ) du brouillon Gmail
+           "📲 POST DU JOUR — 26 septembre 2026" (débuts de Beckenbauer).
+           Une ligne du brouillon = une carte, verbatim, aucun re-découpage
+           (§4.B) - 29 cartes, mises en capitales pour l'affichage. Aucun
+           **mot** entre astérisques doubles littéraux dans le CORPS
+           (karaoké) source, donc pas de <b class="ocre"> appliqué ici. -->
+      <div class="story-zone">
+        <div class="story-line" id="c1">IL AVAIT 20 ANS</div>
+        <div class="story-line" id="c2">PERSONNE NE LE SAVAIT ENCORE,</div>
+        <div class="story-line" id="c3">MAIS CE JEUNE DÉFENSEUR</div>
+        <div class="story-line" id="c4">ALLAIT DEVENIR</div>
+        <div class="story-line" id="c5">CHAMPION DU MONDE…</div>
+        <div class="story-line" id="c6">DEUX FOIS</div>
+        <div class="story-line" id="c7">LA PREMIÈRE,</div>
+        <div class="story-line" id="c8">COMME JOUEUR EN 1974</div>
+        <div class="story-line" id="c9">LA SECONDE,</div>
+        <div class="story-line" id="c10">COMME SÉLECTIONNEUR EN 1990</div>
+        <div class="story-line" id="c11">MAIS TOUT COMMENCE</div>
+        <div class="story-line" id="c12">LE 26 SEPTEMBRE 1965</div>
+        <div class="story-line" id="c13">À STOCKHOLM,</div>
+        <div class="story-line" id="c14">L’ALLEMAGNE DE L’OUEST</div>
+        <div class="story-line" id="c15">AFFRONTE LA SUÈDE</div>
+        <div class="story-line" id="c16">DANS LE ONZE ALLEMAND,</div>
+        <div class="story-line" id="c17">FRANZ BECKENBAUER</div>
+        <div class="story-line" id="c18">CONNAÎT SA PREMIÈRE SÉLECTION</div>
+        <div class="story-line" id="c19">LA SUÈDE OUVRE LE SCORE</div>
+        <div class="story-line" id="c20">KRÄMER ÉGALISE,</div>
+        <div class="story-line" id="c21">PUIS SEELER DONNE LA VICTOIRE</div>
+        <div class="story-line" id="c22">À L’ALLEMAGNE</div>
+        <div class="story-line" id="c23">2-1</div>
+        <div class="story-line" id="c24">CE SOIR-LÀ,</div>
+        <div class="story-line" id="c25">BECKENBAUER N’EST ENCORE</div>
+        <div class="story-line" id="c26">QU’UN JEUNE JOUEUR</div>
+        <div class="story-line" id="c27">MAIS LE KAISER VIENT</div>
+        <div class="story-line" id="c28">DE JOUER LE PREMIER MATCH</div>
+        <div class="story-line" id="c29">D’UNE HISTOIRE EXCEPTIONNELLE…</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      /* corps façon karaoké - §4.B/§5 : rythme calculé au CPS (13
+         caractères/seconde), plancher 0.8s/carte, zéro pause entre blocs
+         (toujours un sous-titre à l'écran), démarrage à 0.25s absolu (pas
+         d'introEnd, pas de titre animé pour ce style). 29 cartes, durée
+         disponible = 42.166667-0.25 = 41.917s -> facteur d'étirement
+         ~0.9822 sur les durées brutes CPS (durées finales de 0.786s à
+         2.267s, toutes au-dessus du plancher de lisibilité ~0.5s du §5).
+         Dernière carte se termine exactement à 42.166667s (fin de la
+         vidéo, durée finale du composite après conversion 60fps->30fps,
+         légèrement supérieure aux 42.150000s de la source brute). Calcul
+         fait via script (Python), pas à la main. Texte repris verbatim du
+         champ CORPS (karaoké) du brouillon "📲 POST DU JOUR — 26 septembre
+         2026" tel qu'il se lit au moment de ce build (ordre et
+         ponctuation exacts). */
+      function fadeBlockKaraoke(sel, start, dur) {
+        tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 0.10, ease: 'power2.out' }, start);
+        tl.to(sel, { opacity: 0, duration: 0.08, ease: 'sine.in' }, start + dur - 0.08);
+        tl.set(sel, { opacity: 0 }, start + dur);
+      }
+
+      const cards = [
+        { id: "c1", start: 0.250, dur: 1.133 }, // "Il avait 20 ans"
+        { id: "c2", start: 1.383, dur: 2.191 }, // "Personne ne le savait encore,"
+        { id: "c3", start: 3.574, dur: 1.738 }, // "mais ce jeune défenseur"
+        { id: "c4", start: 5.312, dur: 1.058 }, // "allait devenir"
+        { id: "c5", start: 6.370, dur: 1.360 }, // "champion du monde…"
+        { id: "c6", start: 7.730, dur: 0.786 }, // "deux fois"
+        { id: "c7", start: 8.515, dur: 0.907 }, // "La première,"
+        { id: "c8", start: 9.422, dur: 1.511 }, // "comme joueur en 1974"
+        { id: "c9", start: 10.933, dur: 0.831 }, // "La seconde,"
+        { id: "c10", start: 11.764, dur: 2.040 }, // "comme sélectionneur en 1990"
+        { id: "c11", start: 13.804, dur: 1.360 }, // "Mais tout commence"
+        { id: "c12", start: 15.164, dur: 1.511 }, // "le 26 septembre 1965"
+        { id: "c13", start: 16.675, dur: 0.907 }, // "À Stockholm,"
+        { id: "c14", start: 17.582, dur: 1.662 }, // "l'Allemagne de l'Ouest"
+        { id: "c15", start: 19.244, dur: 1.284 }, // "affronte la Suède"
+        { id: "c16", start: 20.528, dur: 1.662 }, // "Dans le onze allemand,"
+        { id: "c17", start: 22.191, dur: 1.284 }, // "Franz Beckenbauer"
+        { id: "c18", start: 23.475, dur: 2.191 }, // "connaît sa première sélection"
+        { id: "c19", start: 25.666, dur: 1.738 }, // "La Suède ouvre le score"
+        { id: "c20", start: 27.404, dur: 1.133 }, // "Krämer égalise,"
+        { id: "c21", start: 28.537, dur: 2.191 }, // "puis Seeler donne la victoire"
+        { id: "c22", start: 30.728, dur: 0.982 }, // "à l'Allemagne"
+        { id: "c23", start: 31.710, dur: 0.786 }, // "2-1"
+        { id: "c24", start: 32.496, dur: 0.831 }, // "Ce soir-là,"
+        { id: "c25", start: 33.327, dur: 1.813 }, // "Beckenbauer n'est encore"
+        { id: "c26", start: 35.140, dur: 1.360 }, // "qu'un jeune joueur"
+        { id: "c27", start: 36.500, dur: 1.511 }, // "Mais le Kaiser vient"
+        { id: "c28", start: 38.011, dur: 1.889 }, // "de jouer le premier match"
+        { id: "c29", start: 39.900, dur: 2.267 }, // "d'une histoire exceptionnelle…"
+      ];
+
+      cards.forEach(({ id, start, dur }) => {
+        fadeBlockKaraoke(`#${id}`, start, dur);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
