@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 27 septembre 1978, Nottingham Forest élimine Liverpool (style karaoké)</title>
+    <script src="assets/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* Vidéo source (Liverpool 0-0 Nottingham Forest, retour 1er tour Coupe
+         d'Europe des clubs champions, 27/09/1978) gardée intégrale (§1bis) :
+         un seul composite continu du début à la fin (0 -> 53.933s), même
+         géométrie sur toute la durée. Source brute 848x492 (~1.72:1),
+         aucune métadonnée de rotation (ffprobe stream_side_data vide) —
+         cover-crop classique vers 1080x1920 (fond) et 1080x888 (plan net),
+         overlay y=420 (§2). Pas de titre animé séparé pour ce style (§4bis
+         ne s'applique pas au style karaoké) : le corps couvre tout le reel
+         dès juste après le header.
+         Son de la source NON repris : vidéo mutée, pas d'élément <audio>
+         (règle §2/§7 de CLAUDE.md sur cette branche telle que lue à la
+         production de ce reel — cf. message de livraison pour le
+         signalement de la divergence observée avec des reels karaoké
+         récents de cette même branche qui, eux, gardent l'audio source). */
+      .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+
+      /* header - constantes fixes de la série, persistant du début à la fin */
+      #hdr { position: absolute; inset: 0 0 auto 0; z-index: 20; }
+      .ring {
+        position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
+        border: 4px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
+
+      /* --ocre-render : compensation du décalage de teinte du pipeline de
+         render HyperFrames sur --ocre (§3 CLAUDE.md). Aucun mot-clé **...**
+         littéral dans le CORPS (karaoké) de ce brouillon, donc b.ocre n'est
+         pas utilisé ici mais la règle CSS reste déclarée pour cohérence. */
+      :root { --ocre-render: #B9A456; }
+      .tag {
+        position: absolute; left: 96px; top: 350px; height: 58px; z-index: 20;
+        display: flex; align-items: center; background: var(--ocre-render); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; padding: 0 15px;
+      }
+
+      /* corps de texte façon karaoké - Anton, centré verticalement dans le
+         cadre bas (top:1480px, cf. §4.B révisé 26 septembre 2026), superposé
+         sur la bande floutée sous le plan net. Taille FIXE 80px pour toutes
+         les cartes ; aucune ombre portée ; léger contour semi-transparent
+         ink. Texte déjà écrit en MAJUSCULES dans le HTML (pas seulement via
+         text-transform, cf. bug de subsetting de police §4.B). .story-line
+         porte un transform:translateY(-50%) STATIQUE - ne jamais animer y
+         dessus avec GSAP (§6), opacity uniquement. */
+      .story-zone { position: absolute; left: 96px; right: 96px; z-index: 20; text-align: center; }
+      .story-line {
+        position: absolute; left: 0; right: 0;
+        top: 1480px; transform: translateY(-50%);
+        font-family: 'Anton', sans-serif; font-size: 80px; line-height: 1.1;
+        text-transform: uppercase; color: var(--cream); opacity: 0;
+        -webkit-text-stroke: 1.5px rgba(44,40,35,.35);
+      }
+      /* mot-clé en ocre via **mot** dans CORPS (karaoké) - §4.B. Aucun
+         mot-clé marqué dans ce brouillon, règle non utilisée ici. */
+      .story-line b.ocre { color: var(--ocre-render); font-weight: inherit; }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="53.933333"
+      data-fps="30"
+    >
+      <!-- vidéo intégrale, un seul plan continu du début à la fin -->
+      <video class="video-full" id="fullv" src="assets/composite.mp4" data-start="0.0000" data-duration="53.933333" data-track-index="1" muted playsinline></video>
+
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+      <div class="tag">CE JOUR LÀ …</div>
+
+      <!-- corps du post - champ CORPS (KARAOKÉ) du brouillon Gmail
+           "📲 POST DU JOUR — 27 septembre 2026" (Nottingham Forest élimine
+           Liverpool). Une ligne du brouillon = une carte, verbatim, aucun
+           re-découpage (§4.B) - 34 cartes, mises en capitales pour
+           l'affichage. Aucun **mot** entre astérisques doubles littéral
+           dans le CORPS (karaoké) source, donc pas de <b class="ocre">
+           appliqué ici. -->
+      <div class="story-zone">
+        <div class="story-line" id="c1">LIVERPOOL ÉTAIT</div>
+        <div class="story-line" id="c2">DOUBLE CHAMPION D’EUROPE</div>
+        <div class="story-line" id="c3">ET CE CLUB</div>
+        <div class="story-line" id="c4">ALLAIT MARQUER L’HISTOIRE</div>
+        <div class="story-line" id="c5">LE 27 SEPTEMBRE 1978</div>
+        <div class="story-line" id="c6">À ANFIELD,</div>
+        <div class="story-line" id="c7">LIVERPOOL REÇOIT</div>
+        <div class="story-line" id="c8">NOTTINGHAM FOREST</div>
+        <div class="story-line" id="c9">LE CHAMPION D’EUROPE</div>
+        <div class="story-line" id="c10">DOIT ABSOLUMENT</div>
+        <div class="story-line" id="c11">RENVERSER LA SITUATION</div>
+        <div class="story-line" id="c12">DEUX SEMAINES PLUS TÔT,</div>
+        <div class="story-line" id="c13">FOREST S’EST IMPOSÉ</div>
+        <div class="story-line" id="c14">2-0 AU CITY GROUND</div>
+        <div class="story-line" id="c15">ALORS CE SOIR-LÀ,</div>
+        <div class="story-line" id="c16">LIVERPOOL POUSSE</div>
+        <div class="story-line" id="c17">MAIS NE MARQUE PAS</div>
+        <div class="story-line" id="c18">NOTTINGHAM FOREST ÉLIMINE</div>
+        <div class="story-line" id="c19">LE DOUBLE TENANT DU TITRE</div>
+        <div class="story-line" id="c20">DÈS LE PREMIER TOUR</div>
+        <div class="story-line" id="c21">ET L’HISTOIRE DEVIENT FOLLE</div>
+        <div class="story-line" id="c22">DEUX SAISONS AUPARAVANT,</div>
+        <div class="story-line" id="c23">FOREST ÉVOLUAIT ENCORE</div>
+        <div class="story-line" id="c24">EN DEUXIÈME DIVISION ANGLAISE.</div>
+        <div class="story-line" id="c25">ET CE N’EST PAS TERMINÉ</div>
+        <div class="story-line" id="c26">QUELQUES MOIS</div>
+        <div class="story-line" id="c27">PLUS TARD,</div>
+        <div class="story-line" id="c28">NOTTINGHAM FOREST REMPORTE</div>
+        <div class="story-line" id="c29">SA PREMIÈRE COUPE D’EUROPE</div>
+        <div class="story-line" id="c30">PUIS LA CONSERVE EN 1980</div>
+        <div class="story-line" id="c31">EN DEUX ANS,</div>
+        <div class="story-line" id="c32">UN CLUB FRAÎCHEMENT PROMU</div>
+        <div class="story-line" id="c33">PASSE DE LA DEUXIÈME DIVISION</div>
+        <div class="story-line" id="c34">AU SOMMET DE L’EUROPE…</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      /* corps façon karaoké - §4.B/§5 : rythme calculé au CPS (13
+         caractères/seconde), plancher 0.8s/carte, zéro pause entre blocs
+         (toujours un sous-titre à l'écran), démarrage à 0.25s absolu (pas
+         d'introEnd, pas de titre animé pour ce style). 34 cartes, 687
+         caractères au total, durée disponible = 53.933333-0.25 = 53.683s ->
+         facteur d'étirement ~1.0141 sur les durées brutes CPS (durées
+         finales de 0.811s à 2.340s, toutes au-dessus du plancher de
+         lisibilité ~0.5s du §5). Dernière carte se termine à 53.929s, quasi
+         exactement la fin de la vidéo (53.933s). Calcul détaillé en amont
+         (charset, CPS, facteur) — texte repris verbatim du champ CORPS
+         (karaoké) du brouillon "📲 POST DU JOUR — 27 septembre 2026" tel
+         qu'il se lit au moment de ce build (ordre et ponctuation exacts,
+         aucun mot **marqué** en ocre dans ce brouillon). */
+      function fadeBlockKaraoke(sel, start, dur) {
+        tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 0.10, ease: 'power2.out' }, start);
+        tl.to(sel, { opacity: 0, duration: 0.08, ease: 'sine.in' }, start + dur - 0.08);
+        tl.set(sel, { opacity: 0 }, start + dur);
+      }
+
+      const cards = [
+        { id: "c1", start: 0.250, dur: 1.170 }, // "Liverpool était"
+        { id: "c2", start: 1.420, dur: 1.872 }, // "double champion d'Europe"
+        { id: "c3", start: 3.292, dur: 0.811 }, // "et ce club"
+        { id: "c4", start: 4.103, dur: 1.950 }, // "allait marquer l'histoire"
+        { id: "c5", start: 6.053, dur: 1.560 }, // "Le 27 septembre 1978"
+        { id: "c6", start: 7.613, dur: 0.811 }, // "À Anfield,"
+        { id: "c7", start: 8.424, dur: 1.248 }, // "Liverpool reçoit"
+        { id: "c8", start: 9.672, dur: 1.326 }, // "Nottingham Forest"
+        { id: "c9", start: 10.998, dur: 1.560 }, // "Le champion d'Europe"
+        { id: "c10", start: 12.558, dur: 1.170 }, // "doit absolument"
+        { id: "c11", start: 13.728, dur: 1.716 }, // "renverser la situation"
+        { id: "c12", start: 15.444, dur: 1.794 }, // "deux semaines plus tôt,"
+        { id: "c13", start: 17.238, dur: 1.482 }, // "Forest s'est imposé"
+        { id: "c14", start: 18.720, dur: 1.404 }, // "2-0 au City Ground"
+        { id: "c15", start: 20.124, dur: 1.326 }, // "Alors ce soir-là,"
+        { id: "c16", start: 21.450, dur: 1.248 }, // "Liverpool pousse"
+        { id: "c17", start: 22.698, dur: 1.404 }, // "Mais ne marque pas"
+        { id: "c18", start: 24.102, dur: 1.950 }, // "Nottingham Forest élimine"
+        { id: "c19", start: 26.052, dur: 1.950 }, // "le double tenant du titre"
+        { id: "c20", start: 28.002, dur: 1.482 }, // "dès le premier tour"
+        { id: "c21", start: 29.484, dur: 2.106 }, // "Et l'histoire devient folle"
+        { id: "c22", start: 31.590, dur: 1.872 }, // "Deux saisons auparavant,"
+        { id: "c23", start: 33.462, dur: 1.716 }, // "Forest évoluait encore"
+        { id: "c24", start: 35.178, dur: 2.340 }, // "en deuxième division anglaise."
+        { id: "c25", start: 37.518, dur: 1.794 }, // "Et ce n'est pas terminé"
+        { id: "c26", start: 39.312, dur: 1.014 }, // "Quelques mois"
+        { id: "c27", start: 40.326, dur: 0.811 }, // "plus tard,"
+        { id: "c28", start: 41.137, dur: 2.028 }, // "Nottingham Forest remporte"
+        { id: "c29", start: 43.165, dur: 2.028 }, // "sa première Coupe d'Europe"
+        { id: "c30", start: 45.193, dur: 1.872 }, // "Puis la conserve en 1980"
+        { id: "c31", start: 47.065, dur: 0.936 }, // "En deux ans,"
+        { id: "c32", start: 48.001, dur: 1.950 }, // "un club fraîchement promu"
+        { id: "c33", start: 49.951, dur: 2.262 }, // "passe de la deuxième division"
+        { id: "c34", start: 52.213, dur: 1.716 }, // "au sommet de l'Europe…"
+      ];
+
+      cards.forEach(({ id, start, dur }) => {
+        fadeBlockKaraoke(`#${id}`, start, dur);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
