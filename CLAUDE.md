@@ -548,14 +548,18 @@ juste après le header jusqu'au CTA.
   la seule animation, aucun tween supplémentaire par mot. Si une ligne de
   `CORPS (karaoké)` ne contient aucun `**…**`, elle reste entièrement crème
   comme avant cette règle.
-- **Position : centré verticalement dans le cadre** (pas dans la bande
-  basse comme 4.A) — le texte est superposé directement sur le plan net,
-  au milieu de l'écran, comme sur la référence externe. CSS :
+- **Position : `top:1480px`, pas centré sur tout le cadre** (révisé le
+  26 septembre 2026 — l'ancienne valeur `top:50%` centrait le carton au
+  milieu du canvas entier, y=960, ce qui le faisait apparaître à cheval sur
+  le plan net et trop haut par rapport à ce que Thomas voulait ; validé par
+  comparaison visuelle sur une capture annotée d'un rendu réel, même valeur
+  pixel que la position du style Fixe §4.A car les deux visent le même
+  repère bas de cadre). CSS :
   ```css
   .story-zone { position:absolute; left:96px; right:96px; z-index:20; text-align:center; }
   .story-line {
     position:absolute; left:0; right:0;
-    top:50%; transform:translateY(-50%);
+    top:1480px; transform:translateY(-50%);
     font-family:'Anton', sans-serif; font-size:80px; line-height:1.1;
     color:var(--cream); opacity:0;
     -webkit-text-stroke: 1.5px rgba(44,40,35,.35);
@@ -563,8 +567,8 @@ juste après le header jusqu'au CTA.
   ```
   `.story-zone` n'a pas besoin de `top`/`height` explicites si elle est un
   enfant direct de `#root` (elle hérite de sa hauteur 1920px) — chaque
-  `.story-line` se centre indépendamment via son propre
-  `top:50%; transform:translateY(-50%)`, donc toutes les cartes (1 ou
+  `.story-line` se positionne indépendamment via son propre
+  `top:1480px; transform:translateY(-50%)`, donc toutes les cartes (1 ou
   plusieurs lignes) se superposent bien au même centre vertical quel que
   soit leur nombre de lignes.
 - **Piège §6 applicable ici** : `.story-line` porte un `transform:
