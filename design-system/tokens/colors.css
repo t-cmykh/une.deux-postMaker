@@ -16,6 +16,9 @@
   --vert:           #27543C;  /* Les oubliés signature */
   --vert-deep:      #1F4430;  /* Les oubliés — deeper variant */
   --rouille:        #A8452B;  /* L'arrêt de jeu signature */
+  --bordeaux:       #6E3B3F;  /* Le foot dans le rétro signature (added 2026-09-27,
+                                 replaces the former "L'histoire derrière cette
+                                 photo" series, which used this same color) */
 
   /* ---- semantic: surfaces ---- */
   --surface-dark:       var(--ink);     /* cover / breather slide ground */
@@ -45,6 +48,9 @@
 
   --sig-arretdejeu:      var(--rouille);
   --on-sig-arretdejeu:   var(--cream);
+
+  --sig-retro:           var(--bordeaux);
+  --on-sig-retro:        var(--cream);
 
   --sig-portraits:       var(--cream);   /* text/rule color for Portraits */
   --swatch-portraits:    var(--ink);     /* series-picker swatch/dot color for Portraits */

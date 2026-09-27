@@ -2,26 +2,42 @@
 
 Voir `SKILL.md` pour la production de **posts carrousel** (skill `une-deux-post`).
 
-Ce fichier couvre un format différent : le **reel montage vidéo "Ce jour-là"**
+Ce fichier couvre un format différent : le **reel montage vidéo éphéméride**
 (images de match réelles + texte animé), construit avec HyperFrames dans
-`hyperframes/`. Déclencheur : Thomas envoie un lien Drive vers une vidéo de
-match et demande d'y ajouter le texte du post (sous-titres ou corps animé) —
-**ou** dépose une demande via le lanceur `editeurs/lanceur-cejourla.html`
-(voir ci-dessous), traitée automatiquement par une Routine.
+`hyperframes/`. **Deux séries partagent exactement cette même recette, à une
+seule différence près (la couleur de signature) : « Ce jour-là » (ocre) et
+« Le foot dans le rétro » (bordeaux)** — ajoutée le 27 septembre 2026 en
+remplacement de la série carrousel « L'histoire derrière cette photo »
+(supprimée le même jour de `editeurs/editeur-series.html`), qui reprend sa
+couleur bordeaux. Voir « Séries reel supportées » ci-dessous pour le détail
+de ce qui change (peu de choses) et ne change pas (presque tout) entre les
+deux. Déclencheur : Thomas envoie un lien Drive vers une vidéo de match et
+demande d'y ajouter le texte du post (sous-titres ou corps animé) — **ou**
+dépose une demande via le lanceur `editeurs/lanceur-cejourla.html` (voir
+ci-dessous), traitée automatiquement par une Routine.
 
 ## Lanceur automatique (`editeurs/lanceur-cejourla.html`)
 
 Outil statique (même DA que `editeur-series.html` : panel sombre, ocre,
 Saira Condensed/Anton/Archivo) où Thomas colle le lien Drive (ou choisit
 directement un fichier vidéo depuis l'appareil — voir ci-dessous) + la date
-du post + le style de sous-titres (voir ci-dessous) + des notes optionnelles.
-**Une seule variante de montage** (voir section recette ci-dessous — l'ancien
-choix "reel complet / intro seule" a été fusionné, il n'y a plus de champ
-VARIANTE ; le seul choix qui reste est le style des sous-titres). Le bouton
-« Lancer le montage » ouvre un brouillon email pré-rempli (`mailto:` vers
-t.louisor@gmail.com, objet `LANCER REEL — <date>`, corps au format `LIEN
-DRIVE: … / DATE DU POST: … / STYLE SOUS-TITRES: … / NOTES: …`) — une page
-statique ne peut pas appeler Claude Code directement, l'email est le pont.
+du post + la série + le style de sous-titres (voir ci-dessous) + des notes
+optionnelles. **Une seule variante de montage** (voir section recette
+ci-dessous — l'ancien choix "reel complet / intro seule" a été fusionné, il
+n'y a plus de champ VARIANTE ; les seuls choix qui restent sont la série et
+le style des sous-titres). Le bouton « Lancer le montage » ouvre un
+brouillon email pré-rempli (`mailto:` vers t.louisor@gmail.com, objet
+`LANCER REEL — <date>`, corps au format `LIEN DRIVE: … / DATE DU POST: … /
+SÉRIE: … / STYLE SOUS-TITRES: … / NOTES: …`) — une page statique ne peut pas
+appeler Claude Code directement, l'email est le pont.
+
+**Série** (ajouté le 27 septembre 2026) : un sélecteur à deux chips dans le
+lanceur — « CE JOUR LÀ » (par défaut, coché à l'ouverture) ou « LE FOOT DANS
+LE RÉTRO ». Le choix est écrit dans le corps de l'email en `SÉRIE: ce jour-là`
+ou `SÉRIE: le foot dans le rétro`. Côté traitement, la Routine lit cette
+ligne et applique la couleur de signature correspondante (§ « Séries reel
+supportées » ci-dessous) — absence de la ligne (demandes envoyées avant cet
+ajout) = traiter comme `ce jour-là`, seule série qui existait jusque-là.
 
 **Style des sous-titres** : un sélecteur à deux chips dans le lanceur —
 « FIXE » (par défaut, coché à l'ouverture) ou « KARAOKÉ ». Le choix est
@@ -51,6 +67,59 @@ corps de l'email contient `VIDÉO: en pièce jointe …` (pas de `LIEN DRIVE:`),
 récupérer la vidéo depuis la pièce jointe Gmail du message plutôt que
 tenter un téléchargement Drive.
 
+**Plusieurs jours en un seul email** : le lanceur permet d'ajouter des
+« jours » répétables (bouton « + Ajouter un jour », un jour = source vidéo +
+date + série + style sous-titres + notes, chacun indépendant) avant de
+cliquer « Lancer le montage » — un seul email part, avec un bloc par jour.
+Format du corps sur un seul jour (identique à l'historique, sans en-tête) :
+
+```
+LIEN DRIVE: …
+DATE DU POST: …
+SÉRIE: …
+STYLE SOUS-TITRES: …
+NOTES: …
+```
+
+Sur plusieurs jours, chaque bloc est précédé d'un en-tête `JOUR N` et les
+blocs sont séparés par une ligne vide :
+
+```
+JOUR 1
+LIEN DRIVE: …
+DATE DU POST: …
+SÉRIE: …
+STYLE SOUS-TITRES: …
+NOTES: …
+
+JOUR 2
+VIDÉO: en pièce jointe de cet email (nom-du-fichier.mp4)
+DATE DU POST: …
+SÉRIE: …
+STYLE SOUS-TITRES: …
+NOTES: …
+```
+
+L'objet passe de `LANCER REEL — <date>` (un seul jour, inchangé) à
+`LANCER REEL — MULTI (<n> jours)` (plusieurs jours) — dans les deux cas
+l'objet contient toujours `LANCER REEL`, donc la recherche Gmail
+`subject:LANCER REEL` de la Routine (ci-dessous) n'a pas besoin de changer.
+Si des vidéos par pièce jointe sont mêlées à des liens Drive dans le même
+lot, le partage natif (`navigator.share`) joint toutes les vidéos-fichiers
+du lot en une fois ; si l'appareil ne le supporte pas, repli mailto habituel
+avec la liste des fichiers à joindre soi-même.
+
+**Côté traitement d'un email multi-jours** : découper le corps sur les
+lignes `^JOUR \d+` ; l'absence de tout marqueur `JOUR N` (anciens emails,
+ou nouveaux emails à un seul jour) veut dire un unique bloc implicite —
+comportement inchangé. Traiter chaque bloc comme un reel indépendant, dans
+l'ordre, selon la recette figée ci-dessous ; livrer (commit/push) chaque
+reel séparément sur la branche `ce-jour-là`, puis ne marquer l'email/thread
+entier comme traité qu'une fois **tous** les blocs livrés (un échec sur un
+seul jour ne doit pas faire perdre le suivi des autres — livrer ce qui
+fonctionne, signaler explicitement le(s) jour(s) en échec plutôt que de
+marquer l'email traité en silence).
+
 Une **Routine** ("Lanceur reels Ce jour-là", trig_01CJMco7Azm8WwCSEpM8dhvX)
 tourne une fois par jour à 14h heure de Paris (créée via l'interface Routines
 de claude.ai, connecteurs Gmail + Google Drive attachés explicitement — la
@@ -59,9 +128,10 @@ les connecteurs pour cette organisation, toujours passer par l'interface web
 pour ce genre de Routine). Liée à une session existante (pas une session
 fraîche : le connecteur Gmail ne s'y transmet pas de façon fiable sur cette
 org). Elle cherche un brouillon/thread Gmail `subject:LANCER REEL` non marqué
-`[TRAITÉ]`/label `reel-traite`, construit le reel selon la recette figée de
-ce fichier, livre, committe/pousse, puis marque la demande traitée. Si rien
-n'est en attente, elle ne fait rien.
+`[TRAITÉ]`/label `reel-traite`, construit le ou les reels selon la recette
+figée de ce fichier (un par jour listé dans l'email, cf. ci-dessus), livre,
+committe/pousse, puis marque la demande traitée. Si rien n'est en attente,
+elle ne fait rien.
 
 **Important — cette Routine travaille sur la branche `ce-jour-là`, qui n'est
 jamais fusionnée dans `main` : toute correction qu'elle découvre en cours de
@@ -72,11 +142,62 @@ une fois (3 correctifs découverts le 4 août 2026 sur `cejourla-4aout-reel`,
 fusionnés ici avec le reste de la recette) — vérifier périodiquement que les
 deux copies n'ont pas divergé.
 
+**Divergence bien plus large constatée le 27 septembre 2026** (à l'occasion
+de l'ajout de la série « Le foot dans le rétro ») : `CLAUDE.md` ET
+`editeurs/editeur-series.html` sur `ce-jour-là` s'étaient éloignés de `main`
+bien au-delà des 3 correctifs suivis ci-dessus — la copie sur `ce-jour-là`
+manquait plusieurs évolutions déjà en place sur `main` depuis un moment
+(le template COUVERTURE PHOTO lui-même absent de sa copie de
+`editeur-series.html`, le format multi-jours de ce lanceur, la vérification
+d'orientation par métadonnées seules, l'outil `calculateur-karaoke.html`…).
+Les deux fichiers ont été resynchronisés sur `ce-jour-là` à cette occasion
+(copie conforme à `main`) avant d'y ajouter la nouvelle série. Cause
+probable : plus personne ne fait la vérification périodique recommandée
+ci-dessus depuis un moment — **à refaire dorénavant à intervalles réguliers,
+pas seulement quand un ajout de fonctionnalité l'exige.**
+
 Pour un montage immédiat, demander directement dans le chat reste plus
 rapide (pas d'attente jusqu'à 14h) — le lanceur sert pour poser une demande à
 traiter en tâche de fond.
 
-## Recette figée — reel "Ce jour-là" (intro + corps + CTA de fin, une seule vidéo)
+## Séries reel supportées
+
+**Ajouté le 27 septembre 2026.** Deux séries partagent l'intégralité de la
+recette figée ci-dessous (géométrie du composite, header, styles de
+sous-titres, timing, CTA, livraison — tout, sans exception) : **seule la
+couleur de signature change.** Ne jamais dupliquer la recette pour une
+nouvelle série reel de ce type — ajouter une ligne à cette table suffit.
+
+| Série (valeur `SÉRIE:`) | Tag header (§3) | Couleur de signature | Variable CSS |
+|---|---|---|---|
+| `ce jour-là` (défaut) | `CE JOUR LÀ …` | Ocre (`--ocre`, #C2A04E) | `--ocre-render` |
+| `le foot dans le rétro` | `LE FOOT DANS LE RÉTRO` | Bordeaux (`--bordeaux`, #6E3B3F) | `--bordeaux-render` |
+
+`--ocre-render`/`--bordeaux-render` sont les compensations couleur du
+pipeline de render (cf. §3) — partout où ce document dit « `--ocre-render`
+(§3) », lire « la variable de compensation de la série en cours » : substituer
+`--bordeaux-render` pour un reel « Le foot dans le rétro », `--ocre-render`
+pour un reel « Ce jour-là ». Mêmes constantes pixel, même géométrie, même
+police, mêmes règles de sous-titres (Fixe et Karaoké) dans les deux cas —
+seuls le tag texte et cette variable couleur changent, déclarés une fois en
+tête de la composition HyperFrames (§3).
+
+**`--bordeaux-render` n'est PAS encore calibré par pixel-sampling sur un
+rendu réel**, contrairement à `--ocre-render` (validé le 12 septembre 2026,
+cf. §3) : en l'absence de calibration, utiliser la valeur brute `#6E3B3F`
+(identique à `--bordeaux` de `editeurs/editeur-series.html`) et signaler à
+Thomas, après le premier reel « Le foot dans le rétro » livré, qu'un
+pixel-sampling de calibration reste à faire — même méthode que celle qui a
+donné `--ocre-render`. Ne pas improviser une valeur "probablement correcte"
+à sa place.
+
+Sélection de la série : lue depuis la ligne `SÉRIE:` du brouillon "LANCER
+REEL" (cf. § Lanceur automatique ci-dessus) — absence de la ligne (anciennes
+demandes) = `ce jour-là`. Une demande en chat direct (sans passer par le
+lanceur) précise la série en toutes lettres ; en l'absence de précision,
+traiter comme `ce jour-là` (série historique, comportement inchangé).
+
+## Recette figée — reel éphéméride "Ce jour-là" / "Le foot dans le rétro" (intro + corps + CTA de fin, une seule vidéo)
 
 Quand Thomas dit "fait la même chose avec cette vidéo" / "on va faire un
 reel une·deux" à propos d'un montage vidéo (pas un carrousel), ou déclenche
@@ -123,13 +244,11 @@ explicite — pas de complexité de découpe auto à maintenir).
 ```bash
 ffprobe -v error -show_entries stream=width,height:format=duration -of default=noprint_wrappers=1 video_raw.mp4
 ffprobe -v error -show_entries stream_side_data -of default=noprint_wrappers=1 video_raw.mp4
+ffmpeg -y -ss 3 -i video_raw.mp4 -frames:v 1 /tmp/check.jpg -loglevel error   # inspection visuelle via Read
 ```
 Les vidéos fournies jusqu'ici sont horizontales (~16:9, ratio ≈1.77), avec ou
-sans métadonnée de rotation trompeuse — se fier aux métadonnées ffprobe
-(dimensions + `stream_side_data` pour une éventuelle rotation), pas de frame
-extraite ni d'inspection visuelle à ce stade (retiré le 14 août 2026, demande
-explicite de Thomas — plus de check de frames en début de fabrication, cf.
-§9 pour le même retrait en fin de fabrication).
+sans métadonnée de rotation trompeuse — se fier à l'image extraite, pas
+seulement aux nombres.
 
 ### 1bis. Vidéo intégrale par défaut — pas de sélection de plans
 
@@ -200,14 +319,9 @@ texte (§4), plein cadre horizontalement :
 ffmpeg -y -i video_raw.mp4 -filter_complex \
 "[0:v]fps=30,scale=3400:1920,crop=1080:1920,gblur=sigma=36,eq=saturation=0.4[bg];[0:v]fps=30,scale=<cover_w2>:888,crop=1080:888:<centerX>:0[fg];[bg][fg]overlay=x=0:y=420:shortest=1[outv]" \
 -map "[outv]" -c:v libx264 -crf 20 -preset fast -pix_fmt yuv420p -g 30 -keyint_min 30 -sc_threshold 0 -an composite.mp4
-```
 
-**Le son de la vidéo source n'est jamais repris** (retiré le 14 août 2026,
-demande explicite de Thomas) : pas d'extraction `audio.m4a`, pas d'élément
-`<audio>` dans la composition (cf. §7) — le reel final n'a de piste audio
-que si le concat CTA en ajoute une (il n'en a pas), donc il est muet de bout
-en bout. Ancienne étape d'extraction audio abandonnée, ne pas la
-réintroduire.
+ffmpeg -y -i video_raw.mp4 -vn -c:a aac -b:a 160k audio.m4a   # si la source a du son
+```
 
 - `gblur=sigma=36` (flou fort — a été doublé une fois depuis sigma=18, la
   valeur 36 est celle validée) / `eq=saturation=0.4` (fond nettement
@@ -263,11 +377,12 @@ dessus), livrer juste la couche flou/désaturé seule, sans overlay.
 
 ### 3. Header — repris à l'identique de `editeurs/editeur-series.html`, persistant sur tout le reel
 
-Valeurs pixel exactes (ratio 9:16, série `cejourla`), à ne jamais
-approximer — ce sont les vraies constantes de l'éditeur de série. Le header
-(ring/wordmark/handle/hairline/tag) reste affiché en continu du début à la
-fin du reel — intro **et** corps — il n'est jamais ré-animé ni masqué entre
-les deux parties :
+Valeurs pixel exactes (ratio 9:16), à ne jamais approximer — ce sont les
+vraies constantes de l'éditeur de série, **identiques pour `cejourla` et
+`retro`** (cf. « Séries reel supportées » plus haut — seuls le texte du tag
+et sa couleur diffèrent entre les deux). Le header (ring/wordmark/handle/
+hairline/tag) reste affiché en continu du début à la fin du reel — intro
+**et** corps — il n'est jamais ré-animé ni masqué entre les deux parties :
 
 ```css
 /* M = MR = 96 (marges), safeTop() = 150 pour le ratio 9:16 */
@@ -278,34 +393,53 @@ les deux parties :
 .handle   { right:96px; top:262px; transform:translateY(-50%); font:32px 'Saira Condensed'; font-weight:600; color:var(--cream); }
            /* "@UNE.DEUX" */
 .hairline { left:96px; right:96px; top:318px; height:4px; background:var(--cream); }
-.tag      { left:96px; top:350px; height:58px; background:var(--ocre-render); color:var(--ink);
+.tag      { left:96px; top:350px; height:58px; background:var(--serie-render); color:var(--ink);
             font:32px 'Saira Condensed'; font-weight:600; padding:0 15px; display:flex; align-items:center; }
-           /* "CE JOUR LÀ …" */
+           /* "CE JOUR LÀ …" (série cejourla) ou "LE FOOT DANS LE RÉTRO" (série retro) */
 ```
+
+`--serie-render` ci-dessus est un nom générique pour ce document : dans la
+composition réelle, déclarer et utiliser directement `--ocre-render` (série
+`cejourla`) ou `--bordeaux-render` (série `retro`) — jamais les deux à la
+fois dans un même projet, jamais une variable littéralement nommée
+`--serie-render`. **Seule cette variable (et le texte du tag) change entre
+les deux séries : les noms de classe CSS du reste de la recette (`.ocre` sur
+`<b>`, `.kw-box`, etc., §4/§4bis plus bas) restent littéralement inchangés
+même sur un reel `retro` — ce sont des identifiants historiques liés à
+`--ocre-render` à l'origine, pas des noms à renommer en `.bordeaux` ou
+similaire. Ne renommer aucune classe : rebrancher `--ocre-render` sur
+`--bordeaux-render` dans leur définition CSS suffit.**
 
 Ne PAS ajouter de dégradé d'assombrissement en bas du cadre (`scrim-bottom`)
 — règle permanente pour ce format, sauf demande contraire explicite.
 
-**Compensation couleur ocre pour le rendu vidéo** (`--ocre-render`, utilisé
-ci-dessus sur `.tag` et référencé en §4/§4bis) : le pipeline de render
-HyperFrames (capture écran → encodage vidéo H.264) décale légèrement les
-couleurs — `var(--ocre)` (#C2A04E) ressort visiblement plus terne/décalé
+**Compensation couleur pour le rendu vidéo** (`--ocre-render` / `--bordeaux-render`,
+utilisées ci-dessus sur `.tag` et référencées en §4/§4bis) : le pipeline de
+render HyperFrames (capture écran → encodage vidéo H.264) décale légèrement
+les couleurs — `var(--ocre)` (#C2A04E) ressort visiblement plus terne/décalé
 dans une vidéo rendue que dans l'éditeur web (confirmé par pixel-sampling
-sur un rendu réel et par un test isolé, aplat de couleur seul). Pour tout
-élément dont l'ocre doit apparaître correct **dans la vidéo rendue** (`.tag`,
-`.kw-box` du titre §4bis, mots-clés `b.ocre` du corps §4), déclarer une
-variable locale compensée dans la composition :
+sur un rendu réel et par un test isolé, aplat de couleur seul ; `var(--bordeaux)`
+#6E3B3F présente vraisemblablement le même type de décalage sur ce même
+pipeline, mais ça n'a pas encore été mesuré — cf. « Séries reel supportées »
+plus haut). Pour tout élément dont la couleur de série doit apparaître
+correcte **dans la vidéo rendue** (`.tag`, `.kw-box` du titre §4bis,
+mots-clés `b.ocre` du corps §4), déclarer la variable locale compensée
+correspondant à la série de CE reel dans la composition :
 ```css
+/* série cejourla */
 :root { --ocre-render: #B9A456; }  /* compense le décalage du pipeline de
                                        render — quasi pixel-exact sur la
                                        référence validée par Thomas */
+/* série retro — valeur brute non calibrée, cf. « Séries reel supportées » */
+:root { --bordeaux-render: #6E3B3F; }
 ```
-**Ne pas modifier `tokens/colors.css`** — le token `--ocre` doit rester
-fidèle à `editeur-series.html` (l'éditeur web n'a pas ce problème, propre au
-pipeline de render vidéo) ; `--ocre-render` est une compensation locale à
-déclarer dans chaque composition qui affiche de l'ocre à l'écran dans un
-rendu final. Si un nouveau rendu montre encore un écart visible face à une
-référence validée, recalibrer cette valeur par pixel-sampling plutôt que de
+**Ne pas modifier `tokens/colors.css`** — les tokens `--ocre`/`--bordeaux`
+doivent rester fidèles à `editeur-series.html` (l'éditeur web n'a pas ce
+problème, propre au pipeline de render vidéo) ; `--ocre-render`/
+`--bordeaux-render` sont des compensations locales à déclarer dans chaque
+composition qui affiche cette couleur à l'écran dans un rendu final. Si un
+nouveau rendu montre encore un écart visible face à une référence validée,
+recalibrer cette valeur par pixel-sampling plutôt que de
 supposer qu'elle reste universelle indéfiniment (le pipeline de render peut
 évoluer).
 
@@ -329,6 +463,14 @@ d'un style s'applique à l'autre.
   réécrire) — chercher le brouillon "POST DU JOUR — <date>" correspondant à
   la date demandée ("le post de demain" etc.) via `search_threads`/
   `list_drafts`, section `CORPS`.
+- **Ce texte a déjà été passé au crible du skill `humanizer` au moment de sa
+  rédaction** (voir `SKILL.md` § « Skills chaînés » et § « Livrable
+  quotidien »). Le pipeline vidéo ne doit **jamais** le repasser au crible ni
+  le reformuler pour "améliorer le style" — toute retouche de fond (texte
+  trop IA, tournure maladroite) se signale à Thomas pour correction du
+  brouillon source, elle ne se fait pas ici. Repasser `humanizer` au montage
+  romprait cette règle de verbatim et fausserait le calcul de rythme du §5
+  (mots/CPS), qui compte sur un texte figé.
 
 #### 4.A — Style fixe (défaut, `STYLE SOUS-TITRES: fixe`)
 
@@ -336,18 +478,46 @@ d'un style s'applique à l'autre.
   `left:96px; right:96px`, dans la bande floutée basse (sous le plan net —
   valeur calibrée pour la géométrie §2, où le plan net s'arrête à `y=1308`).
   Garder une marge d'environ 170-175px entre le bas du plan net et `top`
-  (révisé le 21 septembre 2026 sur `main`, porté ici le même jour —
-  l'ancienne valeur `top:1420px`, marge ~100-115px, faisait déborder le
-  haut du bloc de texte au-dessus de la zone voulue ; Thomas a validé
-  `top:1480px` par comparaison visuelle sur une capture annotée d'un
-  rendu réel).
+  (révisé le 21 septembre 2026 — l'ancienne valeur `top:1420px`, marge
+  ~100-115px, faisait déborder le haut du bloc de texte au-dessus de la
+  zone voulue ; Thomas a validé `top:1480px` par comparaison visuelle sur
+  une capture annotée d'un rendu réel).
 - **Le corps démarre juste après la fin de l'intro** (§4bis, titre animé —
   présent uniquement dans ce style) dans la timeline globale de la
   composition — décaler tous les `start` calculés en §5 de `introEnd`
   (durée totale de l'intro, cf. §4bis), pas de `t=0`.
-- **Découpage en unités : phrases/propositions** du CORPS, chacune son
-  propre bloc (peut tenir sur 2-3 lignes, cf. règle una-seule-ligne propre
-  à 4.B ci-dessous qui ne s'applique pas ici).
+- **Découpage en unités : groupes de souffle, pas des phrases entières**
+  (révisé le 23 août 2026 après analyse de 5 reels de référence — compte
+  `languedebut`/`parionssport`, benchmarks fournis par Thomas). Un groupe
+  de souffle = le fragment qu'un narrateur dirait d'une traite avant une
+  respiration ou une inflexion : **1 à 5 mots**, souvent un seul connecteur
+  isolé sur son propre carton (« mais », « car », « pourtant », « hors »,
+  « enfin », « malgré », « sauf que », « avant »...). **Le CORPS doit
+  rester une prose continue et grammaticalement complète si on recolle
+  tous les cartons dans l'ordre** — ce n'est pas une liste de punchlines
+  indépendantes (contrairement au style Karaoké, §4.B, où chaque ligne est
+  autonome et pré-écrite courte par construction). Ne jamais fusionner un
+  connecteur avec le groupe suivant "pour gagner du temps" : un connecteur
+  seul sur son carton, même d'1 mot, fait partie du rythme recherché, pas
+  une anomalie à corriger.
+  Ancienne règle (jusqu'au 23 août 2026) : découpage en phrases/
+  propositions entières (blocs de 2-3 lignes) — abandonnée car elle
+  produisait un rythme trop lent/statique comparé aux références, qui
+  changent de carton en moyenne toutes les 1.5-2.5s.
+- **Vérifier que le CORPS suit un arc en 3 temps avant de composer**
+  (ajouté le 23 août 2026, même analyse) : accroche/enjeu (généralement
+  déjà porté par le TITRE, §4bis) → un développement qui installe la
+  tension/le contexte/les obstacles (doit occuper la majorité du CORPS,
+  **~45-70% de la durée totale** observée sur les références) → une
+  résolution ou une bascule vers le présent/l'avenir en fin de texte. La
+  Routine ne réécrit jamais le CORPS (cf. ci-dessus) — si un CORPS reçu
+  est manifestement déséquilibré (ex. il commence déjà par la conclusion/
+  le résultat, ou enchaîne accroche→résolution en 2 phrases sans
+  développement), ne pas tenter de retravailler la structure seul :
+  composer quand même avec le texte fact-checké fourni, mais **signaler
+  l'écart à Thomas dans le message de livraison** pour qu'il ajuste la
+  rédaction du `CORPS` la prochaine fois plutôt que de découvrir le
+  problème seulement au montage.
 
 - Mots-clés importants en **gras et/ou ocre** (`<b>` pour gras crème,
   `<b class="ocre">` pour gras + couleur `var(--ocre-render)`, cf. §3) —
@@ -528,6 +698,32 @@ champ `TITRE` du brouillon n'est pas utilisé pour l'habillage vidéo (il
 reste utile ailleurs, ex. légende Instagram), et le corps (§4.B) démarre
 directement après le header, cf. §5.
 
+**Le titre est le hook — il doit poser l'enjeu très vite** (ajouté le
+23 août 2026, analyse de 5 reels de référence). Deux formulations
+possibles selon le registre du CORPS de ce jour-là — c'est Thomas qui
+choisit en écrivant le brouillon, le TITRE reste toujours repris tel quel
+(cf. ci-dessous, la Routine ne le réécrit jamais) :
+- **Thèse fermée** — `[Sujet] + [verdict/jugement fort]` dès la/les
+  premières lignes (ex. observé sur les références : "L'Angleterre" / "va
+  gagner", "Le Maroc" / "catastrophique") — le registre par défaut pour un
+  post factuel/argumentatif.
+- **Amorce choc à identité différée** — une révélation ou un fait fort
+  posé en ouverture sans nommer le sujet (l'identité arrive plus tard dans
+  le CORPS) — réservé aux sujets à forte charge humaine/dramatique,
+  jamais utilisé par défaut sans que Thomas l'ait explicitement écrit
+  ainsi dans le brouillon.
+
+**Garder le TITRE à 1-2 lignes courtes** (pas 3-4 comme le gabarit de test
+`templates/titre-anime-intro/`, cf. calibration `font-size` ci-dessous) :
+avec la formule de révélation de cette section, 1-2 lignes tiennent
+`introEnd` autour de 1.5-2.1s, cohérent avec les références où la thèse
+est posée en moins de 2s — un titre à 4 lignes repousse `introEnd` à plus
+de 3.3s et dilue l'effet de hook. Si le TITRE fourni dans le brouillon
+dépasse 2 lignes ou ne pose pas d'enjeu clair dès la première ligne, ne
+pas le retravailler seul : le signaler à Thomas (même principe que pour
+`CORPS (karaoké)` manquant, §4.B) et composer quand même avec le texte
+fourni.
+
 - **Source du titre** : champ `TITRE` du brouillon Gmail "POST DU JOUR —
   <date>" correspondant (pas `CORPS` — c'est le champ court/percutant,
   distinct du texte long utilisé en §4 pour le corps). Repris tel quel, mis
@@ -542,10 +738,9 @@ directement après le header, cf. §5.
   couleur `var(--ocre-render)` (cf. §3), texte toujours crème (pas
   d'inversion de couleur).
 - **Découpage en lignes** : à la main (pas d'auto-wrap côté HTML/HyperFrames
-  contrairement au canvas de l'éditeur) — composer au jugé, en gardant une
-  marge de sécurité sur la largeur utile (`left:96px; right:96px`, soit
-  888px) plutôt que de viser au plus juste, puisqu'il n'y a plus de check de
-  frames pour repérer un débordement après coup (§9, retiré le 14 août 2026).
+  contrairement au canvas de l'éditeur) — composer au jugé puis corriger
+  après vérification par extraction de frame (§9) si une ligne déborde des
+  marges (`left:96px; right:96px`, soit 888px de large utile).
 - **CSS/HTML/GSAP à reproduire à l'identique** (`Anton`, aligné à **gauche**
   — pas centré, contrairement au corps de texte du §4, et **sans ombre
   portée** — contrairement au corps de texte du §4 qui en a besoin faute de
@@ -614,8 +809,23 @@ formule différente, basée sur la vitesse de lecture en caractères par
 seconde (CPS) plutôt que sur le nombre de mots — voir ci-dessous.
 
 **Style Fixe (§4.A)** :
-- Pauses entre blocs : 0.15s (vidéo courte, rythme serré) à 0.5s (vidéo
-  longue, rythme posé) selon la marge disponible.
+- **Pauses entre blocs resserrées : 0.08s à 0.25s** (révisé le 23 août
+  2026 — l'ancienne fourchette 0.15-0.5s datait du découpage par
+  phrases/propositions §4.A d'avant cette date, adaptée à des blocs longs
+  et rares ; avec le découpage en groupes de souffle désormais en vigueur,
+  des pauses aussi longues créeraient des trous perceptibles entre cartons
+  courts et casseraient le rythme quasi continu observé sur les
+  références — 1 changement de carton toutes les 1.5-2.5s en moyenne).
+  Réserver le haut de la fourchette (jusqu'à 0.5s, en exception) à une
+  vraie rupture narrative marquée, par exemple juste avant la bascule
+  vers la résolution en fin de CORPS.
+- **Plancher de durée par carton : jamais sous ~0.55s**, même pour un
+  connecteur d'un seul mot (`durée_brute_ligne = mots×0.27+0.35` donne
+  déjà ~0.62s pour 1 mot avant application du `facteur` — si le `facteur`
+  de compression écrase un carton sous ce plancher sur une vidéo très
+  dense en texte relativement à sa durée, signaler à Thomas plutôt que de
+  produire un carton illisible, même logique que le plancher CPS du style
+  Karaoké ci-dessous).
 - Démarrer le premier bloc du corps à `introEnd + 0.3s` (§4bis) — pas de
   `t≈0.3s` absolu comme avant la fusion, le corps commence après l'intro.
   `durée_vidéo_disponible` = durée totale de la vidéo moins `introEnd`.
@@ -637,11 +847,7 @@ seconde (CPS) plutôt que sur le nombre de mots — voir ci-dessous.
   Thomas le 19 août 2026 : 20 CPS défilait trop vite à l'écran malgré le
   côté punchy recherché ; 13 CPS priorise la lisibilité sur des cartons en
   gros Anton 80px, plus exigeants à lire vite qu'un sous-titre classique en
-  bas d'écran). [Reporté depuis main le 23 août 2026 — cette copie
-  ce-jour-là portait encore 20 CPS, valeur corrigée sur main le même jour
-  que son introduction (19 août) mais jamais portée ici jusqu'à
-  aujourd'hui ; cf. message de livraison du reel du 24 août 2026 pour le
-  signalement complet de la divergence.]
+  bas d'écran).
   ```
   durée_brute_carte = max(0.8, nombre_de_caractères_du_carton / 13)   (secondes — CPS = 13, plancher 0.8s)
   facteur = durée_vidéo_disponible / Σ durée_brute_tous_les_cartons
@@ -700,9 +906,15 @@ slug descriptif — avec `hyperframes.json`, `meta.json`, `package.json`
 (copier depuis un projet existant et adapter `name`/`id`), `.gitignore`
 (`node_modules/`, `renders/`, `snapshots/`, `.debug/`, `assets/` — ajouté le
 12 août 2026, voir §9 pour la justification), `tokens/fonts.css` +
-`tokens/colors.css` copiés tels quels (source de vérité : palette
-`--ocre`/`--ink`/`--cream`/`--muted-cream` de `editeurs/editeur-series.html`
-— `--ocre-render`, lui, se déclare localement dans `index.html`, cf. §3).
+`tokens/colors.css` copiés tels quels **depuis `design-system/tokens/` à la
+racine du repo** (pas depuis un ancien projet `<date-ISO>/` — cette
+copie-de-copie est justement ce qui a laissé `--bordeaux` absent de plusieurs
+anciens projets avant le 27 septembre 2026, cf. « Divergence bien plus large
+constatée » plus haut ; `design-system/tokens/` reste la source de vérité
+qu'on met à jour, jamais une copie locale à un projet daté). Palette qui en
+résulte : `--ocre`/`--bordeaux`/`--ink`/`--cream`/`--muted-cream` — 
+`--ocre-render`/`--bordeaux-render`, eux, se déclarent localement dans
+`index.html` selon la série de ce reel, cf. « Séries reel supportées » et §3.
 
 **Paralléliser le scaffold avec le bake ffmpeg §2** (optimisation du
 12 août 2026) : écrire `index.html` (header, textes, timeline GSAP) et
@@ -712,15 +924,16 @@ la vidéo, connue dès l'inspection d'orientation du §1 — pas du fichier
 (`run_in_background`) et rédiger le scaffold + `index.html` pendant qu'il
 tourne, plutôt que d'attendre la fin de l'encodage pour commencer à écrire
 la composition — ça sort ce poste du chemin critique séquentiel.
-`npm run check` (§9), lui, doit attendre que `composite.mp4` existe
-réellement sur disque avant de tourner.
+`npm run check` (§9), lui, doit attendre que `composite.mp4`/`audio.m4a`
+existent réellement sur disque avant de tourner.
 
 Toujours un projet HyperFrames (le titre animé de l'intro est désormais
 systématique — il n'y a plus de cas "composite ffmpeg seul, sans
 HyperFrames", sauf le cas à part §2 "juste le composite, sans habillage").
 
-Vidéo en enfant direct de `#root`, toujours mutée (`muted playsinline`) —
-**pas d'élément `<audio>`, le son de la source n'est jamais repris** (§2).
+Vidéo et audio en enfants directs de `#root`, vidéo mutée
+(`muted playsinline`), son porté par un `<audio>` séparé avec sa propre
+`data-duration` (contrainte HyperFrames — jamais de son sur `<video>`).
 **Un seul élément `<video>`** pour toute la composition (le composite
 continu de §2) — pas d'élément par plan/segment sauf si le mode curé
 (§1bis, opt-in) a explicitement recomposé la vidéo à partir de plusieurs
@@ -759,22 +972,16 @@ définitifs au même CRF — un preset plus rapide n'introduit pas de perte
 visible supplémentaire à CRF constant. **Ne pas confondre avec les presets
 du §2** (bake principal du composite) ni ceux internes au render
 HyperFrames, qui restent `fast` et inchangés — cette optimisation ne
-s'applique qu'à cette seule commande de raccord CTA.
+s'applique qu'à cette seule commande de raccord CTA. Le contrôle visuel du
+§9 (extraction de frames à la coupe reel→CTA) reste obligatoire et
+suffirait de toute façon à détecter un problème d'encodage si ce
+raisonnement s'avérait faux sur un cas réel.
 
 Le CTA s'ajoute donc en coupe franche (pas de fondu-enchaîné) — c'est
 attendu, c'est une carte de fin sur fond clair complètement différente du
 composite sombre du reel, pas une continuité visuelle.
 
-### 9. Check → render → concat CTA → livraison
-
-**Pas de check de frames, ni en début ni en fin de fabrication** (retiré le
-14 août 2026, demande explicite de Thomas — cf. §1 pour le même retrait côté
-orientation). Le pipeline se résume à : vidéo source → composite/habillage
-(§2-§3) → sous-titres (§4/§4bis) → CTA de fin (§8), sans étape d'extraction
-de frames ni d'inspection visuelle par l'outil Read entre ces étapes ou
-avant livraison. `npm run check` (le lint/validation HyperFrames ci-dessous)
-reste en revanche obligatoire — ce n'est pas un « check de frames », c'est
-la validation de la composition avant de lancer le render.
+### 9. Check → render → concat CTA → vérif → livraison
 
 ```bash
 npm run check     # 0 erreur attendu ; le warning StaticGuard "data-end
@@ -788,9 +995,19 @@ npm run render     # tourne en tâche de fond (>2 min) — laisser tourner,
 
 **`package.json` doit passer `-w 4`** (`"render": "npx --yes hyperframes@0.7.64 render -w 4"`, à reprendre dans tous les nouveaux scaffolds §7) — le mode par défaut (`-w auto`) sous-estime souvent les workers disponibles (mesuré : 2 workers choisis sur une machine à 4 cœurs). Passer explicitement à 4 workers a réduit le temps de rendu de 43% sur un test contrôlé (67s → 38s, même composition, même machine) sans rien changer d'autre. Adapter le chiffre au nombre de cœurs réels si la machine de rendu diffère, mais ne jamais laisser `auto` deviner sans l'avoir vérifié au moins une fois.
 
-Puis concaténer le CTA (§8) sur le fichier obtenu dans `renders/`. Une fois
-le concat terminé, c'est le livrable — pas de contrôle par extraction de
-frames avant de le committer/livrer (cf. ci-dessus).
+Puis concaténer le CTA (§8) sur le fichier obtenu dans `renders/`.
+
+Après concat : extraire des frames à quelques instants clés (titre de
+l'intro à mi-révélation et pleinement révélé, coupe intro→corps — **vérifier
+qu'il n'y a aucun saut de cadrage visible à cette coupe, cf. §2**, quelques
+plans du corps, carte CTA finale) via `ffmpeg -ss <t> -frames:v 1` — **lancer
+ces extractions en parallèle** (optimisation du 12 août 2026 : chaque
+commande en tâche de fond avec `&`, puis `wait` — chacune ré-ouvre/décode le
+fichier indépendamment, donc les paralléliser ne coûte rien et évite
+d'attendre N fois le coût de décodage d'un enchaînement séquentiel) — puis
+les lire avec l'outil Read pour vérifier visuellement le calage texte/image,
+la lisibilité, le header, la couleur ocre (cf. §3) et la coupe propre vers
+le CTA — ne jamais livrer sans ce contrôle.
 
 **INTERDIT de livrer un fichier depuis `assets/`** (sources brutes du
 composite, sans header ni texte) — le seul livrable valide est le fichier
