@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 29 septembre 1996, le nucazo de Hugo Guerra (Boca-River) — style karaoké</title>
+    <script src="assets/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      /* Self-hosted @font-face rules for this build only (see tokens/fonts.css comment) —
+         the compiler's own already-fetched font cache, copied to assets/fonts/ (gitignored).
+         Declared here (project root) rather than in tokens/fonts.css (a subdirectory) so the
+         relative asset paths resolve correctly at render time without "../" traversal. Only the
+         weights this composition actually uses. */
+      @font-face {
+        font-family: 'Anton';
+        font-style: normal;
+        font-weight: 400;
+        src: url('assets/fonts/anton-400.woff2') format('woff2');
+      }
+      @font-face {
+        font-family: 'Archivo';
+        font-style: normal;
+        font-weight: 400;
+        src: url('assets/fonts/archivo-400.woff2') format('woff2');
+      }
+      @font-face {
+        font-family: 'Saira Condensed';
+        font-style: normal;
+        font-weight: 600;
+        src: url('assets/fonts/saira-condensed-600.woff2') format('woff2');
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* Vidéo source (Boca 3-2 River, Torneo Apertura 1996, 29/09/1996,
+         le "nucazo" de Hugo Guerra) gardée intégrale (§1bis) : un seul
+         composite continu du début à la fin (0 -> 38.9s), même géométrie
+         sur toute la durée. Source brute 852x428 (~1.99:1), aucune
+         métadonnée de rotation (ffprobe stream_side_data vide). La source
+         porte un habillage TV persistant (logo "EXPEDIENTE FUTBOL /
+         SUPERCLASICO DEFINICIONES AGONICAS", coin haut-gauche, présent du
+         début à la fin) à exclure (§2, règle "logo de la chaîne d'origine") :
+         source zoomée ×1.55 avant le calcul de cover-crop (bg ET fg),
+         vérifié propre par extraction de frames à plusieurs instants
+         (0.5s/5s/10s/20s/28s/33s/36s/38.5s) sur la géométrie finale du plan
+         net avant de lancer le bake définitif. Pas de titre animé séparé
+         pour ce style (§4bis ne s'applique pas au style karaoké) : le corps
+         couvre tout le reel dès juste après le header. Son de la source
+         repris via un <audio> séparé (piste aac présente à la source) —
+         vidéo mutée. */
+      .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+
+      /* header - constantes fixes de la série, persistant du début à la fin.
+         Écart signalé au §3 CLAUDE.md : la recette figée ne donne aucun
+         text-shadow au ring/wordmark/handle (contrairement au corps §4.A qui
+         en a un explicitement "puisque pas de scrim"). Sur CETTE vidéo
+         (tribunes très claires/blanches en fond derrière le header sur une
+         bonne partie du plan), `npm run check` échouait le contrôle de
+         contraste WCAG (besoin 3:1, mesuré jusqu'à 1.34:1) sur les 3
+         éléments de texte du header à plusieurs instants. Un text-shadow
+         discret (même famille que celui du corps §4.A, pas de scrim ajouté —
+         règle "pas de dégradé d'assombrissement" du §3 reste respectée,
+         ceci n'est qu'une ombre portée sur le texte lui-même), plus un
+         contour semi-transparent (même technique déjà précédente sur les
+         cartes du corps karaoké §4.B, cf. plus bas) : le shadow seul ne
+         suffisait pas partout (mesuré jusqu'à 2.99:1, tout juste sous le
+         seuil), le stroke ajouté fait passer le contrôle sur toute la
+         vidéo. Border du ring inchangée (pas de texte, pas concernée par ce
+         contrôle). À reporter dans CLAUDE.md sur main : le header pourrait
+         avoir besoin de ce traitement par défaut plutôt qu'au cas par cas
+         si d'autres vidéos ont des fonds clairs similaires. */
+      #hdr { position: absolute; inset: 0 0 auto 0; z-index: 20; }
+      .ring {
+        position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
+        border: 4px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--cream);
+        text-shadow: 0 2px 16px rgba(0,0,0,.65), 0 1px 4px rgba(0,0,0,.8);
+        -webkit-text-stroke: 2.5px rgba(44,40,35,.75);
+      }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); text-shadow: 0 2px 16px rgba(0,0,0,.65), 0 1px 4px rgba(0,0,0,.8); -webkit-text-stroke: 2.5px rgba(44,40,35,.75); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); text-shadow: 0 2px 16px rgba(0,0,0,.65), 0 1px 4px rgba(0,0,0,.8); -webkit-text-stroke: 2.5px rgba(44,40,35,.75); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
+
+      /* --ocre-render : compensation du décalage de teinte du pipeline de
+         render HyperFrames sur --ocre (§3 CLAUDE.md, série "ce jour-là",
+         demandée par SÉRIE: du brouillon LANCER REEL). Utilisée sur .tag et
+         sur les mots-clés b.ocre marqués **...** dans CORPS (karaoké)
+         (Boca-River, 90e minute, les scores 3/2, «nucazo»). */
+      :root { --ocre-render: #B9A456; }
+      .tag {
+        position: absolute; left: 96px; top: 350px; height: 58px; z-index: 20;
+        display: flex; align-items: center; background: var(--ocre-render); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; padding: 0 15px;
+      }
+
+      /* corps de texte façon karaoké - Anton, centré verticalement dans le
+         cadre bas (top:1480px, cf. §4.B révisé 26 septembre 2026), superposé
+         sur la bande floutée sous le plan net. Taille FIXE 80px pour toutes
+         les cartes ; aucune ombre portée ; léger contour semi-transparent
+         ink. Texte déjà écrit en MAJUSCULES dans le HTML (pas seulement via
+         text-transform, cf. bug de subsetting de police §4.B). .story-line
+         porte un transform:translateY(-50%) STATIQUE - ne jamais animer y
+         dessus avec GSAP (§6), opacity uniquement. */
+      .story-zone { position: absolute; left: 96px; right: 96px; z-index: 20; text-align: center; }
+      .story-line {
+        position: absolute; left: 0; right: 0;
+        top: 1480px; transform: translateY(-50%);
+        font-family: 'Anton', sans-serif; font-size: 80px; line-height: 1.1;
+        text-transform: uppercase; color: var(--cream); opacity: 0;
+        -webkit-text-stroke: 1.5px rgba(44,40,35,.35);
+      }
+      /* mot-clé en ocre via **mot** dans CORPS (karaoké) - §4.B. Mots
+         marqués dans ce brouillon : Boca-River, 90e minute, 3, 2, «nucazo». */
+      .story-line b.ocre { color: var(--ocre-render); font-weight: inherit; }
+
+      /* #c2, #c15, #c22 tombent sur des passages du composite où le fond
+         flouté sous la zone de texte est exceptionnellement clair (tribunes
+         blanches/bannières claires en gros plan flouté) - contraste
+         crème/fond insuffisant à ces instants précis (check HyperFrames :
+         jusqu'à 1.7-2.3:1, need 3:1). Même précédent que #c31 sur le reel du
+         28 septembre (§4.B) : pas d'ombre portée ajoutée (règle permanente),
+         contour ink renforcé uniquement sur ces cartes. */
+      #c2, #c15, #c22 { -webkit-text-stroke: 3px rgba(44,40,35,.75); }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="38.900000"
+      data-fps="30"
+    >
+      <!-- vidéo intégrale, un seul plan continu du début à la fin -->
+      <video class="video-full" id="fullv" src="assets/composite.mp4" data-start="0.0000" data-duration="38.900000" data-track-index="1" muted playsinline></video>
+      <audio id="fulla" src="assets/audio.m4a" data-start="0.0000" data-duration="38.900000" data-track-index="2"></audio>
+
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+      <div class="tag">CE JOUR LÀ …</div>
+
+      <!-- corps du post - champ CORPS (KARAOKÉ) du brouillon Gmail
+           "📲 POST DU JOUR — 29 septembre 2026" (Superclásico Boca-River
+           1996, le nucazo de Hugo Guerra). Une ligne du brouillon = une
+           carte, verbatim, aucun re-découpage (§4.B) - 30 cartes, mises en
+           capitales pour l'affichage. Mots-clés marqués **...** dans le
+           brouillon source affichés en <b class="ocre">. -->
+      <div class="story-zone">
+        <div class="story-line" id="c1">UN BUT EST ENTRÉ</div>
+        <div class="story-line" id="c2">DANS LA LÉGENDE.</div>
+        <div class="story-line" id="c3">CELUI QUI L'A MARQUÉ</div>
+        <div class="story-line" id="c4">DIT QUE C'EST FAUX.</div>
+        <div class="story-line" id="c5">CE SOIR-LÀ,</div>
+        <div class="story-line" id="c6">UNE SEULE MINUTE</div>
+        <div class="story-line" id="c7">VA TRANCHER UN MATCH FOU.</div>
+        <div class="story-line" id="c8"><b class="ocre">BOCA-RIVER</b></div>
+        <div class="story-line" id="c9">LE SUPERCLÁSICO</div>
+        <div class="story-line" id="c10">EN 1996.</div>
+        <div class="story-line" id="c11">APRÈS UN MATCH SERRÉ</div>
+        <div class="story-line" id="c12">2-2</div>
+        <div class="story-line" id="c13">TOUJOURS RIEN DE TRANCHÉ</div>
+        <div class="story-line" id="c14">À LA <b class="ocre">90E MINUTE</b></div>
+        <div class="story-line" id="c15">UNE REMISE EN JEU INTERMINABLE</div>
+        <div class="story-line" id="c16">HUGO GUERRA SAUTE</div>
+        <div class="story-line" id="c17">DOS AU BUT</div>
+        <div class="story-line" id="c18">LE BALLON RENTRE</div>
+        <div class="story-line" id="c19">BOCA <b class="ocre">3</b>, RIVER <b class="ocre">2</b></div>
+        <div class="story-line" id="c20">LE GESTE DEVIENT UNE LÉGENDE :</div>
+        <div class="story-line" id="c21">LE <b class="ocre">«NUCAZO»</b></div>
+        <div class="story-line" id="c22">LE COUP DE NUQUE</div>
+        <div class="story-line" id="c23">SAUF QUE GUERRA</div>
+        <div class="story-line" id="c24">NE L'A JAMAIS ACCEPTÉ</div>
+        <div class="story-line" id="c25">FACE AUX CAMÉRAS, IL A LÂCHÉ :</div>
+        <div class="story-line" id="c26">« C'ÉTAIT LE FRONT.</div>
+        <div class="story-line" id="c27">PAS LA NUQUE. »</div>
+        <div class="story-line" id="c28">ALORS, PEUT-ON</div>
+        <div class="story-line" id="c29">AVOIR HONTE</div>
+        <div class="story-line" id="c30">D'UN BUT LÉGENDAIRE?</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      /* corps façon karaoké - §4.B/§5 : rythme calculé au CPS (13
+         caractères/seconde), plancher 0.8s/carte, zéro pause entre blocs
+         (toujours un sous-titre à l'écran), démarrage à 0.3s absolu (pas
+         d'introEnd, pas de titre animé pour ce style). 30 cartes, 508
+         caractères au total, durée disponible = 38.9-0.3 = 38.6s ->
+         facteur d'étirement ~0.9676 sur les durées brutes CPS (durées
+         finales de 0.774s à 2.233s, toutes au-dessus du plancher de
+         lisibilité ~0.5s du §5). Dernière carte se termine à 38.900s,
+         exactement la fin de la vidéo (38.900000s). Texte repris verbatim
+         du champ CORPS (karaoké) du brouillon "📲 POST DU JOUR — 29
+         septembre 2026" tel qu'il se lit au moment de ce build (ordre et
+         ponctuation exacts). */
+      function fadeBlockKaraoke(sel, start, dur) {
+        tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 0.10, ease: 'power2.out' }, start);
+        tl.to(sel, { opacity: 0, duration: 0.08, ease: 'sine.in' }, start + dur - 0.08);
+        tl.set(sel, { opacity: 0 }, start + dur);
+      }
+
+      const cards = [
+        { id: "c1", start: 0.300, dur: 1.191 }, // Un but est entré
+        { id: "c2", start: 1.491, dur: 1.191 }, // dans la légende.
+        { id: "c3", start: 2.682, dur: 1.489 }, // Celui qui l'a marqué
+        { id: "c4", start: 4.170, dur: 1.414 }, // dit que c'est faux.
+        { id: "c5", start: 5.585, dur: 0.819 }, // Ce soir-là,
+        { id: "c6", start: 6.403, dur: 1.191 }, // une seule minute
+        { id: "c7", start: 7.594, dur: 1.861 }, // va trancher un match fou.
+        { id: "c8", start: 9.455, dur: 0.774 }, // Boca-River
+        { id: "c9", start: 10.229, dur: 1.116 }, // Le Superclásico
+        { id: "c10", start: 11.346, dur: 0.774 }, // En 1996.
+        { id: "c11", start: 12.120, dur: 1.489 }, // Après un match serré
+        { id: "c12", start: 13.608, dur: 0.774 }, // 2-2
+        { id: "c13", start: 14.382, dur: 1.786 }, // Toujours rien de tranché
+        { id: "c14", start: 16.169, dur: 1.116 }, // À la 90e minute
+        { id: "c15", start: 17.285, dur: 2.233 }, // une remise en jeu interminable
+        { id: "c16", start: 19.518, dur: 1.265 }, // Hugo Guerra saute
+        { id: "c17", start: 20.783, dur: 0.774 }, // Dos au but
+        { id: "c18", start: 21.558, dur: 1.191 }, // Le ballon rentre
+        { id: "c19", start: 22.748, dur: 1.116 }, // Boca 3, River 2
+        { id: "c20", start: 23.865, dur: 2.233 }, // Le geste devient une légende :
+        { id: "c21", start: 26.098, dur: 0.819 }, // le «nucazo»
+        { id: "c22", start: 26.917, dur: 1.191 }, // Le coup de nuque
+        { id: "c23", start: 28.107, dur: 1.116 }, // Sauf que Guerra
+        { id: "c24", start: 29.224, dur: 1.563 }, // ne l'a jamais accepté
+        { id: "c25", start: 30.787, dur: 2.233 }, // Face aux caméras, il a lâché :
+        { id: "c26", start: 33.020, dur: 1.414 }, // « C'était le front.
+        { id: "c27", start: 34.434, dur: 1.116 }, // Pas la nuque. »
+        { id: "c28", start: 35.551, dur: 1.042 }, // alors, peut-on
+        { id: "c29", start: 36.593, dur: 0.819 }, // Avoir honte
+        { id: "c30", start: 37.411, dur: 1.489 }, // D'un but légendaire?
+      ];
+
+      cards.forEach(({ id, start, dur }) => {
+        fadeBlockKaraoke(`#${id}`, start, dur);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
