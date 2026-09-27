@@ -990,20 +990,67 @@ de bloquer la production des autres jours de la plage.
    storytelling et reformatée pour le reel en style Karaoké (CLAUDE.md §4.B,
    « une ligne du CORPS = un carton affiché à l'écran »). Ajouté au workflow le
    11 août 2026 après validation du format sur le test "11 août 1984" et sa
-   reprise sur l'exemple Cantona. Trois règles à respecter systématiquement :
-   - **Accroche sans spoiler + boucle qui se referme** (piste narrative validée) :
-     ne jamais révéler le résultat/l'identité/la chute dès les premières lignes
-     — ouvrir sur un détail intrigant qui ne nomme/ne dit pas encore l'essentiel
-     (ex. « un inconnu de 21 ans » avant de nommer Éric Cantona), réserver la
-     révélation pour le milieu/la fin, et **terminer sur une ligne qui fait
-     écho à l'accroche d'ouverture** (idéalement une question, pas une
-     affirmation qui referme sèchement — ex. ouvrir sur « personne ne s'en
-     souvient » et fermer sur « et si on s'en souvenait ? »).
-   - **Lignes courtes, ~3 mots, une ligne = un carton** : chaque saut de ligne
-     devient un carton affiché à l'écran verbatim au moment du montage (pas de
-     re-découpage côté traitement, cf. CLAUDE.md §4.B) — donc la brièveté est
-     la responsabilité de cette rédaction-ci, jamais une phrase entière sur une
-     seule ligne.
+   reprise sur l'exemple Cantona. **Structure narrative revue le 27 septembre
+   2026** (retour de Thomas : les reels livraient trop d'informations d'un
+   coup et manquaient de tension) — remplace l'ancienne consigne unique
+   "accroche sans spoiler + boucle qui se referme" par une structure en 7
+   temps obligatoire qui l'englobe et la précise davantage.
+
+   **Structure narrative obligatoire — 7 temps, dans cet ordre :**
+
+   1. **HOOK** (les 2 premières lignes) — n'ouvre JAMAIS sur la date ou en
+      nommant tout de suite le sujet complet : ouvre une boucle narrative qui
+      doit provoquer un « attends, quoi ? » / « je ne savais pas » / « je veux
+      voir la suite ». Ne donne pas l'info tout de suite.
+      *Mauvais* : « Le 26 septembre 1965, Beckenbauer joue son premier match… »
+      *Bon* : « À 20 ans, il n'était encore personne. »
+   2. **PROMESSE** — une ligne qui laisse entendre l'enjeu à venir, sans le
+      nommer complètement (ce que le spectateur va découvrir, pas encore ce
+      qu'il va se passer).
+   3. **CONTEXTE MINIMAL** — date/lieu/situation en quelques mots seulement,
+      jamais un paragraphe d'intro façon fiche Wikipédia. La date est un
+      **prétexte**, pas le sujet : elle peut même arriver après le hook plutôt
+      que d'ouvrir le texte.
+   4. **ESCALADE** — montée dramatique explicite : situation normale →
+      problème → obstacle → tension. Le mot **« mais »** est la charnière de
+      rupture la plus efficace pour amorcer cette bascule — réservé à 1-2
+      vraies ruptures dans tout le texte, jamais systématique (il perd son
+      pouvoir s'il est sur-utilisé).
+   5. **MOMENT FORT** — le but/la décision/le twist que le spectateur attend.
+      **Ne jamais balancer le score/résultat/dénouement dans les premiers
+      cartons** : c'est une récompense narrative qui doit arriver après la
+      tension installée en 4., jamais avant.
+   6. **CONSÉQUENCE** — ce que ça change concrètement. Proscrire toute chute
+      générique (« un moment marquant de l'histoire du foot », « voilà
+      comment s'est déroulé cet événement ») : donner un fait ou une suite
+      concrète à la place.
+   7. **FIN QUI RELANCE L'HISTOIRE** — dernière ligne qui fait écho au hook
+      d'ouverture (boucle qui se referme, règle historique conservée) :
+      idéalement une question qui donne envie de rejouer mentalement
+      l'histoire, jamais une clôture sèche du type « voilà ».
+
+   **Règles d'écriture transverses aux 7 temps :**
+   - **Une seule histoire, 3 à 6 informations maximum.** Un événement peut
+     contenir 20 faits intéressants ; ce corps n'en retient que ceux
+     indispensables à CETTE histoire précise. Ne pas chercher à tout caser —
+     les faits écartés ici restent disponibles pour le Corps/la légende, ils
+     ne sont pas perdus, juste pas utiles à *cette* narration.
+   - **Question invisible.** Avant de rédiger, identifier la question qui doit
+     tenir le spectateur jusqu'au bout (elle n'a pas besoin d'être écrite
+     explicitement — elle doit juste guider les choix de rédaction).
+   - **Une ligne = une information**, jamais un carton qui empile plusieurs
+     faits en une seule phrase.
+   - **Alterner les longueurs de ligne pour créer du rythme** : des mots-
+     percussion très courts (1-3 mots — un chiffre, un lieu, un statut :
+     « 20 ANS. », « TITULAIRE. », « 2-1. ») alternés avec des lignes un peu
+     plus longues qui portent l'information. Ça remplace l'ancienne règle
+     unique « ~3 mots par ligne » — mais l'esprit ne change pas : **un carton
+     = un battement narratif, jamais une phrase-paragraphe entière.** Une
+     ligne plus longue que d'habitude peut se retrouver à passer sur 2 lignes
+     au rendu plutôt qu'une seule (cf. CLAUDE.md §4.B, la taille reste fixe
+     à l'écran) — c'est acceptable à l'occasion, jamais la norme.
+
+   Règle déjà en place, inchangée :
    - **Mot-clé en ocre : `**mot**`** (ajouté le 13 août 2026) — encadrer d'un
      double astérisque le ou les mots à faire ressortir en couleur ocre au
      montage (chiffres, scores, noms propres, faits marquants, comme pour le
@@ -1039,10 +1086,10 @@ demande explicite de Thomas (« on fait le post complet »).
 >
 > 🎥 Vidéo : https://www.youtube.com/watch?v=-vqQWrrzNWU
 
-**Même exemple, Corps (karaoké)** — mêmes faits que ci-dessus, reformatés en
-storytelling à lignes courtes, accroche sans spoiler (les États-Unis ne sont
-pas nommés avant l'affrontement, Gaetjens n'est nommé qu'à son but) et boucle
-qui se referme sur l'écho de l'ouverture. Les mots encadrés par `**…**`
+**Même exemple, Corps (karaoké)** — mêmes faits que ci-dessus, restructurés
+selon les 7 temps ci-dessus (accroche sans spoiler : les États-Unis ne sont
+pas nommés avant l'affrontement, Gaetjens n'est nommé qu'à son but ; boucle
+qui se referme sur l'écho de l'ouverture). Les mots encadrés par `**…**`
 (« 500 contre 1 », « 37e minute », « Duvalier ») ressortiront en ocre au
 montage :
 
@@ -1060,7 +1107,7 @@ montage :
 > Les rois du foot.
 > Face à des amateurs.
 >
-> À la **37e minute**,
+> Mais à la **37e minute**,
 > un but.
 >
 > Joe Gaetjens,
@@ -1088,6 +1135,17 @@ montage :
 >
 > Et si, cette fois,
 > on ne l'oubliait pas ?
+
+Repères (7 temps, pour calibrer — ne pas reproduire ces labels dans le
+livrable réel) : **HOOK** = « Un prof… un plongeur. » (aucune identité, aucune
+date) · **PROMESSE** = « Donnés à 500 contre 1. » · **CONTEXTE MINIMAL** =
+« Ce jour-là… affrontent l'Angleterre. » · **ESCALADE** = « Les rois du
+foot. Face à des amateurs. » (situation posée, tension avant bascule) ·
+**MOMENT FORT** = « Mais à la 37e minute… États-Unis 1. » (le « mais » amène
+la bascule, le score n'arrive qu'ici) · **CONSÉQUENCE** = de « L'un des plus
+grands chocs… » à « Arrêté par le régime Duvalier. » (double conséquence :
+sportive puis personnelle) · **FIN QUI RELANCE** = « Le héros du but… on ne
+l'oubliait pas ? » (écho direct à l'anonymat du hook d'ouverture).
 
 ## Format légende (4 temps)
 
