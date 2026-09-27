@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>une·deux — lanceur reels Ce jour-là</title>
+<title>une·deux — lanceur reels éphéméride</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600&family=Saira+Condensed:wght@600;700&display=swap');
 
@@ -119,11 +119,13 @@ html,body{margin:0;padding:0;background:var(--encre);color:var(--newsprint);
     <div class="topbar">
       <div class="mono">1·2</div>
       <div class="brand">une<span class="dot">·</span>deux</div>
-      <div class="subbrand">CE JOUR LÀ</div>
+      <div class="subbrand">REELS ÉPHÉMÉRIDE</div>
     </div>
 
     <div class="legend">
       <b>Lien Drive</b> ou <b>vidéo depuis l'appareil</b> : choisis la source par jour.
+      <b>Série</b> : « Ce jour-là » (ocre) ou « Le foot dans le rétro » (bordeaux) —
+      même recette de montage à l'identique, seule la couleur de signature change.
       <b>Style Fixe</b> : le premier plan réel de la vidéo sert d'intro (titre animé,
       champ TITRE du brouillon avec mots-clés entre **étoiles**), le reste devient le
       corps (champ CORPS). <b>Style Karaoké</b> : pas de titre séparé, cartons plein
@@ -205,7 +207,7 @@ let days = []; // initialisée avant makeDay() : évite d'accéder à `days` ava
 function makeDay(){
   const last = days.length ? days[days.length-1] : null;
   const date = last && last.date ? isoPlusDays(last.date, 1) : isoPlusDays('', 1); // défaut = demain, ou +1 jour après le précédent
-  return { mode:'link', link:'', file:null, date, style:'fixe', notes:'' };
+  return { mode:'link', link:'', file:null, date, serie:'cejourla', style:'fixe', notes:'' };
 }
 
 days.push(makeDay());
@@ -266,6 +268,14 @@ function dayCardHtml(day, idx, total){
     </div>
 
     <div class="field">
+      <label>Série</label>
+      <div class="chips" data-chips="serie">
+        <div class="chip ${day.serie==='cejourla'?'on':''}" data-se="cejourla">CE JOUR LÀ</div>
+        <div class="chip ${day.serie==='retro'?'on':''}" data-se="retro">LE FOOT DANS LE RÉTRO</div>
+      </div>
+    </div>
+
+    <div class="field">
       <label>Style des sous-titres</label>
       <div class="chips" data-chips="style">
         <div class="chip ${day.style==='fixe'?'on':''}" data-s="fixe">FIXE</div>
@@ -291,6 +301,14 @@ function renderDays(){
       chip.addEventListener('click', ()=>{
         day.mode = chip.dataset.m;
         renderDays();
+      });
+    });
+    card.querySelectorAll('[data-chips="serie"] .chip').forEach(chip=>{
+      chip.addEventListener('click', ()=>{
+        day.serie = chip.dataset.se;
+        card.querySelectorAll('[data-chips="serie"] .chip').forEach(c=>c.classList.remove('on'));
+        chip.classList.add('on');
+        render();
       });
     });
     card.querySelectorAll('[data-chips="style"] .chip').forEach(chip=>{
@@ -365,10 +383,11 @@ function dayBlockLines(day, showHeader, idx){
   const sourceLine = day.mode === 'file'
     ? `VIDÉO: en pièce jointe de cet email (${day.file ? day.file.name : '(à joindre)'})`
     : `LIEN DRIVE: ${(day.link||'').trim() || '(lien à coller)'}`;
+  const serieLine = day.serie === 'retro' ? 'SÉRIE: le foot dans le rétro' : 'SÉRIE: ce jour-là';
   const styleLine = day.style === 'karaoke' ? 'STYLE SOUS-TITRES: karaoké' : 'STYLE SOUS-TITRES: fixe';
   const lines = [];
   if(showHeader) lines.push(`JOUR ${idx+1}`);
-  lines.push(sourceLine, `DATE DU POST: ${iso}`, styleLine, `NOTES: ${notes || '(aucune)'}`);
+  lines.push(sourceLine, `DATE DU POST: ${iso}`, serieLine, styleLine, `NOTES: ${notes || '(aucune)'}`);
   return lines.join('\n');
 }
 
@@ -376,8 +395,8 @@ function buildBody(){
   const multi = days.length > 1;
   const blocks = days.map((d,i)=>dayBlockLines(d, multi, i));
   const footer = multi
-    ? `— généré depuis le lanceur reels Ce jour-là (${days.length} jours)`
-    : `— généré depuis le lanceur reels Ce jour-là`;
+    ? `— généré depuis le lanceur reels éphéméride (${days.length} jours)`
+    : `— généré depuis le lanceur reels éphéméride`;
   return blocks.join('\n\n') + '\n\n' + footer;
 }
 
@@ -394,7 +413,7 @@ function render(){
 
   prevSubject.textContent = buildSubject();
   prevBody.innerHTML = buildBody()
-    .replace(/^(LIEN DRIVE:|VIDÉO:|DATE DU POST:|STYLE SOUS-TITRES:|NOTES:|JOUR \d+)/gm, '<span class="k">$1</span>')
+    .replace(/^(LIEN DRIVE:|VIDÉO:|DATE DU POST:|SÉRIE:|STYLE SOUS-TITRES:|NOTES:|JOUR \d+)/gm, '<span class="k">$1</span>')
     .replace(/\n/g, '<br>');
 
   const validCount = days.filter(dayValid).length;

@@ -2,26 +2,42 @@
 
 Voir `SKILL.md` pour la production de **posts carrousel** (skill `une-deux-post`).
 
-Ce fichier couvre un format différent : le **reel montage vidéo "Ce jour-là"**
+Ce fichier couvre un format différent : le **reel montage vidéo éphéméride**
 (images de match réelles + texte animé), construit avec HyperFrames dans
-`hyperframes/`. Déclencheur : Thomas envoie un lien Drive vers une vidéo de
-match et demande d'y ajouter le texte du post (sous-titres ou corps animé) —
-**ou** dépose une demande via le lanceur `editeurs/lanceur-cejourla.html`
-(voir ci-dessous), traitée automatiquement par une Routine.
+`hyperframes/`. **Deux séries partagent exactement cette même recette, à une
+seule différence près (la couleur de signature) : « Ce jour-là » (ocre) et
+« Le foot dans le rétro » (bordeaux)** — ajoutée le 27 septembre 2026 en
+remplacement de la série carrousel « L'histoire derrière cette photo »
+(supprimée le même jour de `editeurs/editeur-series.html`), qui reprend sa
+couleur bordeaux. Voir « Séries reel supportées » ci-dessous pour le détail
+de ce qui change (peu de choses) et ne change pas (presque tout) entre les
+deux. Déclencheur : Thomas envoie un lien Drive vers une vidéo de match et
+demande d'y ajouter le texte du post (sous-titres ou corps animé) — **ou**
+dépose une demande via le lanceur `editeurs/lanceur-cejourla.html` (voir
+ci-dessous), traitée automatiquement par une Routine.
 
 ## Lanceur automatique (`editeurs/lanceur-cejourla.html`)
 
 Outil statique (même DA que `editeur-series.html` : panel sombre, ocre,
 Saira Condensed/Anton/Archivo) où Thomas colle le lien Drive (ou choisit
 directement un fichier vidéo depuis l'appareil — voir ci-dessous) + la date
-du post + le style de sous-titres (voir ci-dessous) + des notes optionnelles.
-**Une seule variante de montage** (voir section recette ci-dessous — l'ancien
-choix "reel complet / intro seule" a été fusionné, il n'y a plus de champ
-VARIANTE ; le seul choix qui reste est le style des sous-titres). Le bouton
-« Lancer le montage » ouvre un brouillon email pré-rempli (`mailto:` vers
-t.louisor@gmail.com, objet `LANCER REEL — <date>`, corps au format `LIEN
-DRIVE: … / DATE DU POST: … / STYLE SOUS-TITRES: … / NOTES: …`) — une page
-statique ne peut pas appeler Claude Code directement, l'email est le pont.
+du post + la série + le style de sous-titres (voir ci-dessous) + des notes
+optionnelles. **Une seule variante de montage** (voir section recette
+ci-dessous — l'ancien choix "reel complet / intro seule" a été fusionné, il
+n'y a plus de champ VARIANTE ; les seuls choix qui restent sont la série et
+le style des sous-titres). Le bouton « Lancer le montage » ouvre un
+brouillon email pré-rempli (`mailto:` vers t.louisor@gmail.com, objet
+`LANCER REEL — <date>`, corps au format `LIEN DRIVE: … / DATE DU POST: … /
+SÉRIE: … / STYLE SOUS-TITRES: … / NOTES: …`) — une page statique ne peut pas
+appeler Claude Code directement, l'email est le pont.
+
+**Série** (ajouté le 27 septembre 2026) : un sélecteur à deux chips dans le
+lanceur — « CE JOUR LÀ » (par défaut, coché à l'ouverture) ou « LE FOOT DANS
+LE RÉTRO ». Le choix est écrit dans le corps de l'email en `SÉRIE: ce jour-là`
+ou `SÉRIE: le foot dans le rétro`. Côté traitement, la Routine lit cette
+ligne et applique la couleur de signature correspondante (§ « Séries reel
+supportées » ci-dessous) — absence de la ligne (demandes envoyées avant cet
+ajout) = traiter comme `ce jour-là`, seule série qui existait jusque-là.
 
 **Style des sous-titres** : un sélecteur à deux chips dans le lanceur —
 « FIXE » (par défaut, coché à l'ouverture) ou « KARAOKÉ ». Le choix est
@@ -53,13 +69,14 @@ tenter un téléchargement Drive.
 
 **Plusieurs jours en un seul email** : le lanceur permet d'ajouter des
 « jours » répétables (bouton « + Ajouter un jour », un jour = source vidéo +
-date + style sous-titres + notes, chacun indépendant) avant de cliquer
-« Lancer le montage » — un seul email part, avec un bloc par jour. Format du
-corps sur un seul jour (identique à l'historique, sans en-tête) :
+date + série + style sous-titres + notes, chacun indépendant) avant de
+cliquer « Lancer le montage » — un seul email part, avec un bloc par jour.
+Format du corps sur un seul jour (identique à l'historique, sans en-tête) :
 
 ```
 LIEN DRIVE: …
 DATE DU POST: …
+SÉRIE: …
 STYLE SOUS-TITRES: …
 NOTES: …
 ```
@@ -71,12 +88,14 @@ blocs sont séparés par une ligne vide :
 JOUR 1
 LIEN DRIVE: …
 DATE DU POST: …
+SÉRIE: …
 STYLE SOUS-TITRES: …
 NOTES: …
 
 JOUR 2
 VIDÉO: en pièce jointe de cet email (nom-du-fichier.mp4)
 DATE DU POST: …
+SÉRIE: …
 STYLE SOUS-TITRES: …
 NOTES: …
 ```
@@ -123,11 +142,62 @@ une fois (3 correctifs découverts le 4 août 2026 sur `cejourla-4aout-reel`,
 fusionnés ici avec le reste de la recette) — vérifier périodiquement que les
 deux copies n'ont pas divergé.
 
+**Divergence bien plus large constatée le 27 septembre 2026** (à l'occasion
+de l'ajout de la série « Le foot dans le rétro ») : `CLAUDE.md` ET
+`editeurs/editeur-series.html` sur `ce-jour-là` s'étaient éloignés de `main`
+bien au-delà des 3 correctifs suivis ci-dessus — la copie sur `ce-jour-là`
+manquait plusieurs évolutions déjà en place sur `main` depuis un moment
+(le template COUVERTURE PHOTO lui-même absent de sa copie de
+`editeur-series.html`, le format multi-jours de ce lanceur, la vérification
+d'orientation par métadonnées seules, l'outil `calculateur-karaoke.html`…).
+Les deux fichiers ont été resynchronisés sur `ce-jour-là` à cette occasion
+(copie conforme à `main`) avant d'y ajouter la nouvelle série. Cause
+probable : plus personne ne fait la vérification périodique recommandée
+ci-dessus depuis un moment — **à refaire dorénavant à intervalles réguliers,
+pas seulement quand un ajout de fonctionnalité l'exige.**
+
 Pour un montage immédiat, demander directement dans le chat reste plus
 rapide (pas d'attente jusqu'à 14h) — le lanceur sert pour poser une demande à
 traiter en tâche de fond.
 
-## Recette figée — reel "Ce jour-là" (intro + corps + CTA de fin, une seule vidéo)
+## Séries reel supportées
+
+**Ajouté le 27 septembre 2026.** Deux séries partagent l'intégralité de la
+recette figée ci-dessous (géométrie du composite, header, styles de
+sous-titres, timing, CTA, livraison — tout, sans exception) : **seule la
+couleur de signature change.** Ne jamais dupliquer la recette pour une
+nouvelle série reel de ce type — ajouter une ligne à cette table suffit.
+
+| Série (valeur `SÉRIE:`) | Tag header (§3) | Couleur de signature | Variable CSS |
+|---|---|---|---|
+| `ce jour-là` (défaut) | `CE JOUR LÀ …` | Ocre (`--ocre`, #C2A04E) | `--ocre-render` |
+| `le foot dans le rétro` | `LE FOOT DANS LE RÉTRO` | Bordeaux (`--bordeaux`, #6E3B3F) | `--bordeaux-render` |
+
+`--ocre-render`/`--bordeaux-render` sont les compensations couleur du
+pipeline de render (cf. §3) — partout où ce document dit « `--ocre-render`
+(§3) », lire « la variable de compensation de la série en cours » : substituer
+`--bordeaux-render` pour un reel « Le foot dans le rétro », `--ocre-render`
+pour un reel « Ce jour-là ». Mêmes constantes pixel, même géométrie, même
+police, mêmes règles de sous-titres (Fixe et Karaoké) dans les deux cas —
+seuls le tag texte et cette variable couleur changent, déclarés une fois en
+tête de la composition HyperFrames (§3).
+
+**`--bordeaux-render` n'est PAS encore calibré par pixel-sampling sur un
+rendu réel**, contrairement à `--ocre-render` (validé le 12 septembre 2026,
+cf. §3) : en l'absence de calibration, utiliser la valeur brute `#6E3B3F`
+(identique à `--bordeaux` de `editeurs/editeur-series.html`) et signaler à
+Thomas, après le premier reel « Le foot dans le rétro » livré, qu'un
+pixel-sampling de calibration reste à faire — même méthode que celle qui a
+donné `--ocre-render`. Ne pas improviser une valeur "probablement correcte"
+à sa place.
+
+Sélection de la série : lue depuis la ligne `SÉRIE:` du brouillon "LANCER
+REEL" (cf. § Lanceur automatique ci-dessus) — absence de la ligne (anciennes
+demandes) = `ce jour-là`. Une demande en chat direct (sans passer par le
+lanceur) précise la série en toutes lettres ; en l'absence de précision,
+traiter comme `ce jour-là` (série historique, comportement inchangé).
+
+## Recette figée — reel éphéméride "Ce jour-là" / "Le foot dans le rétro" (intro + corps + CTA de fin, une seule vidéo)
 
 Quand Thomas dit "fait la même chose avec cette vidéo" / "on va faire un
 reel une·deux" à propos d'un montage vidéo (pas un carrousel), ou déclenche
@@ -307,11 +377,12 @@ dessus), livrer juste la couche flou/désaturé seule, sans overlay.
 
 ### 3. Header — repris à l'identique de `editeurs/editeur-series.html`, persistant sur tout le reel
 
-Valeurs pixel exactes (ratio 9:16, série `cejourla`), à ne jamais
-approximer — ce sont les vraies constantes de l'éditeur de série. Le header
-(ring/wordmark/handle/hairline/tag) reste affiché en continu du début à la
-fin du reel — intro **et** corps — il n'est jamais ré-animé ni masqué entre
-les deux parties :
+Valeurs pixel exactes (ratio 9:16), à ne jamais approximer — ce sont les
+vraies constantes de l'éditeur de série, **identiques pour `cejourla` et
+`retro`** (cf. « Séries reel supportées » plus haut — seuls le texte du tag
+et sa couleur diffèrent entre les deux). Le header (ring/wordmark/handle/
+hairline/tag) reste affiché en continu du début à la fin du reel — intro
+**et** corps — il n'est jamais ré-animé ni masqué entre les deux parties :
 
 ```css
 /* M = MR = 96 (marges), safeTop() = 150 pour le ratio 9:16 */
@@ -322,34 +393,53 @@ les deux parties :
 .handle   { right:96px; top:262px; transform:translateY(-50%); font:32px 'Saira Condensed'; font-weight:600; color:var(--cream); }
            /* "@UNE.DEUX" */
 .hairline { left:96px; right:96px; top:318px; height:4px; background:var(--cream); }
-.tag      { left:96px; top:350px; height:58px; background:var(--ocre-render); color:var(--ink);
+.tag      { left:96px; top:350px; height:58px; background:var(--serie-render); color:var(--ink);
             font:32px 'Saira Condensed'; font-weight:600; padding:0 15px; display:flex; align-items:center; }
-           /* "CE JOUR LÀ …" */
+           /* "CE JOUR LÀ …" (série cejourla) ou "LE FOOT DANS LE RÉTRO" (série retro) */
 ```
+
+`--serie-render` ci-dessus est un nom générique pour ce document : dans la
+composition réelle, déclarer et utiliser directement `--ocre-render` (série
+`cejourla`) ou `--bordeaux-render` (série `retro`) — jamais les deux à la
+fois dans un même projet, jamais une variable littéralement nommée
+`--serie-render`. **Seule cette variable (et le texte du tag) change entre
+les deux séries : les noms de classe CSS du reste de la recette (`.ocre` sur
+`<b>`, `.kw-box`, etc., §4/§4bis plus bas) restent littéralement inchangés
+même sur un reel `retro` — ce sont des identifiants historiques liés à
+`--ocre-render` à l'origine, pas des noms à renommer en `.bordeaux` ou
+similaire. Ne renommer aucune classe : rebrancher `--ocre-render` sur
+`--bordeaux-render` dans leur définition CSS suffit.**
 
 Ne PAS ajouter de dégradé d'assombrissement en bas du cadre (`scrim-bottom`)
 — règle permanente pour ce format, sauf demande contraire explicite.
 
-**Compensation couleur ocre pour le rendu vidéo** (`--ocre-render`, utilisé
-ci-dessus sur `.tag` et référencé en §4/§4bis) : le pipeline de render
-HyperFrames (capture écran → encodage vidéo H.264) décale légèrement les
-couleurs — `var(--ocre)` (#C2A04E) ressort visiblement plus terne/décalé
+**Compensation couleur pour le rendu vidéo** (`--ocre-render` / `--bordeaux-render`,
+utilisées ci-dessus sur `.tag` et référencées en §4/§4bis) : le pipeline de
+render HyperFrames (capture écran → encodage vidéo H.264) décale légèrement
+les couleurs — `var(--ocre)` (#C2A04E) ressort visiblement plus terne/décalé
 dans une vidéo rendue que dans l'éditeur web (confirmé par pixel-sampling
-sur un rendu réel et par un test isolé, aplat de couleur seul). Pour tout
-élément dont l'ocre doit apparaître correct **dans la vidéo rendue** (`.tag`,
-`.kw-box` du titre §4bis, mots-clés `b.ocre` du corps §4), déclarer une
-variable locale compensée dans la composition :
+sur un rendu réel et par un test isolé, aplat de couleur seul ; `var(--bordeaux)`
+#6E3B3F présente vraisemblablement le même type de décalage sur ce même
+pipeline, mais ça n'a pas encore été mesuré — cf. « Séries reel supportées »
+plus haut). Pour tout élément dont la couleur de série doit apparaître
+correcte **dans la vidéo rendue** (`.tag`, `.kw-box` du titre §4bis,
+mots-clés `b.ocre` du corps §4), déclarer la variable locale compensée
+correspondant à la série de CE reel dans la composition :
 ```css
+/* série cejourla */
 :root { --ocre-render: #B9A456; }  /* compense le décalage du pipeline de
                                        render — quasi pixel-exact sur la
                                        référence validée par Thomas */
+/* série retro — valeur brute non calibrée, cf. « Séries reel supportées » */
+:root { --bordeaux-render: #6E3B3F; }
 ```
-**Ne pas modifier `tokens/colors.css`** — le token `--ocre` doit rester
-fidèle à `editeur-series.html` (l'éditeur web n'a pas ce problème, propre au
-pipeline de render vidéo) ; `--ocre-render` est une compensation locale à
-déclarer dans chaque composition qui affiche de l'ocre à l'écran dans un
-rendu final. Si un nouveau rendu montre encore un écart visible face à une
-référence validée, recalibrer cette valeur par pixel-sampling plutôt que de
+**Ne pas modifier `tokens/colors.css`** — les tokens `--ocre`/`--bordeaux`
+doivent rester fidèles à `editeur-series.html` (l'éditeur web n'a pas ce
+problème, propre au pipeline de render vidéo) ; `--ocre-render`/
+`--bordeaux-render` sont des compensations locales à déclarer dans chaque
+composition qui affiche cette couleur à l'écran dans un rendu final. Si un
+nouveau rendu montre encore un écart visible face à une référence validée,
+recalibrer cette valeur par pixel-sampling plutôt que de
 supposer qu'elle reste universelle indéfiniment (le pipeline de render peut
 évoluer).
 
@@ -816,9 +906,15 @@ slug descriptif — avec `hyperframes.json`, `meta.json`, `package.json`
 (copier depuis un projet existant et adapter `name`/`id`), `.gitignore`
 (`node_modules/`, `renders/`, `snapshots/`, `.debug/`, `assets/` — ajouté le
 12 août 2026, voir §9 pour la justification), `tokens/fonts.css` +
-`tokens/colors.css` copiés tels quels (source de vérité : palette
-`--ocre`/`--ink`/`--cream`/`--muted-cream` de `editeurs/editeur-series.html`
-— `--ocre-render`, lui, se déclare localement dans `index.html`, cf. §3).
+`tokens/colors.css` copiés tels quels **depuis `design-system/tokens/` à la
+racine du repo** (pas depuis un ancien projet `<date-ISO>/` — cette
+copie-de-copie est justement ce qui a laissé `--bordeaux` absent de plusieurs
+anciens projets avant le 27 septembre 2026, cf. « Divergence bien plus large
+constatée » plus haut ; `design-system/tokens/` reste la source de vérité
+qu'on met à jour, jamais une copie locale à un projet daté). Palette qui en
+résulte : `--ocre`/`--bordeaux`/`--ink`/`--cream`/`--muted-cream` — 
+`--ocre-render`/`--bordeaux-render`, eux, se déclarent localement dans
+`index.html` selon la série de ce reel, cf. « Séries reel supportées » et §3.
 
 **Paralléliser le scaffold avec le bake ffmpeg §2** (optimisation du
 12 août 2026) : écrire `index.html` (header, textes, timeline GSAP) et
