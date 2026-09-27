@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 28 septembre 1982, le premier but européen du PSG (Nambatingue Toko) — style karaoké</title>
+    <script src="assets/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* Vidéo source (PSG 5-1 Lokomotiv Sofia, retour 16e de finale Coupe
+         des Coupes, 28/09/1982) gardée intégrale (§1bis) : un seul
+         composite continu du début à la fin (0 -> 47.366667s), même
+         géométrie sur toute la durée. Source brute 866x476 (~1.82:1),
+         aucune métadonnée de rotation (ffprobe stream_side_data vide) —
+         cover-crop classique vers 1080x1920 (fond) et 1080x888 (plan net),
+         overlay y=420 (§2). Pas de titre animé séparé pour ce style (§4bis
+         ne s'applique pas au style karaoké) : le corps couvre tout le reel
+         dès juste après le header. Son de la source repris via un <audio>
+         séparé (piste aac présente à la source) — vidéo mutée. */
+      .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+
+      /* header - constantes fixes de la série, persistant du début à la fin */
+      #hdr { position: absolute; inset: 0 0 auto 0; z-index: 20; }
+      .ring {
+        position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
+        border: 4px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
+
+      /* --ocre-render : compensation du décalage de teinte du pipeline de
+         render HyperFrames sur --ocre (§3 CLAUDE.md, série "ce jour-là").
+         Aucun mot-clé **...** littéral dans le CORPS (karaoké) de ce
+         brouillon, donc b.ocre n'est pas utilisé ici mais la règle CSS
+         reste déclarée pour cohérence. */
+      :root { --ocre-render: #B9A456; }
+      .tag {
+        position: absolute; left: 96px; top: 350px; height: 58px; z-index: 20;
+        display: flex; align-items: center; background: var(--ocre-render); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; padding: 0 15px;
+      }
+
+      /* corps de texte façon karaoké - Anton, centré verticalement dans le
+         cadre bas (top:1480px, cf. §4.B révisé 26 septembre 2026), superposé
+         sur la bande floutée sous le plan net. Taille FIXE 80px pour toutes
+         les cartes ; aucune ombre portée ; léger contour semi-transparent
+         ink. Texte déjà écrit en MAJUSCULES dans le HTML (pas seulement via
+         text-transform, cf. bug de subsetting de police §4.B). .story-line
+         porte un transform:translateY(-50%) STATIQUE - ne jamais animer y
+         dessus avec GSAP (§6), opacity uniquement. */
+      .story-zone { position: absolute; left: 96px; right: 96px; z-index: 20; text-align: center; }
+      .story-line {
+        position: absolute; left: 0; right: 0;
+        top: 1480px; transform: translateY(-50%);
+        font-family: 'Anton', sans-serif; font-size: 80px; line-height: 1.1;
+        text-transform: uppercase; color: var(--cream); opacity: 0;
+        -webkit-text-stroke: 1.5px rgba(44,40,35,.35);
+      }
+      /* mot-clé en ocre via **mot** dans CORPS (karaoké) - §4.B. Aucun
+         mot-clé marqué dans ce brouillon, règle non utilisée ici. */
+      .story-line b.ocre { color: var(--ocre-render); font-weight: inherit; }
+
+      /* #c31 tombe (t≈43-45.3s) sur un passage du composite où le fond
+         flouté sous la zone de texte est exceptionnellement clair (maillot
+         blanc en gros plan flouté) — contraste crème/fond insuffisant à cet
+         instant précis (check HyperFrames : 1.8:1, need 3:1). Pas d'ombre
+         portée ajoutée (règle permanente §4.B) : contour ink renforcé
+         uniquement sur cette carte, qui reste un contour semi-transparent
+         (même principe que le contour par défaut, juste plus marqué) pour
+         ce seul passage plutôt qu'une dérogation globale au style. */
+      #c31 { -webkit-text-stroke: 3px rgba(44,40,35,.75); }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="47.366667"
+      data-fps="30"
+    >
+      <!-- vidéo intégrale, un seul plan continu du début à la fin -->
+      <video class="video-full" id="fullv" src="assets/composite.mp4" data-start="0.0000" data-duration="47.366667" data-track-index="1" muted playsinline></video>
+      <audio id="fulla" src="assets/audio.m4a" data-start="0.0000" data-duration="47.366667" data-track-index="2"></audio>
+
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+      <div class="tag">CE JOUR LÀ …</div>
+
+      <!-- corps du post - champ CORPS (KARAOKÉ) du brouillon Gmail
+           "📲 POST DU JOUR — 28 septembre 2026" (le premier but européen du
+           PSG, signé Nambatingue Toko). Une ligne du brouillon = une carte,
+           verbatim, aucun re-découpage (§4.B) - 32 cartes, mises en
+           capitales pour l'affichage. Aucun **mot** entre astérisques
+           doubles littéral dans le CORPS (karaoké) source, donc pas de
+           <b class="ocre"> appliqué ici. -->
+      <div class="story-zone">
+        <div class="story-line" id="c1">UN BUT.</div>
+        <div class="story-line" id="c2">UN SEUL.</div>
+        <div class="story-line" id="c3">ET 44 ANS PLUS TARD,</div>
+        <div class="story-line" id="c4">PRESQUE PERSONNE</div>
+        <div class="story-line" id="c5">NE CONNAÎT SON AUTEUR.</div>
+        <div class="story-line" id="c6">CE BUT A OUVERT</div>
+        <div class="story-line" id="c7">L’EUROPE À TOUT UN CLUB.</div>
+        <div class="story-line" id="c8">PARIS, 1982.</div>
+        <div class="story-line" id="c9">LE PSG N’A JAMAIS MARQUÉ</div>
+        <div class="story-line" id="c10">DANS UNE COMPÉTITION EUROPÉENNE.</div>
+        <div class="story-line" id="c11">À L’ALLER, À SOFIA,</div>
+        <div class="story-line" id="c12">LE CLUB PERD 1-0</div>
+        <div class="story-line" id="c13">RETOUR AU PARC DES PRINCES.</div>
+        <div class="story-line" id="c14">IL FAUT RENVERSER LA VAPEUR.</div>
+        <div class="story-line" id="c15">20E MINUTE.</div>
+        <div class="story-line" id="c16">UN ATTAQUANT TCHADIEN SURGIT.</div>
+        <div class="story-line" id="c17">NAMBATINGUE TOKO</div>
+        <div class="story-line" id="c18">PREMIER BUT EUROPÉEN</div>
+        <div class="story-line" id="c19">DE L’HISTOIRE DU PSG.</div>
+        <div class="story-line" id="c20">IL EN AJOUTE UN SECOND,</div>
+        <div class="story-line" id="c21">À LA 81E</div>
+        <div class="story-line" id="c22">SCORE FINAL :</div>
+        <div class="story-line" id="c23">5-1</div>
+        <div class="story-line" id="c24">PARIS EST QUALIFIÉ</div>
+        <div class="story-line" id="c25">SA PREMIÈRE ÉPOPÉE</div>
+        <div class="story-line" id="c26">EUROPÉENNE COMMENCE</div>
+        <div class="story-line" id="c27">IL JOUERA CINQ SAISONS À PARIS</div>
+        <div class="story-line" id="c28">ET INSCRIRA 43 BUTS</div>
+        <div class="story-line" id="c29">IL EST MORT EN FÉVRIER 2026,</div>
+        <div class="story-line" id="c30">À 73 ANS.</div>
+        <div class="story-line" id="c31">LE PREMIER BUT EUROPÉEN DU PSG,</div>
+        <div class="story-line" id="c32">TU CONNAISSAIS SON AUTEUR ?</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      /* corps façon karaoké - §4.B/§5 : rythme calculé au CPS (13
+         caractères/seconde), plancher 0.8s/carte, zéro pause entre blocs
+         (toujours un sous-titre à l'écran), démarrage à 0.3s absolu (pas
+         d'introEnd, pas de titre animé pour ce style). 32 cartes, 613
+         caractères au total, durée disponible = 47.366667-0.3 = 47.067s ->
+         facteur d'étirement ~0.9712 sur les durées brutes CPS (durées
+         finales de 0.777s à 2.391s, toutes au-dessus du plancher de
+         lisibilité ~0.5s du §5). Dernière carte se termine à 47.367s,
+         exactement la fin de la vidéo (47.366667s). Texte repris verbatim
+         du champ CORPS (karaoké) du brouillon "📲 POST DU JOUR — 28
+         septembre 2026" tel qu'il se lit au moment de ce build (ordre et
+         ponctuation exacts, aucun mot **marqué** en ocre dans ce
+         brouillon). */
+      function fadeBlockKaraoke(sel, start, dur) {
+        tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 0.10, ease: 'power2.out' }, start);
+        tl.to(sel, { opacity: 0, duration: 0.08, ease: 'sine.in' }, start + dur - 0.08);
+        tl.set(sel, { opacity: 0 }, start + dur);
+      }
+
+      const cards = [
+        { id: "c1", start: 0.300, dur: 0.777 }, // "Un but."
+        { id: "c2", start: 1.077, dur: 0.777 }, // "Un seul."
+        { id: "c3", start: 1.854, dur: 1.494 }, // "Et 44 ans plus tard,"
+        { id: "c4", start: 3.348, dur: 1.195 }, // "presque personne"
+        { id: "c5", start: 4.543, dur: 1.644 }, // "ne connaît son auteur."
+        { id: "c6", start: 6.187, dur: 1.121 }, // "Ce but a ouvert"
+        { id: "c7", start: 7.308, dur: 1.793 }, // "l'Europe à tout un club."
+        { id: "c8", start: 9.101, dur: 0.897 }, // "Paris, 1982."
+        { id: "c9", start: 9.997, dur: 1.793 }, // "Le PSG n'a jamais marqué"
+        { id: "c10", start: 11.790, dur: 2.391 }, // "dans une compétition européenne."
+        { id: "c11", start: 14.181, dur: 1.419 }, // "À l'aller, à Sofia,"
+        { id: "c12", start: 15.600, dur: 1.195 }, // "le club perd 1-0"
+        { id: "c13", start: 16.796, dur: 2.017 }, // "Retour au Parc des Princes."
+        { id: "c14", start: 18.813, dur: 2.092 }, // "Il faut renverser la vapeur."
+        { id: "c15", start: 20.905, dur: 0.822 }, // "20e minute."
+        { id: "c16", start: 21.727, dur: 2.167 }, // "Un attaquant tchadien surgit."
+        { id: "c17", start: 23.893, dur: 1.195 }, // "Nambatingue Toko"
+        { id: "c18", start: 25.088, dur: 1.494 }, // "Premier but européen"
+        { id: "c19", start: 26.583, dur: 1.569 }, // "de l'histoire du PSG."
+        { id: "c20", start: 28.152, dur: 1.718 }, // "Il en ajoute un second,"
+        { id: "c21", start: 29.870, dur: 0.777 }, // "à la 81e"
+        { id: "c22", start: 30.647, dur: 0.971 }, // "Score final :"
+        { id: "c23", start: 31.618, dur: 0.777 }, // "5-1"
+        { id: "c24", start: 32.395, dur: 1.345 }, // "Paris est qualifié"
+        { id: "c25", start: 33.740, dur: 1.345 }, // "Sa première épopée"
+        { id: "c26", start: 35.085, dur: 1.419 }, // "européenne commence"
+        { id: "c27", start: 36.504, dur: 2.241 }, // "Il jouera cinq saisons à Paris"
+        { id: "c28", start: 38.745, dur: 1.419 }, // "et inscrira 43 buts"
+        { id: "c29", start: 40.165, dur: 2.092 }, // "Il est mort en février 2026,"
+        { id: "c30", start: 42.257, dur: 0.777 }, // "à 73 ans."
+        { id: "c31", start: 43.034, dur: 2.316 }, // "Le premier but européen du PSG,"
+        { id: "c32", start: 45.350, dur: 2.017 }, // "tu connaissais son auteur ?"
+      ];
+
+      cards.forEach(({ id, start, dur }) => {
+        fadeBlockKaraoke(`#${id}`, start, dur);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>

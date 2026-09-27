@@ -1,0 +1,23 @@
+/* une·deux ships its 3 typefaces from Google Fonts (no self-hosted binaries in the source repo) —
+   loaded exactly as the editors do it. If you need offline/self-hosted files, download these
+   3 families from fonts.google.com and swap this @import for local @font-face rules.
+   Swapped to local @font-face in this project's local copy only (design-system/tokens/fonts.css at
+   the repo root is untouched): the runtime @import to fonts.googleapis.com fails in this container
+   with net::ERR_CERT_AUTHORITY_INVALID (headless Chromium doesn't pick up the session's proxy CA
+   the way curl/node do), which HyperFrames' Runtime check reports as a blocking error even though
+   the compiler separately resolves the same fonts fine at compile time. Removing the @import alone
+   (without adding @font-face) instead trips a Lint error (font_family_without_font_face) — the
+   compiler's own auto-resolution needs the @import's family list to know what to fetch. Following
+   this file's own suggested offline fallback below: local @font-face rules pointing at the exact
+   files the compiler had already cached in /root/.cache/hyperframes/fonts/ for this run, covering
+   only the weights this composition actually uses (Archivo 400, Saira Condensed 600, Anton 400).
+   Signalé à Thomas en livraison : possible correctif à reporter dans design-system/tokens/fonts.css
+   si ça se reproduit sur d'autres runs (ex. remplacer l'@import par ces @font-face pour toutes les
+   séries, ou enquêter le cert du proxy côté Chromium headless). */
+@font-face { font-family: 'Archivo'; font-weight: 400; font-style: normal; src: url('assets/fonts/archivo-400.woff2') format('woff2'); }
+@font-face { font-family: 'Saira Condensed'; font-weight: 600; font-style: normal; src: url('assets/fonts/saira-condensed-600.woff2') format('woff2'); }
+@font-face { font-family: 'Anton'; font-weight: 400; font-style: normal; src: url('assets/fonts/anton-400.woff2') format('woff2'); }
+/* paths above are relative to this stylesheet's own location (tokens/) per
+   standard CSS resolution, i.e. tokens/assets/fonts/*.woff2 — NOT root-relative
+   despite the Lint fixer's generic wording; a literal root-relative path here
+   404s at Runtime, and "../assets/..." trips the Lint's traversal check. */
