@@ -616,6 +616,42 @@ juste après le header jusqu'au CTA.
   (l'ancienne mécanique "TikTok" à encadré ocre mobile reste abandonnée,
   cf. tête de §4.B) ; la seule exception à la couleur crème par défaut est
   statique, cf. règle ci-dessous.
+- **Renfort de contour au cas par cas si `npm run check` signale un
+  contraste insuffisant sur une carte précise** (constaté 2 fois : carte
+  `#c31` du reel du 28 septembre 2026, cartes `#c2`/`#c15`/`#c22` du reel du
+  29 septembre 2026 — porté ici depuis `ce-jour-là` le 27 septembre 2026,
+  cf. § « Divergence » en tête de fichier). Le contour discret par défaut
+  ci-dessus (1.5px, opacité .35) est calibré pour un fond flouté "moyen" ;
+  sur certains passages du composite le fond sous la zone de texte est
+  exceptionnellement clair (tribune blanche, maillot clair, bannière claire
+  en gros plan flouté) et le contraste crème/fond mesuré par le check
+  HyperFrames tombe sous le seuil requis de 3:1 (mesuré jusqu'à 1.7-1.8:1
+  dans ces deux cas). **Ne jamais corriger ça par une ombre portée** (la
+  règle "aucune ombre portée" ci-dessus reste permanente) : renforcer
+  uniquement le contour, uniquement sur la ou les cartes concernées par un
+  sélecteur d'ID dédié, jamais en changeant la règle par défaut de
+  `.story-line` :
+  ```css
+  #c31 { -webkit-text-stroke: 3px rgba(44,40,35,.75); }
+  ```
+  (même couleur `rgba(44,40,35,…)` que le contour par défaut, juste plus
+  épais et moins transparent — un contour renforcé, pas un style différent).
+  C'est cette carte-là, précisément, qui explique qu'un reel donné affiche
+  "parfois" un contour sombre nettement plus marqué sur certains sous-titres
+  et pas sur d'autres — ce n'est pas un bug d'affichage aléatoire, c'est une
+  correction de contraste délibérée et localisée à la carte. **Repérer ces
+  cas au contrôle du §9** (extraction de frames), jamais en assumant que le
+  contour par défaut suffit partout, avant de livrer.
+  Le header (§3, ring/wordmark/handle) peut avoir besoin du même traitement
+  sur une vidéo dont le fond est clair derrière le header sur une bonne
+  partie du plan (`npm run check` échoue alors le même contrôle de contraste
+  sur les 3 éléments de texte) : ajouter un `text-shadow` identique à celui
+  du corps §4.A (pas de scrim — la règle "pas de dégradé d'assombrissement"
+  du §3 reste respectée) plus un contour semi-transparent de la même famille
+  que ci-dessus, à l'échelle du header (`-webkit-text-stroke: 2.5px
+  rgba(44,40,35,.75)` sur `.ring`/`.wordmark`/`.handle`, constaté sur le
+  reel du 29 septembre 2026) — au cas par cas selon ce que montre le check,
+  pas par défaut sur tous les reels.
 - **Mot-clé en ocre via `**mot**`** (ajoutée le 13 août 2026, demande
   explicite de Thomas) : si une ligne de `CORPS (karaoké)` contient un ou
   plusieurs mots encadrés par des astérisques doubles (`**mot**`), retirer
