@@ -990,65 +990,127 @@ de bloquer la production des autres jours de la plage.
    storytelling et reformatée pour le reel en style Karaoké (CLAUDE.md §4.B,
    « une ligne du CORPS = un carton affiché à l'écran »). Ajouté au workflow le
    11 août 2026 après validation du format sur le test "11 août 1984" et sa
-   reprise sur l'exemple Cantona. **Structure narrative revue le 27 septembre
-   2026** (retour de Thomas : les reels livraient trop d'informations d'un
-   coup et manquaient de tension) — remplace l'ancienne consigne unique
-   "accroche sans spoiler + boucle qui se referme" par une structure en 7
-   temps obligatoire qui l'englobe et la précise davantage.
+   reprise sur l'exemple Cantona.
+
+   **Réécriture complète le 27 septembre 2026** (retour de Thomas, à partir
+   d'un guide de structure narrative détaillé qu'il a fourni) — remplace
+   entièrement l'ancienne section (accroche sans spoiler + ~3 mots/ligne, puis
+   sa première extension en 7 temps du même jour) par ce qui suit. Ne pas
+   revenir aux anciennes formulations, ce texte-ci fait foi.
+
+   **Principe directeur : la rétention prime sur le remplissage.** Il n'y a
+   pas de durée à atteindre — la vidéo garde sa durée intégrale (§1bis de
+   CLAUDE.md) mais le nombre de cartons, lui, doit rester au service de
+   l'histoire, jamais gonflé pour "occuper le temps". Le spectateur doit
+   apprendre quelque chose de nouveau à peu près toutes les 3-5 secondes ;
+   s'il n'y a pas assez de matière vérifiée pour tenir la durée de la vidéo à
+   ce rythme, c'est un signal à faire remonter (cf. CLAUDE.md §5, plancher de
+   durée par carton), jamais une raison de délayer un fait sur plusieurs
+   cartons creux.
+
+   **Une seule histoire, pas tout dire.** Un événement peut contenir 20
+   informations intéressantes ; ce corps n'en retient que **3 à 6**,
+   celles qui servent CETTE histoire précise. Trois niveaux d'info à
+   distinguer pour trier : (1) l'histoire elle-même — le fait central ; (2)
+   le contexte qui lui donne son poids ; (3) le détail mémorable qui la rend
+   partageable. Un bon corps (karaoké) tient sur ces trois niveaux, pas sur
+   l'exhaustivité — les faits écartés ici restent disponibles pour le Corps
+   long/la légende, ils ne sont pas perdus, juste pas utiles à *cette*
+   narration.
+
+   **Question invisible.** Avant de rédiger, identifier la question qui doit
+   tenir le spectateur jusqu'au bout (« comment un inconnu devient-il le
+   Kaiser ? », « comment le double champion d'Europe se fait-il éliminer
+   dès le premier tour ? »...). Cette question n'a pas besoin d'être écrite
+   explicitement dans le texte — elle doit simplement exister dans la tête
+   du spectateur et guider chaque choix de rédaction.
+
+   **TITRE (couverture) et HOOK (ce corps) ont deux fonctions différentes,
+   ne pas les confondre** : le champ `TITRE` (§ ci-dessus, utilisé pour
+   l'objet/couverture) sert le clic et l'identification du sujet ; le HOOK du
+   Corps (karaoké), lui, sert uniquement la rétention une fois la vidéo
+   lancée — il peut (et doit souvent) rester plus énigmatique que le TITRE.
 
    **Structure narrative obligatoire — 7 temps, dans cet ordre :**
 
    1. **HOOK** (les 2 premières lignes) — n'ouvre JAMAIS sur la date ou en
       nommant tout de suite le sujet complet : ouvre une boucle narrative qui
-      doit provoquer un « attends, quoi ? » / « je ne savais pas » / « je veux
-      voir la suite ». Ne donne pas l'info tout de suite.
+      doit provoquer un « attends, quoi ? » / « je ne savais pas » / « comment
+      ça ? » / « je veux voir la suite ». Ne donne pas l'info tout de suite.
       *Mauvais* : « Le 26 septembre 1965, Beckenbauer joue son premier match… »
       *Bon* : « À 20 ans, il n'était encore personne. »
    2. **PROMESSE** — une ligne qui laisse entendre l'enjeu à venir, sans le
       nommer complètement (ce que le spectateur va découvrir, pas encore ce
       qu'il va se passer).
    3. **CONTEXTE MINIMAL** — date/lieu/situation en quelques mots seulement,
-      jamais un paragraphe d'intro façon fiche Wikipédia. La date est un
-      **prétexte**, pas le sujet : elle peut même arriver après le hook plutôt
-      que d'ouvrir le texte.
-   4. **ESCALADE** — montée dramatique explicite : situation normale →
-      problème → obstacle → tension. Le mot **« mais »** est la charnière de
-      rupture la plus efficace pour amorcer cette bascule — réservé à 1-2
-      vraies ruptures dans tout le texte, jamais systématique (il perd son
-      pouvoir s'il est sur-utilisé).
+      jamais un paragraphe d'intro façon fiche Wikipédia. La date et le lieu
+      sont un **prétexte**, pas le sujet : la date peut même arriver après le
+      hook plutôt que d'ouvrir le texte (cohérent avec l'identité "éphéméride"
+      du compte, qui n'a pas besoin d'ouvrir chaque reel sur un horodatage).
+   4. **ESCALADE** — montée dramatique explicite, en paliers : situation
+      normale → problème → obstacle → tension. Distiller ces paliers en
+      **micro-relances toutes les 5-8 secondes environ** plutôt qu'un unique
+      bloc de tension : chaque nouveau carton de cette phase doit apporter une
+      petite bascule (« Liverpool domine. » puis « Mais le score ne bouge
+      pas. » puis « Liverpool doit maintenant marquer. »), pas juste répéter
+      "la tension monte". Le mot **« mais »** est la charnière de rupture la
+      plus efficace pour amorcer ces bascules — réservé à quelques vraies
+      ruptures dans tout le texte, jamais systématique (il perd son pouvoir
+      s'il est sur-utilisé).
    5. **MOMENT FORT** — le but/la décision/le twist que le spectateur attend.
       **Ne jamais balancer le score/résultat/dénouement dans les premiers
       cartons** : c'est une récompense narrative qui doit arriver après la
-      tension installée en 4., jamais avant.
+      tension installée en 4., jamais avant — un résultat donné trop tôt tue
+      une partie de la tension du reste du texte.
    6. **CONSÉQUENCE** — ce que ça change concrètement. Proscrire toute chute
       générique (« un moment marquant de l'histoire du foot », « voilà
       comment s'est déroulé cet événement ») : donner un fait ou une suite
-      concrète à la place.
+      concrète à la place. Les faits parlent d'eux-mêmes — préférer montrer
+      la conséquence (cf. « Ton et vocabulaire » ci-dessous) plutôt que la
+      qualifier.
    7. **FIN QUI RELANCE L'HISTOIRE** — dernière ligne qui fait écho au hook
-      d'ouverture (boucle qui se referme, règle historique conservée) :
-      idéalement une question qui donne envie de rejouer mentalement
-      l'histoire, jamais une clôture sèche du type « voilà ».
+      d'ouverture (boucle qui se referme) : idéalement une question qui donne
+      envie de rejouer mentalement l'histoire, jamais une clôture sèche du
+      type « voilà ». Adapter le ton de cette relance à la nature de
+      l'histoire plutôt qu'un réflexe unique du type « qu'en pensez-vous ? »
+      (trop faible, à éviter) : une histoire controversée appelle un avis
+      tranché, une performance appelle un souvenir, un joueur oublié appelle
+      une reconnaissance, un fait méconnu peut simplement inviter à le
+      partager. Rester strictement factuel dans cette relance — ne jamais
+      insinuer une inexactitude, même volontairement, pour provoquer une
+      réaction ou une correction en commentaire.
 
-   **Règles d'écriture transverses aux 7 temps :**
-   - **Une seule histoire, 3 à 6 informations maximum.** Un événement peut
-     contenir 20 faits intéressants ; ce corps n'en retient que ceux
-     indispensables à CETTE histoire précise. Ne pas chercher à tout caser —
-     les faits écartés ici restent disponibles pour le Corps/la légende, ils
-     ne sont pas perdus, juste pas utiles à *cette* narration.
-   - **Question invisible.** Avant de rédiger, identifier la question qui doit
-     tenir le spectateur jusqu'au bout (elle n'a pas besoin d'être écrite
-     explicitement — elle doit juste guider les choix de rédaction).
+   **Règles d'écriture ligne par ligne :**
    - **Une ligne = une information**, jamais un carton qui empile plusieurs
      faits en une seule phrase.
    - **Alterner les longueurs de ligne pour créer du rythme** : des mots-
      percussion très courts (1-3 mots — un chiffre, un lieu, un statut :
      « 20 ANS. », « TITULAIRE. », « 2-1. ») alternés avec des lignes un peu
-     plus longues qui portent l'information. Ça remplace l'ancienne règle
-     unique « ~3 mots par ligne » — mais l'esprit ne change pas : **un carton
-     = un battement narratif, jamais une phrase-paragraphe entière.** Une
-     ligne plus longue que d'habitude peut se retrouver à passer sur 2 lignes
-     au rendu plutôt qu'une seule (cf. CLAUDE.md §4.B, la taille reste fixe
-     à l'écran) — c'est acceptable à l'occasion, jamais la norme.
+     plus longues qui portent l'information (viser 5-12 mots pour ces lignes-
+     là, jamais une phrase-paragraphe entière). Un rythme monotone (toutes
+     les lignes à la même longueur) endort l'attention — l'alternance crée un
+     effet quasi musical. Ça remplace l'ancienne règle unique « ~3 mots par
+     ligne » ; l'esprit ne change pas : **un carton = un battement narratif.**
+     Une ligne plus longue que d'habitude peut occasionnellement passer sur 2
+     lignes au rendu plutôt qu'une seule (cf. CLAUDE.md §4.B, la taille reste
+     fixe à l'écran) — acceptable à l'occasion, jamais la norme.
+
+   **Ton et vocabulaire :**
+   - **Dosage journalistique** : environ 70% documentaire (faits, précision)
+     / 30% storytelling (tension, rythme). Ni putaclic ("Incroyable !!! Vous
+     n'allez jamais croire...") ni académique ("Le 26 septembre 1965, dans le
+     cadre des éliminatoires..."). Le ton cible : sobre, précis, tendu,
+     cinématographique.
+   - **Montrer plutôt que qualifier** : bannir les adjectifs gratuits ("un
+     match incroyable", "une histoire complètement folle", "un joueur
+     légendaire"). Remplacer par les faits qui *rendent* la chose incroyable
+     — les faits font le travail à la place de l'adjectif ("Liverpool est
+     double champion d'Europe. Forest gagne 2-0 à l'aller. Retour à Anfield.
+     0-0. Liverpool est éliminé." plutôt que "une élimination incroyable").
+   - **Les chiffres au service du récit, jamais en liste.** Un chiffre doit
+     avoir une fonction narrative précise à l'endroit où il apparaît (l'enjeu,
+     la surprise, la preuve) — ne pas enchaîner plusieurs chiffres bruts sans
+     lien narratif entre eux (année / âge / affluence / score à la suite).
 
    Règle déjà en place, inchangée :
    - **Mot-clé en ocre : `**mot**`** (ajouté le 13 août 2026) — encadrer d'un
@@ -1058,6 +1120,13 @@ de bloquer la production des autres jours de la plage.
      encadrés du champ Titre (§ ci-dessus). Optionnel — une ligne sans `**`
      reste entièrement crème. Ne pas surcharger : un ou deux mots par ligne,
      jamais toute la ligne. Voir CLAUDE.md §4.B pour le rendu.
+
+   **Auto-vérification avant de livrer ce champ** : relire uniquement les
+   lignes du Corps (karaoké), sans les images/le montage en tête, et se
+   demander à chaque ligne : *si on enlève toutes les images, cette ligne
+   donne-t-elle envie de lire la suivante ?* Si la réponse est non à un
+   endroit, le problème est dans ce texte, pas dans le montage à venir —
+   corriger avant de livrer le brouillon, pas après coup.
 4. **Lien vidéo** de l'événement si un existe (match, but, reportage — YouTube ou
    archive vérifiée). Si aucune vidéo fiable n'est trouvée, écrire explicitement :
    **« Pas de lien vidéo disponible. »**
