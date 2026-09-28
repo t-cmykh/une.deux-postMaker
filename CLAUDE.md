@@ -413,19 +413,31 @@ similaire. Ne renommer aucune classe : rebrancher `--ocre-render` sur
 Ne PAS ajouter de dégradé d'assombrissement en bas du cadre (`scrim-bottom`)
 — règle permanente pour ce format, sauf demande contraire explicite.
 
-**Le header (`.ring`/`.wordmark`/`.handle`/`.hairline`/`.tag`) reste
-exactement les valeurs pixel/couleur figées ci-dessus, sans exception —
-jamais de `text-shadow`, jamais de `-webkit-text-stroke`, jamais aucun
-autre correctif visuel, même si `npm run check` signale un contraste WCAG
-insuffisant à cause d'un fond flouté ponctuellement trop clair sous le
-header sur telle ou telle vidéo.** Un ajout de stroke (28 septembre 2026,
-reel Boca-River 1996, dossier `2026-09-29` sur `ce-jour-là`) a produit un
-contour visiblement épais et permanent — signalé par Thomas comme bug —
-avant d'être retiré à sa demande explicite : ne jamais réintroduire une
-variante de ce correctif, léger ou non, ni une autre déviation de ce type
-sur le header. Si le contraste est visiblement insuffisant sur une vidéo
-donnée, livrer quand même tel quel — ce n'est pas un problème à résoudre
-en modifiant le header.
+**Jamais de correctif de contraste, nulle part dans ce format** — règle
+générale ajoutée le 28 septembre 2026 (demande explicite de Thomas : « le
+truc de contraste je ne le veux nulle part même pas sur les sous-titres »).
+`npm run check` inclut un contrôle de contraste WCAG (3:1) qui peut échouer
+sur n'importe quel texte crème de ce format (header, corps §4.A, corps
+karaoké §4.B) quand le fond flouté sous-jacent est ponctuellement trop
+clair (tribunes claires, ciel, maillot blanc en gros plan…) — **ce n'est
+jamais un problème à corriger en modifiant le texte concerné.** Aucun
+`text-shadow`/`-webkit-text-stroke` ajouté ou renforcé, aucune variante
+plus épaisse/opaque d'un effet déjà prévu par la recette, sur aucun
+élément, pour aucun reel, même localement à une seule carte ou un seul
+instant — que le check le signale ou non. Livrer tel quel : le header
+garde exactement les valeurs figées ci-dessus (pas de `text-shadow`, pas de
+`-webkit-text-stroke`), le corps §4.A garde son `text-shadow` fixe (§4
+ci-dessous), le corps karaoké §4.B garde son contour `1.5px
+rgba(44,40,35,.35)` fixe (§4.B ci-dessous) — dans les trois cas, la valeur
+de la recette est la seule valeur, jamais une version renforcée pour tel
+reel ou telle carte. Historique : un stroke de 2.5-3px ajouté au header
+(27-28 septembre 2026, reel Boca-River 1996, dossier `2026-09-29` sur
+`ce-jour-là`) a produit un contour visiblement épais et permanent, signalé
+par Thomas comme bug et retiré ; des cartes de corps karaoké individuelles
+avaient reçu le même genre de renforcement ponctuel sur d'autres reels
+(ex. contour élargi à 3px sur une carte jugée peu lisible) — cette pratique
+est bannie rétroactivement partout, pas seulement sur le header où le bug
+a été repéré.
 
 **Compensation couleur pour le rendu vidéo** (`--ocre-render` / `--bordeaux-render`,
 utilisées ci-dessus sur `.tag` et référencées en §4/§4bis) : le pipeline de
@@ -620,11 +632,14 @@ juste après le header jusqu'au CTA.
   ```
   (`rgba(44,40,35,…)` = `--ink` en RGB, à faible opacité — un contour
   sombre discret pour détacher le texte crème du fond sans reproduire
-  l'effet "contour noir" épais façon sous-titre générique ; ajuster
-  l'opacité/l'épaisseur au jugé si le texte semble flou ou si le contour
-  devient trop visible en extraction de frame, mais rester sur un ink
-  semi-transparent, pas un noir ou un crème plein comme testé et écarté
-  précédemment). Couleur du texte crème (`var(--cream)`) par défaut, tout
+  l'effet "contour noir" épais façon sous-titre générique). **Valeur fixe,
+  jamais ajustée** (règle resserrée le 28 septembre 2026, cf. § « Jamais de
+  correctif de contraste » ci-dessus dans ce document, qui s'applique aussi
+  ici) — ne jamais renforcer ce contour sur une carte ou un reel en
+  particulier, même si `npm run check` signale un contraste insuffisant à
+  cet instant : `1.5px rgba(44,40,35,.35)` sur toutes les cartes de tous
+  les reels, sans exception, sans variante plus épaisse ou plus opaque.
+  Couleur du texte crème (`var(--cream)`) par défaut, tout
   le carton change d'état en même temps (fondu bloc entier, cf. mécanique
   commune du §4) — **pas de surlignage mot par mot animé dans le temps**
   (l'ancienne mécanique "TikTok" à encadré ocre mobile reste abandonnée,
