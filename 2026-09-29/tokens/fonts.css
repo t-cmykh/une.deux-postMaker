@@ -1,8 +1,0 @@
-/* une·deux ships its 3 typefaces from Google Fonts (no self-hosted binaries in the source repo) —
-   design-system/tokens/fonts.css (the shared source, unchanged) loads them via @import exactly
-   as the editors do it. Local copy for THIS reel build only: @import removed, no @font-face here
-   either — self-hosted @font-face rules live directly in index.html's own <style> block instead
-   (see comment there). Reason: a linked stylesheet resolves its own relative asset URLs against
-   itself (tokens/), not the project root, so a path here to assets/fonts/... 404s at runtime
-   even though HyperFrames' lint asks for a "root-relative" path with no "../" — putting the
-   @font-face rules in index.html (which IS at the project root) satisfies both constraints. */
