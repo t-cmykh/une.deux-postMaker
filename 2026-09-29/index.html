@@ -58,28 +58,27 @@
       .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
 
       /* header - constantes fixes de la série, persistant du début à la fin.
-         Écart signalé au §3 CLAUDE.md : la recette figée ne donne aucun
-         text-shadow au ring/wordmark/handle. Sur CETTE vidéo (tribunes très
-         claires en fond derrière le header sur une bonne partie du plan),
-         `npm run check` échoue le contrôle de contraste WCAG (besoin 3:1,
-         mesuré jusqu'à 1.36:1) sur ces 3 éléments — même écart déjà
-         rencontré et corrigé sur le précédent build de ce même reel (27
-         septembre 2026). Un text-shadow discret (même famille que celui du
-         corps §4.A, pas de scrim ajouté — règle "pas de dégradé
-         d'assombrissement" du §3 reste respectée) plus un contour
-         semi-transparent (même technique que les cartes du corps karaoké
-         §4.B) suffisent à passer le contrôle. Border du ring inchangée (pas
-         de texte, pas concernée). */
+         Contraste : sur CETTE vidéo (tribunes très claires en fond derrière
+         le header sur une bonne partie du plan), `npm run check` échoue le
+         contrôle de contraste WCAG (besoin 3:1, mesuré jusqu'à 1.36:1) sur
+         ring/wordmark/handle. Corrigé le 28 septembre 2026 (CLAUDE.md §3,
+         PR #113) après un signalement de Thomas ("contour noir sur le
+         header") sur le build précédent de ce même reel, qui combinait ce
+         même text-shadow avec un -webkit-text-stroke de 2.5-3px : le stroke
+         produisait un contour visible en continu sur tout le reel, c'est ce
+         contour qui a été signalé comme bug, pas le contraste en soi. Fix
+         retenu : text-shadow seul (même formule que le corps §4.A), jamais
+         de stroke sur le header. Border du ring inchangée (pas de texte,
+         pas concernée). */
       #hdr { position: absolute; inset: 0 0 auto 0; z-index: 20; }
       .ring {
         position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
         border: 4px solid var(--cream); display: flex; align-items: center; justify-content: center;
         font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--cream);
         text-shadow: 0 2px 16px rgba(0,0,0,.65), 0 1px 4px rgba(0,0,0,.8);
-        -webkit-text-stroke: 2.5px rgba(44,40,35,.75);
       }
-      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); text-shadow: 0 2px 16px rgba(0,0,0,.65), 0 1px 4px rgba(0,0,0,.8); -webkit-text-stroke: 2.5px rgba(44,40,35,.75); }
-      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); text-shadow: 0 2px 16px rgba(0,0,0,.65), 0 1px 4px rgba(0,0,0,.8); -webkit-text-stroke: 3px rgba(44,40,35,.85); }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); text-shadow: 0 2px 16px rgba(0,0,0,.65), 0 1px 4px rgba(0,0,0,.8); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); text-shadow: 0 2px 16px rgba(0,0,0,.65), 0 1px 4px rgba(0,0,0,.8); }
       .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
 
       /* --ocre-render : compensation du décalage de teinte du pipeline de
