@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 30 septembre 2024, Griezmann quitte les Bleus — style karaoké</title>
+    <script src="assets/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* Vidéo source (Griezmann, Bleus, FFFtv) gardée intégrale (§1bis) : un seul
+         composite continu du début à la fin (0 -> 51.766667s), même géométrie
+         sur toute la durée. Source brute 1078x492 avec bandes sombres
+         latérales (contenu réel 884x492, x=98..982, cropdetect) : recadrée
+         sur le contenu avant cover-crop vers 1080x1920 (fond) et 1080x888
+         (plan net), overlay y=420 (§2). Logo FFFtv en haut à gauche exclu
+         par le cover-crop centré. Pas de titre animé (style karaoké). */
+      .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+
+      /* header - constantes fixes de la série, persistant du début à la fin */
+      #hdr { position: absolute; inset: 0 0 auto 0; z-index: 20; }
+      .ring {
+        position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
+        border: 4px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
+
+      /* --ocre-render : compensation du décalage de teinte du pipeline de
+         render HyperFrames sur --ocre (§3 CLAUDE.md, série "ce jour-là").
+         */
+      :root { --ocre-render: #B9A456; }
+      .tag {
+        position: absolute; left: 96px; top: 350px; height: 58px; z-index: 20;
+        display: flex; align-items: center; background: var(--ocre-render); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; padding: 0 15px;
+      }
+
+      /* corps de texte façon karaoké - Anton, centré verticalement dans le
+         cadre bas (top:1480px, cf. §4.B révisé 26 septembre 2026), superposé
+         sur la bande floutée sous le plan net. Taille FIXE 80px pour toutes
+         les cartes ; aucune ombre portée ; léger contour semi-transparent
+         ink. Texte déjà écrit en MAJUSCULES dans le HTML (pas seulement via
+         text-transform, cf. bug de subsetting de police §4.B). .story-line
+         porte un transform:translateY(-50%) STATIQUE - ne jamais animer y
+         dessus avec GSAP (§6), opacity uniquement. */
+      .story-zone { position: absolute; left: 96px; right: 96px; z-index: 20; text-align: center; }
+      .story-line {
+        position: absolute; left: 0; right: 0;
+        top: 1480px; transform: translateY(-50%);
+        font-family: 'Anton', sans-serif; font-size: 80px; line-height: 1.1;
+        text-transform: uppercase; color: var(--cream); opacity: 0;
+        -webkit-text-stroke: 1.5px rgba(44,40,35,.35);
+      }
+      /* mot-clé en ocre via **mot** dans CORPS (karaoké) - §4.B */
+      .story-line b.ocre { color: var(--ocre-render); font-weight: inherit; }
+
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="51.766667"
+      data-fps="30"
+    >
+      <!-- vidéo intégrale, un seul plan continu du début à la fin -->
+      <video class="video-full" id="fullv" src="assets/composite.mp4" data-start="0.0000" data-duration="51.766667" data-track-index="1" muted playsinline></video>
+      <audio id="fulla" src="assets/audio.m4a" data-start="0.0000" data-duration="51.766667" data-track-index="2"></audio>
+
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+      <div class="tag">CE JOUR LÀ …</div>
+
+      <!-- CORPS (KARAOKÉ) du brouillon "POST DU JOUR — 30 septembre 2026",
+           une ligne = une carte, verbatim, 31 cartes. -->
+      <div class="story-zone">
+        <div class="story-line" id="c1">IL N'A JAMAIS VOULU</div>
+        <div class="story-line" id="c2">DE GRAND ADIEU</div>
+        <div class="story-line" id="c3">PAS DE CONFÉRENCE</div>
+        <div class="story-line" id="c4">PAS D'HOMMAGE</div>
+        <div class="story-line" id="c5">AU STADE DE FRANCE.</div>
+        <div class="story-line" id="c6">JUSTE UNE VIDÉO,</div>
+        <div class="story-line" id="c7">POSTÉE UN LUNDI COMME UN AUTRE</div>
+        <div class="story-line" id="c8">LE 30 SEPTEMBRE 2024,</div>
+        <div class="story-line" id="c9">10 ANS ET DEMI</div>
+        <div class="story-line" id="c10">APRÈS SES DÉBUTS EN BLEU,</div>
+        <div class="story-line" id="c11">IL ANNONCE LA FIN.</div>
+        <div class="story-line" id="c12"><b class="ocre">137 SÉLECTIONS</b></div>
+        <div class="story-line" id="c13"><b class="ocre">44 BUTS</b></div>
+        <div class="story-line" id="c14">4EME MEILLEUR BUTEUR</div>
+        <div class="story-line" id="c15">DE L'HISTOIRE DE L'ÉQUIPE DE FRANCE</div>
+        <div class="story-line" id="c16">MAIS CE N'EST PAS LÀ</div>
+        <div class="story-line" id="c17">SON VRAI RECORD.</div>
+        <div class="story-line" id="c18">PERSONNE NE FAIT MIEUX QUE LUI</div>
+        <div class="story-line" id="c19">EN PASSES DÉCISIVES</div>
+        <div class="story-line" id="c20">DEVANT MBAPPÉ (À L’ÉPOQUE)</div>
+        <div class="story-line" id="c21">DEVANT HENRY</div>
+        <div class="story-line" id="c22"><b class="ocre">CHAMPION DU MONDE EN 2018</b></div>
+        <div class="story-line" id="c23">BUTEUR EN FINALE CONTRE LA CROATIE</div>
+        <div class="story-line" id="c24">VAINQUEUR DE LA LIGUE DES NATIONS</div>
+        <div class="story-line" id="c25">EN 2021.</div>
+        <div class="story-line" id="c26">FINALISTE DE L'EURO 2016.</div>
+        <div class="story-line" id="c27">FINALISTE DU MONDIAL 2022.</div>
+        <div class="story-line" id="c28">IL EST PARTI</div>
+        <div class="story-line" id="c29">SANS FAIRE DE BRUIT.</div>
+        <div class="story-line" id="c30">ET SI LE VRAI ADIEU,</div>
+        <div class="story-line" id="c31">C'ÉTAIT JUSTEMENT ÇA ?</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      /* §4.B/§5 : CPS 13, plancher 0.8s, zéro pause, départ 0.3s ;
+         facteur 1.0523. */
+      function fadeBlockKaraoke(sel, start, dur) {
+        tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 0.10, ease: 'power2.out' }, start);
+        tl.to(sel, { opacity: 0, duration: 0.08, ease: 'sine.in' }, start + dur - 0.08);
+        tl.set(sel, { opacity: 0 }, start + dur);
+      }
+
+      const cards = [
+        { id: "c1", start: 0.300, dur: 1.538 }, // "Il n'a jamais voulu"
+        { id: "c2", start: 1.838, dur: 1.133 }, // "de grand adieu"
+        { id: "c3", start: 2.971, dur: 1.376 }, // "Pas de conférence"
+        { id: "c4", start: 4.347, dur: 1.052 }, // "Pas d'hommage"
+        { id: "c5", start: 5.400, dur: 1.538 }, // "au Stade de France."
+        { id: "c6", start: 6.938, dur: 1.295 }, // "Juste une vidéo,"
+        { id: "c7", start: 8.233, dur: 2.428 }, // "postée un lundi comme un autre"
+        { id: "c8", start: 10.661, dur: 1.700 }, // "Le 30 septembre 2024,"
+        { id: "c9", start: 12.361, dur: 1.133 }, // "10 ans et demi"
+        { id: "c10", start: 13.495, dur: 2.024 }, // "après ses débuts en Bleu,"
+        { id: "c11", start: 15.518, dur: 1.457 }, // "il annonce la fin."
+        { id: "c12", start: 16.975, dur: 1.133 }, // "137 sélections"
+        { id: "c13", start: 18.109, dur: 0.842 }, // "44 buts"
+        { id: "c14", start: 18.950, dur: 1.619 }, // "4eme meilleur buteur"
+        { id: "c15", start: 20.569, dur: 2.833 }, // "de l'histoire de l'équipe de France"
+        { id: "c16", start: 23.403, dur: 1.619 }, // "Mais ce n'est pas là"
+        { id: "c17", start: 25.021, dur: 1.295 }, // "son vrai record."
+        { id: "c18", start: 26.317, dur: 2.428 }, // "Personne ne fait mieux que lui"
+        { id: "c19", start: 28.745, dur: 1.538 }, // "en passes décisives"
+        { id: "c20", start: 30.283, dur: 2.105 }, // "Devant Mbappé (à l’époque)"
+        { id: "c21", start: 32.388, dur: 0.971 }, // "Devant Henry"
+        { id: "c22", start: 33.359, dur: 2.024 }, // "Champion du monde en 2018"
+        { id: "c23", start: 35.383, dur: 2.752 }, // "buteur en finale contre la Croatie"
+        { id: "c24", start: 38.135, dur: 2.671 }, // "Vainqueur de la Ligue des nations"
+        { id: "c25", start: 40.806, dur: 0.842 }, // "en 2021."
+        { id: "c26", start: 41.648, dur: 2.024 }, // "Finaliste de l'Euro 2016."
+        { id: "c27", start: 43.672, dur: 2.105 }, // "Finaliste du Mondial 2022."
+        { id: "c28", start: 45.777, dur: 0.971 }, // "Il est parti"
+        { id: "c29", start: 46.748, dur: 1.619 }, // "sans faire de bruit."
+        { id: "c30", start: 48.367, dur: 1.619 }, // "Et si le vrai adieu,"
+        { id: "c31", start: 49.986, dur: 1.781 }, // "c'était justement ça ?"
+      ];
+
+      cards.forEach(({ id, start, dur }) => {
+        fadeBlockKaraoke(`#${id}`, start, dur);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>

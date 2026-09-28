@@ -1,0 +1,10 @@
+/* une·deux ships its 3 typefaces from Google Fonts (no self-hosted binaries in the source repo) —
+   loaded exactly as the editors do it. If you need offline/self-hosted files, download these
+   3 families from fonts.google.com and swap this @import for local @font-face rules. */
+/* copie locale du projet : @import Google Fonts remplacé par des @font-face
+   auto-hébergés (le Chromium headless de HyperFrames rejette le certificat
+   du proxy de session : net::ERR_CERT_AUTHORITY_INVALID). design-system/tokens/
+   fonts.css inchangé. */
+@font-face { font-family: 'Archivo'; font-weight: 400; font-style: normal; src: url('assets/fonts/archivo-400.woff2') format('woff2'); }
+@font-face { font-family: 'Saira Condensed'; font-weight: 600; font-style: normal; src: url('assets/fonts/saira-condensed-600.woff2') format('woff2'); }
+@font-face { font-family: 'Anton'; font-weight: 400; font-style: normal; src: url('assets/fonts/anton-400.woff2') format('woff2'); }
