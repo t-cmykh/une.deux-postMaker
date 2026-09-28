@@ -413,6 +413,42 @@ similaire. Ne renommer aucune classe : rebrancher `--ocre-render` sur
 Ne PAS ajouter de dégradé d'assombrissement en bas du cadre (`scrim-bottom`)
 — règle permanente pour ce format, sauf demande contraire explicite.
 
+**Jamais de `-webkit-text-stroke` sur le header** (`.ring`/`.wordmark`/
+`.handle`) — règle ajoutée le 28 septembre 2026 après un signalement de
+Thomas (« contour noir sur le header ») sur le reel Boca-River 1996
+(dossier `2026-09-29` sur `ce-jour-là`, commits `e7b6493`/`4c5f8da`).
+Root cause : sur cette vidéo, `npm run check` échouait le contrôle de
+contraste WCAG du header (jusqu'à 1.34:1 mesuré, besoin 3:1 — fond flouté
+exceptionnellement clair par endroits, tribunes claires en gros plan). Le
+correctif appliqué en local à ce reel — `text-shadow` identique au corps
+§4.A **+** un `-webkit-text-stroke` de 2.5-3px à forte opacité — réglait le
+contraste mais produisait un contour visiblement épais et permanent autour
+de `1·2`/`une·deux`/`@UNE.DEUX` sur tout le reel : c'est ce contour que
+Thomas a signalé comme bug, pas un simple défaut de contraste. Cet écart
+avait été découvert en cours de production (commit `e7b6493`, 27 septembre)
+avec la note explicite « à reporter manuellement dans CLAUDE.md sur main »,
+jamais reportée avant ce jour ; la reconstruction du même reel le lendemain
+(`4c5f8da`, après suppression du premier essai par Thomas) l'a reproduit à
+l'identique faute de consigne écrite ici — confirmant qu'il fallait fixer
+la règle plutôt que compter sur chaque session pour improviser à nouveau.
+
+**Solution retenue** : si `npm run check` échoue le contrôle de contraste
+sur `.ring`/`.wordmark`/`.handle` à cause d'un fond flouté ponctuellement
+trop clair, appliquer **uniquement** le `text-shadow` déjà utilisé sur le
+corps §4.A (`text-shadow: 0 2px 16px rgba(0,0,0,.65), 0 1px 4px
+rgba(0,0,0,.8)`) sur les 3 éléments concernés — jamais de
+`-webkit-text-stroke`, quelle que soit l'épaisseur ou l'opacité choisie (une
+version plus légère que celle du 27 septembre resterait quand même visible
+en continu sur tout le reel et produirait le même effet de contour signalé
+par Thomas, juste atténué). Si le `text-shadow` seul ne suffit pas à passer
+le contrôle, ne pas forcer un stroke à la place : signaler le passage
+concerné à Thomas dans le message de livraison (même logique que les autres
+écarts de contenu de ce document) plutôt que d'improviser une solution
+visuelle non validée. Cette règle ne concerne que le header : le contour
+semi-transparent du corps karaoké (`.story-line`, §4.B) reste inchangé, il
+répond à un besoin différent (lisibilité sur gros texte Anton, pas un
+correctif de contraste ponctuel).
+
 **Compensation couleur pour le rendu vidéo** (`--ocre-render` / `--bordeaux-render`,
 utilisées ci-dessus sur `.tag` et référencées en §4/§4bis) : le pipeline de
 render HyperFrames (capture écran → encodage vidéo H.264) décale légèrement
