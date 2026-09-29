@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 2 octobre 1994, Chilavert — style karaoké</title>
+    <script src="assets/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* Vidéo source (Vélez-Deportivo Español 1994) gardée intégrale (§1bis) : un seul
+         composite continu 0 -> 32.616667s, même géométrie partout. Source 1078x496
+         avec bandes floues latérales (contenu x=65, 966px), zoom x1.3 pour
+         exclure les logos, puis cover-crop 1080x1920 (fond) et 1080x888
+         (plan net), overlay y=420 (§2). */
+      .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+
+      /* header - constantes fixes de la série, persistant du début à la fin */
+      #hdr { position: absolute; inset: 0 0 auto 0; z-index: 20; }
+      .ring {
+        position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
+        border: 4px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
+
+      /* --ocre-render : compensation du décalage de teinte du pipeline de
+         render HyperFrames sur --ocre (§3 CLAUDE.md, série "ce jour-là").
+         */
+      :root { --ocre-render: #B9A456; }
+      .tag {
+        position: absolute; left: 96px; top: 350px; height: 58px; z-index: 20;
+        display: flex; align-items: center; background: var(--ocre-render); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; padding: 0 15px;
+      }
+
+      /* corps de texte façon karaoké - Anton, centré verticalement dans le
+         cadre bas (top:1480px, cf. §4.B révisé 26 septembre 2026), superposé
+         sur la bande floutée sous le plan net. Taille FIXE 80px pour toutes
+         les cartes ; aucune ombre portée ; léger contour semi-transparent
+         ink. Texte déjà écrit en MAJUSCULES dans le HTML (pas seulement via
+         text-transform, cf. bug de subsetting de police §4.B). .story-line
+         porte un transform:translateY(-50%) STATIQUE - ne jamais animer y
+         dessus avec GSAP (§6), opacity uniquement. */
+      .story-zone { position: absolute; left: 96px; right: 96px; z-index: 20; text-align: center; }
+      .story-line {
+        position: absolute; left: 0; right: 0;
+        top: 1480px; transform: translateY(-50%);
+        font-family: 'Anton', sans-serif; font-size: 80px; line-height: 1.1;
+        text-transform: uppercase; color: var(--cream); opacity: 0;
+        -webkit-text-stroke: 1.5px rgba(44,40,35,.35);
+      }
+      /* mot-clé en ocre via **mot** dans CORPS (karaoké) - §4.B */
+      .story-line b.ocre { color: var(--ocre-render); font-weight: inherit; }
+
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="32.616667"
+      data-fps="30"
+    >
+      <!-- vidéo intégrale, un seul plan continu du début à la fin -->
+      <video class="video-full" id="fullv" src="assets/composite.mp4" data-start="0.0000" data-duration="32.616667" data-track-index="1" muted playsinline></video>
+      <audio id="fulla" src="assets/audio.m4a" data-start="0.0000" data-duration="32.616667" data-track-index="2"></audio>
+
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+      <div class="tag">CE JOUR LÀ …</div>
+
+      <!-- CORPS (KARAOKÉ) du brouillon "POST DU JOUR — 2 octobre 2026",
+           une ligne = une carte, verbatim, 27 cartes. -->
+      <div class="story-zone">
+        <div class="story-line" id="c1">JOSÉ LUIS CHILAVERT</div>
+        <div class="story-line" id="c2">QUITTE SON BUT</div>
+        <div class="story-line" id="c3">IL TRAVERSE</div>
+        <div class="story-line" id="c4">TOUT LE TERRAIN</div>
+        <div class="story-line" id="c5">POUR TIRER</div>
+        <div class="story-line" id="c6">UN COUP FRANC</div>
+        <div class="story-line" id="c7">LE 2 OCTOBRE 1994,</div>
+        <div class="story-line" id="c8">VÉLEZ CONTRE</div>
+        <div class="story-line" id="c9">DEPORTIVO ESPAÑOL</div>
+        <div class="story-line" id="c10">LE MATCH TOUCHE</div>
+        <div class="story-line" id="c11">À SA FIN</div>
+        <div class="story-line" id="c12">SANS AUCUN BUT</div>
+        <div class="story-line" id="c13">JUSQU’À UNE FAUTE</div>
+        <div class="story-line" id="c14">AU BORD DE LA SURFACE</div>
+        <div class="story-line" id="c15">JOSÉ LUIS CHILAVERT</div>
+        <div class="story-line" id="c16">S'AVANCE</div>
+        <div class="story-line" id="c17">LE TIR PASSE</div>
+        <div class="story-line" id="c18">AU-DESSUS DU MUR</div>
+        <div class="story-line" id="c19">ET FINIT AU FOND DES FILETS</div>
+        <div class="story-line" id="c20">PREMIER GARDIEN</div>
+        <div class="story-line" id="c21">À MARQUER SUR COUP FRANC</div>
+        <div class="story-line" id="c22">DANS LE FOOT ARGENTIN</div>
+        <div class="story-line" id="c23">UN GARDIEN</div>
+        <div class="story-line" id="c24">QUI QUITTE SON BUT</div>
+        <div class="story-line" id="c25">POUR MARQUER</div>
+        <div class="story-line" id="c26">VOUS L'AURIEZ</div>
+        <div class="story-line" id="c27">LAISSÉ TIRER ?</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      /* §4.B/§5 : CPS 13, plancher 0.8s, zéro pause, départ 0.3s ;
+         facteur 1.0036. */
+      function fadeBlockKaraoke(sel, start, dur) {
+        tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 0.10, ease: 'power2.out' }, start);
+        tl.to(sel, { opacity: 0, duration: 0.08, ease: 'sine.in' }, start + dur - 0.08);
+        tl.set(sel, { opacity: 0 }, start + dur);
+      }
+
+      const cards = [
+        { id: "c1", start: 0.300, dur: 1.467 }, // "josé luis chilavert"
+        { id: "c2", start: 1.767, dur: 1.081 }, // "quitte son but"
+        { id: "c3", start: 2.848, dur: 0.849 }, // "il traverse"
+        { id: "c4", start: 3.697, dur: 1.158 }, // "tout le terrain"
+        { id: "c5", start: 4.855, dur: 0.803 }, // "pour tirer"
+        { id: "c6", start: 5.658, dur: 1.004 }, // "un coup franc"
+        { id: "c7", start: 6.662, dur: 1.390 }, // "le 2 octobre 1994,"
+        { id: "c8", start: 8.052, dur: 0.926 }, // "vélez contre"
+        { id: "c9", start: 8.978, dur: 1.312 }, // "deportivo español"
+        { id: "c10", start: 10.290, dur: 1.158 }, // "le match touche"
+        { id: "c11", start: 11.448, dur: 0.803 }, // "à sa fin"
+        { id: "c12", start: 12.251, dur: 1.081 }, // "sans aucun but"
+        { id: "c13", start: 13.332, dur: 1.312 }, // "jusqu’à une faute"
+        { id: "c14", start: 14.644, dur: 1.621 }, // "au bord de la surface"
+        { id: "c15", start: 16.265, dur: 1.467 }, // "josé luis chilavert"
+        { id: "c16", start: 17.732, dur: 0.803 }, // "s'avance"
+        { id: "c17", start: 18.535, dur: 0.926 }, // "le tir passe"
+        { id: "c18", start: 19.461, dur: 1.235 }, // "au-dessus du mur"
+        { id: "c19", start: 20.696, dur: 2.084 }, // "et finit au fond des filets"
+        { id: "c20", start: 22.780, dur: 1.158 }, // "premier gardien"
+        { id: "c21", start: 23.938, dur: 1.853 }, // "à marquer sur coup franc"
+        { id: "c22", start: 25.791, dur: 1.621 }, // "dans le foot argentin"
+        { id: "c23", start: 27.412, dur: 0.803 }, // "un gardien"
+        { id: "c24", start: 28.215, dur: 1.390 }, // "qui quitte son but"
+        { id: "c25", start: 29.605, dur: 0.926 }, // "pour marquer"
+        { id: "c26", start: 30.531, dur: 1.004 }, // "vous l'auriez"
+        { id: "c27", start: 31.535, dur: 1.081 }, // "laissé tirer ?"
+      ];
+
+      cards.forEach(({ id, start, dur }) => {
+        fadeBlockKaraoke(`#${id}`, start, dur);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
