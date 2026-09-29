@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 1er octobre 1977, dernier match de Pelé — style karaoké</title>
+    <script src="assets/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* Vidéo source (Pelé, Cosmos-Santos 1977, INA) gardée intégrale (§1bis) : un seul
+         composite continu 0 -> 29.366667s, même géométrie partout. Source 868x486 avec
+         bandes noires latérales (contenu 660x486, x=110, cropdetect), zoom x1.4
+         pour exclure le logo INA en haut à gauche, puis cover-crop 1080x1920
+         (fond) et 1080x888 (plan net), overlay y=420 (§2). */
+      .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+
+      /* header - constantes fixes de la série, persistant du début à la fin */
+      #hdr { position: absolute; inset: 0 0 auto 0; z-index: 20; }
+      .ring {
+        position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
+        border: 4px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
+
+      /* --ocre-render : compensation du décalage de teinte du pipeline de
+         render HyperFrames sur --ocre (§3 CLAUDE.md, série "ce jour-là").
+         */
+      :root { --ocre-render: #B9A456; }
+      .tag {
+        position: absolute; left: 96px; top: 350px; height: 58px; z-index: 20;
+        display: flex; align-items: center; background: var(--ocre-render); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; padding: 0 15px;
+      }
+
+      /* corps de texte façon karaoké - Anton, centré verticalement dans le
+         cadre bas (top:1480px, cf. §4.B révisé 26 septembre 2026), superposé
+         sur la bande floutée sous le plan net. Taille FIXE 80px pour toutes
+         les cartes ; aucune ombre portée ; léger contour semi-transparent
+         ink. Texte déjà écrit en MAJUSCULES dans le HTML (pas seulement via
+         text-transform, cf. bug de subsetting de police §4.B). .story-line
+         porte un transform:translateY(-50%) STATIQUE - ne jamais animer y
+         dessus avec GSAP (§6), opacity uniquement. */
+      .story-zone { position: absolute; left: 96px; right: 96px; z-index: 20; text-align: center; }
+      .story-line {
+        position: absolute; left: 0; right: 0;
+        top: 1480px; transform: translateY(-50%);
+        font-family: 'Anton', sans-serif; font-size: 80px; line-height: 1.1;
+        text-transform: uppercase; color: var(--cream); opacity: 0;
+        -webkit-text-stroke: 1.5px rgba(44,40,35,.35);
+      }
+      /* mot-clé en ocre via **mot** dans CORPS (karaoké) - §4.B */
+      .story-line b.ocre { color: var(--ocre-render); font-weight: inherit; }
+
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="29.366667"
+      data-fps="30"
+    >
+      <!-- vidéo intégrale, un seul plan continu du début à la fin -->
+      <video class="video-full" id="fullv" src="assets/composite.mp4" data-start="0.0000" data-duration="29.366667" data-track-index="1" muted playsinline></video>
+      <audio id="fulla" src="assets/audio.m4a" data-start="0.0000" data-duration="29.366667" data-track-index="2"></audio>
+
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+      <div class="tag">CE JOUR LÀ …</div>
+
+      <!-- CORPS (KARAOKÉ) du brouillon "POST DU JOUR — 1 octobre 2026",
+           une ligne = une carte, verbatim, 23 cartes. -->
+      <div class="story-zone">
+        <div class="story-line" id="c1">UN MATCH</div>
+        <div class="story-line" id="c2">DEUX MAILLOTS</div>
+        <div class="story-line" id="c3">LE ROI PELÉ</div>
+        <div class="story-line" id="c4">LE DERNIER</div>
+        <div class="story-line" id="c5">DE SA CARRIÈRE</div>
+        <div class="story-line" id="c6">LE 1ER OCTOBRE 1977,</div>
+        <div class="story-line" id="c7">AU GIANTS STADIUM,</div>
+        <div class="story-line" id="c8">PLUS DE 75 000</div>
+        <div class="story-line" id="c9">SPECTATEURS</div>
+        <div class="story-line" id="c10">ASSISTE AU DERNIER</div>
+        <div class="story-line" id="c11">MATCH PRO D’UNE LÉGENDE VIVANTE</div>
+        <div class="story-line" id="c12">LES COSMOS DE NEW YORK</div>
+        <div class="story-line" id="c13">CONTRE SANTOS</div>
+        <div class="story-line" id="c14">SON CLUB DU MOMENT</div>
+        <div class="story-line" id="c15">CONTRE SON ANCIEN CLUB</div>
+        <div class="story-line" id="c16">PELÉ JOUE UNE MI-TEMPS</div>
+        <div class="story-line" id="c17">SOUS CHAQUE MAILLOT</div>
+        <div class="story-line" id="c18">IL MARQUE.</div>
+        <div class="story-line" id="c19">SUR COUP FRANC</div>
+        <div class="story-line" id="c20">LE COSMOS GAGNE 2-1</div>
+        <div class="story-line" id="c21">ET VOUS,</div>
+        <div class="story-line" id="c22">QUEL MAILLOT</div>
+        <div class="story-line" id="c23">GARDEZ-VOUS DE LUI ?</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      /* §4.B/§5 : CPS 13, plancher 0.8s, zéro pause, départ 0.3s ;
+         facteur 1.0141. */
+      function fadeBlockKaraoke(sel, start, dur) {
+        tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 0.10, ease: 'power2.out' }, start);
+        tl.to(sel, { opacity: 0, duration: 0.08, ease: 'sine.in' }, start + dur - 0.08);
+        tl.set(sel, { opacity: 0 }, start + dur);
+      }
+
+      const cards = [
+        { id: "c1", start: 0.300, dur: 0.811 }, // "un match"
+        { id: "c2", start: 1.111, dur: 1.014 }, // "deux maillots"
+        { id: "c3", start: 2.125, dur: 0.858 }, // "le roi pelé"
+        { id: "c4", start: 2.984, dur: 0.811 }, // "le dernier"
+        { id: "c5", start: 3.795, dur: 1.092 }, // "de sa carrière"
+        { id: "c6", start: 4.887, dur: 1.560 }, // "le 1er octobre 1977,"
+        { id: "c7", start: 6.447, dur: 1.404 }, // "au giants stadium,"
+        { id: "c8", start: 7.851, dur: 1.092 }, // "plus de 75 000"
+        { id: "c9", start: 8.944, dur: 0.858 }, // "spectateurs"
+        { id: "c10", start: 9.802, dur: 1.404 }, // "assiste au dernier"
+        { id: "c11", start: 11.206, dur: 2.418 }, // "match pro d’une légende vivante"
+        { id: "c12", start: 13.624, dur: 1.716 }, // "les cosmos de new york"
+        { id: "c13", start: 15.340, dur: 1.014 }, // "contre santos"
+        { id: "c14", start: 16.355, dur: 1.404 }, // "son club du moment"
+        { id: "c15", start: 17.759, dur: 1.716 }, // "contre son ancien club"
+        { id: "c16", start: 19.475, dur: 1.716 }, // "pelé joue une mi-temps"
+        { id: "c17", start: 21.191, dur: 1.482 }, // "sous chaque maillot"
+        { id: "c18", start: 22.673, dur: 0.811 }, // "il marque."
+        { id: "c19", start: 23.485, dur: 1.092 }, // "sur coup franc"
+        { id: "c20", start: 24.577, dur: 1.482 }, // "le cosmos gagne 2-1"
+        { id: "c21", start: 26.059, dur: 0.811 }, // "et vous,"
+        { id: "c22", start: 26.870, dur: 0.936 }, // "quel maillot"
+        { id: "c23", start: 27.806, dur: 1.560 }, // "gardez-vous de lui ?"
+      ];
+
+      cards.forEach(({ id, start, dur }) => {
+        fadeBlockKaraoke(`#${id}`, start, dur);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
