@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 3 octobre 1984, Metz-Barcelone — style karaoké</title>
+    <script src="assets/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* Vidéo source (Metz-Barcelone 1984) gardée intégrale (§1bis) : un seul composite continu 0 -> 44.066667s, même géométrie partout (contenu 628x488 recadré hors bandes noires, fond cover 1080x1920 flouté, plan net 1080x888, overlay y=420, §2). */
+      .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+
+      /* header - constantes fixes de la série, persistant du début à la fin */
+      #hdr { position: absolute; inset: 0 0 auto 0; z-index: 20; }
+      .ring {
+        position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
+        border: 4px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
+
+      /* --ocre-render : compensation du décalage de teinte du pipeline de
+         render HyperFrames sur --ocre (§3 CLAUDE.md, série "ce jour-là").
+         */
+      :root { --ocre-render: #B9A456; }
+      .tag {
+        position: absolute; left: 96px; top: 350px; height: 58px; z-index: 20;
+        display: flex; align-items: center; background: var(--ocre-render); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; padding: 0 15px;
+      }
+
+      /* corps de texte façon karaoké - Anton, centré verticalement dans le
+         cadre bas (top:1480px, cf. §4.B révisé 26 septembre 2026), superposé
+         sur la bande floutée sous le plan net. Taille FIXE 80px pour toutes
+         les cartes ; aucune ombre portée ; léger contour semi-transparent
+         ink. Texte déjà écrit en MAJUSCULES dans le HTML (pas seulement via
+         text-transform, cf. bug de subsetting de police §4.B). .story-line
+         porte un transform:translateY(-50%) STATIQUE - ne jamais animer y
+         dessus avec GSAP (§6), opacity uniquement. */
+      .story-zone { position: absolute; left: 96px; right: 96px; z-index: 20; text-align: center; }
+      .story-line {
+        position: absolute; left: 0; right: 0;
+        top: 1480px; transform: translateY(-50%);
+        font-family: 'Anton', sans-serif; font-size: 80px; line-height: 1.1;
+        text-transform: uppercase; color: var(--cream); opacity: 0;
+        -webkit-text-stroke: 1.5px rgba(44,40,35,.35);
+      }
+      /* mot-clé en ocre via **mot** dans CORPS (karaoké) - §4.B */
+      .story-line b.ocre { color: var(--ocre-render); font-weight: inherit; }
+
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="44.066667"
+      data-fps="30"
+    >
+      <!-- vidéo intégrale, un seul plan continu du début à la fin -->
+      <video class="video-full" id="fullv" src="assets/composite.mp4" data-start="0.0000" data-duration="44.066667" data-track-index="1" muted playsinline></video>
+      <audio id="fulla" src="assets/audio.m4a" data-start="0.0000" data-duration="44.066667" data-track-index="2"></audio>
+
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+      <div class="tag">CE JOUR LÀ …</div>
+
+      <!-- CORPS (KARAOKÉ) du brouillon "POST DU JOUR — 3 octobre 2026",
+           une ligne = une carte, verbatim, 32 cartes. -->
+      <div class="story-zone">
+        <div class="story-line" id="c1">METZ DEVAIT RÉALISER</div>
+        <div class="story-line" id="c2">L’IMPOSSIBLE FACE À BARCELONE</div>
+        <div class="story-line" id="c3">APRÈS AVOIR PERDU 2-4</div>
+        <div class="story-line" id="c4">À L'ALLER</div>
+        <div class="story-line" id="c5">CE SOIR-LÀ</div>
+        <div class="story-line" id="c6">LES MESSINS</div>
+        <div class="story-line" id="c7">DOIVENT TOUT TENTER</div>
+        <div class="story-line" id="c8">AU CAMP NOU</div>
+        <div class="story-line" id="c9">MAIS C’EST</div>
+        <div class="story-line" id="c10">BARCELONE</div>
+        <div class="story-line" id="c11">QUI OUVRE LE SCORE</div>
+        <div class="story-line" id="c12">PUIS A LA 38E</div>
+        <div class="story-line" id="c13">TONY KURBOS ÉGALISE</div>
+        <div class="story-line" id="c14">UNE MINUTE PLUS TARD,</div>
+        <div class="story-line" id="c15">UN BUT CONTRE SON CAMP</div>
+        <div class="story-line" id="c16">DE SÁNCHEZ</div>
+        <div class="story-line" id="c17">DONNE L’AVANTAGE</div>
+        <div class="story-line" id="c18">À METZ</div>
+        <div class="story-line" id="c19">KURBOS MARQUE</div>
+        <div class="story-line" id="c20">ENCORE</div>
+        <div class="story-line" id="c21">À LA 85E,</div>
+        <div class="story-line" id="c22">ET IL RÉCIDIVE</div>
+        <div class="story-line" id="c23">UNE TROISIÈME FOIS</div>
+        <div class="story-line" id="c24">VICTOIRE 4-1</div>
+        <div class="story-line" id="c25">METZ ÉLIMINE</div>
+        <div class="story-line" id="c26">BARCELONE</div>
+        <div class="story-line" id="c27">LE PLUS GRAND EXPLOIT</div>
+        <div class="story-line" id="c28">EUROPÉEN</div>
+        <div class="story-line" id="c29">DU CLUB</div>
+        <div class="story-line" id="c30">BATTU 2-4</div>
+        <div class="story-line" id="c31">À L'ALLER :</div>
+        <div class="story-line" id="c32">VOUS Y AURIEZ CRU ?</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      /* §4.B/§5 : CPS 13, plancher 0.8s, zéro pause, départ 0.3s ;
+         facteur 1.224. */
+      function fadeBlockKaraoke(sel, start, dur) {
+        tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 0.10, ease: 'power2.out' }, start);
+        tl.to(sel, { opacity: 0, duration: 0.08, ease: 'sine.in' }, start + dur - 0.08);
+        tl.set(sel, { opacity: 0 }, start + dur);
+      }
+
+      const cards = [
+        { id: "c1", start: 0.300, dur: 1.883 }, // "metz devait réaliser"
+        { id: "c2", start: 2.183, dur: 2.731 }, // "l’impossible face à barcelone"
+        { id: "c3", start: 4.914, dur: 1.977 }, // "après avoir perdu 2-4"
+        { id: "c4", start: 6.891, dur: 0.979 }, // "à l'aller"
+        { id: "c5", start: 7.871, dur: 0.979 }, // "ce soir-là"
+        { id: "c6", start: 8.850, dur: 1.036 }, // "les messins"
+        { id: "c7", start: 9.886, dur: 1.789 }, // "doivent tout tenter"
+        { id: "c8", start: 11.675, dur: 1.036 }, // "au camp nou"
+        { id: "c9", start: 12.711, dur: 0.979 }, // "mais c’est"
+        { id: "c10", start: 13.690, dur: 0.979 }, // "barcelone"
+        { id: "c11", start: 14.669, dur: 1.695 }, // "qui ouvre le score"
+        { id: "c12", start: 16.364, dur: 1.224 }, // "puis a la 38e"
+        { id: "c13", start: 17.588, dur: 1.789 }, // "tony kurbos égalise"
+        { id: "c14", start: 19.377, dur: 1.977 }, // "une minute plus tard,"
+        { id: "c15", start: 21.355, dur: 2.072 }, // "un but contre son camp"
+        { id: "c16", start: 23.426, dur: 0.979 }, // "de sánchez"
+        { id: "c17", start: 24.406, dur: 1.507 }, // "donne l’avantage"
+        { id: "c18", start: 25.912, dur: 0.979 }, // "à metz"
+        { id: "c19", start: 26.891, dur: 1.224 }, // "kurbos marque"
+        { id: "c20", start: 28.116, dur: 0.979 }, // "encore"
+        { id: "c21", start: 29.095, dur: 0.979 }, // "à la 85e,"
+        { id: "c22", start: 30.074, dur: 1.318 }, // "et il récidive"
+        { id: "c23", start: 31.392, dur: 1.695 }, // "une troisième fois"
+        { id: "c24", start: 33.087, dur: 1.130 }, // "victoire 4-1"
+        { id: "c25", start: 34.217, dur: 1.130 }, // "metz élimine"
+        { id: "c26", start: 35.347, dur: 0.979 }, // "barcelone"
+        { id: "c27", start: 36.327, dur: 1.977 }, // "le plus grand exploit"
+        { id: "c28", start: 38.304, dur: 0.979 }, // "européen"
+        { id: "c29", start: 39.283, dur: 0.979 }, // "du club"
+        { id: "c30", start: 40.263, dur: 0.979 }, // "battu 2-4"
+        { id: "c31", start: 41.242, dur: 1.036 }, // "à l'aller :"
+        { id: "c32", start: 42.278, dur: 1.789 }, // "vous y auriez cru ?"
+      ];
+
+      cards.forEach(({ id, start, dur }) => {
+        fadeBlockKaraoke(`#${id}`, start, dur);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
