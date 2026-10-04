@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 6 octobre 2001, France-Algérie — style karaoké</title>
+    <script src="assets/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* Vidéo source (France-Algérie 2001) gardée intégrale (§1bis) : un seul composite continu 0 -> 47.716667s, même géométrie partout (contenu 523x398 recadré hors bandes noires et logos, fond cover 1080x1920 flouté, plan net 1080x888, overlay y=420, §2). */
+      .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+
+      /* header - constantes fixes de la série, persistant du début à la fin */
+      #hdr { position: absolute; inset: 0 0 auto 0; z-index: 20; }
+      .ring {
+        position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
+        border: 4px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
+
+      /* --ocre-render : compensation du décalage de teinte du pipeline de
+         render HyperFrames sur --ocre (§3 CLAUDE.md, série "ce jour-là").
+         */
+      :root { --ocre-render: #B9A456; }
+      .tag {
+        position: absolute; left: 96px; top: 350px; height: 58px; z-index: 20;
+        display: flex; align-items: center; background: var(--ocre-render); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; padding: 0 15px;
+      }
+
+      /* corps de texte façon karaoké - Anton, centré verticalement dans le
+         cadre bas (top:1480px, cf. §4.B révisé 26 septembre 2026), superposé
+         sur la bande floutée sous le plan net. Taille FIXE 80px pour toutes
+         les cartes ; aucune ombre portée ; léger contour semi-transparent
+         ink. Texte déjà écrit en MAJUSCULES dans le HTML (pas seulement via
+         text-transform, cf. bug de subsetting de police §4.B). .story-line
+         porte un transform:translateY(-50%) STATIQUE - ne jamais animer y
+         dessus avec GSAP (§6), opacity uniquement. */
+      .story-zone { position: absolute; left: 96px; right: 96px; z-index: 20; text-align: center; }
+      .story-line {
+        position: absolute; left: 0; right: 0;
+        top: 1480px; transform: translateY(-50%);
+        font-family: 'Anton', sans-serif; font-size: 80px; line-height: 1.1;
+        text-transform: uppercase; color: var(--cream); opacity: 0;
+        -webkit-text-stroke: 1.5px rgba(44,40,35,.35);
+      }
+      /* mot-clé en ocre via **mot** dans CORPS (karaoké) - §4.B */
+      .story-line b.ocre { color: var(--ocre-render); font-weight: inherit; }
+
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="47.716667"
+      data-fps="30"
+    >
+      <!-- vidéo intégrale, un seul plan continu du début à la fin -->
+      <video class="video-full" id="fullv" src="assets/composite.mp4" data-start="0.0000" data-duration="47.716667" data-track-index="1" muted playsinline></video>
+      <audio id="fulla" src="assets/audio.m4a" data-start="0.0000" data-duration="47.716667" data-track-index="2"></audio>
+
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+      <div class="tag">CE JOUR LÀ …</div>
+
+      <!-- CORPS (KARAOKÉ) du brouillon "POST DU JOUR — 6 octobre 2026",
+           une ligne = une carte, verbatim, 29 cartes. -->
+      <div class="story-zone">
+        <div class="story-line" id="c1">CE MATCH DEVAIT ÊTRE HISTORIQUE</div>
+        <div class="story-line" id="c2">IL L’EST DEVENU</div>
+        <div class="story-line" id="c3">POUR UNE TOUTE AUTRE RAISON…</div>
+        <div class="story-line" id="c4">LE 6 OCTOBRE 2001,</div>
+        <div class="story-line" id="c5">AU STADE DE FRANCE,</div>
+        <div class="story-line" id="c6">LA FRANCE REÇOIT L’ALGÉRIE.</div>
+        <div class="story-line" id="c7">UNE PREMIÈRE DEPUIS</div>
+        <div class="story-line" id="c8">L’INDÉPENDANCE ALGÉRIENNE</div>
+        <div class="story-line" id="c9">PRÈS DE 80 000 PERSONNES</div>
+        <div class="story-line" id="c10">SONT DANS LES TRIBUNES.</div>
+        <div class="story-line" id="c11">SUR LE TERRAIN,</div>
+        <div class="story-line" id="c12">LES BLEUS PRENNENT</div>
+        <div class="story-line" id="c13">RAPIDEMENT LE DESSUS</div>
+        <div class="story-line" id="c14">LA FRANCE MÈNE 4-1</div>
+        <div class="story-line" id="c15">MAIS À LA 76E MINUTE…</div>
+        <div class="story-line" id="c16">DES SUPPORTERS ENVAHISSENT LA PELOUSE</div>
+        <div class="story-line" id="c17">LE MATCH S’ARRÊTE</div>
+        <div class="story-line" id="c18">LES JOUEURS QUITTENT LE TERRAIN</div>
+        <div class="story-line" id="c19">LES OFFICIELS AUSSI</div>
+        <div class="story-line" id="c20">PERSONNE NE REVIENDRA JOUER</div>
+        <div class="story-line" id="c21">IL N’Y AURA</div>
+        <div class="story-line" id="c22">JAMAIS DE SCORE FINAL</div>
+        <div class="story-line" id="c23">ET DEPUIS CE SOIR-LÀ…</div>
+        <div class="story-line" id="c24">LA FRANCE ET L’ALGÉRIE</div>
+        <div class="story-line" id="c25">NE SE SONT PLUS</div>
+        <div class="story-line" id="c26">JAMAIS AFFRONTÉES.</div>
+        <div class="story-line" id="c27">UN MATCH HISTORIQUE…</div>
+        <div class="story-line" id="c28">QUI S’EST ARRÊTÉ</div>
+        <div class="story-line" id="c29">À 14 MINUTES DE LA FIN…</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      /* §4.B/§5 : CPS 13, plancher 0.8s, zéro pause, départ 0.3s ;
+         facteur 0.996. */
+      function fadeBlockKaraoke(sel, start, dur) {
+        tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 0.10, ease: 'power2.out' }, start);
+        tl.to(sel, { opacity: 0, duration: 0.08, ease: 'sine.in' }, start + dur - 0.08);
+        tl.set(sel, { opacity: 0 }, start + dur);
+      }
+
+      const cards = [
+        { id: "c1", start: 0.300, dur: 2.375 },
+        { id: "c2", start: 2.675, dur: 1.149 },
+        { id: "c3", start: 3.824, dur: 2.145 },
+        { id: "c4", start: 5.969, dur: 1.379 },
+        { id: "c5", start: 7.347, dur: 1.455 },
+        { id: "c6", start: 8.803, dur: 2.068 },
+        { id: "c7", start: 10.871, dur: 1.455 },
+        { id: "c8", start: 12.327, dur: 1.915 },
+        { id: "c9", start: 14.242, dur: 1.838 },
+        { id: "c10", start: 16.080, dur: 1.762 },
+        { id: "c11", start: 17.842, dur: 1.149 },
+        { id: "c12", start: 18.991, dur: 1.379 },
+        { id: "c13", start: 20.370, dur: 1.532 },
+        { id: "c14", start: 21.902, dur: 1.379 },
+        { id: "c15", start: 23.281, dur: 1.609 },
+        { id: "c16", start: 24.889, dur: 2.834 },
+        { id: "c17", start: 27.724, dur: 1.302 },
+        { id: "c18", start: 29.026, dur: 2.375 },
+        { id: "c19", start: 31.400, dur: 1.455 },
+        { id: "c20", start: 32.856, dur: 2.068 },
+        { id: "c21", start: 34.924, dur: 0.843 },
+        { id: "c22", start: 35.767, dur: 1.609 },
+        { id: "c23", start: 37.375, dur: 1.609 },
+        { id: "c24", start: 38.984, dur: 1.685 },
+        { id: "c25", start: 40.669, dur: 1.149 },
+        { id: "c26", start: 41.818, dur: 1.379 },
+        { id: "c27", start: 43.197, dur: 1.532 },
+        { id: "c28", start: 44.729, dur: 1.226 },
+        { id: "c29", start: 45.955, dur: 1.762 },
+      ];
+
+      cards.forEach(({ id, start, dur }) => {
+        fadeBlockKaraoke(`#${id}`, start, dur);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
