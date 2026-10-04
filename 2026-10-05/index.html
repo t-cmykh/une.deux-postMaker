@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 5 octobre 1952, France-RFA — style karaoké</title>
+    <script src="assets/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* Vidéo source (France-RFA 1952, INA) gardée intégrale (§1bis) : un seul composite continu 0 -> 42.966667s, même géométrie partout (contenu 660x492 recadré hors bandes noires, fond cover 1080x1920 flouté, plan net 1080x888, overlay y=420, §2). */
+      .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+
+      /* header - constantes fixes de la série, persistant du début à la fin */
+      #hdr { position: absolute; inset: 0 0 auto 0; z-index: 20; }
+      .ring {
+        position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
+        border: 4px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
+
+      /* --ocre-render : compensation du décalage de teinte du pipeline de
+         render HyperFrames sur --ocre (§3 CLAUDE.md, série "ce jour-là").
+         */
+      :root { --ocre-render: #B9A456; }
+      .tag {
+        position: absolute; left: 96px; top: 350px; height: 58px; z-index: 20;
+        display: flex; align-items: center; background: var(--ocre-render); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; padding: 0 15px;
+      }
+
+      /* corps de texte façon karaoké - Anton, centré verticalement dans le
+         cadre bas (top:1480px, cf. §4.B révisé 26 septembre 2026), superposé
+         sur la bande floutée sous le plan net. Taille FIXE 80px pour toutes
+         les cartes ; aucune ombre portée ; léger contour semi-transparent
+         ink. Texte déjà écrit en MAJUSCULES dans le HTML (pas seulement via
+         text-transform, cf. bug de subsetting de police §4.B). .story-line
+         porte un transform:translateY(-50%) STATIQUE - ne jamais animer y
+         dessus avec GSAP (§6), opacity uniquement. */
+      .story-zone { position: absolute; left: 96px; right: 96px; z-index: 20; text-align: center; }
+      .story-line {
+        position: absolute; left: 0; right: 0;
+        top: 1480px; transform: translateY(-50%);
+        font-family: 'Anton', sans-serif; font-size: 80px; line-height: 1.1;
+        text-transform: uppercase; color: var(--cream); opacity: 0;
+        -webkit-text-stroke: 1.5px rgba(44,40,35,.35);
+      }
+      /* mot-clé en ocre via **mot** dans CORPS (karaoké) - §4.B */
+      .story-line b.ocre { color: var(--ocre-render); font-weight: inherit; }
+
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="42.966667"
+      data-fps="30"
+    >
+      <!-- vidéo intégrale, un seul plan continu du début à la fin -->
+      <video class="video-full" id="fullv" src="assets/composite.mp4" data-start="0.0000" data-duration="42.966667" data-track-index="1" muted playsinline></video>
+      <audio id="fulla" src="assets/audio.m4a" data-start="0.0000" data-duration="42.966667" data-track-index="2"></audio>
+
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+      <div class="tag">CE JOUR LÀ …</div>
+
+      <!-- CORPS (KARAOKÉ) du brouillon "POST DU JOUR — 5 octobre 2026",
+           une ligne = une carte, verbatim, 27 cartes. -->
+      <div class="story-zone">
+        <div class="story-line" id="c1">CE SOIR-LÀ,</div>
+        <div class="story-line" id="c2">LE FOOTBALL FRANÇAIS</div>
+        <div class="story-line" id="c3">CHANGE DE DIMENSION</div>
+        <div class="story-line" id="c4">LE 5 OCTOBRE 1952,</div>
+        <div class="story-line" id="c5">À COLOMBES,</div>
+        <div class="story-line" id="c6">LA FRANCE REÇOIT LA RFA</div>
+        <div class="story-line" id="c7">MAIS CE MATCH RACONTE BIEN PLUS</div>
+        <div class="story-line" id="c8">QU’UNE SIMPLE VICTOIRE</div>
+        <div class="story-line" id="c9">CAR POUR LA PREMIÈRE FOIS,</div>
+        <div class="story-line" id="c10">LES BLEUS ENTRENT EN DIRECT</div>
+        <div class="story-line" id="c11">DANS LES SALONS FRANÇAIS</div>
+        <div class="story-line" id="c12">GEORGES BRIQUET EST AU MICRO</div>
+        <div class="story-line" id="c13">POUR LA RTF</div>
+        <div class="story-line" id="c14">DANS LES TRIBUNES,</div>
+        <div class="story-line" id="c15">56 021 SPECTATEURS</div>
+        <div class="story-line" id="c16">ET SUR LE TERRAIN,</div>
+        <div class="story-line" id="c17">LE SPECTACLE COMMENCE VITE</div>
+        <div class="story-line" id="c18">MAIS CE SOIR-LÀ,</div>
+        <div class="story-line" id="c19">IL N’Y A PAS QUE</div>
+        <div class="story-line" id="c20">LA VICTOIRE 3-1 À RETENIR</div>
+        <div class="story-line" id="c21">MAIS AUSSI LA DÉCOUVERTE</div>
+        <div class="story-line" id="c22">DU FOOTBALL À DOMICILE</div>
+        <div class="story-line" id="c23">POUR LA PREMIÈRE FOIS,</div>
+        <div class="story-line" id="c24">LE MATCH NE SE JOUE PLUS</div>
+        <div class="story-line" id="c25">SEULEMENT À COLOMBES</div>
+        <div class="story-line" id="c26">IL SE JOUE AUSSI</div>
+        <div class="story-line" id="c27">DANS LES SALONS FRANÇAIS</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      /* §4.B/§5 : CPS 13, plancher 0.8s, zéro pause, départ 0.3s ;
+         facteur 0.990. */
+      function fadeBlockKaraoke(sel, start, dur) {
+        tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 0.10, ease: 'power2.out' }, start);
+        tl.to(sel, { opacity: 0, duration: 0.08, ease: 'sine.in' }, start + dur - 0.08);
+        tl.set(sel, { opacity: 0 }, start + dur);
+      }
+
+      const cards = [
+        { id: "c1", start: 0.300, dur: 0.838 },
+        { id: "c2", start: 1.138, dur: 1.524 },
+        { id: "c3", start: 2.662, dur: 1.448 },
+        { id: "c4", start: 4.110, dur: 1.371 },
+        { id: "c5", start: 5.481, dur: 0.838 },
+        { id: "c6", start: 6.319, dur: 1.752 },
+        { id: "c7", start: 8.071, dur: 2.362 },
+        { id: "c8", start: 10.433, dur: 1.676 },
+        { id: "c9", start: 12.110, dur: 1.981 },
+        { id: "c10", start: 14.090, dur: 2.057 },
+        { id: "c11", start: 16.148, dur: 1.829 },
+        { id: "c12", start: 17.976, dur: 2.133 },
+        { id: "c13", start: 20.110, dur: 0.838 },
+        { id: "c14", start: 20.948, dur: 1.371 },
+        { id: "c15", start: 22.319, dur: 1.371 },
+        { id: "c16", start: 23.690, dur: 1.371 },
+        { id: "c17", start: 25.062, dur: 1.981 },
+        { id: "c18", start: 27.043, dur: 1.219 },
+        { id: "c19", start: 28.262, dur: 1.219 },
+        { id: "c20", start: 29.481, dur: 1.905 },
+        { id: "c21", start: 31.386, dur: 1.829 },
+        { id: "c22", start: 33.214, dur: 1.676 },
+        { id: "c23", start: 34.890, dur: 1.676 },
+        { id: "c24", start: 36.567, dur: 1.829 },
+        { id: "c25", start: 38.395, dur: 1.524 },
+        { id: "c26", start: 39.919, dur: 1.219 },
+        { id: "c27", start: 41.138, dur: 1.829 },
+      ];
+
+      cards.forEach(({ id, start, dur }) => {
+        fadeBlockKaraoke(`#${id}`, start, dur);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
