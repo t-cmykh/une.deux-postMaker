@@ -1,0 +1,6 @@
+numpy
+Pillow
+scipy
+OpenEXR>=3.3
+usd-core
+MaterialX
