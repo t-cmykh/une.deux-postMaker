@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 15 octobre 2018, Espagne-Angleterre — style karaoké</title>
+    <script src="assets/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* Vidéo source (Espagne-Angleterre 2018) gardée intégrale (§1bis) : un seul composite continu 0 -> 46.433333s, même géométrie partout (contenu 880x494 recadré hors bandes noires, fond cover 1080x1920 flouté, plan net 1080x888, overlay y=420, §2). */
+      .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+
+      /* header - constantes fixes de la série, persistant du début à la fin */
+      #hdr { position: absolute; inset: 0 0 auto 0; z-index: 20; }
+      .ring {
+        position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
+        border: 4px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
+
+      /* --ocre-render : compensation du décalage de teinte du pipeline de
+         render HyperFrames sur --ocre (§3 CLAUDE.md, série "ce jour-là").
+         */
+      :root { --ocre-render: #B9A456; }
+      .tag {
+        position: absolute; left: 96px; top: 350px; height: 58px; z-index: 20;
+        display: flex; align-items: center; background: var(--ocre-render); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; padding: 0 15px;
+      }
+
+      /* corps de texte façon karaoké - Anton, centré verticalement dans le
+         cadre bas (top:1480px, cf. §4.B révisé 26 septembre 2026), superposé
+         sur la bande floutée sous le plan net. Taille FIXE 80px pour toutes
+         les cartes ; aucune ombre portée ; léger contour semi-transparent
+         ink. Texte déjà écrit en MAJUSCULES dans le HTML (pas seulement via
+         text-transform, cf. bug de subsetting de police §4.B). .story-line
+         porte un transform:translateY(-50%) STATIQUE - ne jamais animer y
+         dessus avec GSAP (§6), opacity uniquement. */
+      .story-zone { position: absolute; left: 96px; right: 96px; z-index: 20; text-align: center; }
+      .story-line {
+        position: absolute; left: 0; right: 0;
+        top: 1480px; transform: translateY(-50%);
+        font-family: 'Anton', sans-serif; font-size: 80px; line-height: 1.1;
+        text-transform: uppercase; color: var(--cream); opacity: 0;
+        -webkit-text-stroke: 1.5px rgba(44,40,35,.35);
+      }
+      /* mot-clé en ocre via **mot** dans CORPS (karaoké) - §4.B */
+      .story-line b.ocre { color: var(--ocre-render); font-weight: inherit; }
+
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="46.433333"
+      data-fps="30"
+    >
+      <!-- vidéo intégrale, un seul plan continu du début à la fin -->
+      <video class="video-full" id="fullv" src="assets/composite.mp4" data-start="0" data-duration="46.433333" data-track-index="1" muted playsinline></video>
+      <audio id="fulla" src="assets/audio.m4a" data-start="0" data-duration="46.433333" data-track-index="2"></audio>
+
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+      <div class="tag">CE JOUR LÀ …</div>
+
+      <!-- CORPS (KARAOKÉ) du brouillon "POST DU JOUR — 15 octobre 2026", une ligne = une carte, verbatim, 28 cartes. -->
+      <div class="story-zone">
+        <div class="story-line" id="c1">15 ANS SANS PERDRE À DOMICILE</div>
+        <div class="story-line" id="c2">L’ANGLETERRE A EU BESOIN</div>
+        <div class="story-line" id="c3">DE 38 MINUTES</div>
+        <div class="story-line" id="c4">POUR TOUT FAIRE EXPLOSER</div>
+        <div class="story-line" id="c5">LE 15 OCTOBRE 2018,</div>
+        <div class="story-line" id="c6">À SÉVILLE, L’ESPAGNE</div>
+        <div class="story-line" id="c7">REÇOIT L’ANGLETERRE EN LIGUE DES NATIONS</div>
+        <div class="story-line" id="c8">DEPUIS JUIN 2003,</div>
+        <div class="story-line" id="c9">LES ESPAGNOLS N’ONT PLUS PERDU</div>
+        <div class="story-line" id="c10">DE MATCH OFFICIEL À DOMICILE</div>
+        <div class="story-line" id="c11">MAIS CE SOIR-LÀ, TOUT S’EFFONDRE</div>
+        <div class="story-line" id="c12">16E MINUTE, RAHEEM STERLING</div>
+        <div class="story-line" id="c13">OUVRE LE SCORE</div>
+        <div class="story-line" id="c14">3-0 À LA PAUSE</div>
+        <div class="story-line" id="c15">L’ANGLETERRE VIENT DE FAIRE</div>
+        <div class="story-line" id="c16">TOMBER UNE FORTERESSE</div>
+        <div class="story-line" id="c17">QUE PERSONNE N’AVAIT</div>
+        <div class="story-line" id="c18">RÉUSSI À RENVERSER</div>
+        <div class="story-line" id="c19">DEPUIS QUINZE ANS</div>
+        <div class="story-line" id="c20">EN SECONDE PÉRIODE,</div>
+        <div class="story-line" id="c21">LA ROJA</div>
+        <div class="story-line" id="c22">RÉDUIT ENCORE L’ÉCART</div>
+        <div class="story-line" id="c23">MAIS C’EST TROP TARD.</div>
+        <div class="story-line" id="c24">L’ESPAGNE S’INCLINE 3-2</div>
+        <div class="story-line" id="c25">UNE SÉRIE DE QUINZE ANS</div>
+        <div class="story-line" id="c26">VIENT DE PRENDRE FIN</div>
+        <div class="story-line" id="c27">ET IL N’AURA FALLU</div>
+        <div class="story-line" id="c28">QU’UNE SEULE MI-TEMPS</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      /* §4.B/§5 : CPS 13, plancher 0.8s, zéro pause, départ 0.3s ;
+         facteur 0.983. */
+      function fadeBlockKaraoke(sel, start, dur) {
+        tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 0.10, ease: 'power2.out' }, start);
+        tl.to(sel, { opacity: 0, duration: 0.08, ease: 'sine.in' }, start + dur - 0.08);
+        tl.set(sel, { opacity: 0 }, start + dur);
+      }
+
+      const cards = [
+        { id: "c1", start: 0.300, dur: 2.192 },
+        { id: "c2", start: 2.492, dur: 1.814 },
+        { id: "c3", start: 4.306, dur: 0.983 },
+        { id: "c4", start: 5.288, dur: 1.814 },
+        { id: "c5", start: 7.102, dur: 1.436 },
+        { id: "c6", start: 8.538, dur: 1.512 },
+        { id: "c7", start: 10.050, dur: 3.023 },
+        { id: "c8", start: 13.073, dur: 1.285 },
+        { id: "c9", start: 14.358, dur: 2.267 },
+        { id: "c10", start: 16.625, dur: 2.116 },
+        { id: "c11", start: 18.741, dur: 2.419 },
+        { id: "c12", start: 21.160, dur: 2.041 },
+        { id: "c13", start: 23.200, dur: 1.058 },
+        { id: "c14", start: 24.258, dur: 1.058 },
+        { id: "c15", start: 25.317, dur: 2.041 },
+        { id: "c16", start: 27.357, dur: 1.587 },
+        { id: "c17", start: 28.944, dur: 1.512 },
+        { id: "c18", start: 30.456, dur: 1.360 },
+        { id: "c19", start: 31.816, dur: 1.285 },
+        { id: "c20", start: 33.101, dur: 1.436 },
+        { id: "c21", start: 34.537, dur: 0.786 },
+        { id: "c22", start: 35.323, dur: 1.587 },
+        { id: "c23", start: 36.910, dur: 1.587 },
+        { id: "c24", start: 38.498, dur: 1.738 },
+        { id: "c25", start: 40.236, dur: 1.738 },
+        { id: "c26", start: 41.974, dur: 1.512 },
+        { id: "c27", start: 43.486, dur: 1.360 },
+        { id: "c28", start: 44.846, dur: 1.587 },
+      ];
+
+      cards.forEach(({ id, start, dur }) => {
+        fadeBlockKaraoke(`#${id}`, start, dur);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
