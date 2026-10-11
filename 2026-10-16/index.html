@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 16 octobre 2004, Messi débute au Barça — style karaoké</title>
+    <script src="assets/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* Vidéo source (Espanyol-Barça 2004) gardée intégrale (§1bis) : un seul composite continu 0 -> 42.533333s, même géométrie partout (contenu 856x488 recadré hors bandes noires, fond cover 1080x1920 flouté, plan net 1080x888, overlay y=420, §2). */
+      .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+
+      /* header - constantes fixes de la série, persistant du début à la fin */
+      #hdr { position: absolute; inset: 0 0 auto 0; z-index: 20; }
+      .ring {
+        position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
+        border: 4px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
+
+      /* --ocre-render : compensation du décalage de teinte du pipeline de
+         render HyperFrames sur --ocre (§3 CLAUDE.md, série "ce jour-là").
+         */
+      :root { --ocre-render: #B9A456; }
+      .tag {
+        position: absolute; left: 96px; top: 350px; height: 58px; z-index: 20;
+        display: flex; align-items: center; background: var(--ocre-render); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; padding: 0 15px;
+      }
+
+      /* corps de texte façon karaoké - Anton, centré verticalement dans le
+         cadre bas (top:1480px, cf. §4.B révisé 26 septembre 2026), superposé
+         sur la bande floutée sous le plan net. Taille FIXE 80px pour toutes
+         les cartes ; aucune ombre portée ; léger contour semi-transparent
+         ink. Texte déjà écrit en MAJUSCULES dans le HTML (pas seulement via
+         text-transform, cf. bug de subsetting de police §4.B). .story-line
+         porte un transform:translateY(-50%) STATIQUE - ne jamais animer y
+         dessus avec GSAP (§6), opacity uniquement. */
+      .story-zone { position: absolute; left: 96px; right: 96px; z-index: 20; text-align: center; }
+      .story-line {
+        position: absolute; left: 0; right: 0;
+        top: 1480px; transform: translateY(-50%);
+        font-family: 'Anton', sans-serif; font-size: 80px; line-height: 1.1;
+        text-transform: uppercase; color: var(--cream); opacity: 0;
+        -webkit-text-stroke: 1.5px rgba(44,40,35,.35);
+      }
+      /* mot-clé en ocre via **mot** dans CORPS (karaoké) - §4.B */
+      .story-line b.ocre { color: var(--ocre-render); font-weight: inherit; }
+
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="42.533333"
+      data-fps="30"
+    >
+      <!-- vidéo intégrale, un seul plan continu du début à la fin -->
+      <video class="video-full" id="fullv" src="assets/composite.mp4" data-start="0" data-duration="42.533333" data-track-index="1" muted playsinline></video>
+      <audio id="fulla" src="assets/audio.m4a" data-start="0" data-duration="42.533333" data-track-index="2"></audio>
+
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+      <div class="tag">CE JOUR LÀ …</div>
+
+      <!-- CORPS (KARAOKÉ) du brouillon "POST DU JOUR — 16 octobre 2026", une ligne = une carte, verbatim, 28 cartes. -->
+      <div class="story-zone">
+        <div class="story-line" id="c1">L’HISTOIRE DU BARÇA</div>
+        <div class="story-line" id="c2">A CHANGÉ À CET INSTANT</div>
+        <div class="story-line" id="c3">LE 16 OCTOBRE 2004,</div>
+        <div class="story-line" id="c4">À MONTJUÏC, LE BARÇA</div>
+        <div class="story-line" id="c5">MÈNE 1-0 CONTRE L’ESPANYOL</div>
+        <div class="story-line" id="c6">DECO A INSCRIT</div>
+        <div class="story-line" id="c7">L’UNIQUE BUT DU DERBY</div>
+        <div class="story-line" id="c8">À LA 82E MINUTE</div>
+        <div class="story-line" id="c9">FRANK RIJKAARD</div>
+        <div class="story-line" id="c10">EFFECTUE UN REMPLACEMENT</div>
+        <div class="story-line" id="c11">UN GAMIN DE 17 ANS</div>
+        <div class="story-line" id="c12">ENTRE SUR LA PELOUSE.</div>
+        <div class="story-line" id="c13">NUMÉRO 30 DANS LE DOS.</div>
+        <div class="story-line" id="c14">LIONEL MESSI.</div>
+        <div class="story-line" id="c15">IL NE RESTE QUE</div>
+        <div class="story-line" id="c16">HUIT MINUTES À JOUER.</div>
+        <div class="story-line" id="c17">CE 16 OCTOBRE,</div>
+        <div class="story-line" id="c18">MESSI DISPUTE</div>
+        <div class="story-line" id="c19">SON PREMIER MATCH OFFICIEL</div>
+        <div class="story-line" id="c20">AVEC L’ÉQUIPE PREMIÈRE</div>
+        <div class="story-line" id="c21">PERSONNE NE PEUT ENCORE</div>
+        <div class="story-line" id="c22">IMAGINER LA SUITE.</div>
+        <div class="story-line" id="c23">HUIT MINUTES DANS UN DERBY.</div>
+        <div class="story-line" id="c24">PUIS DES ANNÉES DE RECORDS,</div>
+        <div class="story-line" id="c25">DE BALLONS D’OR ET DE TROPHÉES</div>
+        <div class="story-line" id="c26">LE PLUS GRAND CHAPITRE</div>
+        <div class="story-line" id="c27">DE L’HISTOIRE DU BARÇA</div>
+        <div class="story-line" id="c28">VENAIT DE COMMENCER</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      /* §4.B/§5 : CPS 13, plancher 0.8s, zéro pause, départ 0.3s ;
+         facteur 0.968. */
+      function fadeBlockKaraoke(sel, start, dur) {
+        tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 0.10, ease: 'power2.out' }, start);
+        tl.to(sel, { opacity: 0, duration: 0.08, ease: 'sine.in' }, start + dur - 0.08);
+        tl.set(sel, { opacity: 0 }, start + dur);
+      }
+
+      const cards = [
+        { id: "c1", start: 0.300, dur: 1.415 },
+        { id: "c2", start: 1.715, dur: 1.639 },
+        { id: "c3", start: 3.354, dur: 1.415 },
+        { id: "c4", start: 4.769, dur: 1.490 },
+        { id: "c5", start: 6.259, dur: 1.937 },
+        { id: "c6", start: 8.195, dur: 1.043 },
+        { id: "c7", start: 9.238, dur: 1.564 },
+        { id: "c8", start: 10.802, dur: 1.117 },
+        { id: "c9", start: 11.920, dur: 1.043 },
+        { id: "c10", start: 12.963, dur: 1.788 },
+        { id: "c11", start: 14.750, dur: 1.341 },
+        { id: "c12", start: 16.091, dur: 1.564 },
+        { id: "c13", start: 17.655, dur: 1.639 },
+        { id: "c14", start: 19.294, dur: 0.968 },
+        { id: "c15", start: 20.262, dur: 1.117 },
+        { id: "c16", start: 21.379, dur: 1.564 },
+        { id: "c17", start: 22.944, dur: 1.043 },
+        { id: "c18", start: 23.986, dur: 0.968 },
+        { id: "c19", start: 24.955, dur: 1.937 },
+        { id: "c20", start: 26.891, dur: 1.639 },
+        { id: "c21", start: 28.530, dur: 1.713 },
+        { id: "c22", start: 30.243, dur: 1.341 },
+        { id: "c23", start: 31.584, dur: 2.011 },
+        { id: "c24", start: 33.595, dur: 2.011 },
+        { id: "c25", start: 35.606, dur: 2.235 },
+        { id: "c26", start: 37.841, dur: 1.639 },
+        { id: "c27", start: 39.479, dur: 1.639 },
+        { id: "c28", start: 41.118, dur: 1.415 },
+      ];
+
+      cards.forEach(({ id, start, dur }) => {
+        fadeBlockKaraoke(`#${id}`, start, dur);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
