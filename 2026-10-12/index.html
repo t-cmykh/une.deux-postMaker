@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 12 octobre 1996, Wenger-Arsenal — style karaoké</title>
+    <script src="assets/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* Vidéo source (Wenger-Arsenal 1996) gardée intégrale (§1bis) : un seul composite continu 0 -> 56.783333s, même géométrie partout (contenu 662x492 recadré hors bandes noires, fond cover 1080x1920 flouté, plan net 1080x888, overlay y=420, §2). */
+      .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+
+      /* header - constantes fixes de la série, persistant du début à la fin */
+      #hdr { position: absolute; inset: 0 0 auto 0; z-index: 20; }
+      .ring {
+        position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
+        border: 4px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
+
+      /* --ocre-render : compensation du décalage de teinte du pipeline de
+         render HyperFrames sur --ocre (§3 CLAUDE.md, série "ce jour-là").
+         */
+      :root { --ocre-render: #B9A456; }
+      .tag {
+        position: absolute; left: 96px; top: 350px; height: 58px; z-index: 20;
+        display: flex; align-items: center; background: var(--ocre-render); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; padding: 0 15px;
+      }
+
+      /* corps de texte façon karaoké - Anton, centré verticalement dans le
+         cadre bas (top:1480px, cf. §4.B révisé 26 septembre 2026), superposé
+         sur la bande floutée sous le plan net. Taille FIXE 80px pour toutes
+         les cartes ; aucune ombre portée ; léger contour semi-transparent
+         ink. Texte déjà écrit en MAJUSCULES dans le HTML (pas seulement via
+         text-transform, cf. bug de subsetting de police §4.B). .story-line
+         porte un transform:translateY(-50%) STATIQUE - ne jamais animer y
+         dessus avec GSAP (§6), opacity uniquement. */
+      .story-zone { position: absolute; left: 96px; right: 96px; z-index: 20; text-align: center; }
+      .story-line {
+        position: absolute; left: 0; right: 0;
+        top: 1480px; transform: translateY(-50%);
+        font-family: 'Anton', sans-serif; font-size: 80px; line-height: 1.1;
+        text-transform: uppercase; color: var(--cream); opacity: 0;
+        -webkit-text-stroke: 1.5px rgba(44,40,35,.35);
+      }
+      /* mot-clé en ocre via **mot** dans CORPS (karaoké) - §4.B */
+      .story-line b.ocre { color: var(--ocre-render); font-weight: inherit; }
+
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="56.783333"
+      data-fps="30"
+    >
+      <!-- vidéo intégrale, un seul plan continu du début à la fin -->
+      <video class="video-full" id="fullv" src="assets/composite.mp4" data-start="0" data-duration="56.783333" data-track-index="1" muted playsinline></video>
+      <audio id="fulla" src="assets/audio.m4a" data-start="0" data-duration="56.783333" data-track-index="2"></audio>
+
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+      <div class="tag">CE JOUR LÀ …</div>
+
+      <!-- CORPS (KARAOKÉ) du brouillon "POST DU JOUR — 12 octobre 2026",
+           une ligne = une carte, verbatim, 33 cartes. -->
+      <div class="story-zone">
+        <div class="story-line" id="c1">PERSONNE NE LE CONNAISSAIT</div>
+        <div class="story-line" id="c2">ET POURTANT</div>
+        <div class="story-line" id="c3">IL ALLAIT MARQUER</div>
+        <div class="story-line" id="c4">L’HISTOIRE D’ARSENAL</div>
+        <div class="story-line" id="c5">LE 12 OCTOBRE 1996,</div>
+        <div class="story-line" id="c6">À EWOOD PARK,</div>
+        <div class="story-line" id="c7">ARSENAL AFFRONTE BLACKBURN.</div>
+        <div class="story-line" id="c8">SUR LE TERRAIN,</div>
+        <div class="story-line" id="c9">IAN WRIGHT FAIT LE SPECTACLE.</div>
+        <div class="story-line" id="c10">UN BUT À LA 3E MINUTE.</div>
+        <div class="story-line" id="c11">UN AUTRE À LA 51E.</div>
+        <div class="story-line" id="c12">VICTOIRE D’ARSENAL : 2-0.</div>
+        <div class="story-line" id="c13">MAIS CE JOUR-LÀ,</div>
+        <div class="story-line" id="c14">L’ESSENTIEL EST AILLEURS.</div>
+        <div class="story-line" id="c15">SUR LE BANC, UN FRANÇAIS</div>
+        <div class="story-line" id="c16">PRESQUE INCONNU EN ANGLETERRE</div>
+        <div class="story-line" id="c17">ARSÈNE WENGER.</div>
+        <div class="story-line" id="c18">ARRIVÉ DU JAPON,</div>
+        <div class="story-line" id="c19">IL DIRIGE SON PREMIER MATCH</div>
+        <div class="story-line" id="c20">À LA TÊTE DES GUNNERS.</div>
+        <div class="story-line" id="c21">RIEN NE LAISSE ENCORE</div>
+        <div class="story-line" id="c22">PRÉSAGER LA SUITE.</div>
+        <div class="story-line" id="c23">POURTANT,</div>
+        <div class="story-line" id="c24">CET HOMME VA TRANSFORMER LE CLUB.</div>
+        <div class="story-line" id="c25">TROIS TITRES DE CHAMPION D’ANGLETERRE</div>
+        <div class="story-line" id="c26">SEPT FA CUPS</div>
+        <div class="story-line" id="c27">UNE SAISON ENTIÈRE</div>
+        <div class="story-line" id="c28">SANS DÉFAITE EN CHAMPIONNAT.</div>
+        <div class="story-line" id="c29">ET SURTOUT,</div>
+        <div class="story-line" id="c30">22 ANS À LA TÊTE D’ARSENAL.</div>
+        <div class="story-line" id="c31">LE 12 OCTOBRE 1996,</div>
+        <div class="story-line" id="c32">PERSONNE NE LE SAVAIT ENCORE.</div>
+        <div class="story-line" id="c33">MAIS UNE LÉGENDE VENAIT DE COMMENCER…</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      /* §4.B/§5 : CPS 13, plancher 0.8s, zéro pause, départ 0.3s ;
+         facteur 1.026. */
+      function fadeBlockKaraoke(sel, start, dur) {
+        tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 0.10, ease: 'power2.out' }, start);
+        tl.to(sel, { opacity: 0, duration: 0.08, ease: 'sine.in' }, start + dur - 0.08);
+        tl.set(sel, { opacity: 0 }, start + dur);
+      }
+
+      const cards = [
+        { id: "c1", start: 0.300, dur: 2.053 },
+        { id: "c2", start: 2.353, dur: 0.868 },
+        { id: "c3", start: 3.221, dur: 1.342 },
+        { id: "c4", start: 4.563, dur: 1.579 },
+        { id: "c5", start: 6.143, dur: 1.500 },
+        { id: "c6", start: 7.643, dur: 1.026 },
+        { id: "c7", start: 8.669, dur: 2.132 },
+        { id: "c8", start: 10.801, dur: 1.184 },
+        { id: "c9", start: 11.985, dur: 2.290 },
+        { id: "c10", start: 14.275, dur: 1.737 },
+        { id: "c11", start: 16.012, dur: 1.421 },
+        { id: "c12", start: 17.433, dur: 1.974 },
+        { id: "c13", start: 19.407, dur: 1.263 },
+        { id: "c14", start: 20.670, dur: 1.974 },
+        { id: "c15", start: 22.644, dur: 1.895 },
+        { id: "c16", start: 24.539, dur: 2.290 },
+        { id: "c17", start: 26.828, dur: 1.105 },
+        { id: "c18", start: 27.934, dur: 1.263 },
+        { id: "c19", start: 29.197, dur: 2.132 },
+        { id: "c20", start: 31.329, dur: 1.737 },
+        { id: "c21", start: 33.066, dur: 1.658 },
+        { id: "c22", start: 34.724, dur: 1.421 },
+        { id: "c23", start: 36.145, dur: 0.821 },
+        { id: "c24", start: 36.966, dur: 2.605 },
+        { id: "c25", start: 39.571, dur: 2.921 },
+        { id: "c26", start: 42.493, dur: 0.947 },
+        { id: "c27", start: 43.440, dur: 1.421 },
+        { id: "c28", start: 44.861, dur: 2.211 },
+        { id: "c29", start: 47.072, dur: 0.868 },
+        { id: "c30", start: 47.941, dur: 2.132 },
+        { id: "c31", start: 50.072, dur: 1.500 },
+        { id: "c32", start: 51.572, dur: 2.290 },
+        { id: "c33", start: 53.862, dur: 2.921 },
+      ];
+
+      cards.forEach(({ id, start, dur }) => {
+        fadeBlockKaraoke(`#${id}`, start, dur);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
