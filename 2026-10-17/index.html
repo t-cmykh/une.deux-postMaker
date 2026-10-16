@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · 17 octobre 2007, Henry dépasse Platini — style karaoké</title>
+    <script src="assets/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+
+      /* Vidéo source (France-Lituanie 2007) gardée intégrale (§1bis) : un seul composite continu 0 -> 28.116667s, même géométrie partout (contenu 884x496 recadré hors bandes noires + zoom x1.25 (logo FFFtv), fond cover 1080x1920 flouté, plan net 1080x888, overlay y=420, §2). */
+      .video-full { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+
+      /* header - constantes fixes de la série, persistant du début à la fin */
+      #hdr { position: absolute; inset: 0 0 auto 0; z-index: 20; }
+      .ring {
+        position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
+        border: 4px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--cream);
+      }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
+
+      /* --ocre-render : compensation du décalage de teinte du pipeline de
+         render HyperFrames sur --ocre (§3 CLAUDE.md, série "ce jour-là").
+         */
+      :root { --ocre-render: #B9A456; }
+      .tag {
+        position: absolute; left: 96px; top: 350px; height: 58px; z-index: 20;
+        display: flex; align-items: center; background: var(--ocre-render); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; padding: 0 15px;
+      }
+
+      /* corps de texte façon karaoké - Anton, centré verticalement dans le
+         cadre bas (top:1480px, cf. §4.B révisé 26 septembre 2026), superposé
+         sur la bande floutée sous le plan net. Taille FIXE 80px pour toutes
+         les cartes ; aucune ombre portée ; léger contour semi-transparent
+         ink. Texte déjà écrit en MAJUSCULES dans le HTML (pas seulement via
+         text-transform, cf. bug de subsetting de police §4.B). .story-line
+         porte un transform:translateY(-50%) STATIQUE - ne jamais animer y
+         dessus avec GSAP (§6), opacity uniquement. */
+      .story-zone { position: absolute; left: 96px; right: 96px; z-index: 20; text-align: center; }
+      .story-line {
+        position: absolute; left: 0; right: 0;
+        top: 1480px; transform: translateY(-50%);
+        font-family: 'Anton', sans-serif; font-size: 80px; line-height: 1.1;
+        text-transform: uppercase; color: var(--cream); opacity: 0;
+        -webkit-text-stroke: 1.5px rgba(44,40,35,.35);
+      }
+      /* mot-clé en ocre via **mot** dans CORPS (karaoké) - §4.B */
+      .story-line b.ocre { color: var(--ocre-render); font-weight: inherit; }
+
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="28.116667"
+      data-fps="30"
+    >
+      <!-- vidéo intégrale, un seul plan continu du début à la fin -->
+      <video class="video-full" id="fullv" src="assets/composite.mp4" data-start="0" data-duration="28.116667" data-track-index="1" muted playsinline></video>
+      <audio id="fulla" src="assets/audio.m4a" data-start="0" data-duration="28.116667" data-track-index="2"></audio>
+
+      <div id="hdr">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+      <div class="tag">CE JOUR LÀ …</div>
+
+      <!-- CORPS (KARAOKÉ) du brouillon "POST DU JOUR — 17 octobre 2026", une ligne = une carte, verbatim, 18 cartes. -->
+      <div class="story-zone">
+        <div class="story-line" id="c1">IL A FALLU 80 MINUTES</div>
+        <div class="story-line" id="c2">POUR MARQUER</div>
+        <div class="story-line" id="c3">MAIS PLUS QU’UN BUT</div>
+        <div class="story-line" id="c4">C’EST SON EMPREINTE</div>
+        <div class="story-line" id="c5">QU’IL A LAISSÉ DANS</div>
+        <div class="story-line" id="c6">L’HISTOIRE DU FOOT FRANÇAIS</div>
+        <div class="story-line" id="c7">LE 17 OCTOBRE 2007</div>
+        <div class="story-line" id="c8">CONTRE LA LITUANIE</div>
+        <div class="story-line" id="c9">THIERRY HENRY MARQUE</div>
+        <div class="story-line" id="c10">UN BUT À LA 80EME</div>
+        <div class="story-line" id="c11">ET MOINS DE TROIS MINUTES</div>
+        <div class="story-line" id="c12">PLUS TARD, IL RECOMMENCE</div>
+        <div class="story-line" id="c13">EN QUELQUES INSTANTS,</div>
+        <div class="story-line" id="c14">HENRY VIENT D’ENTRER</div>
+        <div class="story-line" id="c15">DANS L’HISTOIRE</div>
+        <div class="story-line" id="c16">AVEC 43 BUTS AVEC LES BLEUS</div>
+        <div class="story-line" id="c17">IL DÉPASSE MICHEL PLATINI</div>
+        <div class="story-line" id="c18">ET SES 41 RÉALISATIONS</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      /* §4.B/§5 : CPS 13, plancher 0.8s, zéro pause, départ 0.3s ;
+         facteur 0.980. */
+      function fadeBlockKaraoke(sel, start, dur) {
+        tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 0.10, ease: 'power2.out' }, start);
+        tl.to(sel, { opacity: 0, duration: 0.08, ease: 'sine.in' }, start + dur - 0.08);
+        tl.set(sel, { opacity: 0 }, start + dur);
+      }
+
+      const cards = [
+        { id: "c1", start: 0.300, dur: 1.583 },
+        { id: "c2", start: 1.883, dur: 0.905 },
+        { id: "c3", start: 2.788, dur: 1.432 },
+        { id: "c4", start: 4.220, dur: 1.432 },
+        { id: "c5", start: 5.652, dur: 1.432 },
+        { id: "c6", start: 7.085, dur: 2.035 },
+        { id: "c7", start: 9.120, dur: 1.357 },
+        { id: "c8", start: 10.477, dur: 1.357 },
+        { id: "c9", start: 11.834, dur: 1.508 },
+        { id: "c10", start: 13.341, dur: 1.282 },
+        { id: "c11", start: 14.623, dur: 1.885 },
+        { id: "c12", start: 16.508, dur: 1.809 },
+        { id: "c13", start: 18.317, dur: 1.583 },
+        { id: "c14", start: 19.900, dur: 1.508 },
+        { id: "c15", start: 21.407, dur: 1.131 },
+        { id: "c16", start: 22.538, dur: 2.035 },
+        { id: "c17", start: 24.574, dur: 1.885 },
+        { id: "c18", start: 26.458, dur: 1.658 },
+      ];
+
+      cards.forEach(({ id, start, dur }) => {
+        fadeBlockKaraoke(`#${id}`, start, dur);
+      });
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
