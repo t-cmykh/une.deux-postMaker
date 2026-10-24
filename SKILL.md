@@ -346,7 +346,7 @@ disponibles pour les slides intérieures et les reels.
 | Champ | Rôle |
 |-------|------|
 | `serie` | `cejourla` · `oublies` · `portraits` · `arretdejeu` (verrouille couleur, virage photo, format) |
-| `template` | `cover` · `titre` (cover titre seul) · `corps` (cover corps seul, plein cadre — pensé pour L'arrêt de jeu) · `citation` · `cta` |
+| `template` | `cover` · `titre` (cover titre seul) · `corps` (cover corps seul, plein cadre — pensé pour L'arrêt de jeu) · `citation` · `cta` · `frise` (FRISE CHRONO, Le foot dans le rétro uniquement — voir ci-dessous) |
 | `tag` | **auto** = `N° + nom de série` (non éditable) |
 | `title` | titre de cover (MAJUSCULES, 2 lignes) — absent en template `corps` |
 | `greenWord` | mot-clé du titre coloré en signature de série |
@@ -362,6 +362,22 @@ sur demande explicite de Thomas pour un visuel ponctuel. Voir
 `exemples/*-par-serie.md` et
 `planning/planning-unedeux.md` pour la déclinaison série par série (scénarios,
 prompts photo, légendes) et le planning éditorial (2 posts/jour).
+
+**Template `frise` — carrousel « Le foot dans le rétro » (ajouté le 24 octobre
+2026).** 2ᵉ format de la série, à côté du reel (cf. `CLAUDE.md`) : le parcours
+d'un joueur en frise chronologique, une étape par slide, sur le modèle du
+carrousel FIFA « Remembering Pelé » donné en référence par Thomas. Format 3:4
+(bascule automatique en choisissant le template). Média plein cadre, couleur
+d'origine (pas de virage sépia : la frise traverse plusieurs époques). Une
+ligne crème horizontale **bord à bord** (jamais de marge) à la même hauteur
+sur toutes les slides, pour qu'elle se raccorde d'une slide à l'autre au
+swipe : c'est l'élément visuel qui relie le carrousel. Un point bordeaux
+cerclé crème sur la ligne, la **date** en grand au-dessus (champ optionnel :
+seulement sur les slides qui ouvrent une étape, les autres gardent le point
+seul) et une **légende** courte optionnelle en dessous. Garder la même
+position de point sur toutes les slides d'un même post. Accepte photo ou
+vidéo (export MP4), comme les autres templates. Pas encore branché sur le
+mode batch : slide par slide uniquement.
 
 ## Skills chaînés (utilisation automatique)
 
