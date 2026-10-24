@@ -170,6 +170,7 @@ Corps du CTA."></textarea>
         <div class="chip" data-tpl="titre">COVER · TITRE SEUL</div>
         <div class="chip" data-tpl="corps">COVER · CORPS SEUL</div>
         <div class="chip" data-tpl="cejourla-cover" id="chip_cejourla_cover" style="display:none">COUVERTURE PHOTO</div>
+        <div class="chip" data-tpl="frise" id="chip_frise" style="display:none">FRISE CHRONO</div>
         <div class="chip" data-tpl="citation">CITATION</div>
         <div class="chip" data-tpl="verbatim" id="chip_verbatim" style="display:none">CITATION · INTERVIEW</div>
         <div class="chip" data-tpl="citation-echo" id="chip_citation_echo" style="display:none">CITATION · ÉCHO</div>
@@ -285,6 +286,19 @@ Je ne conclus pas, je documente.</textarea>
       <div class="hint">Mot-clé du titre sur carré crème ajustable, texte dans la couleur de la série.</div>
     </div>
 
+    <div id="field_frise" style="display:none">
+      <div class="field">
+        <label>Date (au-dessus du point)</label>
+        <input id="f_friseYear" type="text" value="" maxlength="16" placeholder="Ex : 1984 — vide = point seul">
+      </div>
+      <div class="field">
+        <label>Légende (sous la ligne)</label>
+        <input id="f_friseCaption" type="text" value="" maxlength="60" placeholder="Ex : Ballon d'Or n°2 — optionnel">
+      </div>
+      <div class="range-row"><label>Position du point</label><input id="r_frisedot" type="range" min="0" max="100" value="50"><span class="val" id="v_frisedot">50</span></div>
+      <div class="hint">La ligne traverse tout le cadre, bord à bord : elle se raccorde d'une slide à l'autre dans le carrousel. Garde le point au même endroit sur toutes les slides (50 = centre, comme la réf) ; mets une date seulement sur les slides qui ouvrent une étape, les slides intermédiaires gardent le point seul.</div>
+    </div>
+
     <div class="row2">
       <div class="field"><label>Slide</label><input id="f_cur" type="text" value="01"></div>
       <div class="field"><label>Total</label><input id="f_tot" type="text" value="09"></div>
@@ -381,8 +395,8 @@ const SERIES = {
     photo:'sepia', desc:'Éphéméride · carrousel',
     legend:'Template cover · signature ocre · sépia chaud. Socle quotidien.' },
   retro:{ name:'Le foot dans le rétro', label:'LE FOOT DANS LE RÉTRO', num:'N°1', sig:C.bordeaux, swatch:C.bordeaux,
-    photo:'sepia', desc:'Éphéméride · reel', sigTextColor:C.creme,
-    legend:'Identique à Ce jour-là (même template COUVERTURE PHOTO, même sépia chaud, même reel HyperFrames) — seule la signature change : bordeaux sourd au lieu d\'ocre. Ajoutée le 27 septembre 2026 en remplacement de « L\'histoire derrière cette photo », qui reprend sa couleur.' },
+    photo:'sepia', desc:'Reel · frise carrousel', sigTextColor:C.creme,
+    legend:'Deux formats. Reel : identique à Ce jour-là (même template COUVERTURE PHOTO, même sépia chaud, même reel HyperFrames), signature bordeaux au lieu d\'ocre. Carrousel : template FRISE CHRONO (3:4), parcours d\'un joueur relié par une ligne horizontale continue d\'une slide à l\'autre, avec un point et la date de chaque étape.' },
   oublies:{ name:'Les oubliés', label:'LES OUBLIÉS', num:'N°1', sig:C.vert, swatch:C.vert,
     photo:'cold', desc:'Injustices · carrousel', sigTextColor:C.creme,
     legend:'Même template cover · signature vert · N&B froid.' },
@@ -416,6 +430,7 @@ const state = {
   bodyBoxOpacity:0,
   satPortrait:0,
   kwPad:10,
+  friseYear:'', friseCaption:'', friseDotX:0.5,
   titleSizeManual:null,
   titleAnimSpeed:1,
   titleRevealStart:null,
@@ -427,7 +442,7 @@ const state = {
 };
 
 const RATIOS = {'3:4':[1080,1440], '4:5':[1080,1350], '9:16':[1080,1920], '1:1':[1080,1080]};
-const RAT_BY_SERIE = { cejourla:['9:16'], retro:['9:16'], oublies:['3:4'],
+const RAT_BY_SERIE = { cejourla:['9:16'], retro:['9:16','3:4'], oublies:['3:4'],
   portraits:['3:4'], arretdejeu:['3:4'] };
 
 const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
@@ -514,6 +529,11 @@ function selectSerie(key){
      composition reprise du reel vidéo "Ce jour-là") : réservé à Ce jour-là et
      Le foot dans le rétro (même template, seule la couleur de série change) */
   document.getElementById('chip_cejourla_cover').style.display = (key==='cejourla'||key==='retro')?'':'none';
+  /* template "frise chrono" (carrousel parcours de joueur) : réservé au Foot dans le rétro */
+  document.getElementById('chip_frise').style.display = (key==='retro')?'':'none';
+  if(state.template==='frise' && key!=='retro'){
+    document.querySelector('#tpl_chips [data-tpl="citation"]').click();
+  }
   if((state.template==='verbatim' || state.template==='citation-echo' || LONGFORM_TPLS.includes(state.template)) && key!=='arretdejeu'){
     document.querySelector('#tpl_chips [data-tpl="citation"]').click();
   }
@@ -526,6 +546,7 @@ function selectSerie(key){
   updateKwPadVisibility();
   setVerbatimLabels(state.template==='verbatim');
   state.ratio=RAT_BY_SERIE[key][0];  /* format verrouillé par série */
+  if(state.template==='frise') state.ratio='3:4';  /* frise = carrousel 3:4 */
   buildRatioTabs(); draw();
 }
 
@@ -607,7 +628,15 @@ document.querySelectorAll('#tpl_chips .chip').forEach(c=>{
     document.getElementById('field_citation').style.display = (state.template==='citation'||state.template==='verbatim'||state.template==='citation-echo')?'block':'none';
     /* couverture photo : titre optionnel (même mécanique mot-clé encadré
        que COVER · TITRE SEUL), jamais de corps */
-    document.getElementById('field_body').style.display = (state.template==='titre'||state.template==='cejourla-cover')?'none':'block';
+    document.getElementById('field_body').style.display = (state.template==='titre'||state.template==='cejourla-cover'||state.template==='frise')?'none':'block';
+    /* frise chrono : ni titre ni corps, juste date + légende sur la ligne */
+    document.getElementById('field_title').style.display = (state.template==='frise')?'none':'block';
+    document.getElementById('field_greenpicker').style.display = (state.template==='frise')?'none':'block';
+    document.getElementById('field_frise').style.display = (state.template==='frise')?'block':'none';
+    /* le carrousel frise est en 3:4 ; on repasse au format par défaut de la
+       série en quittant le template */
+    const wantRatio = (state.template==='frise') ? '3:4' : RAT_BY_SERIE[state.serie][0];
+    if(state.ratio!==wantRatio){ state.ratio=wantRatio; buildRatioTabs(); }
     document.getElementById('field_titlesize').style.display = (state.template==='titre'||state.template==='cejourla-cover')?'block':'none';
     /* révélation ligne par ligne : uniquement l'aperçu animé "titre seul",
        une couverture reste une image fixe — Ce jour-là et Le foot dans le rétro */
@@ -643,6 +672,10 @@ document.getElementById('b_replayanim').onclick=()=>{ restartTitleReveal(); draw
 const rtbg=document.getElementById('r_textbg');
 rtbg.oninput=()=>{ state.textBgOpacity=+rtbg.value; document.getElementById('v_textbg').textContent=rtbg.value; draw(); };
 document.getElementById('f_btnlabel').oninput=e=>{state.btnlabel=e.target.value;draw();};
+document.getElementById('f_friseYear').oninput=e=>{state.friseYear=e.target.value;draw();};
+document.getElementById('f_friseCaption').oninput=e=>{state.friseCaption=e.target.value;draw();};
+const rfd=document.getElementById('r_frisedot');
+rfd.oninput=()=>{ state.friseDotX=+rfd.value/100; document.getElementById('v_frisedot').textContent=rfd.value; draw(); };
 document.getElementById('f_intro').oninput=e=>{state.introText=e.target.value;draw();};
 document.getElementById('f_byline').oninput=e=>{state.byline=e.target.value;draw();};
 document.getElementById('f_qa').oninput=e=>{state.qaRaw=e.target.value;draw();};
@@ -1181,6 +1214,9 @@ function draw(){
 
   /* router COUVERTURE PHOTO (Ce jour-là et Le foot dans le rétro) */
   if(state.template==='cejourla-cover'){ drawCejourlaCoverPhoto(W,H,s); if(state.safeOn) drawSafeGuides(W,H); return; }
+
+  /* router FRISE CHRONO (Le foot dans le rétro, format carrousel) */
+  if(state.template==='frise'){ drawFrise(W,H,s); if(state.safeOn) drawSafeGuides(W,H); return; }
 
   /* 1. média de fond */
   if(state.img){
@@ -2529,6 +2565,106 @@ function drawCejourlaCoverPhoto(W,H,s){
     const merges=computeLineMerges(g,lines,baselines,lineBaseIdx);
     lines.forEach((lw,i)=> drawWordLine(g,lw,M,baselines[i],lineBaseIdx[i],merges[i]) );
   }
+}
+
+/* ===== TEMPLATE FRISE CHRONO (Le foot dans le rétro, carrousel) — parcours
+   d'un joueur slide par slide, sur le modèle du carrousel FIFA « Remembering
+   Pelé » fourni par Thomas comme référence : média plein cadre, une fine
+   ligne horizontale qui traverse tout le cadre bord à bord (x=0 → x=W) à la
+   même hauteur sur chaque slide, pour qu'elle se raccorde visuellement d'une
+   slide à l'autre quand on swipe — c'est l'élément qui relie le carrousel.
+   Un point sur la ligne (bordeaux cerclé crème), la date en grand au-dessus
+   (optionnelle : seules les slides qui ouvrent une étape la portent), une
+   légende courte optionnelle en dessous. Header de série identique aux
+   autres templates. Pas de virage sépia : le parcours traverse plusieurs
+   époques, chaque photo garde sa couleur (ou son N&B) d'origine, comme sur
+   la référence. ===== */
+function drawFrise(W,H,s){
+  const g=ctx, isVert=state.ratio==='9:16';
+  const M=isVert?96:50, MR=isVert?96:120;
+  g.clearRect(0,0,W,H);
+
+  /* 1. média plein cadre (mêmes réglages zoom/position que la cover) */
+  if(state.img){
+    const img=state.img, ir=mediaW(img)/mediaH(img), cr=W/H; let dw,dh;
+    if(ir>cr){dh=H*state.zoom;dw=dh*ir;}else{dw=W*state.zoom;dh=dw/ir;}
+    g.drawImage(img,(W-dw)*state.posx,(H-dh)*state.posy,dw,dh);
+  } else {
+    const lg=g.createLinearGradient(0,0,0,H);
+    lg.addColorStop(0,'#9a968c'); lg.addColorStop(1,'#4f4c44');
+    g.fillStyle=lg; g.fillRect(0,0,W,H);
+  }
+
+  /* 2. dégradé encre bas, plus léger que la cover (réglé par « Assombrir ») —
+     juste assez pour la date et la légende, la photo reste le sujet */
+  const lineY = isVert ? H-safeBottom()-260 : H-150;
+  const gStart=lineY-320, a=state.dark*0.7;
+  const grad=g.createLinearGradient(0,gStart,0,H);
+  grad.addColorStop(0,'rgba(44,40,35,0)'); grad.addColorStop(1,'rgba(44,40,35,'+a+')');
+  g.fillStyle=grad; g.fillRect(0,gStart,W,H-gStart);
+
+  /* 3. header — copie exacte du header cover (ring/wordmark/handle/hairline + tag série) */
+  const ringD=92, ringX=M, ringY=66+safeTop(), ringC=ringY+ringD/2;
+  g.strokeStyle=C.creme; g.lineWidth=4;
+  g.beginPath(); g.arc(ringX+ringD/2, ringC, ringD/2-2, 0, Math.PI*2); g.stroke();
+  g.fillStyle=C.creme; g.textBaseline='middle';
+  g.font="38px 'Saira Condensed'"; g.textAlign='center';
+  g.fillText('1·2', ringX+ringD/2, ringC+1);
+  g.textAlign='left';
+  g.font="58px 'Anton'";
+  g.fillText('une·deux', ringX+ringD+26, ringC+2);
+  g.textAlign='right'; g.fillStyle=C.creme;
+  g.font="32px 'Saira Condensed'";
+  g.fillText('@UNE.DEUX', W-MR, ringC);
+  g.textAlign='left';
+  g.fillStyle=C.line; g.fillRect(M, 168+safeTop(), W-M-MR, 4);
+  const tagY=200+safeTop(), tagH=58;
+  g.font="32px 'Saira Condensed'"; g.textBaseline='middle';
+  const nameTxt=s.label.toUpperCase();
+  const nameW=g.measureText(nameTxt).width+30;
+  g.fillStyle=s.sig; g.fillRect(M,tagY,nameW,tagH);
+  g.fillStyle=s.sigTextColor||C.encre;
+  g.fillText(nameTxt, M+15, tagY+tagH/2+1);
+  g.textBaseline='alphabetic';
+
+  /* 4. la ligne — bord à bord, jamais de marge : c'est elle qui se raccorde
+     d'une slide à l'autre */
+  g.fillStyle=C.creme; g.fillRect(0,lineY-2,W,4);
+
+  /* 5. le point — bordeaux (signature série) cerclé crème */
+  const dotX=Math.round(W*state.friseDotX);
+  g.beginPath(); g.arc(dotX,lineY,17,0,Math.PI*2); g.fillStyle=C.creme; g.fill();
+  g.beginPath(); g.arc(dotX,lineY,11,0,Math.PI*2); g.fillStyle=s.sig; g.fill();
+
+  /* texte centré sur le point, mais jamais hors des marges */
+  const centeredX=(w)=>Math.max(M, Math.min(W-MR-w, dotX-w/2));
+
+  /* 6. date en grand au-dessus du point */
+  const year=(state.friseYear||'').trim();
+  if(year){
+    g.font="150px 'Anton'"; g.textAlign='left'; g.textBaseline='alphabetic';
+    const yw=g.measureText(year.toUpperCase()).width;
+    g.fillStyle=C.creme;
+    g.fillText(year.toUpperCase(), centeredX(yw), lineY-42);
+  }
+
+  /* 7. légende courte sous la ligne (2 lignes max) */
+  const cap=(state.friseCaption||'').trim().toUpperCase();
+  if(cap){
+    g.font="600 38px 'Saira Condensed'"; g.textAlign='left'; g.textBaseline='alphabetic';
+    const avail=W-M-MR, words=cap.split(/\s+/), lines=[]; let cur='';
+    words.forEach(w=>{
+      const t=cur?cur+' '+w:w;
+      if(cur && g.measureText(t).width>avail){ lines.push(cur); cur=w; } else cur=t;
+    });
+    if(cur) lines.push(cur);
+    g.fillStyle=C.creme;
+    lines.slice(0,2).forEach((ln,i)=>{
+      const lw=g.measureText(ln).width;
+      g.fillText(ln, centeredX(lw), lineY+66+i*44);
+    });
+  }
+  g.textAlign='left';
 }
 
 /* ===== TEMPLATE ENQUÊTE · TITRE XXL — très grand titre en rouille estompée,
