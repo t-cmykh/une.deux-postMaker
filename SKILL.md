@@ -375,7 +375,8 @@ swipe : c'est l'élément visuel qui relie le carrousel. Un point bordeaux
 cerclé crème sur la ligne, la **date** en grand au-dessus (champ optionnel :
 seulement sur les slides qui ouvrent une étape, les autres gardent le point
 seul) et une **légende** courte optionnelle en dessous. Garder la même
-position de point sur toutes les slides d'un même post. Accepte photo ou
+position de point sur toutes les slides d'un même post. Toggle « Header »
+(activé par défaut) pour retirer le header de série sur les slides intérieures. Accepte photo ou
 vidéo (export MP4), comme les autres templates. Pas encore branché sur le
 mode batch : slide par slide uniquement.
 

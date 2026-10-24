@@ -295,6 +295,7 @@ Je ne conclus pas, je documente.</textarea>
         <label>Légende (sous la ligne)</label>
         <input id="f_friseCaption" type="text" value="" maxlength="60" placeholder="Ex : Ballon d'Or n°2 — optionnel">
       </div>
+      <div class="toggle-row on" id="t_friseheader"><div class="tg"></div><span>Header</span></div>
       <div class="range-row"><label>Position du point</label><input id="r_frisedot" type="range" min="0" max="100" value="50"><span class="val" id="v_frisedot">50</span></div>
       <div class="hint">La ligne traverse tout le cadre, bord à bord : elle se raccorde d'une slide à l'autre dans le carrousel. Garde le point au même endroit sur toutes les slides (50 = centre, comme la réf) ; mets une date seulement sur les slides qui ouvrent une étape, les slides intermédiaires gardent le point seul.</div>
     </div>
@@ -430,7 +431,7 @@ const state = {
   bodyBoxOpacity:0,
   satPortrait:0,
   kwPad:10,
-  friseYear:'', friseCaption:'', friseDotX:0.5,
+  friseYear:'', friseCaption:'', friseDotX:0.5, friseHeaderOn:true,
   titleSizeManual:null,
   titleAnimSpeed:1,
   titleRevealStart:null,
@@ -674,6 +675,8 @@ rtbg.oninput=()=>{ state.textBgOpacity=+rtbg.value; document.getElementById('v_t
 document.getElementById('f_btnlabel').oninput=e=>{state.btnlabel=e.target.value;draw();};
 document.getElementById('f_friseYear').oninput=e=>{state.friseYear=e.target.value;draw();};
 document.getElementById('f_friseCaption').oninput=e=>{state.friseCaption=e.target.value;draw();};
+const tfh=document.getElementById('t_friseheader');
+tfh.onclick=()=>{ state.friseHeaderOn=!state.friseHeaderOn; tfh.classList.toggle('on',state.friseHeaderOn); draw(); };
 const rfd=document.getElementById('r_frisedot');
 rfd.oninput=()=>{ state.friseDotX=+rfd.value/100; document.getElementById('v_frisedot').textContent=rfd.value; draw(); };
 document.getElementById('f_intro').oninput=e=>{state.introText=e.target.value;draw();};
@@ -2603,7 +2606,10 @@ function drawFrise(W,H,s){
   grad.addColorStop(0,'rgba(44,40,35,0)'); grad.addColorStop(1,'rgba(44,40,35,'+a+')');
   g.fillStyle=grad; g.fillRect(0,gStart,W,H-gStart);
 
-  /* 3. header — copie exacte du header cover (ring/wordmark/handle/hairline + tag série) */
+  /* 3. header — copie exacte du header cover (ring/wordmark/handle/hairline + tag série),
+     masquable (toggle « Header ») pour les slides intérieures, comme sur la
+     référence où seule la photo, la ligne et la date restent */
+  if(state.friseHeaderOn){
   const ringD=92, ringX=M, ringY=66+safeTop(), ringC=ringY+ringD/2;
   g.strokeStyle=C.creme; g.lineWidth=4;
   g.beginPath(); g.arc(ringX+ringD/2, ringC, ringD/2-2, 0, Math.PI*2); g.stroke();
@@ -2626,6 +2632,7 @@ function drawFrise(W,H,s){
   g.fillStyle=s.sigTextColor||C.encre;
   g.fillText(nameTxt, M+15, tagY+tagH/2+1);
   g.textBaseline='alphabetic';
+  }
 
   /* 4. la ligne — bord à bord, jamais de marge : c'est elle qui se raccorde
      d'une slide à l'autre */
