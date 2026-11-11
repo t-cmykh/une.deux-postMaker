@@ -1,0 +1,11 @@
+{
+  "name": "reel-3-match",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "npx --yes hyperframes@0.9.31 preview",
+    "check": "npx --yes hyperframes@0.9.31 check",
+    "render": "npx --yes hyperframes@0.9.31 render -w 4 --quality high",
+    "publish": "npx --yes hyperframes@0.9.31 publish"
+  }
+}

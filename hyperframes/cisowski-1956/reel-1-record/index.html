@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · Cisowski, 5 buts (proposition 1 : le record)</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      /* Couleur de série : calibrée par pixel-sampling sur hyperframes@0.9.31
+         (#C2A04E rendu #C39E4C — plus de décalage à compenser sur cette version). */
+      :root { --ocre-render: #C2A04E; }
+
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: #2C2823; }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; }
+      .clip { opacity: 0; }
+
+      .base { position: absolute; inset: 0; background: var(--ink); z-index: 0; }
+
+      /* ===== fonds plein cadre (archives tramées) ===== */
+      .bgwrap { position: absolute; inset: 0; overflow: hidden; z-index: 1; }
+      .bgwrap img { position: absolute; inset: 0; width: 1080px; height: 1920px; display: block; }
+      .bgwrap img.low { top: 300px; height: 1620px; }   /* visage posé sous le header */
+      .scrim { position: absolute; inset: 0; z-index: 2;
+        background: linear-gradient(to bottom, rgba(44,40,35,.95) 0px, rgba(44,40,35,.82) 330px, rgba(44,40,35,0) 640px,
+                    rgba(44,40,35,0) 740px, rgba(44,40,35,.90) 1060px, rgba(44,40,35,.98) 1920px); }
+
+      /* ===== header une·deux (constantes de l'éditeur de série) ===== */
+      #hdr { position: absolute; inset: 0 0 auto 0; z-index: 30; }
+      .ring { position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
+        border: 4px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--cream); }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%);
+        font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
+      .tag { position: absolute; left: 96px; top: 350px; height: 58px; display: flex; align-items: center;
+        background: var(--ocre-render); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; padding: 0 15px; z-index: 30; }
+
+      /* ===== typographie d'affiche ===== */
+      .hl { position: absolute; left: 96px; display: flex; align-items: flex-start; gap: 26px; z-index: 6; white-space: nowrap; }
+      .hl span { display: block; font-family: 'Anton', sans-serif; font-size: 172px; line-height: 1.16; color: var(--cream); }
+      .hl span.kw { background: var(--ocre-render); color: var(--ink); padding: 0 18px; }
+      .hl.m span { font-size: 150px; }
+      .hl.s span { font-size: 118px; }
+      .hl.xs span { font-size: 104px; }
+      .hl sup { font-size: .5em; vertical-align: top; position: relative; top: .12em; margin-left: 2px; }
+      .lab { position: absolute; left: 96px; font-family: 'Saira Condensed', sans-serif; font-weight: 600;
+        font-size: 38px; letter-spacing: .08em; color: var(--ocre-render); white-space: nowrap; z-index: 6; }
+      .lab.muted { color: var(--muted-cream); }
+      .note { position: absolute; left: 96px; right: 96px; font-family: 'Saira Condensed', sans-serif; font-weight: 500;
+        font-size: 30px; letter-spacing: .06em; color: var(--muted-cream); z-index: 6; }
+
+      /* ===== scène C — le « 5 » ===== */
+      .five { position: absolute; left: 74px; top: 400px; font-family: 'Anton', sans-serif; font-size: 840px; line-height: 1;
+        color: var(--ocre-render); z-index: 5; transform-origin: 30% 60%; }
+      .five-buts { position: absolute; left: 540px; top: 770px; font-family: 'Anton', sans-serif; font-size: 236px; line-height: 1;
+        color: var(--cream); z-index: 6; }
+      .row { position: absolute; left: 96px; right: 96px; height: 78px; z-index: 6; border-top: 3px solid rgba(237,220,178,.35);
+        display: flex; align-items: center; justify-content: space-between; }
+      .row .who { font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 40px; letter-spacing: .06em; color: var(--cream); }
+      .row .max { font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 34px; letter-spacing: .05em; color: var(--muted-cream); }
+      .row .max b { font-family: 'Anton', sans-serif; font-weight: 400; font-size: 54px; color: var(--cream); letter-spacing: 0; margin-right: 10px; }
+
+      /* ===== scène E — révélation ===== */
+      .card { position: absolute; left: 0; top: 430px; width: 1080px; height: 720px; overflow: hidden; z-index: 5; background: var(--panel); }
+      .card img { position: absolute; inset: 0; width: 1080px; height: 720px; display: block; transform-origin: 36% 40%; }
+      .shutter { position: absolute; inset: 0; background: var(--ocre-render); transform-origin: 50% 0%; z-index: 2; }
+      .name1 { position: absolute; left: 96px; top: 1196px; font-family: 'Anton', sans-serif; font-size: 96px; line-height: 1; color: var(--cream); z-index: 6; }
+      .name2 { position: absolute; left: 90px; top: 1290px; font-family: 'Anton', sans-serif; font-size: 222px; line-height: 1; color: var(--cream); z-index: 6; white-space: nowrap; }
+
+      /* ===== scène F — carton du match ===== */
+      .slate-rule { position: absolute; left: 96px; width: 888px; height: 4px; background: var(--cream); z-index: 6; transform-origin: 0 50%; }
+
+      /* ===== scène G — le décompte ===== */
+      .win { position: absolute; left: 0; top: 430px; width: 1080px; height: 620px; overflow: hidden; z-index: 5; background: var(--cream); }
+      .win img { position: absolute; inset: 0; width: 1080px; height: 620px; display: block; }
+      .cred { position: absolute; right: 96px; top: 1062px; font-family: 'Saira Condensed', sans-serif; font-weight: 500;
+        font-size: 28px; letter-spacing: .06em; color: var(--muted-cream); z-index: 7; white-space: nowrap; }
+      .num { position: absolute; left: 88px; top: 1052px; width: 330px; font-family: 'Anton', sans-serif; font-size: 470px; line-height: 1;
+        color: var(--ocre-render); z-index: 6; transform-origin: 50% 60%; }
+      .minute { position: absolute; left: 470px; top: 1100px; font-family: 'Anton', sans-serif; font-size: 150px; line-height: 1; color: var(--cream); z-index: 6; white-space: nowrap; }
+      .minute sup { font-size: 70px; vertical-align: top; position: relative; top: 8px; margin-left: 4px; }
+      .score { position: absolute; left: 470px; top: 1268px; font-family: 'Anton', sans-serif; font-size: 112px; line-height: 1; color: var(--cream); z-index: 6; white-space: nowrap; }
+      .scorer { position: absolute; left: 472px; top: 1400px; font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 36px; letter-spacing: .08em; color: var(--muted-cream); z-index: 6; white-space: nowrap; }
+      .pips { position: absolute; left: 96px; top: 1530px; display: flex; gap: 14px; z-index: 6; }
+      .pip { width: 54px; height: 16px; background: rgba(237,220,178,.22); position: relative; overflow: hidden; }
+      .pip i { position: absolute; inset: 0; background: var(--ocre-render); transform: scaleX(0); transform-origin: 0 50%; display: block; }
+
+      /* ===== scène I — CTA (slide « reste dans le jeu ») ===== */
+      .cta { position: absolute; inset: 0; z-index: 40; background-color: var(--cream);
+        background-image: repeating-linear-gradient(-45deg, rgba(44,40,35,0.06) 0px, rgba(44,40,35,0.06) 2px, transparent 2px, transparent 46px); }
+      .cta .c-ring { position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%; border: 4px solid var(--ink);
+        display: flex; align-items: center; justify-content: center; font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--ink); }
+      .cta .c-word { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--ink); }
+      .cta .c-handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--ink); }
+      .cta .c-hair { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--ink); }
+      .cta .c-mark { position: absolute; left: 465px; top: 620px; width: 150px; height: 195px; }
+      .cta .c-btn { position: absolute; left: 390px; top: 872px; width: 300px; height: 84px; display: flex; justify-content: center; align-items: center;
+        background: var(--ocre-render); color: var(--ink); font-family: 'Saira Condensed', sans-serif; font-weight: 700; font-size: 46px; letter-spacing: .08em; }
+      .cta .c-t { position: absolute; left: 0; right: 0; text-align: center; font-family: 'Anton', sans-serif; font-size: 150px; line-height: 1; color: var(--ink); }
+      .cta .c-body { position: absolute; left: 120px; right: 120px; top: 1340px; text-align: center; font-family: 'Archivo', sans-serif; font-weight: 500; font-size: 42px; line-height: 1.3; color: var(--ink); }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-width="1080" data-height="1920" data-duration="29.8" data-fps="30">
+      <div class="base clip" id="base" data-start="0" data-duration="29.8"></div>
+
+      <!-- ================= FONDS ================= -->
+      <div class="bgwrap clip" id="bgA" data-start="0" data-duration="2.5"><img id="bgAimg" class="low" src="assets/hook-mbappe.jpg" alt="" data-layout-allow-overflow /></div>
+      <div class="bgwrap clip" id="bgB" data-start="2.5" data-duration="1.8"><img id="bgBimg" src="assets/hook-fontaine.jpg" alt="" data-layout-allow-overflow /></div>
+      <div class="bgwrap clip" id="bgD" data-start="7.4" data-duration="2.4"><img id="bgDimg" class="low" src="assets/seul-homme.jpg" alt="" data-layout-allow-overflow /></div>
+      <div class="bgwrap clip" id="bgE" data-start="9.8" data-duration="3.0"><img id="bgEimg" src="assets/reveal-bg.jpg" alt="" data-layout-allow-overflow /></div>
+      <div class="bgwrap clip" id="bgH" data-start="23.1" data-duration="3.2"><img id="bgHimg" src="assets/final-bg.jpg" alt="" data-layout-allow-overflow /></div>
+      <div class="scrim clip" id="scrim" data-start="0" data-duration="26.3"></div>
+
+      <!-- ================= HEADER ================= -->
+      <div class="clip" id="hdr" data-start="0" data-duration="26.3">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+      <div class="tag clip" id="tag" data-start="0" data-duration="26.3" data-layout-allow-overlap>CE JOUR LÀ · 11 NOVEMBRE 1956</div>
+
+      <!-- ================= A — HOOK 1 (0 → 2.5) ================= -->
+      <div class="hl clip" id="a1" style="top:968px" data-start="0" data-duration="2.5"><span>MBAPPÉ</span></div>
+      <div class="hl clip" id="a2" style="top:1160px" data-start="0.2" data-duration="2.3"><span>NE L'A</span><span class="kw">JAMAIS</span></div>
+      <div class="hl clip" id="a3" style="top:1352px" data-start="0.4" data-duration="2.1"><span>FAIT.</span></div>
+
+      <!-- ================= B — HOOK 2 (2.5 → 4.3) ================= -->
+      <div class="hl clip" id="b1" style="top:1160px" data-start="2.5" data-duration="1.8"><span>FONTAINE</span></div>
+      <div class="hl clip" id="b2" style="top:1352px" data-start="2.68" data-duration="1.62"><span>NON PLUS.</span></div>
+
+      <!-- ================= C — LE « 5 » (4.3 → 7.4) ================= -->
+      <div class="lab clip" id="cLab" style="top:640px; left:546px" data-start="4.42" data-duration="2.98" data-layout-allow-overlap>LE RECORD</div>
+      <div class="lab clip" id="cLab2" style="top:692px; left:546px" data-start="4.5" data-duration="2.9" data-layout-allow-overlap>EN ÉQUIPE DE FRANCE</div>
+      <div class="five clip" id="cFive" data-start="4.3" data-duration="3.1" data-layout-allow-overlap>5</div>
+      <div class="five-buts clip" id="cButs" data-start="4.52" data-duration="2.88" data-layout-allow-overlap>BUTS</div>
+      <div class="hl s clip" id="c1" style="top:1222px" data-start="4.86" data-duration="2.54" data-layout-allow-overlap><span>DANS UN SEUL MATCH</span></div>
+      <div class="row clip" id="cRow1" style="top:1392px" data-start="5.5" data-duration="1.9"><span class="who">KYLIAN MBAPPÉ</span><span class="max"><b>4</b>SON MAXIMUM (2021)</span></div>
+      <div class="row clip" id="cRow2" style="top:1470px" data-start="5.8" data-duration="1.6"><span class="who">JUST FONTAINE</span><span class="max"><b>4</b>SON MAXIMUM (1958)</span></div>
+
+      <!-- ================= D — UN SEUL HOMME (7.4 → 9.8) ================= -->
+      <div class="hl m clip" id="d1" style="top:1024px" data-start="7.4" data-duration="2.4"><span>DEPUIS 1913,</span></div>
+      <div class="hl m clip" id="d2" style="top:1194px" data-start="7.6" data-duration="2.2"><span class="kw">UN SEUL</span><span>HOMME</span></div>
+      <div class="hl m clip" id="d3" style="top:1364px" data-start="7.8" data-duration="2.0"><span>L'A FAIT.</span></div>
+
+      <!-- ================= E — RÉVÉLATION (9.8 → 12.8) ================= -->
+      <div class="card clip" id="eCard" data-start="9.8" data-duration="3.0">
+        <img id="eImg" src="assets/reveal-couleur.jpg" alt="" data-layout-allow-overflow />
+        <div class="shutter" id="eShut"></div>
+      </div>
+      <div class="name1 clip" id="e1" data-start="10.15" data-duration="2.65">THADÉE</div>
+      <div class="name2 clip" id="e2" data-start="10.3" data-duration="2.5">CISOWSKI</div>
+      <div class="lab clip" id="eLab" style="top:1530px" data-start="10.7" data-duration="2.1">AVANT-CENTRE · RACING CLUB DE PARIS</div>
+
+      <!-- ================= F — CARTON DU MATCH (12.8 → 15.3) ================= -->
+      <div class="lab clip" id="fLab" style="top:690px; font-size:44px" data-start="12.8" data-duration="2.5">STADE DE COLOMBES</div>
+      <div class="hl s clip" id="f1" style="top:752px" data-start="12.88" data-duration="2.42"><span style="font-size:126px">11 NOVEMBRE 1956</span></div>
+      <div class="slate-rule clip" id="fRule" style="top:920px" data-start="13.0" data-duration="2.3"></div>
+      <div class="hl s clip" id="f2" style="top:946px" data-start="13.1" data-duration="2.2"><span style="font-size:126px">FRANCE – BELGIQUE</span></div>
+      <div class="lab muted clip" id="fLab2" style="top:1118px; font-size:38px" data-start="13.2" data-duration="2.1">QUALIFICATIONS · COUPE DU MONDE 1958</div>
+
+      <!-- ================= G — LE DÉCOMPTE (15.3 → 23.1) ================= -->
+      <div class="win clip" id="gWin1" data-start="15.3" data-duration="3.5"><img id="gImg1" src="assets/match-action.jpg" alt="" data-layout-allow-overflow /></div>
+      <div class="win clip" id="gWin2" data-start="18.8" data-duration="2.0"><img id="gImg2" src="assets/match-duel.jpg" alt="" data-layout-allow-overflow /></div>
+      <div class="win clip" id="gWin3" data-start="20.8" data-duration="2.3"><img id="gImg3" src="assets/match-but.jpg" alt="" data-layout-allow-overflow /></div>
+      <div class="cred clip" id="gCred" data-start="15.5" data-duration="7.6">FRANCE-BELGIQUE 1956 · PHOTOS MIROIR SPRINT</div>
+
+      <div class="num clip" id="n1" data-start="15.55" data-duration="1.05">1</div>
+      <div class="minute clip" id="m1" data-start="15.55" data-duration="1.05">13<sup>e</sup></div>
+      <div class="score clip" id="s1" data-start="15.55" data-duration="1.05">1 – 0</div>
+
+      <div class="num clip" id="n2" data-start="16.6" data-duration="1.05">2</div>
+      <div class="minute clip" id="m2" data-start="16.6" data-duration="1.05">15<sup>e</sup></div>
+      <div class="score clip" id="s2" data-start="16.6" data-duration="1.05">2 – 0</div>
+
+      <div class="num clip" id="n3" data-start="17.65" data-duration="1.15">3</div>
+      <div class="minute clip" id="m3" data-start="17.65" data-duration="1.15">44<sup>e</sup></div>
+      <div class="score clip" id="s3" data-start="17.65" data-duration="1.15">4 – 1</div>
+
+      <div class="scorer clip" id="gWho" data-start="15.55" data-duration="3.25">BUT DE CISOWSKI</div>
+
+      <div class="hl xs clip" id="g61" style="top:1076px" data-start="18.8" data-duration="2.0"><span style="color:var(--muted-cream)">61<sup>e</sup>, 67<sup>e</sup> :</span></div>
+      <div class="hl s clip" id="g62" style="top:1196px" data-start="18.9" data-duration="1.9"><span>LA BELGIQUE</span></div>
+      <div class="hl s clip" id="g63" style="top:1334px" data-start="19.0" data-duration="1.8"><span>REVIENT À</span><span class="kw">4 – 3</span></div>
+
+      <div class="num clip" id="n4" data-start="20.8" data-duration="1.05">4</div>
+      <div class="minute clip" id="m4" data-start="20.8" data-duration="1.05">72<sup>e</sup></div>
+      <div class="score clip" id="s4" data-start="20.8" data-duration="1.05">5 – 3</div>
+
+      <div class="num clip" id="n5" data-start="21.85" data-duration="1.25">5</div>
+      <div class="minute clip" id="m5" data-start="21.85" data-duration="1.25">88<sup>e</sup></div>
+      <div class="score clip" id="s5" data-start="21.85" data-duration="1.25">6 – 3</div>
+      <div class="scorer clip" id="gWho2" data-start="20.8" data-duration="2.3">BUT DE CISOWSKI</div>
+
+      <div class="pips clip" id="gPips" data-start="15.4" data-duration="7.7">
+        <div class="pip"><i id="p1"></i></div><div class="pip"><i id="p2"></i></div><div class="pip"><i id="p3"></i></div><div class="pip"><i id="p4"></i></div><div class="pip"><i id="p5"></i></div>
+      </div>
+
+      <!-- ================= H — LA CHUTE (23.1 → 26.3) ================= -->
+      <div class="lab clip" id="hLab" style="top:1500px" data-start="23.7" data-duration="2.6">FRANCE 6 – 3 BELGIQUE · CISOWSKI ×5</div>
+      <div class="hl m clip" id="h1" style="top:984px" data-start="23.1" data-duration="3.2"><span>70 ANS APRÈS,</span></div>
+      <div class="hl m clip" id="h2" style="top:1154px" data-start="23.3" data-duration="3.0"><span class="kw">PERSONNE</span></div>
+      <div class="hl m clip" id="h3" style="top:1324px" data-start="23.5" data-duration="2.8"><span>N'A FAIT MIEUX.</span></div>
+      <div class="note clip" id="hNote" style="top:1556px" data-start="23.9" data-duration="2.4">RECORD PARTAGÉ AVEC EUGÈNE MAËS (1913)</div>
+
+      <!-- ================= I — CTA (26.3 → 29.8) ================= -->
+      <div class="cta clip" id="cta" data-start="26.3" data-duration="3.5">
+        <div class="c-ring">1·2</div><div class="c-word">une·deux</div><div class="c-handle">@UNE.DEUX</div><div class="c-hair"></div>
+        <svg class="c-mark" id="ctaMark" viewBox="0 0 120 156"><path fill="#C2A04E" d="M14 0h92a14 14 0 0 1 14 14v142L60 98 0 156V14A14 14 0 0 1 14 0Z" /></svg>
+        <div class="c-btn" id="ctaBtn">FOLLOW</div>
+        <div class="c-t" id="ctaT1" style="top:1010px">RESTE DANS</div>
+        <div class="c-t" id="ctaT2" style="top:1160px">LE JEU</div>
+        <div class="c-body" id="ctaBody">Une histoire de foot oubliée, tous les jours.</div>
+      </div>
+
+      <!-- ================= SON (bruitages calés sur les actions) ================= -->
+      <audio id="sfxA1" src="assets/sfx/whoosh.mp3" data-start="0" data-duration="0.57" data-volume="0.55"></audio>
+      <audio id="sfxA3" src="assets/sfx/impact-bass-1.mp3" data-start="0.4" data-duration="2.0" data-volume="0.24"></audio>
+      <audio id="sfxB" src="assets/sfx/whoosh-short.mp3" data-start="2.48" data-duration="0.57" data-volume="0.5"></audio>
+      <audio id="sfxC" src="assets/sfx/impact-bass-1.mp3" data-start="4.3" data-duration="2.12" data-volume="0.34"></audio>
+      <audio id="sfxC1" src="assets/sfx/pop.mp3" data-start="5.5" data-duration="0.72" data-volume="0.5"></audio>
+      <audio id="sfxC2" src="assets/sfx/pop.mp3" data-start="5.8" data-duration="0.72" data-volume="0.5"></audio>
+      <audio id="sfxRise" src="assets/sfx/riser.mp3" data-start="5.58" data-duration="4.3" data-volume="0.2"></audio>
+      <audio id="sfxD" src="assets/sfx/whoosh-short.mp3" data-start="7.38" data-duration="0.57" data-volume="0.45"></audio>
+      <audio id="sfxE" src="assets/sfx/impact-bass-1.mp3" data-start="9.8" data-duration="2.12" data-volume="0.36"></audio>
+      <audio id="sfxF" src="assets/sfx/whoosh-short.mp3" data-start="12.78" data-duration="0.57" data-volume="0.45"></audio>
+      <audio id="sfxG1" src="assets/sfx/ping.mp3" data-start="15.55" data-duration="1.0" data-volume="0.4"></audio>
+      <audio id="sfxG2" src="assets/sfx/ping.mp3" data-start="16.6" data-duration="1.0" data-volume="0.4"></audio>
+      <audio id="sfxG3" src="assets/sfx/ping.mp3" data-start="17.65" data-duration="1.1" data-volume="0.42"></audio>
+      <audio id="sfxGB" src="assets/sfx/whoosh.mp3" data-start="18.78" data-duration="0.57" data-volume="0.5"></audio>
+      <audio id="sfxG4" src="assets/sfx/ping.mp3" data-start="20.8" data-duration="1.0" data-volume="0.42"></audio>
+      <audio id="sfxG5" src="assets/sfx/impact-bass-1.mp3" data-start="21.85" data-duration="2.12" data-volume="0.36"></audio>
+      <audio id="sfxG5b" src="assets/sfx/ping.mp3" data-start="21.85" data-duration="1.2" data-volume="0.4"></audio>
+      <audio id="sfxH" src="assets/sfx/whoosh.mp3" data-start="23.08" data-duration="0.57" data-volume="0.5"></audio>
+      <audio id="sfxI" src="assets/sfx/pop.mp3" data-start="26.34" data-duration="0.72" data-volume="0.55"></audio>
+      <audio id="sfxI2" src="assets/sfx/click.mp3" data-start="26.52" data-duration="0.37" data-volume="0.55"></audio>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // ---------- helpers : les temps viennent des attributs data-start / data-duration ----------
+      const T = (sel) => { const el = document.querySelector(sel); const s = parseFloat(el.dataset.start); return [s, s + parseFloat(el.dataset.duration)]; };
+      // entrée « en vol » par le bas, sortie accélérée vers le haut : le courant du film est vertical (↑)
+      function rise(sel, o = {}) {
+        const [s, e] = T(sel);
+        const inDur = o.inDur ?? 0.38, outDur = o.outDur ?? 0.16, y = o.y ?? 120, yOut = o.yOut ?? -70;
+        tl.fromTo(sel, { opacity: 0, y }, { opacity: 1, y: 0, duration: inDur, ease: 'power4.out' }, s);
+        tl.to(sel, { opacity: 0, y: yOut, duration: outDur, ease: 'power3.in' }, e - outDur);
+        tl.set(sel, { opacity: 0, y: 0 }, e);
+      }
+      function show(sel, o = {}) {
+        const [s, e] = T(sel);
+        const inDur = o.inDur ?? 0.2, outDur = o.outDur ?? 0.14;
+        tl.fromTo(sel, { opacity: 0 }, { opacity: o.to ?? 1, duration: inDur, ease: 'power2.out' }, s);
+        tl.to(sel, { opacity: 0, duration: outDur, ease: 'sine.in' }, e - outDur);
+        tl.set(sel, { opacity: 0 }, e);
+      }
+      // fond : coupe franche + poussée continue (même signe de zoom d'un plan à l'autre)
+      function bg(wrap, img, from = 1.04, to = 1.13) {
+        const [s, e] = T(wrap);
+        tl.set(wrap, { opacity: 1 }, s);
+        tl.fromTo(img, { scale: from }, { scale: to, duration: e - s, ease: 'none' }, s);
+        tl.set(wrap, { opacity: 0 }, e);
+      }
+      const END = 26.3; // fin du film avant la carte CTA
+
+      // ---------- permanents ----------
+      tl.set('#base', { opacity: 1 }, 0);
+      tl.set(['#hdr', '#tag'], { opacity: 1 }, 0);   // header présent dès la première image
+      tl.set(['#hdr', '#tag'], { opacity: 0 }, END);
+      tl.set('#scrim', { opacity: 1 }, 0);
+      tl.set('#scrim', { opacity: 0 }, END);
+
+      // ---------- A — hook 1 ----------
+      bg('#bgA', '#bgAimg');
+      rise('#a1', { inDur: 0.34 }); rise('#a2', { inDur: 0.34 }); rise('#a3', { inDur: 0.34 });
+
+      // ---------- B — hook 2 ----------
+      bg('#bgB', '#bgBimg');
+      rise('#b1', { inDur: 0.32 }); rise('#b2', { inDur: 0.32 });
+
+      // ---------- C — le « 5 » ----------
+      {
+        const [s, e] = T('#cFive');
+        tl.fromTo('#cFive', { opacity: 0, scale: 1.9, y: 60 }, { opacity: 1, scale: 1, y: 0, duration: 0.42, ease: 'power4.out' }, s);
+        tl.to('#cFive', { scale: 1.035, duration: e - s - 0.58, ease: 'none' }, s + 0.42);
+        tl.to('#cFive', { opacity: 0, y: -80, duration: 0.16, ease: 'power3.in' }, e - 0.16);
+        tl.set('#cFive', { opacity: 0 }, e);
+      }
+      show('#cLab'); show('#cLab2');
+      rise('#cButs', { y: 90 }); rise('#c1', { y: 90 });
+      rise('#cRow1', { y: 40, inDur: 0.3 }); rise('#cRow2', { y: 40, inDur: 0.3 });
+
+      // ---------- D — un seul homme ----------
+      bg('#bgD', '#bgDimg');
+      rise('#d1'); rise('#d2'); rise('#d3');
+
+      // ---------- E — révélation ----------
+      bg('#bgE', '#bgEimg', 1.02, 1.08);
+      {
+        const [s, e] = T('#eCard');
+        tl.set('#eCard', { opacity: 1 }, s);
+        tl.fromTo('#eShut', { scaleY: 1 }, { scaleY: 0, duration: 0.55, ease: 'power3.inOut' }, s + 0.04);
+        tl.fromTo('#eImg', { scale: 1.2 }, { scale: 1.04, duration: e - s, ease: 'power2.out' }, s);
+        tl.to('#eCard', { opacity: 0, y: -70, duration: 0.16, ease: 'power3.in' }, e - 0.16);
+        tl.set('#eCard', { opacity: 0, y: 0 }, e);
+      }
+      rise('#e1', { y: 80 }); rise('#e2', { y: 110, inDur: 0.44 }); show('#eLab');
+
+      // ---------- F — carton du match ----------
+      show('#fLab');
+      rise('#f1', { y: 90 });
+      {
+        const [s, e] = T('#fRule');
+        tl.fromTo('#fRule', { opacity: 1, scaleX: 0 }, { scaleX: 1, duration: 0.4, ease: 'power3.out' }, s);
+        tl.to('#fRule', { opacity: 0, duration: 0.14, ease: 'sine.in' }, e - 0.14);
+        tl.set('#fRule', { opacity: 0 }, e);
+      }
+      rise('#f2', { y: 90 }); show('#fLab2');
+
+      // ---------- G — le décompte ----------
+      function win(wrap, img) {
+        const [s, e] = T(wrap);
+        tl.fromTo(wrap, { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.22, ease: 'power3.out' }, s);
+        tl.fromTo(img, { scale: 1.03 }, { scale: 1.1, duration: e - s, ease: 'none' }, s);
+        tl.set(wrap, { opacity: 0 }, e);
+      }
+      win('#gWin1', '#gImg1'); win('#gWin2', '#gImg2'); win('#gWin3', '#gImg3');
+      show('#gCred', { to: 0.9 }); show('#gPips');
+      [1, 2, 3, 4, 5].forEach((i) => {
+        const [s, e] = T('#n' + i);
+        // le chiffre claque (échelle 1.55 → 1), la minute et le score partent sur la même image
+        tl.fromTo('#n' + i, { opacity: 0, scale: 1.55 }, { opacity: 1, scale: 1, duration: 0.24, ease: 'power4.out' }, s);
+        tl.set('#n' + i, { opacity: 0 }, e);
+        tl.fromTo('#m' + i, { opacity: 0, x: 60 }, { opacity: 1, x: 0, duration: 0.26, ease: 'power4.out' }, s);
+        tl.set('#m' + i, { opacity: 0 }, e);
+        tl.fromTo('#s' + i, { opacity: 0, x: 60 }, { opacity: 1, x: 0, duration: 0.26, ease: 'power4.out' }, s + 0.08);
+        tl.set('#s' + i, { opacity: 0 }, e);
+        tl.fromTo('#p' + i, { scaleX: 0 }, { scaleX: 1, duration: 0.22, ease: 'power3.out' }, s);
+      });
+      show('#gWho', { inDur: 0.16, outDur: 0.1 }); show('#gWho2', { inDur: 0.16, outDur: 0.1 });
+      rise('#g61', { y: 60, inDur: 0.26, outDur: 0.12 }); rise('#g62', { y: 60, inDur: 0.26, outDur: 0.12 }); rise('#g63', { y: 60, inDur: 0.26, outDur: 0.12 });
+      tl.to('#n5', { scale: 1.07, duration: 0.95, ease: 'none' }, T('#n5')[0] + 0.26);   // le « 5 » pousse lentement avant la coupe
+
+      // ---------- H — la chute ----------
+      bg('#bgH', '#bgHimg');
+      show('#hLab'); rise('#h1'); rise('#h2'); rise('#h3'); show('#hNote');
+
+      // ---------- I — CTA ----------
+      {
+        const s = T('#cta')[0];
+        tl.set('#cta', { opacity: 1 }, s);
+        tl.fromTo('#ctaMark', { opacity: 0, y: -60 }, { opacity: 1, y: 0, duration: 0.36, ease: 'power4.out' }, s + 0.04);
+        tl.fromTo('#ctaBtn', { opacity: 0, scale: 0.7 }, { opacity: 1, scale: 1, duration: 0.3, ease: 'back.out(1.6)' }, s + 0.22);
+        tl.fromTo('#ctaT1', { opacity: 0, y: 70 }, { opacity: 1, y: 0, duration: 0.36, ease: 'power4.out' }, s + 0.3);
+        tl.fromTo('#ctaT2', { opacity: 0, y: 70 }, { opacity: 1, y: 0, duration: 0.36, ease: 'power4.out' }, s + 0.4);
+        tl.fromTo('#ctaBody', { opacity: 0 }, { opacity: 1, duration: 0.3, ease: 'power2.out' }, s + 0.5);
+        tl.to('#ctaBtn', { scale: 1.08, duration: 0.18, ease: 'power2.out' }, s + 1.5);
+        tl.to('#ctaBtn', { scale: 1, duration: 0.22, ease: 'power2.inOut' }, s + 1.68);
+      }
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
