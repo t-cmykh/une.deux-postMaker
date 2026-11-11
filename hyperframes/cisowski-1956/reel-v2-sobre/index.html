@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>Cisowski, 5 buts — version sobre</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;800&display=swap');
+      :root { --bg:#0A0A0A; --fg:#F4F2EE; --dim:#8C8A86; --acc:#FF5B2E; }
+      * { margin:0; padding:0; box-sizing:border-box; }
+      html, body { width:1080px; height:1920px; overflow:hidden; background:#0A0A0A; }
+      body { font-family:'Inter Tight', system-ui, sans-serif; }
+      #root { position:relative; width:1080px; height:1920px; overflow:hidden; }
+      .base { position:absolute; inset:0; background:var(--bg); }
+      #match { position:absolute; left:0; top:250px; width:1080px; height:1080px; object-fit:cover; z-index:2; }
+      .meta { position:absolute; top:186px; font-weight:600; font-size:30px; letter-spacing:.04em; color:var(--dim); z-index:3; }
+      .bar { position:absolute; left:60px; right:60px; top:1352px; height:8px; display:flex; gap:10px; z-index:3; }
+      .seg { flex:1; height:8px; background:#2A2A2A; position:relative; overflow:hidden; }
+      .seg i { position:absolute; inset:0; display:block; background:var(--acc); transform:scaleX(0); transform-origin:0 50%; }
+      .cap { position:absolute; left:70px; right:70px; top:1400px; height:210px; display:flex; align-items:center; justify-content:center; text-align:center; z-index:4; }
+      .cap span { display:block; font-weight:800; font-size:70px; line-height:1.08; letter-spacing:-.02em; color:var(--fg); }
+      .cap b { font-weight:800; color:var(--acc); }
+      .end { position:absolute; inset:0; background:var(--bg); z-index:10; }
+      .end .e1 { position:absolute; left:0; right:0; top:800px; text-align:center; font-weight:800; font-size:120px; letter-spacing:-.03em; color:var(--fg); }
+      .end .e2 { position:absolute; left:0; right:0; top:960px; text-align:center; font-weight:600; font-size:44px; color:var(--acc); }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-width="1080" data-height="1920" data-duration="28.7" data-fps="30">
+      <div class="base clip" id="base" data-start="0" data-duration="28.7"></div>
+      <video id="match" class="clip" src="assets/match.mp4" data-start="0" data-duration="26.2" muted playsinline></video>
+      <audio id="matchAudio" src="assets/match.mp4" data-start="0" data-duration="26.2" data-volume="0.85"></audio>
+      <div class="meta clip" id="m1" style="left:60px" data-start="0" data-duration="26.2">11.11.1956</div>
+      <div class="meta clip" id="m2" style="right:60px" data-start="0" data-duration="26.2">Colombes · images d'époque</div>
+      <div class="bar clip" id="bar" data-start="0" data-duration="26.2"><div class="seg"><i id="g0"></i></div><div class="seg"><i id="g1"></i></div><div class="seg"><i id="g2"></i></div><div class="seg"><i id="g3"></i></div><div class="seg"><i id="g4"></i></div></div>
+      <div class="cap clip" id="c0" data-start="0" data-duration="2.4"><span>Mbappé n'a <b>jamais</b> fait ça.</span></div>
+      <div class="cap clip" id="c1" data-start="2.4" data-duration="2.6"><span><b>5 buts</b> dans un seul match des Bleus.</span></div>
+      <div class="cap clip" id="c2" data-start="5.0" data-duration="3.0"><span>Depuis 1913, un seul homme l'a fait : <b>Thadée Cisowski</b>.</span></div>
+      <div class="cap clip" id="c3" data-start="8.0" data-duration="2.4"><span>11 novembre 1956. <b>France – Belgique</b>.</span></div>
+      <div class="cap clip" id="c4" data-start="10.4" data-duration="2.0"><span>13e minute. <b>1-0</b>.</span></div>
+      <div class="cap clip" id="c5" data-start="12.4" data-duration="1.8"><span>15e minute. <b>2-0</b>.</span></div>
+      <div class="cap clip" id="c6" data-start="14.2" data-duration="2.2"><span>44e. <b>4-1</b>. Triplé avant la pause.</span></div>
+      <div class="cap clip" id="c7" data-start="16.4" data-duration="2.4"><span>La Belgique revient à <b>4-3</b>.</span></div>
+      <div class="cap clip" id="c8" data-start="18.8" data-duration="2.0"><span>72e minute. <b>5-3</b>.</span></div>
+      <div class="cap clip" id="c9" data-start="20.8" data-duration="2.4"><span>88e. <b>6-3</b>. Cinq buts pour lui.</span></div>
+      <div class="cap clip" id="c10" data-start="23.2" data-duration="3.0"><span>70 ans après, <b>personne</b> n'a fait mieux.</span></div>
+      <div class="end clip" id="end" data-start="26.2" data-duration="2.5"><div class="e1" id="e1">Abonne-toi.</div><div class="e2" id="e2">@une.deux</div></div>
+    </div>
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      tl.set(['#base','#match','#m1','#m2','#bar'], { opacity: 1 }, 0);
+      const caps = [[0, 2.4], [2.4, 5.0], [5.0, 8.0], [8.0, 10.4], [10.4, 12.4], [12.4, 14.2], [14.2, 16.4], [16.4, 18.8], [18.8, 20.8], [20.8, 23.2], [23.2, 26.2]];
+      caps.forEach(([s,e], i) => {
+        if (i === 0) tl.set('#c0', { opacity: 1 }, 0);
+        else tl.fromTo('#c'+i, { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.16, ease: 'power3.out' }, s);
+        tl.set('#c'+i, { opacity: 0 }, e);
+      });
+      [10.4, 12.4, 14.2, 18.8, 20.8].forEach((t, i) => tl.fromTo('#g'+i, { scaleX: 0 }, { scaleX: 1, duration: 0.3, ease: 'power3.out' }, t));
+      tl.set('#end', { opacity: 1 }, 26.2);
+      tl.fromTo('#e1', { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.25, ease: 'power3.out' }, 26.25);
+      tl.fromTo('#e2', { opacity: 0 }, { opacity: 1, duration: 0.25, ease: 'power2.out' }, 26.45);
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
