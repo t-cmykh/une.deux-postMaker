@@ -254,7 +254,7 @@
       function rise(sel, o = {}) {
         const [s, e] = T(sel);
         const inDur = o.inDur ?? 0.38, outDur = o.outDur ?? 0.16, y = o.y ?? 120, yOut = o.yOut ?? -70;
-        tl.fromTo(sel, { opacity: 0, y }, { opacity: 1, y: 0, duration: inDur, ease: 'power4.out' }, s);
+        tl.fromTo(sel, { opacity: o.o0 ?? 0, y }, { opacity: 1, y: 0, duration: inDur, ease: 'power4.out' }, s);
         tl.to(sel, { opacity: 0, y: yOut, duration: outDur, ease: 'power3.in' }, e - outDur);
         tl.set(sel, { opacity: 0, y: 0 }, e);
       }
@@ -283,7 +283,8 @@
 
       // ---------- A — hook 1 ----------
       bg('#bgA', '#bgAimg');
-      rise('#a1', { inDur: 0.34 }); rise('#a2', { inDur: 0.34 }); rise('#a3', { inDur: 0.34 });
+      rise('#a1', { inDur: 0.3, o0: 1, y: 70 });   // l'accroche est lisible dès la première image
+      rise('#a2', { inDur: 0.34 }); rise('#a3', { inDur: 0.34 });
 
       // ---------- B — hook 2 ----------
       bg('#bgB', '#bgBimg');

@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>une·deux — Ce jour-là · Cisowski, 5 buts (proposition 2 : le destin)</title>
+    <!-- Fichier généré par tools/gen_reel2.py — modifier le script, pas ce fichier. -->
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens/fonts.css" />
+    <link rel="stylesheet" href="tokens/colors.css" />
+    <style>
+      /* Couleur de série : calibrée par pixel-sampling sur hyperframes@0.9.31 (aucun décalage à compenser). */
+      :root { --ocre-render: #C2A04E; }
+
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: #2C2823; }
+      body { font-family: 'Archivo', system-ui, sans-serif; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; }
+      .clip { opacity: 0; }
+      .base { position: absolute; inset: 0; background: var(--ink); z-index: 0; }
+
+      /* ===== composite : fond flouté désaturé + fenêtre nette (même géométrie que le reel vidéo) ===== */
+      .bgwrap { position: absolute; inset: 0; overflow: hidden; z-index: 1; }
+      .bgwrap img { position: absolute; inset: 0; width: 1080px; height: 1920px; display: block; }
+      .win { position: absolute; left: 0; top: 420px; width: 1080px; height: 888px; overflow: hidden; z-index: 5; background: var(--panel); }
+      .win img { position: absolute; inset: 0; width: 1080px; height: 888px; display: block; }
+      .cap { position: absolute; left: 0; top: 1256px; height: 52px; display: flex; align-items: center; z-index: 6;
+        background: var(--ink); color: var(--muted-cream); padding: 0 18px 0 96px; white-space: nowrap;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 28px; letter-spacing: .05em; }
+
+      /* ===== header une·deux (constantes de l'éditeur de série) ===== */
+      #hdr { position: absolute; inset: 0 0 auto 0; z-index: 30; }
+      .ring { position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%;
+        border: 4px solid var(--cream); display: flex; align-items: center; justify-content: center;
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--cream); }
+      .wordmark { position: absolute; left: 214px; top: 262px; transform: translateY(-50%);
+        font-family: 'Anton', sans-serif; font-size: 58px; color: var(--cream); }
+      .handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--cream); }
+      .hairline { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--cream); }
+      .tag { position: absolute; left: 96px; top: 350px; height: 58px; display: flex; align-items: center;
+        background: var(--ocre-render); color: var(--ink);
+        font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; padding: 0 15px; z-index: 30; }
+
+      /* ===== sous-titres karaoké (§4.B) ===== */
+      .story-zone { position: absolute; left: 96px; right: 96px; top: 0; height: 1920px; z-index: 20; text-align: center; }
+      .story-line {
+        position: absolute; left: 0; right: 0;
+        top: 1480px; transform: translateY(-50%);
+        font-family: 'Anton', sans-serif; font-size: 80px; line-height: 1.1; text-transform: uppercase;
+        color: var(--cream);
+        -webkit-text-stroke: 1.5px rgba(44,40,35,.35);
+      }
+      .story-line b.ocre { color: var(--ocre-render); font-weight: inherit; }
+
+      /* ===== CTA (slide « reste dans le jeu ») ===== */
+      .cta { position: absolute; inset: 0; z-index: 40; background-color: var(--cream);
+        background-image: repeating-linear-gradient(-45deg, rgba(44,40,35,0.06) 0px, rgba(44,40,35,0.06) 2px, transparent 2px, transparent 46px); }
+      .cta .c-ring { position: absolute; left: 96px; top: 216px; width: 92px; height: 92px; border-radius: 50%; border: 4px solid var(--ink);
+        display: flex; align-items: center; justify-content: center; font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 38px; color: var(--ink); }
+      .cta .c-word { position: absolute; left: 214px; top: 262px; transform: translateY(-50%); font-family: 'Anton', sans-serif; font-size: 58px; color: var(--ink); }
+      .cta .c-handle { position: absolute; right: 96px; top: 262px; transform: translateY(-50%); font-family: 'Saira Condensed', sans-serif; font-weight: 600; font-size: 32px; color: var(--ink); }
+      .cta .c-hair { position: absolute; left: 96px; right: 96px; top: 318px; height: 4px; background: var(--ink); }
+      .cta .c-mark { position: absolute; left: 465px; top: 620px; width: 150px; height: 195px; }
+      .cta .c-btn { position: absolute; left: 390px; top: 872px; width: 300px; height: 84px; display: flex; justify-content: center; align-items: center;
+        background: var(--ocre-render); color: var(--ink); font-family: 'Saira Condensed', sans-serif; font-weight: 700; font-size: 46px; letter-spacing: .08em; }
+      .cta .c-t { position: absolute; left: 0; right: 0; text-align: center; font-family: 'Anton', sans-serif; font-size: 150px; line-height: 1; color: var(--ink); }
+      .cta .c-body { position: absolute; left: 120px; right: 120px; top: 1340px; text-align: center; font-family: 'Archivo', sans-serif; font-weight: 500; font-size: 42px; line-height: 1.3; color: var(--ink); }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-width="1080" data-height="1920" data-duration="41.64" data-fps="30">
+      <div class="base clip" id="base" data-start="0" data-duration="41.64"></div>
+
+      <!-- ================= ARCHIVES (fond flouté + fenêtre nette + légende) ================= -->
+      <div class="bgwrap clip" id="bg0" data-start="0" data-duration="4.07"><img id="bg0img" src="assets/bg-bleu.jpg" alt="" data-layout-allow-overflow /></div>
+      <div class="win clip" id="win0" data-start="0" data-duration="4.07"><img id="win0img" src="assets/w-bleu.jpg" alt="" data-layout-allow-overflow /></div>
+      <div class="cap clip" id="cap0" data-start="0" data-duration="4.07">CISOWSKI, BALLON EN MAIN, ET PUSKÁS · 1956</div>
+      <div class="bgwrap clip" id="bg1" data-start="4.07" data-duration="3.46"><img id="bg1img" src="assets/bg-portrait.jpg" alt="" data-layout-allow-overflow /></div>
+      <div class="win clip" id="win1" data-start="4.07" data-duration="3.46"><img id="win1img" src="assets/w-portrait.jpg" alt="" data-layout-allow-overflow /></div>
+      <div class="cap clip" id="cap1" data-start="4.07" data-duration="3.46">THADÉE CISOWSKI · RACING CLUB DE PARIS</div>
+      <div class="bgwrap clip" id="bg2" data-start="7.53" data-duration="2.26"><img id="bg2img" src="assets/bg-mine.jpg" alt="" data-layout-allow-overflow /></div>
+      <div class="win clip" id="win2" data-start="7.53" data-duration="2.26"><img id="win2img" src="assets/w-mine.jpg" alt="" data-layout-allow-overflow /></div>
+      <div class="cap clip" id="cap2" data-start="7.53" data-duration="2.26">MINE DE LA MOURIÈRE, PIENNES · ANNÉES 1930</div>
+      <div class="bgwrap clip" id="bg3" data-start="9.79" data-duration="4.96"><img id="bg3img" src="assets/bg-racing.jpg" alt="" data-layout-allow-overflow /></div>
+      <div class="win clip" id="win3" data-start="9.79" data-duration="4.96"><img id="win3img" src="assets/w-racing.jpg" alt="" data-layout-allow-overflow /></div>
+      <div class="cap clip" id="cap3" data-start="9.79" data-duration="4.96">CISOWSKI AVEC LE RACING · ANNÉES 1950</div>
+      <div class="bgwrap clip" id="bg4" data-start="14.75" data-duration="3.1"><img id="bg4img" src="assets/bg-couleur.jpg" alt="" data-layout-allow-overflow /></div>
+      <div class="win clip" id="win4" data-start="14.75" data-duration="3.1"><img id="win4img" src="assets/w-couleur.jpg" alt="" data-layout-allow-overflow /></div>
+      <div class="cap clip" id="cap4" data-start="14.75" data-duration="3.1">AVEC LE RACING CLUB DE PARIS · PHOTO COLORISÉE</div>
+      <div class="bgwrap clip" id="bg5" data-start="17.85" data-duration="2.98"><img id="bg5img" src="assets/bg-action.jpg" alt="" data-layout-allow-overflow /></div>
+      <div class="win clip" id="win5" data-start="17.85" data-duration="2.98"><img id="win5img" src="assets/w-action.jpg" alt="" data-layout-allow-overflow /></div>
+      <div class="cap clip" id="cap5" data-start="17.85" data-duration="2.98">FRANCE-BELGIQUE, 11 NOVEMBRE 1956 · MIROIR SPRINT</div>
+      <div class="bgwrap clip" id="bg6" data-start="20.83" data-duration="1.6"><img id="bg6img" src="assets/bg-duel.jpg" alt="" data-layout-allow-overflow /></div>
+      <div class="win clip" id="win6" data-start="20.83" data-duration="1.6"><img id="win6img" src="assets/w-duel.jpg" alt="" data-layout-allow-overflow /></div>
+      <div class="cap clip" id="cap6" data-start="20.83" data-duration="1.6">FRANCE-BELGIQUE, 11 NOVEMBRE 1956 · MIROIR SPRINT</div>
+      <div class="bgwrap clip" id="bg7" data-start="22.43" data-duration="3.65"><img id="bg7img" src="assets/bg-but.jpg" alt="" data-layout-allow-overflow /></div>
+      <div class="win clip" id="win7" data-start="22.43" data-duration="3.65"><img id="win7img" src="assets/w-but.jpg" alt="" data-layout-allow-overflow /></div>
+      <div class="cap clip" id="cap7" data-start="22.43" data-duration="3.65">FRANCE-BELGIQUE, 11 NOVEMBRE 1956 · MIROIR SPRINT</div>
+      <div class="bgwrap clip" id="bg8" data-start="26.08" data-duration="3.87"><img id="bg8img" src="assets/bg-bleu.jpg" alt="" data-layout-allow-overflow /></div>
+      <div class="win clip" id="win8" data-start="26.08" data-duration="3.87"><img id="win8img" src="assets/w-bleu.jpg" alt="" data-layout-allow-overflow /></div>
+      <div class="cap clip" id="cap8" data-start="26.08" data-duration="3.87">CISOWSKI SOUS LE MAILLOT BLEU · 1956</div>
+      <div class="bgwrap clip" id="bg9" data-start="29.95" data-duration="4.01"><img id="bg9img" src="assets/bg-fontaine.jpg" alt="" data-layout-allow-overflow /></div>
+      <div class="win clip" id="win9" data-start="29.95" data-duration="4.01"><img id="win9img" src="assets/w-fontaine.jpg" alt="" data-layout-allow-overflow /></div>
+      <div class="cap clip" id="cap9" data-start="29.95" data-duration="4.01">JUST FONTAINE · VIGNETTE PANINI</div>
+      <div class="bgwrap clip" id="bg10" data-start="33.96" data-duration="4.08"><img id="bg10img" src="assets/bg-carte.jpg" alt="" data-layout-allow-overflow /></div>
+      <div class="win clip" id="win10" data-start="33.96" data-duration="4.08"><img id="win10img" src="assets/w-carte.jpg" alt="" data-layout-allow-overflow /></div>
+      <div class="cap clip" id="cap10" data-start="33.96" data-duration="4.08">CARTE DÉDICACÉE DE THADÉE CISOWSKI</div>
+
+      <!-- ================= HEADER ================= -->
+      <div class="clip" id="hdr" data-start="0" data-duration="38.04">
+        <div class="ring">1·2</div>
+        <div class="wordmark">une·deux</div>
+        <div class="handle">@UNE.DEUX</div>
+        <div class="hairline"></div>
+      </div>
+      <div class="tag clip" id="tag" data-start="0" data-duration="38.04">CE JOUR LÀ · 11 NOVEMBRE 1956</div>
+
+      <!-- ================= SOUS-TITRES KARAOKÉ (une ligne = un carton) ================= -->
+      <div class="story-zone">
+        <div class="story-line clip" id="k0" data-start="0" data-duration="1.38"><b class="ocre">5 BUTS</b> EN UN MATCH</div>
+        <div class="story-line clip" id="k1" data-start="1.38" data-duration="1.15">AVEC LES BLEUS.</div>
+        <div class="story-line clip" id="k2" data-start="2.53" data-duration="1.54"><b class="ocre">ZÉRO</b> COUPE DU MONDE.</div>
+        <div class="story-line clip" id="k3" data-start="4.07" data-duration="1.23">THADÉE <b class="ocre">CISOWSKI</b>.</div>
+        <div class="story-line clip" id="k4" data-start="5.3" data-duration="1.08">NÉ EN POLOGNE.</div>
+        <div class="story-line clip" id="k5" data-start="6.38" data-duration="1.15">FILS DE MINEUR.</div>
+        <div class="story-line clip" id="k6" data-start="7.53" data-duration="0.8">À <b class="ocre">14 ANS</b>,</div>
+        <div class="story-line clip" id="k7" data-start="8.33" data-duration="1.46">IL DESCEND AU FOND.</div>
+        <div class="story-line clip" id="k8" data-start="9.79" data-duration="0.8"><b class="ocre">1951</b>.</div>
+        <div class="story-line clip" id="k9" data-start="10.59" data-duration="1.46">PREMIÈRE SÉLECTION.</div>
+        <div class="story-line clip" id="k10" data-start="12.05" data-duration="0.85">9E MINUTE :</div>
+        <div class="story-line clip" id="k11" data-start="12.9" data-duration="1"><b class="ocre">JAMBE CASSÉE</b>.</div>
+        <div class="story-line clip" id="k12" data-start="13.9" data-duration="0.85">IL REVIENT.</div>
+        <div class="story-line clip" id="k13" data-start="14.75" data-duration="0.8"><b class="ocre">1956</b>.</div>
+        <div class="story-line clip" id="k14" data-start="15.55" data-duration="1.15"><b class="ocre">MEILLEUR BUTEUR</b></div>
+        <div class="story-line clip" id="k15" data-start="16.7" data-duration="1.15">DU CHAMPIONNAT.</div>
+        <div class="story-line clip" id="k16" data-start="17.85" data-duration="1.38">FRANCE – BELGIQUE.</div>
+        <div class="story-line clip" id="k17" data-start="19.23" data-duration="0.8">UN BUT.</div>
+        <div class="story-line clip" id="k18" data-start="20.03" data-duration="0.8">DEUX.</div>
+        <div class="story-line clip" id="k19" data-start="20.83" data-duration="0.8">TROIS.</div>
+        <div class="story-line clip" id="k20" data-start="21.63" data-duration="0.8">QUATRE.</div>
+        <div class="story-line clip" id="k21" data-start="22.43" data-duration="0.8"><b class="ocre">CINQ</b>.</div>
+        <div class="story-line clip" id="k22" data-start="23.23" data-duration="1.23">LES BLEUS FILENT</div>
+        <div class="story-line clip" id="k23" data-start="24.46" data-duration="1.62">VERS LE <b class="ocre">MONDIAL 1958</b>.</div>
+        <div class="story-line clip" id="k24" data-start="26.08" data-duration="1.69">1958 : <b class="ocre">BLESSÉ</b>, ENCORE.</div>
+        <div class="story-line clip" id="k25" data-start="27.77" data-duration="1.38">LE MONDIAL SE JOUE</div>
+        <div class="story-line clip" id="k26" data-start="29.15" data-duration="0.8"><b class="ocre">SANS LUI</b>.</div>
+        <div class="story-line clip" id="k27" data-start="29.95" data-duration="1.62">UN AUTRE AVANT-CENTRE</div>
+        <div class="story-line clip" id="k28" data-start="31.57" data-duration="1.31">Y MARQUE <b class="ocre">13 BUTS</b>.</div>
+        <div class="story-line clip" id="k29" data-start="32.88" data-duration="1.08">JUST FONTAINE.</div>
+        <div class="story-line clip" id="k30" data-start="33.96" data-duration="1.31">IL MEURT EN <b class="ocre">2005</b>.</div>
+        <div class="story-line clip" id="k31" data-start="35.27" data-duration="1.23">SON RECORD, LUI,</div>
+        <div class="story-line clip" id="k32" data-start="36.5" data-duration="1.54">TIENT DEPUIS <b class="ocre">70 ANS</b>.</div>
+      </div>
+
+      <!-- ================= CTA ================= -->
+      <div class="cta clip" id="cta" data-start="38.04" data-duration="3.6">
+        <div class="c-ring">1·2</div><div class="c-word">une·deux</div><div class="c-handle">@UNE.DEUX</div><div class="c-hair"></div>
+        <svg class="c-mark" id="ctaMark" viewBox="0 0 120 156"><path fill="#C2A04E" d="M14 0h92a14 14 0 0 1 14 14v142L60 98 0 156V14A14 14 0 0 1 14 0Z" /></svg>
+        <div class="c-btn" id="ctaBtn">FOLLOW</div>
+        <div class="c-t" id="ctaT1" style="top:1010px">RESTE DANS</div>
+        <div class="c-t" id="ctaT2" style="top:1160px">LE JEU</div>
+        <div class="c-body" id="ctaBody">Une histoire de foot oubliée, tous les jours.</div>
+      </div>
+
+      <!-- ================= SON ================= -->
+      <audio id="sfxS1" src="assets/sfx/whoosh-short.mp3" data-start="4.04" data-duration="0.57" data-volume="0.32"></audio>
+      <audio id="sfxS2" src="assets/sfx/whoosh-short.mp3" data-start="7.5" data-duration="0.57" data-volume="0.32"></audio>
+      <audio id="sfxK11" src="assets/sfx/impact-bass-1.mp3" data-start="12.9" data-duration="2" data-volume="0.3"></audio>
+      <audio id="sfxS3" src="assets/sfx/whoosh-short.mp3" data-start="9.76" data-duration="0.57" data-volume="0.32"></audio>
+      <audio id="sfxS4" src="assets/sfx/whoosh-short.mp3" data-start="14.72" data-duration="0.57" data-volume="0.32"></audio>
+      <audio id="sfxK17" src="assets/sfx/ping.mp3" data-start="19.23" data-duration="0.8" data-volume="0.34"></audio>
+      <audio id="sfxK18" src="assets/sfx/ping.mp3" data-start="20.03" data-duration="0.8" data-volume="0.34"></audio>
+      <audio id="sfxS5" src="assets/sfx/whoosh-short.mp3" data-start="17.82" data-duration="0.57" data-volume="0.32"></audio>
+      <audio id="sfxK19" src="assets/sfx/ping.mp3" data-start="20.83" data-duration="0.8" data-volume="0.34"></audio>
+      <audio id="sfxK20" src="assets/sfx/ping.mp3" data-start="21.63" data-duration="0.8" data-volume="0.34"></audio>
+      <audio id="sfxS6" src="assets/sfx/whoosh-short.mp3" data-start="20.8" data-duration="0.57" data-volume="0.32"></audio>
+      <audio id="sfxK21" src="assets/sfx/impact-bass-1.mp3" data-start="22.43" data-duration="2" data-volume="0.34"></audio>
+      <audio id="sfxS7" src="assets/sfx/whoosh-short.mp3" data-start="22.4" data-duration="0.57" data-volume="0.32"></audio>
+      <audio id="sfxK26" src="assets/sfx/impact-bass-1.mp3" data-start="29.15" data-duration="2" data-volume="0.28"></audio>
+      <audio id="sfxS8" src="assets/sfx/whoosh-short.mp3" data-start="26.05" data-duration="0.57" data-volume="0.32"></audio>
+      <audio id="sfxK28" src="assets/sfx/ping.mp3" data-start="31.57" data-duration="1.3" data-volume="0.4"></audio>
+      <audio id="sfxS9" src="assets/sfx/whoosh-short.mp3" data-start="29.92" data-duration="0.57" data-volume="0.32"></audio>
+      <audio id="sfxS10" src="assets/sfx/whoosh-short.mp3" data-start="33.93" data-duration="0.57" data-volume="0.32"></audio>
+      <audio id="sfxCta" src="assets/sfx/pop.mp3" data-start="38.08" data-duration="0.72" data-volume="0.55"></audio>
+      <audio id="sfxCta2" src="assets/sfx/click.mp3" data-start="38.26" data-duration="0.37" data-volume="0.55"></audio>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      const T = (sel) => { const el = document.querySelector(sel); const s = parseFloat(el.dataset.start); return [s, s + parseFloat(el.dataset.duration)]; };
+      const END = 38.04;
+
+      tl.set('#base', { opacity: 1 }, 0);
+      tl.set(['#hdr', '#tag'], { opacity: 1 }, 0);
+      tl.set(['#hdr', '#tag'], { opacity: 0 }, END);
+
+      // archives : coupe franche, poussée lente et continue dans la fenêtre (jamais d'aller-retour)
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].forEach((i) => {
+        const [s, e] = T('#win' + i);
+        tl.set(['#bg' + i, '#win' + i, '#cap' + i], { opacity: 1 }, s);
+        tl.fromTo('#win' + i + 'img', { scale: 1.0 }, { scale: 1.0 + 0.016 * (e - s) + 0.02, duration: e - s, ease: 'none' }, s);
+        tl.fromTo('#bg' + i + 'img', { scale: 1.04 }, { scale: 1.1, duration: e - s, ease: 'none' }, s);
+        tl.set(['#bg' + i, '#win' + i, '#cap' + i], { opacity: 0 }, e);
+      });
+
+      // karaoké : fondus opacity seuls (le centrage vertical est un transform statique — jamais de tween y)
+      function fadeBlockKaraoke(sel, first) {
+        const [s, e] = T(sel);
+        if (first) tl.set(sel, { opacity: 1 }, s);
+        else tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 0.10, ease: 'power2.out' }, s);
+        tl.to(sel, { opacity: 0, duration: 0.08, ease: 'sine.in' }, e - 0.08);
+        tl.set(sel, { opacity: 0 }, e);
+      }
+      ['k0', 'k1', 'k2', 'k3', 'k4', 'k5', 'k6', 'k7', 'k8', 'k9', 'k10', 'k11', 'k12', 'k13', 'k14', 'k15', 'k16', 'k17', 'k18', 'k19', 'k20', 'k21', 'k22', 'k23', 'k24', 'k25', 'k26', 'k27', 'k28', 'k29', 'k30', 'k31', 'k32'].forEach((id, i) => fadeBlockKaraoke('#' + id, i === 0));
+
+      // CTA
+      {
+        const s = END;
+        tl.set('#cta', { opacity: 1 }, s);
+        tl.fromTo('#ctaMark', { opacity: 0, y: -60 }, { opacity: 1, y: 0, duration: 0.36, ease: 'power4.out' }, s + 0.04);
+        tl.fromTo('#ctaBtn', { opacity: 0, scale: 0.7 }, { opacity: 1, scale: 1, duration: 0.3, ease: 'back.out(1.6)' }, s + 0.22);
+        tl.fromTo('#ctaT1', { opacity: 0, y: 70 }, { opacity: 1, y: 0, duration: 0.36, ease: 'power4.out' }, s + 0.3);
+        tl.fromTo('#ctaT2', { opacity: 0, y: 70 }, { opacity: 1, y: 0, duration: 0.36, ease: 'power4.out' }, s + 0.4);
+        tl.fromTo('#ctaBody', { opacity: 0 }, { opacity: 1, duration: 0.3, ease: 'power2.out' }, s + 0.5);
+        tl.to('#ctaBtn', { scale: 1.08, duration: 0.18, ease: 'power2.out' }, s + 1.5);
+        tl.to('#ctaBtn', { scale: 1, duration: 0.22, ease: 'power2.inOut' }, s + 1.68);
+      }
+
+      window.__timelines['main'] = tl;
+    </script>
+  </body>
+</html>
