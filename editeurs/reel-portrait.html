@@ -551,7 +551,7 @@ async function autoFetch() {
   for (const e of S.eps) for (const p of e.plans) {
     if (p.mediaId || !p.hint || p._tried) continue; p._tried = true; const h = parseHint(p.hint);
     const urls = []; if (h.file && window.PBASE) urls.push(window.PBASE + h.file); if (/\.(jpe?g|png|webp)(\?|$)/i.test(h.url)) urls.push(h.url);
-    for (const u of urls) { try { const r = await fetch(u, { mode: 'cors' }); if (!r.ok) continue; const b = await r.blob(); if (!/^(image|video)\//.test(b.type)) continue; const id = uid(), name = (h.note || u.split('/').pop()).slice(0, 40); if (!await addMedia(id, b, name)) continue; S.mediaOrder.push(id); idbPut('m:' + id, { blob: b, name }); p.mediaId = id; n++; refresh(); break; } catch (err) {} }
+    for (const u of urls) { try { let r = await fetch(u, { mode: 'cors' }); for (let k = 0; k < 3 && r.status === 429; k++) { await new Promise(z => setTimeout(z, 3000 * (k + 1))); r = await fetch(u, { mode: 'cors' }); } await new Promise(z => setTimeout(z, 500)); if (!r.ok) { if (r.status === 429) p._tried = false; continue; } const b = await r.blob(); if (!/^(image|video)\//.test(b.type)) continue; const id = uid(), name = (h.note || u.split('/').pop()).slice(0, 40); if (!await addMedia(id, b, name)) continue; S.mediaOrder.push(id); idbPut('m:' + id, { blob: b, name }); p.mediaId = id; n++; refresh(); break; } catch (err) {} }
   }
   if (n) toast(n + ' média(s) chargé(s) automatiquement');
 }
