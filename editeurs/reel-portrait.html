@@ -82,6 +82,14 @@
 <main>
 
 <section>
+  <h2><b>0 · Préparation automatique</b></h2>
+  <p class="hint" style="margin-top:0">Claude fait les recherches, écrit les épisodes et liste les médias. Tu colles ensuite son fichier projet dans « Script » : tout se remplit, et les photos libres se chargent seules.</p>
+  <label>Dossier de destination (lien Drive ou nom)</label><input type="text" id="fFolder" placeholder="ex. Drive / une·deux / Portraits">
+  <div class="btns"><button class="btn pri" id="bAsk">Copier la demande pour Claude</button>
+  <label class="btn" style="margin:0;color:var(--txt)">Ouvrir un fichier projet<input type="file" id="fProj" accept=".txt,text/plain" hidden></label></div>
+</section>
+
+<section>
   <h2><b>1 · Série</b></h2>
   <div class="row">
     <div><label>Joueur</label><input type="text" id="fPlayer" placeholder="ex. Zidane"></div>
@@ -93,7 +101,7 @@
     <div><label>Typo foot (dates, titres d'extraits)</label><select id="fFoot"></select></div>
     <div><label>Sous-titres</label><select id="fSubs"><option value="auto">Auto (plans sans voix)</option><option value="on">Toujours</option><option value="off">Jamais</option></select></div>
   </div>
-  <label>Saturation des images (0 = noir &amp; blanc, DA Portraits)</label><input type="range" id="fSat" min="0" max="1" step="0.05">
+  <label>Saturation des images (à droite = couleurs d'origine)</label><input type="range" id="fSat" min="0" max="1" step="0.05">
   <label style="display:flex;gap:8px;align-items:center;color:var(--txt);font-size:14px;margin-top:12px"><input type="checkbox" id="fCta"> Appel à l'action sur le dernier plan</label>
 </section>
 
@@ -114,7 +122,9 @@
       <li><code>&gt;&gt; TITRE | étiquette | 4s</code> = <b>extrait</b> : le média joue avec son propre son, sans voix (but, célébration, interview).</li>
       <li><code>==</code> = carton titre de la série (ou <code>== TEXTE LIBRE</code>).</li>
       <li><code>--- ÉPISODE 2 ---</code> = le texte qui suit part dans l'onglet de cet épisode (colle les 3 d'un coup).</li>
-      <li>Une ligne qui commence par <code>#</code> est ignorée (notes, liste d'images à trouver).</li>
+      <li>Motion design entre crochets (affiché, pas lu) : <code>[France 3-0 Brésil]</code> score · <code>[Cannes &gt; Bordeaux | 1992]</code> transfert · <code>[108 sélections]</code> chiffre clé · <code>[n°10]</code> maillot · <code>[Palmarès: Coupe du monde 1998; Euro 2000]</code> liste.</li>
+      <li>Automatiques sans rien écrire : « 31 buts », « à 17 ans », « numéro 10 », une citation entre « guillemets ».</li>
+      <li><code># média: description | lien | fichier</code> sous un plan = média suggéré pour ce plan. Les autres lignes <code>#</code> sont ignorées.</li>
     </ul>
   </details>
 </section>
@@ -185,14 +195,14 @@
 const $ = id => document.getElementById(id);
 const W = 1080, H = 1920;
 const cv = $('cv'), g = cv.getContext('2d');
-const LS = 'reelPortrait.v1';
+const LS = 'reelPortrait.v2';
 const uid = () => Math.random().toString(36).slice(2, 9);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const fmt = t => Math.floor(t / 60) + ':' + String(Math.floor(t % 60)).padStart(2, '0');
 function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove('on'), 2600); }
 
 /* ---------- état ---------- */
-const S = { player: '', nEp: 3, hook: 'COMMENT {JOUEUR} EST ARRIVÉ À ÇA ?', foot: 'graduate', sat: 0, subs: 'auto', cta: true, musicVol: 0.2, ep: 0,
+const S = { player: '', nEp: 3, hook: 'COMMENT {JOUEUR} EST ARRIVÉ À ÇA ?', foot: 'graduate', sat: 1, folder: '', subs: 'auto', cta: true, musicVol: 0.2, ep: 0,
   eps: [0, 1, 2].map(() => ({ script: '', plans: [] })), mediaOrder: [] };
 const media = new Map();   // id -> {id,name,kind,blob,url,el,dur,thumb}
 const voices = new Map();  // planId -> AudioBuffer
@@ -208,7 +218,7 @@ const idbGet = k => idb('readonly', s => s.get(k));
 const idbDel = k => idb('readwrite', s => s.delete(k));
 
 function save() {
-  const o = { ...S, eps: S.eps.map(e => ({ script: e.script, plans: e.plans.map(p => ({ id: p.id, raw: p.raw, mediaId: p.mediaId, trim: p.trim })) })) };
+  const o = { ...S, eps: S.eps.map(e => ({ script: e.script, plans: e.plans.map(p => ({ id: p.id, raw: p.raw, mediaId: p.mediaId, trim: p.trim, hint: p.hint || '' })) })) };
   try { localStorage.setItem(LS, JSON.stringify(o)); } catch (e) {}
 }
 
@@ -224,26 +234,51 @@ function parseLine(raw) {
     p.text = p.label; return p;
   }
   if (s.startsWith('==')) { p.type = 'title'; p.text = s.slice(2).trim(); return p; }
-  const re = /\*\*(.+?)\*\*|@([\p{L}\d_'’-]+)(?:\(([^)]*)\))?/gu; let last = 0, m, clean = '';
+  const re = /\*\*(.+?)\*\*|@([\p{L}\d_'’-]+)(?:\(([^)]*)\))?|\s*\[([^\[\]]+)\]/gu; let last = 0, m, clean = ''; const fxs = [];
   while ((m = re.exec(s))) {
     clean += s.slice(last, m.index);
     if (m[1] != null) { m[1].trim().split(/\s+/).forEach((w, i) => { if (i) clean += ' '; p.kws.push({ w, at: clean.length }); clean += w; }); }
+    else if (m[4] != null) { const f = classify(m[4].trim()); if (f) { f.at = clean.length; fxs.push(f); } }
     else { const name = m[2].replace(/_/g, ' '); p.places.push({ name, cap: m[3] || '', at: clean.length }); clean += name; }
     last = re.lastIndex;
   }
   clean += s.slice(last); p.text = clean;
   const d = RE_DATE.exec(clean); if (d) p.date = { dm: (d[1] + ' ' + d[2]).toUpperCase(), year: d[3], at: d.index };
+  // motion design automatique : chiffre clé, numéro de maillot, citation
+  let a;
+  if (!fxs.length && !d) {
+    if ((a = RE_NUM.exec(clean))) fxs.push({ k: 'jersey', n: +a[1], at: a.index });
+    else if ((a = RE_STAT.exec(clean))) fxs.push({ k: 'stat', n: parseInt(a[1].replace(/\D/g, ''), 10), label: a[2], at: a.index });
+    else if ((a = /«\s*([^»]{8,110}?)\s*»/.exec(clean))) fxs.push({ k: 'quote', txt: a[1], at: a.index });
+  }
+  p.fx = fxs[0] || null;
   return p;
 }
+const RE_STAT = /(\d[\d  .]*)\s+(buts?|matchs?|sélections?|titres?|passes décisives|ans|trophées?|saisons?|millions? d['’]euros|minutes?|capes?)(?![\p{L}])/iu;
+const RE_NUM = /(?:numéro|n°)\s*(\d{1,2})(?!\d)/i;
+function classify(c) {
+  let m;
+  if ((m = /^(.+?)\s+(\d+)\s*[-–]\s*(\d+)\s+(.+)$/.exec(c))) return { k: 'score', a: m[1], sa: +m[2], sb: +m[3], b: m[4] };
+  if ((m = /^([^>|]+)>([^|]+)(?:\|(.+))?$/.exec(c))) return { k: 'transfer', a: m[1].trim(), b: m[2].trim(), tag: (m[3] || '').trim() };
+  if ((m = /^([^:]+):(.+;.+)$/.exec(c))) return { k: 'list', title: m[1].trim(), items: m[2].split(';').map(x => x.trim()).filter(Boolean) };
+  if ((m = /^(?:n°|#)\s*(\d{1,2})$/i.exec(c))) return { k: 'jersey', n: +m[1] };
+  if ((m = /^(\d[\d  .]*)\s+(.+)$/.exec(c))) return { k: 'stat', n: parseInt(m[1].replace(/\D/g, ''), 10), label: m[2] };
+  if (/^«.+»$/.test(c)) return { k: 'quote', txt: c.slice(1, -1).trim() };
+  return null;
+}
+function parseHint(h) { const o = { note: '', url: '', file: '' }; (h || '').split('|').map(x => x.trim()).filter(Boolean).forEach(x => { if (/^https?:\/\//i.test(x)) o.url = o.url || x; else if (/^[\w./-]+\.(jpe?g|png|webp|mp4|mov|webm)$/i.test(x)) o.file = x; else o.note = o.note ? o.note + ' · ' + x : x; }); return o; }
 function parseScript() {
   const e = ep(), old = new Map();
   e.plans.forEach(p => { if (!old.has(p.raw)) old.set(p.raw, []); old.get(p.raw).push(p); });
-  e.plans = e.script.split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('#')).map(l => {
+  const out = [];
+  for (const l of e.script.split('\n').map(x => x.trim()).filter(Boolean)) {
+    if (l.startsWith('#')) { const h = /^#\s*m[ée]dia\s*:\s*(.+)$/i.exec(l); if (h && out.length) out[out.length - 1].hint = h[1]; continue; }
     const p = parseLine(l), q = (old.get(p.raw) || []).shift();
-    return Object.assign(p, { id: q ? q.id : uid(), mediaId: q ? q.mediaId : null, trim: q ? q.trim : 0 });
-  });
+    out.push(Object.assign(p, { id: q ? q.id : uid(), mediaId: q ? q.mediaId : null, trim: q ? q.trim : 0, hint: '' }));
+  }
+  e.plans = out;
 }
-function hydrate(e) { e.plans = e.plans.map(p => Object.assign(parseLine(p.raw), { id: p.id, mediaId: p.mediaId || null, trim: p.trim || 0 })); }
+function hydrate(e) { e.plans = e.plans.map(p => Object.assign(parseLine(p.raw), { id: p.id, mediaId: p.mediaId || null, trim: p.trim || 0, hint: p.hint || '' })); }
 const hookText = () => S.hook.replace(/\{JOUEUR\}/gi, S.player || 'IL');
 
 /* ---------- timeline ---------- */
@@ -251,7 +286,8 @@ let TL = { total: 0 };
 function planDur(p) {
   if (p.type === 'clip') return p.fixedDur || 4;
   if (p.type === 'title') return clamp(0.9 + 0.28 * (p.text || hookText()).split(/\s+/).length, 2.2, 4.5);
-  const v = voices.get(p.id); return v ? v.duration + 0.12 : Math.max(1.4, p.text.length / 15);
+  const v = voices.get(p.id), minFx = p.fx ? (p.fx.k === 'list' ? 1.6 + 0.6 * Math.min(5, p.fx.items.length) : 2.6) : p.date ? 2.4 : 1.4;
+  return v ? Math.max(v.duration + 0.12, minFx - 0.6) : Math.max(minFx, p.text.length / 15);
 }
 function buildTL() {
   let t = 0, cur = null, off = 0;
@@ -302,6 +338,67 @@ function drawBlock(lines, cx, top, lt, color) {
   }
   return y;
 }
+// ----- plan d'archive : vignette encadrée crème sur fond flouté, légende façon programme de match
+const blurC = document.createElement('canvas'); blurC.width = 27; blurC.height = 48; const blurG = blurC.getContext('2d');
+function drawArchive(m, p, lt, d) {
+  const el = m.el, sw = el.videoWidth || el.naturalWidth, sh = el.videoHeight || el.naturalHeight; if (!sw || !sh) return;
+  try { const k = Math.max(27 / sw, 48 / sh); blurG.drawImage(el, (27 - sw * k) / 2, (48 - sh * k) / 2, sw * k, sh * k); g.imageSmoothingQuality = 'high'; g.drawImage(blurC, -60, -60, W + 120, H + 120); } catch (e) {}
+  g.fillStyle = 'rgba(44,40,35,.72)'; g.fillRect(0, 0, W, H);
+  const fw = 912, fh = clamp(fw * sh / sw, 513, 1140), fx = (W - fw) / 2, fy = 880 - fh / 2, a = ease(lt / 0.25), sc = 0.965 + 0.035 * a;
+  g.save(); g.globalAlpha = a; g.translate(W / 2, 880); g.scale(sc, sc); g.translate(-W / 2, -880);
+  shadow(true); g.fillStyle = CREAM; g.fillRect(fx - 14, fy - 14, fw + 28, fh + 28); shadow(false);
+  g.beginPath(); g.rect(fx, fy, fw, fh); g.clip(); const k = Math.max(fw / sw, fh / sh) * (m.kind === 'image' ? 1 + 0.05 * clamp(lt / 6, 0, 1) : 1);
+  try { g.drawImage(el, fx + (fw - sw * k) / 2, fy + (fh - sh * k) / 2, sw * k, sh * k); } catch (e) {}
+  g.restore();
+  drawArchiveCaption(p, lt, d, fx - 14, fy + fh + 14, fw + 28, fy - 14);
+}
+function drawArchiveCaption(p, lt, d, x, yBot, w, yTop) {
+  const out = ease((d - lt) / 0.2), a1 = ease((lt - 0.2) / 0.3) * out, a2 = ease((lt - 0.4) / 0.3) * out;
+  g.save(); g.textBaseline = 'middle';
+  if (yTop != null && a1 > 0) { g.globalAlpha = a1; g.font = F.saira(40); g.fillStyle = CREAM; g.textAlign = 'left'; const t = 'A R C H I V E'; g.fillText(t, x, yTop - 42); const tw = g.measureText(t).width; g.fillRect(x + tw + 24, yTop - 44, (w - tw - 24) * a1, 4); }
+  if (p.label && a2 > 0) {
+    g.globalAlpha = a2; const lab = p.label.toUpperCase(); let tagW = 0;
+    if (p.tag) { g.font = F.saira(50); const t = p.tag.toUpperCase(); tagW = g.measureText(t).width + 40; g.fillStyle = CREAM; g.fillRect(x + w - tagW, yBot + 36, tagW, 72); g.fillStyle = INK; g.textAlign = 'center'; g.fillText(t, x + w - tagW / 2, yBot + 74); tagW += 28; }
+    fit(lab, F.foot, 74, w - tagW); g.fillStyle = CREAM; g.textAlign = 'left'; shadow(true); g.fillText(lab, x, yBot + 74); shadow(false);
+    g.fillRect(x, yBot + 130, w * a2, 4);
+  }
+  g.restore();
+}
+// ----- motion design (zone haute) : score, transfert, palmarès, chiffre clé, numéro, citation
+function drawFx(f, t, d) {
+  if (t < 0) return; const a = ease(t / 0.22), cx = W / 2; g.save(); g.textBaseline = 'middle'; g.textAlign = 'center'; g.fillStyle = CREAM; g.strokeStyle = CREAM;
+  const count = n => Math.round(n * ease(t / Math.min(0.9, d * 0.5)));
+  const rule = (y, w) => g.fillRect(cx - w * a / 2, y, w * a, 4);
+  if (f.k === 'score') {
+    g.globalAlpha = a; rule(250, 880); shadow(true);
+    fit(f.a.toUpperCase(), F.saira, 78, 380); g.fillText(f.a.toUpperCase(), cx - 230, 320);
+    fit(f.b.toUpperCase(), F.saira, 78, 380); g.fillText(f.b.toUpperCase(), cx + 230, 320);
+    g.font = F.foot(250); g.fillText(String(count(f.sa)), cx - 230, 500); g.fillText(String(count(f.sb)), cx + 230, 500);
+    shadow(false); g.fillRect(cx - 34, 492, 68, 12); rule(640, 880);
+  } else if (f.k === 'transfer') {
+    g.globalAlpha = a; shadow(true); fit(f.a.toUpperCase(), F.anton, 120, 820); g.fillText(f.a.toUpperCase(), cx, 300); shadow(false);
+    const b = ease((t - 0.3) / 0.35); g.lineWidth = 8; g.beginPath(); g.moveTo(cx, 380); g.lineTo(cx, 380 + 90 * b); g.stroke();
+    if (b > 0.9) { g.beginPath(); g.moveTo(cx - 26, 444); g.lineTo(cx, 478); g.lineTo(cx + 26, 444); g.stroke(); }
+    const c = ease((t - 0.6) / 0.22); if (c > 0) { g.globalAlpha = c; const sz = fit(f.b.toUpperCase(), F.anton, 130, 780), w = g.measureText(f.b.toUpperCase()).width; shadow(true); g.fillRect(cx - w / 2 - 26, 500, w + 52, sz * 1.3); shadow(false); g.fillStyle = INK; g.fillText(f.b.toUpperCase(), cx, 500 + sz * 0.7);
+      if (f.tag) { g.fillStyle = CREAM; g.font = F.saira(54); shadow(true); g.fillText(f.tag.toUpperCase(), cx, 500 + sz * 1.3 + 56); } }
+  } else if (f.k === 'list') {
+    g.globalAlpha = a; g.font = F.saira(56); shadow(true); g.fillText(f.title.toUpperCase(), cx, 270); shadow(false); rule(312, 600);
+    const step = Math.min(0.5, (d - 0.5) / f.items.length);
+    f.items.slice(0, 5).forEach((it, i) => { const b = ease((t - 0.3 - i * step) / 0.2); if (b <= 0) return; g.globalAlpha = b; fit(it.toUpperCase(), F.anton, 84, 860); shadow(true); g.fillText(it.toUpperCase(), cx + 30 * (1 - b), 390 + i * 104); shadow(false); });
+  } else if (f.k === 'stat') {
+    g.globalAlpha = a; shadow(true); fit(String(f.n), F.foot, 330, 860); g.fillText(count(f.n).toLocaleString('fr-FR'), cx, 400); shadow(false);
+    const lab = f.label.toUpperCase(); g.font = F.saira(84); const w = Math.min(860, g.measureText(lab).width); fit(lab, F.saira, 84, 860); g.fillRect(cx - w / 2 - 26, 580, w + 52, 112); g.fillStyle = INK; g.fillText(lab, cx, 638);
+  } else if (f.k === 'jersey') {
+    g.globalAlpha = a; g.translate(cx, 470); const sc = 0.9 + 0.1 * a; g.scale(sc, sc); g.lineWidth = 10; g.lineJoin = 'round'; shadow(true);
+    g.beginPath(); [[-110, -230], [-250, -180], [-330, -40], [-240, 10], [-200, -50], [-200, 230], [200, 230], [200, -50], [240, 10], [330, -40], [250, -180], [110, -230]].forEach((q, i) => i ? g.lineTo(q[0], q[1]) : g.moveTo(q[0], q[1])); g.quadraticCurveTo(0, -150, -110, -230); g.closePath();
+    g.fillStyle = 'rgba(44,40,35,.78)'; g.fill(); g.stroke(); g.fillStyle = CREAM; fit(String(f.n), F.foot, 260, 320); g.fillText(String(f.n), 0, 50);
+  } else if (f.k === 'quote') {
+    g.globalAlpha = a; g.font = F.foot(200); shadow(true); g.fillText('«', cx, 290);
+    const ls = wrap(f.txt.toUpperCase(), F.saira(70), 880).slice(0, 5); g.font = F.saira(70); ls.forEach((l, i) => { const b = ease((t - 0.15 - i * 0.12) / 0.2); g.globalAlpha = a * b; g.fillText(l, cx, 420 + i * 84); });
+    shadow(false); g.globalAlpha = a; rule(420 + ls.length * 84, 300);
+  }
+  g.restore();
+}
 function topShade() { const gr = g.createLinearGradient(0, 0, 0, 760); gr.addColorStop(0, 'rgba(0,0,0,.62)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(0, 0, W, 760); }
 function pill(txt, cx, cy, size, rot, a) {
   g.save(); g.globalAlpha = a; g.translate(cx, cy); g.rotate(rot); const sc = 1.3 - 0.3 * a; g.scale(sc, sc);
@@ -316,7 +413,8 @@ function render(t) {
   g.fillStyle = INK; g.fillRect(0, 0, W, H);
   const ps = ep().plans; if (!ps.length) { g.fillStyle = '#776f60'; g.font = F.anton(64); g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('ÉCRIS TON SCRIPT', W / 2, H / 2); return; }
   const p = planAt(t), lt = t - p._start, d = p._dur, m = p._m && media.get(p._m);
-  if (m) { drawCover(m.el, m.kind === 'image' ? 1 + 0.07 * clamp(((p._off || 0) + lt) / 8, 0, 1.6) : 1);
+  if (m && p.type === 'clip') drawArchive(m, p, lt, d);
+  else if (m) { drawCover(m.el, m.kind === 'image' ? 1 + 0.07 * clamp(((p._off || 0) + lt) / 8, 0, 1.6) : 1);
     if (S.sat < 1) { g.save(); g.globalCompositeOperation = 'saturation'; g.globalAlpha = 1 - S.sat; g.fillStyle = '#808080'; g.fillRect(0, 0, W, H); g.restore(); } }
   const isLast = p === ps[ps.length - 1], ctaT = isLast && S.cta && p.type === 'narr' ? Math.min(3.5, d) : 0, inCta = ctaT && lt >= d - ctaT;
 
@@ -328,12 +426,7 @@ function render(t) {
     drawBlock(lines, W / 2, top, lt, CREAM);
     const a = ease((lt - span - 0.25) / 0.16); if (a > 0) pill('ÉPISODE ' + (S.ep + 1), W / 2, top + h + 90, 84, -0.04, a);
   } else if (p.type === 'clip') {
-    if (p.label) {
-      const a = ease((lt - 0.25) / 0.18) * ease((d - lt) / 0.2);
-      if (a > 0) { g.save(); g.globalAlpha = a; g.translate(W / 2, 1290); g.rotate(-0.03); const s = fit(p.label.toUpperCase(), F.foot, 104, 800);
-        g.fillStyle = CREAM; g.textAlign = 'center'; g.textBaseline = 'middle'; shadow(true); g.fillText(p.label.toUpperCase(), 0, 0); const tw = g.measureText(p.label.toUpperCase()).width; g.restore();
-        if (p.tag) pill(p.tag.toUpperCase(), W / 2 + tw / 2 - 70, 1290 - s * 0.85, 46, 0.05, ease((lt - 0.5) / 0.16) * ease((d - lt) / 0.2)); }
-    }
+    if (!m) drawArchiveCaption(p, lt, d, 96, 1000, 888);
   } else if (inCta) {
     topShade(); const ct = lt - (d - ctaT);
     const l1 = 'LIKE COMMENTE PARTAGE & ABONNE-TOI'.split(' ').map((w, i) => ({ w, t: 0.1 + i * 0.16 }));
@@ -346,6 +439,7 @@ function render(t) {
       const y = drawBlock(block(p.date.dm.split(' ').map(w => ({ w, t: t0 })), 760, 170, 99), W / 2, 250, lt, CREAM);
       const a = ease((lt - t0 - 0.25) / 0.5);
       if (a > 0) { g.save(); const ys = fit(p.date.year, F.foot, 330, 880); g.textAlign = 'center'; g.textBaseline = 'top'; const tw = g.measureText(p.date.year).width; g.beginPath(); g.rect(W / 2 - tw / 2 - 30, y - 60, (tw + 60) * a, 520); g.clip(); g.fillStyle = CREAM; shadow(true); g.fillText(p.date.year, W / 2, y + 10); g.restore(); }
+    } else if (p.fx) { topShade(); drawFx(p.fx, lt - Math.min(at(p.fx.at), d * 0.3), d);
     } else if (p.kws.length) {
       topShade(); let prev = -1;
       const ws = p.kws.map(k => { const tt = Math.max(at(k.at), prev + 0.1); prev = tt; return { w: k.w, t: tt }; });
@@ -438,7 +532,7 @@ function renderPool() {
 $('fMedia').onchange = async e => {
   for (const f of e.target.files) { const id = uid(); const m = await addMedia(id, f, f.name); if (!m) { toast('Fichier illisible : ' + f.name); continue; } S.mediaOrder.push(id); idbPut('m:' + id, { blob: f, name: f.name }); }
   e.target.value = '';
-  if (ep().plans.length && !ep().plans.some(p => p.mediaId)) spread(true);
+  if (ep().plans.length && !ep().plans.some(p => p.mediaId || p.hint)) spread(true);
   refresh();
 };
 $('pool').onclick = e => { const id = e.target.dataset.del; if (!id) return; const m = media.get(id); if (m) { if (m.kind === 'video') m.el.remove(); URL.revokeObjectURL(m.url); } media.delete(id); idbDel('m:' + id); S.mediaOrder = S.mediaOrder.filter(x => x !== id); S.eps.forEach(e2 => e2.plans.forEach(p => { if (p.mediaId === id) p.mediaId = null; })); refresh(); };
@@ -451,9 +545,20 @@ function spread(quiet) {
 }
 $('bSpread').onclick = () => spread(false);
 
+// charge tout seul les médias dont le projet donne un fichier ou une image en lien direct
+async function autoFetch() {
+  let n = 0;
+  for (const e of S.eps) for (const p of e.plans) {
+    if (p.mediaId || !p.hint || p._tried) continue; p._tried = true; const h = parseHint(p.hint);
+    const urls = []; if (h.file && window.PBASE) urls.push(window.PBASE + h.file); if (/\.(jpe?g|png|webp)(\?|$)/i.test(h.url)) urls.push(h.url);
+    for (const u of urls) { try { const r = await fetch(u, { mode: 'cors' }); if (!r.ok) continue; const b = await r.blob(); if (!/^(image|video)\//.test(b.type)) continue; const id = uid(), name = (h.note || u.split('/').pop()).slice(0, 40); if (!await addMedia(id, b, name)) continue; S.mediaOrder.push(id); idbPut('m:' + id, { blob: b, name }); p.mediaId = id; n++; refresh(); break; } catch (err) {} }
+  }
+  if (n) toast(n + ' média(s) chargé(s) automatiquement');
+}
 /* ---------- liste des plans ---------- */
 const TY = { narr: 'NARRATION', clip: 'EXTRAIT', title: 'TITRE' };
 const esc = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+function hintHtml(p) { if (!p.hint) return ''; const h = parseHint(p.hint); return `<div class="voice" style="align-items:flex-start"><span style="flex:1">${p.mediaId ? '✓' : '○'} ${esc(h.note || 'média suggéré')}</span>${h.url ? `<a class="btn sm" target="_blank" rel="noopener" href="${esc(h.url)}">Source ↗</a>` : ''}</div>`; }
 function renderPlans() {
   const ps = ep().plans; $('pCount').textContent = ps.length ? ps.length + ' plans' : '';
   $('plans').innerHTML = ps.map((p, i) => {
@@ -461,14 +566,16 @@ function renderPlans() {
     const v = voices.get(p.id);
     return `<div class="plan" data-id="${p.id}"><div class="top"><span>#${i + 1}</span><span class="ty ${p.type}">${TY[p.type]}</span><span>${p._dur.toFixed(1)} s</span><span class="sp"></span><button class="btn sm" data-a="go">▶</button><button class="btn sm" data-a="del">✕</button></div>
       <textarea rows="2" data-a="raw">${esc(p.raw)}</textarea>
-      <div class="ctl"><select data-a="media">${opts}</select><input type="number" data-a="trim" min="0" step="0.5" value="${p.trim || 0}" title="Début dans la vidéo (s)" ${p.mediaId ? '' : 'disabled'}></div>
+      <div class="ctl"><select data-a="media">${opts}</select><input type="number" data-a="trim" min="0" step="0.5" value="${p.trim || 0}" title="Début dans la vidéo (s)" ${p.mediaId ? '' : 'disabled'}><label class="btn sm" style="margin:0;color:var(--txt)">+<input type="file" data-a="pfile" accept="video/*,image/*" hidden></label></div>
+      ${hintHtml(p)}
       ${p.type === 'narr' ? `<div class="voice">${v ? `<span>🎙 voix ${v.duration.toFixed(1)} s</span><span class="sp" style="flex:1"></span><button class="btn sm" data-a="vdel">Effacer la voix</button>` : `<span>Pas de voix — durée estimée</span><span class="sp" style="flex:1"></span>`}<button class="btn sm" data-a="vrec">● ${v ? 'Refaire' : 'Enregistrer'}</button></div>` : ''}</div>`;
   }).join('');
 }
-function syncScript() { ep().script = ep().plans.map(p => p.raw).join('\n'); $('fScript').value = ep().script; }
+function syncScript() { ep().script = ep().plans.map(p => p.raw + (p.hint ? '\n# média: ' + p.hint : '')).join('\n'); $('fScript').value = ep().script; }
 $('plans').addEventListener('change', e => {
   const n = e.target.closest('.plan'); if (!n) return; const p = ep().plans.find(x => x.id === n.dataset.id), a = e.target.dataset.a;
   if (a === 'raw') { const v = e.target.value.replace(/\n/g, ' ').trim(); if (!v) return; Object.assign(p, parseLine(v)); syncScript(); }
+  if (a === 'pfile') { const f = e.target.files[0]; if (!f) return; const id = uid(); addMedia(id, f, f.name).then(m => { if (!m) return toast('Fichier illisible'); S.mediaOrder.push(id); idbPut('m:' + id, { blob: f, name: f.name }); p.mediaId = id; p.trim = 0; refresh(); }); return; }
   if (a === 'media') { p.mediaId = e.target.value || null; p.trim = 0; }
   if (a === 'trim') p.trim = Math.max(0, parseFloat(e.target.value) || 0);
   refresh();
@@ -583,6 +690,9 @@ $('bExport').onclick = async () => {
 function renderTabs() { $('tabs').innerHTML = Array.from({ length: S.nEp }, (_, i) => `<button class="tab ${i === S.ep ? 'on' : ''}" data-ep="${i}">ÉPISODE ${i + 1}</button>`).join(''); $('epLabel').textContent = 'épisode ' + (S.ep + 1) + ' / ' + S.nEp; }
 $('tabs').onclick = e => { const i = e.target.dataset.ep; if (i == null) return; stop(); P.t = 0; S.ep = +i; $('fScript').value = ep().script; $('out').innerHTML = ''; renderTabs(); refresh(); };
 function refresh() { buildTL(); renderPool(); renderPlans(); lastCur = null; if (P.t > TL.total) P.t = 0; save(); }
+$('fFolder').oninput = e => { S.folder = e.target.value; save(); };
+$('bAsk').onclick = async () => { if (!S.player) return toast('Renseigne d\'abord le joueur (section 1)'); const txt = `portrait ${S.player} — ${S.nEp} épisodes` + (S.folder ? ` — dossier : ${S.folder}` : ''); try { await navigator.clipboard.writeText(txt); toast('Copié — colle-le dans Claude Code'); } catch (e) { prompt('Copie cette demande :', txt); } };
+$('fProj').onchange = async e => { const f = e.target.files[0]; if (!f) return; $('fScript').value = await f.text(); e.target.value = ''; $('bParse').click(); };
 $('fPlayer').oninput = e => { S.player = e.target.value.trim(); refresh(); };
 $('fHook').oninput = e => { S.hook = e.target.value; refresh(); };
 $('fNEp').onchange = e => { S.nEp = +e.target.value; if (S.ep >= S.nEp) { S.ep = 0; $('fScript').value = ep().script; } renderTabs(); refresh(); };
@@ -594,7 +704,9 @@ $('fCta').onchange = e => { S.cta = e.target.checked; save(); };
 $('fScript').oninput = e => { ep().script = e.target.value; save(); };
 const RE_EP = /^\W*[ÉE]PISODE\s*(\d)\W*$/i;
 $('bParse').onclick = () => {
-  stop(); const lines = $('fScript').value.split('\n');
+  stop(); let PBASE = window.PBASE || '';
+  const lines = $('fScript').value.split('\n').filter(l => { const h = /^\s*(JOUEUR|TITRE|TYPO)\s*:\s*(.+)$/i.exec(l); if (!h) return true; const k = h[1].toUpperCase(), v = h[2].trim(); if (k === 'JOUEUR') { S.player = v; $('fPlayer').value = v; } else if (k === 'TITRE') { S.hook = v; $('fHook').value = v; } else if (FOOT[v.toLowerCase()]) { S.foot = v.toLowerCase(); $('fFoot').value = S.foot; } return false; });
+  $('fScript').value = lines.join('\n'); setTimeout(autoFetch, 50);
   if (lines.some(l => RE_EP.test(l.trim()))) { // script multi-épisodes : dispatch dans les onglets
     const parts = {}; let k = S.ep; for (const l of lines) { const m = RE_EP.exec(l.trim()); if (m) { k = clamp(+m[1] - 1, 0, 2); continue; } (parts[k] = parts[k] || []).push(l); }
     const cur = S.ep, ks = Object.keys(parts).map(Number); S.nEp = Math.max(S.nEp, Math.max(...ks) + 1); $('fNEp').value = S.nEp;
@@ -631,6 +743,8 @@ Format STRICT, une ligne = un plan, sans rien d'autre :
 - @Ville ou @Saint_Denis(précision courte) : étiquette lieu.
 - >> TITRE | étiquette courte (année, club) | 4s : extrait vidéo avec son propre son.
 - == : carton titre.
+- Motion design entre crochets dans une ligne de narration (affiché, pas lu), un seul par ligne : [France 3-0 Brésil] · [Cannes > Bordeaux | 1992] · [108 sélections] · [n°10] · [Palmarès: titre 1; titre 2; titre 3].
+- Sous chaque plan qui a besoin d'une image : « # média: description | lien de la source ».
 
 Sépare les épisodes par une ligne « --- ÉPISODE N --- ». Après chaque épisode, liste les images/vidéos à trouver dans l'ordre des plans, chaque ligne de cette liste commençant par « # ».`;
   try { await navigator.clipboard.writeText(txt); toast('Prompt copié — colle-le dans Claude'); } catch (e) { prompt('Copie ce prompt :', txt); }
@@ -640,9 +754,12 @@ Sépare les épisodes par une ligne « --- ÉPISODE N --- ». Après chaque épi
 (async function init() {
   try { const o = JSON.parse(localStorage.getItem(LS) || 'null'); if (o) { Object.assign(S, o); while (S.eps.length < 3) S.eps.push({ script: '', plans: [] }); } } catch (e) {}
   S.eps.forEach(hydrate);
-  $('fPlayer').value = S.player; $('fNEp').value = S.nEp; $('fHook').value = S.hook; if (!FOOT[S.foot]) S.foot = 'graduate'; $('fFoot').value = S.foot; $('fSat').value = S.sat; $('fSubs').value = S.subs; $('fCta').checked = S.cta; $('fMusVol').value = S.musicVol; $('fScript').value = ep().script;
+  $('fPlayer').value = S.player; $('fNEp').value = S.nEp; $('fHook').value = S.hook; if (!FOOT[S.foot]) S.foot = 'graduate'; $('fFoot').value = S.foot; $('fSat').value = S.sat; $('fSubs').value = S.subs; $('fFolder').value = S.folder || ''; $('fCta').checked = S.cta; $('fMusVol').value = S.musicVol; $('fScript').value = ep().script;
   renderTabs(); refresh(); requestAnimationFrame(frame);
   if (document.fonts) Promise.all([F.anton(80), F.saira(80), F.sub(50), ...Object.values(FOOT).map(f => `${f[1]} 80px "${f[2]}"`)].map(f => document.fonts.load(f, 'AÉ0'))).catch(() => {});
+  const q = new URLSearchParams(location.search).get('p');
+  if (q) { const u = /^https?:/i.test(q) ? q : '../portraits/' + q + '/projet.txt'; window.PBASE = u.replace(/[^/]*$/, '');
+    try { const r = await fetch(u); if (r.ok && (!S.eps.some(e => e.plans.length) || confirm('Charger le projet « ' + q + ' » à la place du projet en cours ?'))) { $('fScript').value = await r.text(); $('bParse').click(); } } catch (err) { toast('Projet introuvable : ' + q); } }
   // restauration des médias et des voix
   const ok = [];
   for (const id of S.mediaOrder) { const r = await idbGet('m:' + id); if (r && r.blob && await addMedia(id, r.blob, r.name)) ok.push(id); }

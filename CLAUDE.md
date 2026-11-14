@@ -1095,3 +1095,62 @@ fichiers réellement mis en index** (`git status --short` ou
 chemin avant de committer plutôt que de faire confiance au `.gitignore`
 seul. Ce contrôle est obligatoire à chaque livraison, pas seulement en cas
 de doute.
+
+## Reel portrait (série Portraits) — préparation automatique
+
+Format distinct des reels éphéméride ci-dessus : un joueur raconté en 2 ou
+3 épisodes, monté par Thomas sur son portable dans
+`editeurs/reel-portrait.html` (voix off, pas de face cam, DA Portraits
+encre/crème, médias en couleurs). Ajouté le 14 novembre 2026.
+
+**Déclencheur** : Thomas écrit `portrait <joueur>` (éventuellement
+`— N épisodes — dossier : <lien ou nom>`, texte que l'éditeur copie pour
+lui). Ne rien redemander : faire les recherches, écrire, livrer.
+
+**Livrable** : un seul fichier texte `projet.txt`, que l'éditeur sait lire
+tel quel (collé dans « Script » ou ouvert via « Ouvrir un fichier projet »).
+
+```
+JOUEUR: Zidane
+--- ÉPISODE 1 ---
+>> FRANCE - BRÉSIL | 1998 | 4s
+# média: les deux têtes en finale | https://lien-de-la-source
+==
+Né le 23 juin 1972 à @Marseille, il grandit à @La_Castellane(quartiers nord).
+# média: portrait jeune | https://upload.wikimedia.org/…/fichier.jpg
+En finale, il marque **deux fois**. [France 3-0 Brésil]
+--- ÉPISODE 2 ---
+…
+```
+
+Syntaxe (une ligne = un plan) :
+- texte simple = narration lue en voix off ; `**mot**` = mot-clé à l'écran
+  (1 à 3 par ligne, pas sur toutes les lignes) ;
+- date complète écrite « 23 juin 1972 » = carton date ; `@Ville` ou
+  `@Saint_Denis(précision)` = étiquette lieu ;
+- `>> TITRE | étiquette | 4s` = plan d'archive (son d'origine, sans voix) ;
+  `==` = carton titre ;
+- motion design entre crochets, affiché mais pas lu, un seul par ligne :
+  `[France 3-0 Brésil]`, `[Cannes > Bordeaux | 1992]`, `[108 sélections]`,
+  `[n°10]`, `[Palmarès: a; b; c]` ; sont détectés seuls « 31 buts »,
+  « à 17 ans », « numéro 10 » et une citation entre « guillemets » ;
+- `# média: description | lien | fichier` sous un plan = média de ce plan.
+
+Règles d'écriture : 150 à 230 mots par épisode, faits vérifiés et sourcés
+(même exigence que `SKILL.md`), texte passé au `humanizer`. Chaque épisode
+s'ouvre sur une archive, le carton titre, puis une archive du sommet de la
+carrière (contraste « de ça… à ça ») ; ensuite narration chronologique, une
+idée par ligne, un rebondissement toutes les 3-4 lignes, une archive toutes
+les 5-6 lignes, un motion design toutes les 3-4 lignes ; dernière ligne =
+annonce de l'épisode suivant (conclusion pour le dernier).
+
+Médias : une ligne `# média:` sous chaque plan qui change d'image, avec le
+lien le plus direct possible vers la source (pas seulement du libre de
+droits : Thomas télécharge lui-même les vidéos de match et archives
+protégées). Pour une photo libre, donner le lien direct du fichier image
+Wikimedia (`upload.wikimedia.org/…jpg`) : l'éditeur la charge tout seul.
+
+Livraison : `portraits/<slug>/projet.txt` committé sur la branche de la
+session, copie dans le dossier indiqué par Thomas (Drive) s'il en donne un,
+et contenu complet du fichier dans le message de réponse (bloc de code) pour
+qu'il puisse le copier-coller directement.
