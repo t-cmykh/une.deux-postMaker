@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Reel portrait — série joueur</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@500;800&family=Permanent+Marker&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
+<style>
+  :root{ --bg:#0d0d0f; --panel:#17171b; --line:#2a2a31; --txt:#f3f3f5; --mute:#8d8d99; --acc:#E1121C; }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{margin:0;background:var(--bg);color:var(--txt);font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;}
+  header{padding:16px 16px 0;max-width:560px;margin:0 auto;}
+  header h1{margin:0;font:400 26px/1 'Anton',sans-serif;letter-spacing:.02em;text-transform:uppercase;}
+  header p{margin:6px 0 0;color:var(--mute);font-size:13px;}
+  main{max-width:560px;margin:0 auto;padding:14px 16px 90px;}
+  .tabs{display:flex;gap:8px;margin:14px 0 0;}
+  .tab{flex:1;padding:10px 0;border-radius:10px;border:1px solid var(--line);background:none;color:var(--mute);font:400 16px 'Anton',sans-serif;letter-spacing:.04em;}
+  .tab.on{background:var(--acc);border-color:var(--acc);color:#fff;}
+  section{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;margin-top:14px;}
+  section>h2{margin:0 0 10px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);display:flex;justify-content:space-between;align-items:center;gap:8px;}
+  section>h2 b{color:var(--txt);font-weight:600;}
+  label{display:block;font-size:12px;color:var(--mute);margin:10px 0 4px;}
+  input[type=text],input[type=number],select,textarea{width:100%;background:#0f0f12;border:1px solid var(--line);border-radius:9px;color:var(--txt);padding:10px;font:inherit;font-size:16px;}
+  textarea{min-height:190px;resize:vertical;line-height:1.5;}
+  input[type=color]{width:100%;height:42px;border:1px solid var(--line);border-radius:9px;background:#0f0f12;padding:3px;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .row{display:flex;gap:10px;} .row>*{flex:1;min-width:0;}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--line);background:#202027;color:var(--txt);border-radius:10px;padding:11px 12px;font:600 14px/1 inherit;cursor:pointer;}
+  .btn.pri{background:var(--acc);border-color:var(--acc);color:#fff;}
+  .btn.big{width:100%;padding:15px;font-size:16px;}
+  .btn.sm{padding:8px 10px;font-size:13px;}
+  .btn:disabled{opacity:.4;}
+  .btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;} .btns .btn{flex:1;white-space:nowrap;}
+  .hint{font-size:12.5px;color:var(--mute);margin:8px 0 0;}
+  .hint code{background:#0f0f12;border:1px solid var(--line);border-radius:5px;padding:1px 5px;color:var(--txt);font-size:12px;}
+  details.help{margin-top:10px;font-size:13px;color:var(--mute);} details.help summary{cursor:pointer;color:var(--txt);}
+  details.help li{margin:5px 0;} details.help ul{padding-left:18px;margin:8px 0 0;}
+  .pool{display:flex;gap:8px;overflow-x:auto;padding:2px 0 6px;}
+  .mthumb{flex:0 0 74px;position:relative;}
+  .mthumb .pic{width:74px;height:110px;border-radius:8px;background:#000 center/cover;border:1px solid var(--line);display:flex;align-items:flex-end;font-size:10px;color:#fff;overflow:hidden;}
+  .mthumb .pic span{background:rgba(0,0,0,.6);padding:2px 4px;width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .mthumb .n{position:absolute;top:4px;left:4px;background:var(--acc);color:#fff;font:400 13px 'Anton';border-radius:5px;padding:1px 6px;}
+  .mthumb .x{position:absolute;top:2px;right:2px;width:22px;height:22px;border-radius:50%;border:0;background:rgba(0,0,0,.7);color:#fff;font-size:12px;}
+  .plan{border:1px solid var(--line);border-radius:11px;padding:10px;margin-top:10px;background:#111115;}
+  .plan.cur{border-color:var(--acc);}
+  .plan .top{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--mute);}
+  .plan .top .ty{font:400 12px 'Anton';letter-spacing:.06em;padding:2px 7px;border-radius:5px;background:#26262e;color:var(--txt);}
+  .plan .top .ty.clip{background:var(--acc);color:#fff;} .plan .top .ty.title{background:#fff;color:#000;}
+  .plan .top .sp{flex:1;}
+  .plan textarea{min-height:0;height:auto;margin-top:8px;font-size:15px;padding:8px;}
+  .plan .ctl{display:flex;gap:8px;margin-top:8px;align-items:center;}
+  .plan .ctl select{flex:1;padding:8px;font-size:14px;} .plan .ctl input{width:74px;flex:0 0 74px;padding:8px;font-size:14px;}
+  .plan .voice{display:flex;gap:8px;margin-top:8px;align-items:center;font-size:12px;color:var(--mute);}
+  .dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--acc);}
+  .rec .dot{animation:blink 1s infinite;} @keyframes blink{50%{opacity:.2;}}
+  #stage{position:relative;margin:0 auto;width:min(100%,300px);}
+  #cv{display:block;width:100%;aspect-ratio:9/16;background:#000;border-radius:12px;}
+  .transport{display:flex;gap:10px;align-items:center;margin-top:10px;}
+  .transport .time{font-variant-numeric:tabular-nums;font-size:12px;color:var(--mute);white-space:nowrap;}
+  #out video{width:100%;border-radius:12px;margin-top:12px;background:#000;}
+  .bar{height:6px;background:#0f0f12;border-radius:3px;overflow:hidden;margin-top:10px;} .bar i{display:block;height:100%;width:0;background:var(--acc);}
+  #prompter{position:fixed;inset:0;background:#000;z-index:50;display:none;flex-direction:column;padding:calc(18px + env(safe-area-inset-top)) 20px calc(18px + env(safe-area-inset-bottom));}
+  #prompter.on{display:flex;}
+  #prompter .pinfo{color:var(--mute);font-size:13px;display:flex;justify-content:space-between;align-items:center;}
+  #prompter .ptxt{flex:1;display:flex;align-items:center;font-size:30px;line-height:1.3;font-weight:600;overflow:auto;}
+  #prompter .pnext{color:var(--mute);font-size:14px;min-height:42px;margin-bottom:14px;}
+  #vault{position:fixed;left:-9999px;top:0;width:2px;height:2px;overflow:hidden;opacity:.01;pointer-events:none;}
+  #vault video{width:2px;height:2px;}
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#fff;color:#000;padding:10px 16px;border-radius:20px;font-size:13px;font-weight:600;z-index:60;opacity:0;transition:opacity .2s;pointer-events:none;max-width:90vw;text-align:center;}
+  .toast.on{opacity:1;}
+</style>
+</head>
+<body>
+<header>
+  <h1>Reel portrait</h1>
+  <p>Série joueur en 2 ou 3 épisodes — script → plans → voix → export, sans face cam.</p>
+  <div class="tabs" id="tabs"></div>
+</header>
+<main>
+
+<section>
+  <h2><b>1 · Série</b></h2>
+  <div class="row">
+    <div><label>Joueur</label><input type="text" id="fPlayer" placeholder="ex. Zidane"></div>
+    <div style="flex:0 0 96px"><label>Épisodes</label><select id="fNEp"><option>1</option><option>2</option><option selected>3</option></select></div>
+  </div>
+  <label>Carton titre (<code>{JOUEUR}</code> = nom)</label>
+  <input type="text" id="fHook">
+  <div class="row">
+    <div><label>Couleur d'accent</label><input type="color" id="fAcc"></div>
+    <div><label>Sous-titres</label><select id="fSubs"><option value="auto">Auto (plans sans voix)</option><option value="on">Toujours</option><option value="off">Jamais</option></select></div>
+  </div>
+  <label style="display:flex;gap:8px;align-items:center;color:var(--txt);font-size:14px;margin-top:12px"><input type="checkbox" id="fCta"> Appel à l'action sur le dernier plan</label>
+</section>
+
+<section>
+  <h2><b>2 · Script</b> <span id="epLabel"></span></h2>
+  <textarea id="fScript" placeholder="1 ligne = 1 plan…" spellcheck="false"></textarea>
+  <div class="btns">
+    <button class="btn pri" id="bParse">Découper en plans</button>
+    <button class="btn" id="bTrame">Trame type</button>
+    <button class="btn" id="bPrompt">Copier le prompt IA</button>
+  </div>
+  <details class="help"><summary>Syntaxe (1 ligne = 1 plan)</summary>
+    <ul>
+      <li>Texte simple = <b>narration</b> (lue en voix off).</li>
+      <li><code>**mot**</code> = mot-clé affiché en gros à l'écran, au moment où il est dit.</li>
+      <li>Une date écrite <code>28 novembre 1995</code> = carton date automatique.</li>
+      <li><code>@Clamart</code> ou <code>@Saint_Denis(sa ville)</code> = étiquette lieu.</li>
+      <li><code>&gt;&gt; TITRE | étiquette | 4s</code> = <b>extrait</b> : le média joue avec son propre son, sans voix (but, célébration, interview).</li>
+      <li><code>==</code> = carton titre de la série (ou <code>== TEXTE LIBRE</code>).</li>
+    </ul>
+  </details>
+</section>
+
+<section>
+  <h2><b>3 · Médias</b> <span id="mCount"></span></h2>
+  <div class="pool" id="pool"></div>
+  <div class="btns">
+    <label class="btn pri" style="margin:0;color:#fff">+ Vidéos / photos<input type="file" id="fMedia" accept="video/*,image/*" multiple hidden></label>
+    <button class="btn" id="bSpread">Répartir auto</button>
+  </div>
+  <p class="hint">Importe dans l'ordre de l'histoire. « Répartir auto » les étale sur les plans ; un plan sans média continue celui du plan précédent.</p>
+</section>
+
+<section>
+  <h2><b>4 · Plans</b> <span id="pCount"></span></h2>
+  <div class="btns" style="margin-top:0">
+    <button class="btn pri" id="bPrompter">🎙 Prompteur voix off</button>
+  </div>
+  <p class="hint">Le prompteur enregistre ta voix plan par plan : chaque plan dure exactement le temps de ta phrase, le calage est automatique. Sans voix, la durée est calculée sur la longueur du texte.</p>
+  <div id="plans"></div>
+</section>
+
+<section>
+  <h2><b>5 · Musique de fond</b> <span id="musName"></span></h2>
+  <div class="btns" style="margin-top:0">
+    <label class="btn" style="margin:0;color:var(--txt)">Choisir un audio<input type="file" id="fMusic" accept="audio/*,video/*" hidden></label>
+    <button class="btn" id="bMusDel">Retirer</button>
+  </div>
+  <label>Volume sous la voix</label><input type="range" id="fMusVol" min="0" max="1" step="0.01">
+  <p class="hint">Coupée automatiquement pendant les extraits (qui jouent leur propre son).</p>
+</section>
+
+<section>
+  <h2><b>6 · Aperçu</b> <span id="tot"></span></h2>
+  <div id="stage"><canvas id="cv" width="1080" height="1920"></canvas></div>
+  <div class="transport">
+    <button class="btn pri" id="bPlay" style="flex:0 0 54px">▶</button>
+    <input type="range" id="seek" min="0" max="1" step="0.001" value="0">
+    <span class="time" id="time">0:00</span>
+  </div>
+</section>
+
+<section>
+  <h2><b>7 · Export</b></h2>
+  <button class="btn pri big" id="bExport">Exporter le reel</button>
+  <div class="bar"><i id="prog"></i></div>
+  <p class="hint">L'export se fait en temps réel (un reel de 60 s = 60 s d'export). Garde l'écran allumé et l'onglet au premier plan.</p>
+  <div id="out"></div>
+</section>
+</main>
+
+<div id="prompter">
+  <div class="pinfo"><span id="pInfo"></span><button class="btn sm" id="pClose">Fermer</button></div>
+  <div class="ptxt" id="pTxt"></div>
+  <div class="pnext" id="pNext"></div>
+  <div class="row">
+    <button class="btn big" id="pRedo">↺ Refaire</button>
+    <button class="btn pri big" id="pGo">● Démarrer</button>
+  </div>
+</div>
+<div id="vault"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const W = 1080, H = 1920;
+const cv = $('cv'), g = cv.getContext('2d');
+const LS = 'reelPortrait.v1';
+const uid = () => Math.random().toString(36).slice(2, 9);
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const fmt = t => Math.floor(t / 60) + ':' + String(Math.floor(t % 60)).padStart(2, '0');
+function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove('on'), 2600); }
+
+/* ---------- état ---------- */
+const S = { player: '', nEp: 3, hook: 'COMMENT {JOUEUR} EST ARRIVÉ À ÇA ?', accent: '#E1121C', subs: 'auto', cta: true, musicVol: 0.2, ep: 0,
+  eps: [0, 1, 2].map(() => ({ script: '', plans: [] })), mediaOrder: [] };
+const media = new Map();   // id -> {id,name,kind,blob,url,el,dur,thumb}
+const voices = new Map();  // planId -> AudioBuffer
+let music = null;          // {name, buf}
+const ep = () => S.eps[S.ep];
+
+/* ---------- IndexedDB (médias, voix) ---------- */
+let dbp = null;
+function db() { return dbp || (dbp = new Promise((res, rej) => { const r = indexedDB.open('reelPortrait', 1); r.onupgradeneeded = () => r.result.createObjectStore('blobs'); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); })); }
+async function idb(mode, fn) { try { const d = await db(); return await new Promise((res, rej) => { const tx = d.transaction('blobs', mode); const rq = fn(tx.objectStore('blobs')); tx.oncomplete = () => res(rq && rq.result); tx.onerror = () => rej(tx.error); }); } catch (e) { console.warn('idb', e); } }
+const idbPut = (k, v) => idb('readwrite', s => s.put(v, k));
+const idbGet = k => idb('readonly', s => s.get(k));
+const idbDel = k => idb('readwrite', s => s.delete(k));
+
+function save() {
+  const o = { ...S, eps: S.eps.map(e => ({ script: e.script, plans: e.plans.map(p => ({ id: p.id, raw: p.raw, mediaId: p.mediaId, trim: p.trim })) })) };
+  try { localStorage.setItem(LS, JSON.stringify(o)); } catch (e) {}
+}
+
+/* ---------- parsing du script ---------- */
+const MOIS = 'janvier|février|fevrier|mars|avril|mai|juin|juillet|août|aout|septembre|octobre|novembre|décembre|decembre';
+const RE_DATE = new RegExp('(\\d{1,2}|1er)\\s+(' + MOIS + ')\\s+(\\d{4})', 'i');
+function parseLine(raw) {
+  const s = raw.trim(), p = { raw: s, type: 'narr', text: '', kws: [], places: [], date: null, label: '', tag: '', fixedDur: 0 };
+  if (s.startsWith('>>')) {
+    const a = s.slice(2).split('|').map(x => x.trim());
+    p.type = 'clip'; p.label = a[0] || '';
+    for (const x of a.slice(1)) { const m = /^(\d+(?:[.,]\d+)?)\s*s$/i.exec(x); if (m) p.fixedDur = parseFloat(m[1].replace(',', '.')); else if (x) p.tag = x; }
+    p.text = p.label; return p;
+  }
+  if (s.startsWith('==')) { p.type = 'title'; p.text = s.slice(2).trim(); return p; }
+  const re = /\*\*(.+?)\*\*|@([\p{L}\d_'’-]+)(?:\(([^)]*)\))?/gu; let last = 0, m, clean = '';
+  while ((m = re.exec(s))) {
+    clean += s.slice(last, m.index);
+    if (m[1] != null) { m[1].trim().split(/\s+/).forEach((w, i) => { if (i) clean += ' '; p.kws.push({ w, at: clean.length }); clean += w; }); }
+    else { const name = m[2].replace(/_/g, ' '); p.places.push({ name, cap: m[3] || '', at: clean.length }); clean += name; }
+    last = re.lastIndex;
+  }
+  clean += s.slice(last); p.text = clean;
+  const d = RE_DATE.exec(clean); if (d) p.date = { dm: (d[1] + ' ' + d[2]).toUpperCase(), year: d[3], at: d.index };
+  return p;
+}
+function parseScript() {
+  const e = ep(), old = new Map();
+  e.plans.forEach(p => { if (!old.has(p.raw)) old.set(p.raw, []); old.get(p.raw).push(p); });
+  e.plans = e.script.split('\n').map(l => l.trim()).filter(Boolean).map(l => {
+    const p = parseLine(l), q = (old.get(p.raw) || []).shift();
+    return Object.assign(p, { id: q ? q.id : uid(), mediaId: q ? q.mediaId : null, trim: q ? q.trim : 0 });
+  });
+}
+function hydrate(e) { e.plans = e.plans.map(p => Object.assign(parseLine(p.raw), { id: p.id, mediaId: p.mediaId || null, trim: p.trim || 0 })); }
+const hookText = () => S.hook.replace(/\{JOUEUR\}/gi, S.player || 'IL');
+
+/* ---------- timeline ---------- */
+let TL = { total: 0 };
+function planDur(p) {
+  if (p.type === 'clip') return p.fixedDur || 4;
+  if (p.type === 'title') return clamp(0.9 + 0.28 * (p.text || hookText()).split(/\s+/).length, 2.2, 4.5);
+  const v = voices.get(p.id); return v ? v.duration + 0.12 : Math.max(1.4, p.text.length / 15);
+}
+function buildTL() {
+  let t = 0, cur = null, off = 0;
+  for (const p of ep().plans) {
+    p._dur = planDur(p); p._start = t; t += p._dur;
+    if (p.type === 'title' && !p.mediaId) { p._m = null; continue; }
+    if (p.mediaId && media.has(p.mediaId)) { cur = p.mediaId; off = +p.trim || 0; }
+    p._m = cur; p._off = off; off += p._dur;
+  }
+  TL.total = t;
+  $('tot').textContent = t ? fmt(t) + ' · ' + ep().plans.length + ' plans' : '';
+  $('seek').max = Math.max(t, 0.01);
+}
+function planAt(t) { const ps = ep().plans; for (let i = ps.length - 1; i >= 0; i--) if (t >= ps[i]._start) return ps[i]; return ps[0]; }
+
+/* ---------- rendu canvas ---------- */
+const F = { anton: s => `${s}px Anton, Impact, sans-serif`, marker: s => `${s}px "Permanent Marker", cursive`, serif: s => `italic 700 ${s}px "Playfair Display", Georgia, serif`, sub: s => `800 ${s}px Archivo, sans-serif` };
+const ease = x => 1 - Math.pow(1 - clamp(x, 0, 1), 3);
+function shadow(on) { g.shadowColor = on ? 'rgba(0,0,0,.6)' : 'transparent'; g.shadowBlur = on ? 26 : 0; g.shadowOffsetY = on ? 4 : 0; }
+function drawCover(el, zoom) {
+  const sw = el.videoWidth || el.naturalWidth, sh = el.videoHeight || el.naturalHeight; if (!sw || !sh) return;
+  const k = Math.max(W / sw, H / sh) * zoom, dw = sw * k, dh = sh * k;
+  try { g.drawImage(el, (W - dw) / 2, (H - dh) / 2, dw, dh); } catch (e) {}
+}
+// bloc typographique : chaque ligne est mise à l'échelle pour remplir la largeur
+function block(words, maxW, maxSize, perLine) {
+  const lines = []; let cur = [];
+  for (const w of words) { if (cur.length && (cur.map(x => x.w).join(' ') + ' ' + w.w).length > perLine) { lines.push(cur); cur = []; } cur.push(w); }
+  if (cur.length) lines.push(cur);
+  return lines.map(ws => { g.font = F.anton(100); const txt = ws.map(w => w.w.toUpperCase()).join(' '); const size = Math.min(maxSize, maxW / (g.measureText(txt).width / 100)); return { ws, size }; });
+}
+function drawBlock(lines, cx, top, lt, color) {
+  let y = top; g.textBaseline = 'top'; g.textAlign = 'left';
+  for (const L of lines) {
+    g.font = F.anton(L.size); const sp = g.measureText(' ').width;
+    const ww = L.ws.map(w => g.measureText(w.w.toUpperCase()).width), tw = ww.reduce((a, b) => a + b, 0) + sp * (ww.length - 1);
+    let x = cx - tw / 2;
+    L.ws.forEach((w, i) => {
+      const a = ease((lt - w.t) / 0.14);
+      if (a > 0) { g.save(); g.globalAlpha = a; const sc = 1.25 - 0.25 * a; g.translate(x + ww[i] / 2, y + L.size / 2); g.scale(sc, sc); g.fillStyle = w.color || color; shadow(true); g.fillText(w.w.toUpperCase(), -ww[i] / 2, -L.size / 2); g.restore(); }
+      x += ww[i] + sp;
+    });
+    y += L.size * 1.04;
+  }
+  return y;
+}
+function topShade() { const gr = g.createLinearGradient(0, 0, 0, 760); gr.addColorStop(0, 'rgba(0,0,0,.62)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(0, 0, W, 760); }
+function pill(txt, cx, cy, size, rot, a) {
+  g.save(); g.globalAlpha = a; g.translate(cx, cy); g.rotate(rot); const sc = 1.3 - 0.3 * a; g.scale(sc, sc);
+  g.font = F.anton(size); const w = g.measureText(txt).width + size * 0.7, h = size * 1.35;
+  g.fillStyle = S.accent; shadow(true); g.beginPath(); g.roundRect(-w / 2, -h / 2, w, h, size * 0.22); g.fill(); shadow(false);
+  g.fillStyle = '#fff'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(txt, 0, size * 0.06); g.restore();
+}
+function wrap(txt, font, maxW) { g.font = font; const out = []; let l = ''; for (const w of txt.split(/\s+/)) { const t = l ? l + ' ' + w : w; if (l && g.measureText(t).width > maxW) { out.push(l); l = w; } else l = t; } if (l) out.push(l); return out; }
+
+function render(t) {
+  g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = 1; shadow(false);
+  g.fillStyle = '#000'; g.fillRect(0, 0, W, H);
+  const ps = ep().plans; if (!ps.length) { g.fillStyle = '#555'; g.font = F.anton(64); g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('ÉCRIS TON SCRIPT', W / 2, H / 2); return; }
+  const p = planAt(t), lt = t - p._start, d = p._dur, m = p._m && media.get(p._m);
+  if (m) drawCover(m.el, m.kind === 'image' ? 1 + 0.07 * clamp(((p._off || 0) + lt) / 8, 0, 1.6) : 1);
+  const isLast = p === ps[ps.length - 1], ctaT = isLast && S.cta && p.type === 'narr' ? Math.min(3.5, d) : 0, inCta = ctaT && lt >= d - ctaT;
+
+  if (p.type === 'title') {
+    const words = (p.text || hookText()).split(/\s+/).filter(Boolean), span = Math.min(d * 0.55, words.length * 0.28);
+    const lines = block(words.map((w, i) => ({ w, t: 0.12 + span * i / Math.max(1, words.length) })), 900, 300, 11);
+    let h = lines.reduce((a, L) => a + L.size * 1.04, 0); if (h > 1150) { const k = 1150 / h; lines.forEach(L => L.size *= k); h = 1150; }
+    const top = (H - h) / 2 - 60;
+    drawBlock(lines, W / 2, top, lt, '#fff');
+    const a = ease((lt - span - 0.25) / 0.16); if (a > 0) pill('EP.' + (S.ep + 1), W - 210, top + h + 70, 96, -0.12, a);
+  } else if (p.type === 'clip') {
+    if (p.label) {
+      const a = ease((lt - 0.25) / 0.18) * ease((d - lt) / 0.2);
+      if (a > 0) { g.save(); g.globalAlpha = a; g.translate(W / 2, 1290); g.rotate(-0.055); let s = 104; g.font = F.marker(s); const w = g.measureText(p.label.toUpperCase()).width; if (w > 800) { s *= 800 / w; g.font = F.marker(s); }
+        g.fillStyle = '#fff'; g.textAlign = 'center'; g.textBaseline = 'middle'; shadow(true); g.fillText(p.label.toUpperCase(), 0, 0); const tw = g.measureText(p.label.toUpperCase()).width; g.restore();
+        if (p.tag) pill(p.tag.toUpperCase(), W / 2 + tw / 2 - 70, 1290 - s * 0.78, 44, 0.09, ease((lt - 0.5) / 0.16) * ease((d - lt) / 0.2)); }
+    }
+  } else if (inCta) {
+    topShade(); const ct = lt - (d - ctaT);
+    const l1 = 'LIKE COMMENTE PARTAGE & ABONNE-TOI'.split(' ').map((w, i) => ({ w, t: 0.1 + i * 0.16 }));
+    const l2 = (S.ep + 1 < S.nEp ? 'POUR LA SUITE !' : 'POUR PLUS DE VIDÉOS !').split(' ').map((w, i) => ({ w, t: 1.1 + i * 0.16 }));
+    const y = drawBlock(block(l1, 760, 70, 99), W / 2, 250, ct, '#fff'); drawBlock(block(l2, 900, 150, 99), W / 2, y + 10, ct, '#fff');
+  } else {
+    const len = Math.max(1, p.text.length), at = x => Math.max(0.05, d * x / len - 0.18);
+    if (p.date) {
+      topShade(); const t0 = at(p.date.at);
+      const y = drawBlock(block(p.date.dm.split(' ').map(w => ({ w, t: t0 })), 760, 170, 99), W / 2, 250, lt, '#fff');
+      const a = ease((lt - t0 - 0.25) / 0.5);
+      if (a > 0) { g.save(); g.font = F.serif(330); g.textAlign = 'center'; g.textBaseline = 'top'; const tw = g.measureText(p.date.year).width; g.beginPath(); g.rect(W / 2 - tw / 2 - 30, y - 60, (tw + 60) * a, 520); g.clip(); g.fillStyle = '#fff'; shadow(true); g.fillText(p.date.year, W / 2, y - 30); g.restore(); }
+    } else if (p.kws.length) {
+      topShade(); let prev = -1;
+      const ws = p.kws.map(k => { const tt = Math.max(at(k.at), prev + 0.1); prev = tt; return { w: k.w, t: tt }; });
+      drawBlock(block(ws, 940, 250, 13), W / 2, 240, lt, '#fff');
+    }
+    p.places.forEach((pl, i) => {
+      const a = ease((lt - at(pl.at)) / 0.2); if (a <= 0) return;
+      const cy = 1000 + i * 350; g.save(); g.globalAlpha = a; g.translate(W / 2, cy); const sc = 0.8 + 0.2 * a; g.scale(sc, sc);
+      let s = 120; g.font = F.anton(s); const nm = pl.name.toUpperCase(); let w = g.measureText(nm).width; if (w > 760) { s *= 760 / w; g.font = F.anton(s); w = 760; }
+      shadow(true); g.fillStyle = '#fff'; g.beginPath(); g.roundRect(-w / 2 - 34, -s * 0.66, w + 68, s * 1.32, 14); g.fill(); shadow(false);
+      g.fillStyle = '#111'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(nm, 0, s * 0.05);
+      g.strokeStyle = '#fff'; g.lineWidth = 5; g.beginPath(); g.moveTo(0, s * 0.66); g.lineTo(0, s * 0.66 + 70); g.stroke();
+      g.fillStyle = S.accent; g.beginPath(); g.arc(0, s * 0.66 + 84, 17, 0, 7); g.fill(); g.strokeStyle = '#fff'; g.lineWidth = 5; g.stroke();
+      if (pl.cap) { g.font = F.sub(44); const cw = g.measureText(pl.cap).width + 44; g.fillStyle = 'rgba(0,0,0,.72)'; g.beginPath(); g.roundRect(-cw / 2, -s * 0.66 - 82, cw, 66, 12); g.fill(); g.fillStyle = '#fff'; g.fillText(pl.cap, 0, -s * 0.66 - 47); }
+      g.restore();
+    });
+  }
+  if (p.type === 'narr' && (S.subs === 'on' || (S.subs === 'auto' && !voices.has(p.id)))) {
+    const ls = wrap(p.text, F.sub(54), 860), lh = 70, y0 = 1470 - ls.length * lh / 2;
+    g.font = F.sub(54); g.textAlign = 'center'; g.textBaseline = 'middle'; g.lineJoin = 'round'; g.globalAlpha = ease(lt / 0.12);
+    ls.forEach((l, i) => { g.strokeStyle = 'rgba(0,0,0,.85)'; g.lineWidth = 10; g.strokeText(l, W / 2, y0 + i * lh + lh / 2); g.fillStyle = '#fff'; g.fillText(l, W / 2, y0 + i * lh + lh / 2); });
+    g.globalAlpha = 1;
+  }
+}
+
+/* ---------- audio + lecture ---------- */
+let AC = null, master, dest, musGain, musSrc = null, vSrcs = [];
+function audio() {
+  if (!AC) { AC = new (window.AudioContext || window.webkitAudioContext)(); master = AC.createGain(); master.connect(AC.destination); dest = AC.createMediaStreamDestination(); master.connect(dest); musGain = AC.createGain(); musGain.gain.value = 0; musGain.connect(master); }
+  return AC;
+}
+function wire(m) { if (m.kind !== 'video' || m.gain) return; try { m.node = AC.createMediaElementSource(m.el); m.gain = AC.createGain(); m.gain.gain.value = 0; m.node.connect(m.gain).connect(master); } catch (e) { console.warn(e); } }
+const P = { playing: false, t: 0, c0: 0, exporting: false, onEnd: null };
+async function play(from) {
+  if (!ep().plans.length) return;
+  audio(); await AC.resume(); buildTL();
+  for (const m of media.values()) { wire(m); if (m.kind === 'video') { try { await m.el.play(); m.el.pause(); } catch (e) {} } }
+  if (from >= TL.total - 0.05) from = 0;
+  P.t = from; P.c0 = AC.currentTime + 0.06 - from; P.playing = true; $('bPlay').textContent = '❚❚';
+  for (const p of ep().plans) { const b = voices.get(p.id); if (!b || p.type !== 'narr' || p._start + b.duration <= from) continue; const s = AC.createBufferSource(); s.buffer = b; s.connect(master); const o = Math.max(0, from - p._start); s.start(P.c0 + p._start + o, o); vSrcs.push(s); }
+  if (music) { musSrc = AC.createBufferSource(); musSrc.buffer = music.buf; musSrc.loop = true; musSrc.connect(musGain); musSrc.start(0, from % music.buf.duration); }
+}
+function stop() {
+  P.playing = false; $('bPlay').textContent = '▶';
+  vSrcs.forEach(s => { try { s.stop(); } catch (e) {} }); vSrcs = [];
+  if (musSrc) { try { musSrc.stop(); } catch (e) {} musSrc = null; }
+  for (const m of media.values()) if (m.kind === 'video') { m.el.pause(); if (m.gain) m.gain.gain.value = 0; }
+  if (P.onEnd) { const f = P.onEnd; P.onEnd = null; f(); }
+}
+function syncMedia(t) {
+  const p = planAt(t); if (!p) return; const act = p._m && media.get(p._m);
+  for (const m of media.values()) {
+    if (m.kind !== 'video') continue;
+    if (m !== act) { if (!m.el.paused) m.el.pause(); if (m.gain) m.gain.gain.value = 0; continue; }
+    const want = m.dur ? ((p._off + (t - p._start)) % m.dur) : 0;
+    if (P.playing) {
+      if (m.gain) m.gain.gain.setTargetAtTime(p.type === 'clip' ? 1 : 0, AC.currentTime, 0.04);
+      if (m.el.paused) { m.el.currentTime = want; m.el.play().catch(() => {}); } else if (Math.abs(m.el.currentTime - want) > 0.4) m.el.currentTime = want;
+    } else if (Math.abs(m.el.currentTime - want) > 0.04) m.el.currentTime = want;
+  }
+  if (P.playing && musSrc) musGain.gain.setTargetAtTime(p.type === 'clip' ? 0 : S.musicVol, AC.currentTime, 0.08);
+}
+let lastCur = null;
+function frame() {
+  if (P.playing) { P.t = AC.currentTime - P.c0; if (P.t >= TL.total) { P.t = TL.total; stop(); } $('seek').value = P.t; if (P.exporting) $('prog').style.width = (100 * P.t / TL.total) + '%'; }
+  if (ep().plans.length) { syncMedia(Math.min(P.t, TL.total - 0.001)); const c = planAt(P.t); if (c && c.id !== lastCur) { lastCur = c.id; document.querySelectorAll('.plan').forEach(n => n.classList.toggle('cur', n.dataset.id === c.id)); } }
+  render(Math.max(0, Math.min(P.t, TL.total - 0.001)));
+  $('time').textContent = fmt(P.t) + ' / ' + fmt(TL.total);
+  requestAnimationFrame(frame);
+}
+
+/* ---------- médias ---------- */
+function mkThumb(el) { try { const c = document.createElement('canvas'); c.width = 148; c.height = 220; const x = c.getContext('2d'); const sw = el.videoWidth || el.naturalWidth, sh = el.videoHeight || el.naturalHeight; if (!sw) return ''; const k = Math.max(148 / sw, 220 / sh); x.drawImage(el, (148 - sw * k) / 2, (220 - sh * k) / 2, sw * k, sh * k); return c.toDataURL('image/jpeg', 0.6); } catch (e) { return ''; } }
+function addMedia(id, blob, name) {
+  return new Promise(res => {
+    const kind = (blob.type || '').startsWith('image') ? 'image' : 'video', url = URL.createObjectURL(blob), m = { id, name, kind, blob, url, dur: 0, thumb: '' };
+    const done = () => { media.set(id, m); res(m); };
+    if (kind === 'image') { const im = new Image(); m.el = im; im.onload = () => { m.thumb = mkThumb(im); done(); }; im.onerror = () => res(null); im.src = url; }
+    else {
+      const v = document.createElement('video'); m.el = v; v.playsInline = true; v.setAttribute('playsinline', ''); v.preload = 'auto'; v.src = url; $('vault').appendChild(v);
+      let ok = false; const fin = () => { if (ok) return; ok = true; m.dur = isFinite(v.duration) ? v.duration : 0; m.thumb = mkThumb(v); done(); };
+      v.onloadeddata = fin; v.onloadedmetadata = () => setTimeout(fin, 900); v.onerror = () => { if (!ok) { ok = true; v.remove(); res(null); } }; v.load();
+    }
+  });
+}
+function renderPool() {
+  $('mCount').textContent = S.mediaOrder.length ? S.mediaOrder.length + ' fichier(s)' : '';
+  $('pool').innerHTML = S.mediaOrder.map((id, i) => { const m = media.get(id); if (!m) return ''; return `<div class="mthumb"><div class="pic" style="background-image:url(${m.thumb})"><span>${m.kind === 'video' ? '▶ ' + m.dur.toFixed(0) + 's' : 'photo'}</span></div><span class="n">${i + 1}</span><button class="x" data-del="${id}">✕</button></div>`; }).join('');
+}
+$('fMedia').onchange = async e => {
+  for (const f of e.target.files) { const id = uid(); const m = await addMedia(id, f, f.name); if (!m) { toast('Fichier illisible : ' + f.name); continue; } S.mediaOrder.push(id); idbPut('m:' + id, { blob: f, name: f.name }); }
+  e.target.value = ''; refresh();
+};
+$('pool').onclick = e => { const id = e.target.dataset.del; if (!id) return; const m = media.get(id); if (m) { if (m.kind === 'video') m.el.remove(); URL.revokeObjectURL(m.url); } media.delete(id); idbDel('m:' + id); S.mediaOrder = S.mediaOrder.filter(x => x !== id); S.eps.forEach(e2 => e2.plans.forEach(p => { if (p.mediaId === id) p.mediaId = null; })); refresh(); };
+$('bSpread').onclick = () => {
+  const ps = ep().plans.filter(p => p.type !== 'title'), ids = S.mediaOrder; if (!ps.length || !ids.length) return toast('Il faut des plans et des médias');
+  ps.forEach(p => { p.mediaId = null; p.trim = 0; });
+  // extraits d'abord servis dans l'ordre, puis répartition régulière
+  if (ids.length >= ps.length) ps.forEach((p, i) => p.mediaId = ids[i]); else ids.forEach((id, i) => { ps[Math.floor(i * ps.length / ids.length)].mediaId = id; });
+  refresh(); toast('Médias répartis sur ' + ps.length + ' plans');
+};
+
+/* ---------- liste des plans ---------- */
+const TY = { narr: 'NARRATION', clip: 'EXTRAIT', title: 'TITRE' };
+const esc = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+function renderPlans() {
+  const ps = ep().plans; $('pCount').textContent = ps.length ? ps.length + ' plans' : '';
+  $('plans').innerHTML = ps.map((p, i) => {
+    const opts = `<option value="">${p.type === 'title' ? '— fond noir —' : '— suite du précédent —'}</option>` + S.mediaOrder.map((id, k) => { const m = media.get(id); return m ? `<option value="${id}" ${p.mediaId === id ? 'selected' : ''}>${k + 1} · ${esc(m.name).slice(0, 26)}</option>` : ''; }).join('');
+    const v = voices.get(p.id);
+    return `<div class="plan" data-id="${p.id}"><div class="top"><span>#${i + 1}</span><span class="ty ${p.type}">${TY[p.type]}</span><span>${p._dur.toFixed(1)} s</span><span class="sp"></span><button class="btn sm" data-a="go">▶</button><button class="btn sm" data-a="del">✕</button></div>
+      <textarea rows="2" data-a="raw">${esc(p.raw)}</textarea>
+      <div class="ctl"><select data-a="media">${opts}</select><input type="number" data-a="trim" min="0" step="0.5" value="${p.trim || 0}" title="Début dans la vidéo (s)" ${p.mediaId ? '' : 'disabled'}></div>
+      ${p.type === 'narr' ? `<div class="voice">${v ? `<span>🎙 voix ${v.duration.toFixed(1)} s</span><span class="sp" style="flex:1"></span><button class="btn sm" data-a="vdel">Effacer la voix</button>` : `<span>Pas de voix — durée estimée</span><span class="sp" style="flex:1"></span>`}<button class="btn sm" data-a="vrec">● ${v ? 'Refaire' : 'Enregistrer'}</button></div>` : ''}</div>`;
+  }).join('');
+}
+function syncScript() { ep().script = ep().plans.map(p => p.raw).join('\n'); $('fScript').value = ep().script; }
+$('plans').addEventListener('change', e => {
+  const n = e.target.closest('.plan'); if (!n) return; const p = ep().plans.find(x => x.id === n.dataset.id), a = e.target.dataset.a;
+  if (a === 'raw') { const v = e.target.value.replace(/\n/g, ' ').trim(); if (!v) return; Object.assign(p, parseLine(v)); syncScript(); }
+  if (a === 'media') { p.mediaId = e.target.value || null; p.trim = 0; }
+  if (a === 'trim') p.trim = Math.max(0, parseFloat(e.target.value) || 0);
+  refresh();
+});
+$('plans').addEventListener('click', e => {
+  const a = e.target.dataset.a, n = e.target.closest('.plan'); if (!n || !a) return; const ps = ep().plans, i = ps.findIndex(x => x.id === n.dataset.id), p = ps[i];
+  if (a === 'go') { stop(); play(p._start); $('stage').scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+  if (a === 'del') { delVoice(p.id); ps.splice(i, 1); syncScript(); refresh(); }
+  if (a === 'vdel') { delVoice(p.id); refresh(); }
+  if (a === 'vrec') openPrompter(i, true);
+});
+function delVoice(id) { voices.delete(id); idbDel('v:' + id); }
+
+/* ---------- prompteur (voix plan par plan) ---------- */
+const PR = { i: -1, single: false, stream: null, rec: null, chunks: [], on: false };
+const narrIdx = from => { const ps = ep().plans; for (let i = from; i < ps.length; i++) if (ps[i].type === 'narr') return i; return -1; };
+async function openPrompter(i, single) {
+  stop(); const k = narrIdx(i < 0 ? 0 : i); if (k < 0) return toast('Aucun plan de narration');
+  try { PR.stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: true } }); } catch (e) { return toast('Micro refusé ou indisponible'); }
+  audio(); PR.i = k; PR.single = !!single; $('prompter').classList.add('on'); showPrompt();
+}
+function showPrompt() {
+  const ps = ep().plans, p = ps[PR.i], nx = narrIdx(PR.i + 1);
+  $('pInfo').innerHTML = `Plan ${PR.i + 1} / ${ps.length}` + (PR.on ? ' · <span class="rec"><span class="dot"></span> enregistrement</span>' : voices.has(p.id) ? ' · déjà enregistré' : '');
+  $('pTxt').textContent = p.text; $('pNext').textContent = nx >= 0 && !PR.single ? 'Ensuite : ' + ps[nx].text : '';
+  $('pGo').textContent = !PR.on ? '● Démarrer' : (nx >= 0 && !PR.single ? 'Suivant ▶' : '■ Terminer');
+}
+function recStart() { PR.chunks = []; PR.rec = new MediaRecorder(PR.stream); PR.rec.ondataavailable = e => e.data.size && PR.chunks.push(e.data); PR.rec.start(); PR.on = true; showPrompt(); }
+function recStop(keep) {
+  return new Promise(res => {
+    if (!PR.rec || PR.rec.state === 'inactive') return res();
+    const id = ep().plans[PR.i].id, r = PR.rec;
+    r.onstop = async () => { if (keep) { const blob = new Blob(PR.chunks, { type: r.mimeType }); try { const buf = await AC.decodeAudioData(await blob.arrayBuffer()); voices.set(id, trimSilence(buf)); idbPut('v:' + id, { blob }); } catch (e) { toast('Enregistrement illisible'); } } res(); };
+    r.stop(); PR.on = false;
+  });
+}
+// coupe les silences de début/fin pour que les plans s'enchaînent sans trou
+function trimSilence(buf) {
+  const d = buf.getChannelData(0), sr = buf.sampleRate, th = 0.012; let a = 0, b = d.length - 1;
+  while (a < b && Math.abs(d[a]) < th) a++; while (b > a && Math.abs(d[b]) < th) b--;
+  a = Math.max(0, a - Math.floor(sr * 0.06)); b = Math.min(d.length, b + Math.floor(sr * 0.12));
+  if (b - a < sr * 0.3) return buf;
+  const out = AC.createBuffer(1, b - a, sr); out.copyToChannel(d.subarray(a, b), 0); return out;
+}
+$('pGo').onclick = async () => {
+  if (!PR.on) return recStart();
+  await recStop(true); const nx = narrIdx(PR.i + 1);
+  if (nx < 0 || PR.single) return closePrompter();
+  PR.i = nx; recStart();
+};
+$('pRedo').onclick = async () => { await recStop(false); recStart(); };
+async function closePrompter() { await recStop(false); if (PR.stream) PR.stream.getTracks().forEach(t => t.stop()); PR.stream = null; $('prompter').classList.remove('on'); refresh(); }
+$('pClose').onclick = closePrompter;
+$('bPrompter').onclick = () => { const ps = ep().plans; let i = ps.findIndex(p => p.type === 'narr' && !voices.has(p.id)); openPrompter(i < 0 ? 0 : i, false); };
+
+/* ---------- musique ---------- */
+$('fMusic').onchange = async e => { const f = e.target.files[0]; if (!f) return; try { audio(); const buf = await AC.decodeAudioData(await f.arrayBuffer()); music = { name: f.name, buf }; idbPut('music', { blob: f, name: f.name }); $('musName').textContent = f.name; } catch (err) { toast('Audio illisible'); } e.target.value = ''; };
+$('bMusDel').onclick = () => { stop(); music = null; idbDel('music'); $('musName').textContent = ''; };
+$('fMusVol').oninput = e => { S.musicVol = +e.target.value; save(); };
+
+/* ---------- export ---------- */
+$('bExport').onclick = async () => {
+  if (!ep().plans.length) return toast('Aucun plan');
+  if (P.exporting) { stop(); return; }
+  if (!window.MediaRecorder || !cv.captureStream) return toast('Export non supporté par ce navigateur');
+  stop(); audio();
+  const mime = ['video/mp4;codecs=avc1.640028,mp4a.40.2', 'video/mp4;codecs=avc1.42E01E,mp4a.40.2', 'video/mp4;codecs=avc1', 'video/mp4', 'video/webm;codecs=vp9,opus', 'video/webm'].find(x => MediaRecorder.isTypeSupported(x)) || '';
+  const stream = cv.captureStream(30); dest.stream.getAudioTracks().forEach(t => stream.addTrack(t));
+  const rec = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 9e6, audioBitsPerSecond: 160000 }), chunks = [];
+  rec.ondataavailable = e => e.data.size && chunks.push(e.data);
+  rec.onstop = () => {
+    P.exporting = false; $('bExport').textContent = 'Exporter le reel'; $('prog').style.width = '0';
+    const ext = mime.includes('mp4') ? 'mp4' : 'webm', blob = new Blob(chunks, { type: mime.split(';')[0] || 'video/mp4' });
+    const name = `${(S.player || 'reel').toLowerCase().replace(/[^a-z0-9]+/g, '-')}-ep${S.ep + 1}.${ext}`, url = URL.createObjectURL(blob), file = new File([blob], name, { type: blob.type });
+    $('out').innerHTML = `<video controls playsinline src="${url}"></video><div class="btns"><button class="btn pri" id="bShare">Partager / enregistrer</button><a class="btn" href="${url}" download="${name}">Télécharger</a></div>` + (ext === 'webm' ? '<p class="hint">Ce navigateur exporte en WebM. Pour un MP4 directement publiable, exporte depuis Safari (iPhone) ou un Chrome récent.</p>' : '');
+    $('bShare').onclick = async () => { try { if (navigator.canShare && navigator.canShare({ files: [file] })) await navigator.share({ files: [file] }); else toast('Partage indisponible — utilise Télécharger'); } catch (e) {} };
+    $('out').scrollIntoView({ behavior: 'smooth' });
+  };
+  P.exporting = true; $('bExport').textContent = '■ Annuler l\'export'; P.onEnd = () => setTimeout(() => rec.stop(), 150);
+  await play(0); rec.start(500);
+};
+
+/* ---------- formulaire ---------- */
+function renderTabs() { $('tabs').innerHTML = Array.from({ length: S.nEp }, (_, i) => `<button class="tab ${i === S.ep ? 'on' : ''}" data-ep="${i}">ÉPISODE ${i + 1}</button>`).join(''); $('epLabel').textContent = 'épisode ' + (S.ep + 1) + ' / ' + S.nEp; }
+$('tabs').onclick = e => { const i = e.target.dataset.ep; if (i == null) return; stop(); P.t = 0; S.ep = +i; $('fScript').value = ep().script; $('out').innerHTML = ''; renderTabs(); refresh(); };
+function refresh() { buildTL(); renderPool(); renderPlans(); lastCur = null; if (P.t > TL.total) P.t = 0; save(); }
+$('fPlayer').oninput = e => { S.player = e.target.value.trim(); refresh(); };
+$('fHook').oninput = e => { S.hook = e.target.value; refresh(); };
+$('fNEp').onchange = e => { S.nEp = +e.target.value; if (S.ep >= S.nEp) { S.ep = 0; $('fScript').value = ep().script; } renderTabs(); refresh(); };
+$('fAcc').oninput = e => { S.accent = e.target.value; document.documentElement.style.setProperty('--acc', S.accent); save(); };
+$('fSubs').onchange = e => { S.subs = e.target.value; save(); };
+$('fCta').onchange = e => { S.cta = e.target.checked; save(); };
+$('fScript').oninput = e => { ep().script = e.target.value; save(); };
+$('bParse').onclick = () => { stop(); ep().script = $('fScript').value; parseScript(); refresh(); toast(ep().plans.length + ' plans'); };
+$('bPlay').onclick = () => P.playing ? stop() : play(P.t);
+$('seek').oninput = e => { if (P.playing) stop(); P.t = +e.target.value; };
+
+const TRAME = n => { const J = S.player || 'Il', last = n + 1 >= S.nEp;
+  return [n === 0 ? '>> SES DÉBUTS | 2009 | 4s' : '>> RAPPEL ÉPISODE ' + n + ' | 3s', '==', '>> LE SOMMET | 2022 | 4s',
+    n === 0 ? J + ' est passé de ça… à ça.' : 'Dans l\'épisode précédent, on a laissé ' + J + ' ici.',
+    n === 0 ? 'Né le 1er janvier 1990 à @Ville, il grandit à @Quartier(son quartier).' : 'On est en **2012**, et tout s\'accélère.',
+    'Dans sa famille, le **football** est déjà partout.', 'Mais à cette époque, rien n\'est gagné.', '>> TITRE DE L\'ARCHIVE | 2011 | 4s',
+    'Il enchaîne les **détections** sans jamais être retenu.', 'Jusqu\'à ce qu\'un **événement** bouleverse sa trajectoire.',
+    last ? 'Et c\'est comme ça que ' + J + ' est devenu **une légende**.' : 'Mais dans le prochain épisode, on verra comment **tout a basculé**.'].join('\n'); };
+$('bTrame').onclick = () => { if ($('fScript').value.trim() && !confirm('Remplacer le script de cet épisode par la trame type ?')) return; $('fScript').value = ep().script = TRAME(S.ep); parseScript(); refresh(); };
+$('bPrompt').onclick = async () => {
+  const txt = `Écris le script d'une série de ${S.nEp} reels (≈ 60 à 90 s chacun, 150 à 230 mots par épisode) qui raconte le parcours de ${S.player || '[JOUEUR]'}, footballeur. Faits vérifiés uniquement, avec dates et lieux précis.
+
+Structure de chaque épisode :
+1. Un extrait d'archive qui intrigue (son d'origine, sans voix).
+2. Le carton titre.
+3. Un extrait du sommet de sa carrière (contraste « de ça… à ça »).
+4. La narration chronologique : une idée par ligne, phrases courtes, un « mais » ou un rebondissement toutes les 3-4 lignes, 1 extrait d'archive toutes les 5-6 lignes.
+5. Dernière ligne : un cliffhanger qui annonce l'épisode suivant (sauf dernier épisode : une conclusion).
+
+Format STRICT, une ligne = un plan, sans rien d'autre :
+- Ligne de narration : texte simple, prêt à être lu à voix haute.
+- **mot** : 1 à 3 mots-clés par ligne maximum, affichés en gros à l'écran (pas sur toutes les lignes).
+- Les dates complètes s'écrivent « 28 novembre 1995 » (carton date automatique).
+- @Ville ou @Saint_Denis(précision courte) : étiquette lieu.
+- >> TITRE | étiquette courte (année, club) | 4s : extrait vidéo avec son propre son.
+- == : carton titre.
+
+Sépare les épisodes par une ligne « --- ÉPISODE N --- ». Après chaque épisode, liste les images/vidéos à trouver, dans l'ordre des plans.`;
+  try { await navigator.clipboard.writeText(txt); toast('Prompt copié — colle-le dans Claude'); } catch (e) { prompt('Copie ce prompt :', txt); }
+};
+
+/* ---------- démarrage ---------- */
+(async function init() {
+  try { const o = JSON.parse(localStorage.getItem(LS) || 'null'); if (o) { Object.assign(S, o); while (S.eps.length < 3) S.eps.push({ script: '', plans: [] }); } } catch (e) {}
+  S.eps.forEach(hydrate);
+  $('fPlayer').value = S.player; $('fNEp').value = S.nEp; $('fHook').value = S.hook; $('fAcc').value = S.accent; $('fSubs').value = S.subs; $('fCta').checked = S.cta; $('fMusVol').value = S.musicVol; $('fScript').value = ep().script;
+  document.documentElement.style.setProperty('--acc', S.accent);
+  renderTabs(); refresh(); requestAnimationFrame(frame);
+  if (document.fonts) Promise.all([F.anton(80), F.marker(80), F.serif(80), F.sub(50)].map(f => document.fonts.load(f, 'AÉ0'))).catch(() => {});
+  // restauration des médias et des voix
+  const ok = [];
+  for (const id of S.mediaOrder) { const r = await idbGet('m:' + id); if (r && r.blob && await addMedia(id, r.blob, r.name)) ok.push(id); }
+  S.mediaOrder = ok; refresh();
+  audio();
+  for (const e of S.eps) for (const p of e.plans) { const r = await idbGet('v:' + p.id); if (r && r.blob) { try { voices.set(p.id, trimSilence(await AC.decodeAudioData(await r.blob.arrayBuffer()))); } catch (err) {} } }
+  const mu = await idbGet('music'); if (mu && mu.blob) { try { music = { name: mu.name, buf: await AC.decodeAudioData(await mu.blob.arrayBuffer()) }; $('musName').textContent = mu.name; } catch (err) {} }
+  refresh();
+})();
+</script>
+</body>
+</html>
